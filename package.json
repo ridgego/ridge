@@ -1,0 +1,42 @@
+{
+  "name": "movable",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack serve --open"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@daybrush/utils": "^1.9.1",
+    "@egjs/agent": "^2.4.3",
+    "@scena/matrix": "^1.1.1",
+    "@scena/react-guides": "^0.17.1",
+    "framework-utils": "^1.1.0",
+    "html2canvas": "^1.4.1",
+    "moveable-helper": "^0.4.0",
+    "react": "^18.2.0",
+    "react-color": "^2.19.3",
+    "react-dom": "^18.2.0",
+    "react-infinite-viewer": "^0.16.2",
+    "react-moveable": "^0.38.4",
+    "react-selecto": "^1.19.1",
+    "scenejs": "^1.6.0"
+  },
+  "devDependencies": {
+    "@daybrush/builder": "^0.1.2",
+    "@types/react": "^18.0.18",
+    "@types/react-color": "^3.0.6",
+    "@types/react-dom": "^18.0.6",
+    "css-loader": "^6.7.1",
+    "html-webpack-plugin": "^5.5.0",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.8.2",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.10.1"
+  }
+}
