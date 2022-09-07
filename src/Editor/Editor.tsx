@@ -133,10 +133,10 @@ export default class Editor extends React.PureComponent<{
             <EditorElement className={prefix("editor")} ref={this.editorElement}>
                 <Tabs ref={tabs}></Tabs>
                 <Menu ref={menu} onSelect={this.onMenuChange} />
-                <div className={prefix("reset")} onClick={e => {
+                {/* <div className={prefix("reset")} onClick={e => {
                     infiniteViewer.current!.scrollCenter();
-                }}></div>
-                <Guides ref={horizontalGuides}
+                }}></div> */}
+                {/* <Guides ref={horizontalGuides}
                     type="horizontal" className={prefix("guides", "horizontal")} style={{}}
                     snapThreshold={5}
                     snaps={horizontalSnapGuides}
@@ -144,6 +144,9 @@ export default class Editor extends React.PureComponent<{
                     dragPosFormat={v => `${v}px`}
                     zoom={zoom}
                     unit={unit}
+                    backgroundColor="#fff"
+                    lineColor="#8f959e"
+                    textColor="#8f959e"
                     onChangeGuides={e => {
                         this.setState({
                             horizontalGuides: e.guides,
@@ -158,12 +161,15 @@ export default class Editor extends React.PureComponent<{
                     dragPosFormat={v => `${v}px`}
                     zoom={zoom}
                     unit={unit}
+                    backgroundColor="#fff"
+                    lineColor="#8f959e"
+                    textColor="#8f959e"
                     onChangeGuides={e => {
                         this.setState({
                             verticalGuides: e.guides,
                         });
                     }}
-                ></Guides>
+                ></Guides> */}
                 <InfiniteViewer ref={infiniteViewer}
                     className={prefix("viewer")}
                     usePinch={true}
@@ -180,8 +186,12 @@ export default class Editor extends React.PureComponent<{
                             || moveableManager.current!.getMoveable().isDragging()
                             || selectedTargets.some(t => t === target || t.contains(target))
                         ) {
+                            this.console.log('drag stop', e);
                             e.stop();
                         }
+                    }}
+                    onDrag={e => {
+
                     }}
                     onDragEnd={e => {
                         if (!e.isDrag) {
@@ -192,11 +202,11 @@ export default class Editor extends React.PureComponent<{
                         selecto.current!.triggerDragStart(e.inputEvent);
                     }}
                     onScroll={e => {
-                        horizontalGuides.current!.scroll(e.scrollLeft);
-                        horizontalGuides.current!.scrollGuides(e.scrollTop);
+                        // horizontalGuides.current!.scroll(e.scrollLeft);
+                        // horizontalGuides.current!.scrollGuides(e.scrollTop);
 
-                        verticalGuides.current!.scroll(e.scrollTop);
-                        verticalGuides.current!.scrollGuides(e.scrollLeft);
+                        // verticalGuides.current!.scroll(e.scrollTop);
+                        // verticalGuides.current!.scrollGuides(e.scrollLeft);
                     }}
                     onPinch={e => {
                         if (moveableManager.current!.getMoveable().isDragging()) {
@@ -251,6 +261,8 @@ export default class Editor extends React.PureComponent<{
                         const inputEvent = e.inputEvent;
                         const target = inputEvent.target;
 
+                        this.console.log('Selecto Drag Start', target);
+
                         this.checkBlur();
                         if (selectedMenu === "Text" && target.isContentEditable) {
                             const contentElement = getContentElement(target);
@@ -299,8 +311,8 @@ export default class Editor extends React.PureComponent<{
         memory.set("color", "#333");
 
         requestAnimationFrame(() => {
-            this.verticalGuides.current!.resize();
-            this.horizontalGuides.current!.resize();
+            // this.verticalGuides.current!.resize();
+            // this.horizontalGuides.current!.resize();
             infiniteViewer.current!.scrollCenter();
         });
         window.addEventListener("resize", this.onResize);
@@ -675,8 +687,8 @@ export default class Editor extends React.PureComponent<{
         this.eventBus.trigger("blur");
     }
     private onResize = () => {
-        this.horizontalGuides.current!.resize();
-        this.verticalGuides.current!.resize();
+        // this.horizontalGuides.current!.resize();
+        // this.verticalGuides.current!.resize();
     }
     private onBlur = (e: any) => {
         const target = e.target as HTMLElement | SVGElement;

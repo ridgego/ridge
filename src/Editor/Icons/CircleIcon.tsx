@@ -15,7 +15,7 @@ export default class CircleIcon extends Icon {
     public renderIcon() {
         return (
             <svg viewBox="0 0 73 73">
-                <ellipse fill="#555" cx="36.5" cy="36.5" rx="15" ry="15"
+                <ellipse cx="36.5" cy="36.5" rx="15" ry="15"
                     strokeLinejoin="round" strokeWidth="3" stroke="#fff"></ellipse></svg>
         );
     }

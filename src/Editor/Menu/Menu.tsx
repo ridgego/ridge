@@ -13,10 +13,14 @@ import styled from "react-css-styled";
 const MenuElement = styled("div", `
 {
     position: absolute;
-    top: 0;
+    z-index: 2;
+    top: 10px;
+    left: 10px;
     width: var(--menu);
-    height: 100%;
-    background: var(--back2);
+    border-radius: 8px;
+    border: 1px solid var(--line-border-card);
+    box-shadow: 0 2px 8px 0 rgb(31 35 41 / 6%);
+    background: #fff;
     box-sizing: border-box;
     padding: 15px 7px 0px;
     -webkit-user-select: none;
@@ -49,19 +53,25 @@ svg, .scena-i {
     margin-bottom: 5px;
     border-radius: 3px;
     transition: all ease 0.2s;
+    stroke: var(--icon-border);
+}
+
+.scena-icon svg path,
+.scena-icon svg ellipse {
+    stroke: var(--icon-border);
+    fill: var(--icon-fill);
 }
 
 .scena-selected {
     background: var(--mainColor);
-    border-color: var(--back1);
 }
 
 .scena-icon.scena-selected>svg path,
 .scena-icon.scena-selected>svg ellipse,
 .scena-sub-icon.scena-selected path,
 .scena-sub-icon.scena-selected ellipse {
-    fill: #fff;
-    stroke: #fff;
+    stroke: var(--icon-border);
+    fill: var(--icon-fill);
 }
 
 .scena-icon .scena-extends-icon {

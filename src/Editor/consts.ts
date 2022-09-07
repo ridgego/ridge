@@ -28,7 +28,7 @@ export const EDITOR_CSS = `
     width: 100%;
     height: 100%;
     font-family: sans-serif;
-    --mainColor: #4af;
+    --mainColor: #f0f4ff;
     --back1: #1a1a1a;
     --back2: #2a2a2a;
     --back3: #333;
@@ -49,10 +49,10 @@ export const EDITOR_CSS = `
 
 .scena-viewer {
     position: absolute !important;
-    left: calc(30px + var(--menu));
-    top: 30px;
-    width: calc(100% - 30px - var(--menu) - var(--tabs));
-    height: calc(100% - 30px);
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .scena-viewport-container {
@@ -97,12 +97,12 @@ export const EDITOR_CSS = `
 
 .scena-reset {
     position: absolute !important;
-    background: var(--back3);
+    background: #fff;
     width: 30px;
     height: 30px;
     z-index: 1;
-    border-right: 1px solid var(--back4);
-    border-bottom: 1px solid var(--back4);
+    border-right: 1px solid #8f959e;
+    border-bottom: 1px solid #8f959e;
     box-sizing: border-box;
     cursor: pointer;
     left: var(--menu);

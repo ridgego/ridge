@@ -27,13 +27,8 @@ class App extends React.Component {
         return <div className="app">
             <Editor
                 ref={this.editor}
-                debug={false}
+                debug={true}
             />
-            <div className="bottom">
-                <a href="https://github.com/daybrush/moveable" target="_blank">Download</a>
-                <a href="https://daybrush.com/moveable/release/latest/doc" target="_blank">API</a>
-                <a href="https://daybrush.com/moveable/storybook" target="_blank">Storybook</a>
-            </div>
         </div>;
     }
     public componentDidMount() {
