@@ -78,7 +78,7 @@ svg, .scena-i {
     position: absolute;
     right: 2px;
     bottom: 2px;
-    border-bottom: 5px solid #eee;
+    border-bottom: 5px solid var(--icon-fill);
     border-right: 0;
     border-left: 5px solid transparent;
 }

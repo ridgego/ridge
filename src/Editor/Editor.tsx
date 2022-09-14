@@ -650,8 +650,8 @@ export default class Editor extends React.PureComponent<{
             return false;
         }
         const maker = selectIcon.maker(this.memory);
-        const scrollTop = -infiniteViewer.getScrollTop() * zoom + 30;
-        const scrollLeft = -infiniteViewer.getScrollLeft() * zoom + 75;
+        const scrollTop = -infiniteViewer.getScrollTop() * zoom;
+        const scrollLeft = -infiniteViewer.getScrollLeft() * zoom;
         const top = rect.top - scrollTop;
         const left = rect.left - scrollLeft;
 

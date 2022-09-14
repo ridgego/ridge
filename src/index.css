@@ -297,9 +297,27 @@ body {
   --line-border-card: var(--N300);
   --icon-border: var(--N300);
   --icon-fill: var(--N600);
+  --main-color: #06a7ff;
+  --moveable-color: var(--B200);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+
+.moveable-line {
+  background: var(--main-color)!important;
+}
+
+.moveable-control {
+  width: 10px!important;
+  height: 10px!important;
+  border: 1px solid var(--main-color)!important;
+  box-sizing: border-box;
+  background: #fff!important;
+  margin-top: -5px!important;
+  margin-left: -5px!important;
+  z-index: 10;
 }

@@ -99,7 +99,7 @@ export default class MoveableManager extends React.PureComponent<{
             ref={this.moveable}
             targets={selectedTargets}
             dimensionViewable={true}
-            deleteButtonViewable={true}
+            deleteButtonViewable={false}
             draggable={true}
             resizable={true}
             pinchable={["rotatable"]}

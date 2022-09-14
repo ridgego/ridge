@@ -15,7 +15,7 @@ export default class CropIcon extends Icon {
                 <path
                     // tslint:disable-next-line: max-line-length
                     d="M25,10L25,50L65,50   M10,25L50,25L50,65"
-                    style={{strokeWidth: 5}} />
+                    style={{ strokeWidth: 6, stroke: "var(--icon-fill)", fill: "none" }} />
             </svg>
         );
     }
