@@ -23,10 +23,11 @@ export default abstract class Icon extends React.PureComponent<{
     public static makeThen: (target: HTMLElement | SVGElement) => any = () => { };
     public keys: string[] = [];
     public abstract renderIcon(): any;
+    public selectable = true;
     private subContainer = React.createRef<HTMLDivElement>();
     public render() {
         return (
-            <div className={prefix("icon", this.props.selected ? "selected" : "")}
+            <div className={prefix("icon", (this.props.selected && this.selectable) ? "selected" : "")}
                 onClick={this.onClick}>
                 {this.renderIcon()}
                 {this.renderSubContainer()}

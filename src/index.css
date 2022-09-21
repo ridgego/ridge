@@ -305,7 +305,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
+.workspace {
+  width: 100%;
+  height: 100%;
+}
 
 .moveable-line {
   background: var(--main-color)!important;

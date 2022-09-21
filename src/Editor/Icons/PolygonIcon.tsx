@@ -2,7 +2,7 @@ import * as React from "react";
 import Icon from "./Icon";
 
 export default class PolygonIcon extends Icon {
-    public static id = "Polygon";
+    public static id = "ZoomIn";
     public renderIcon() {
         return (
             <svg viewBox="0 0 73 73">

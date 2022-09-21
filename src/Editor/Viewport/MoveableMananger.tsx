@@ -64,9 +64,6 @@ function redoRenders({ infos }: IObject<any>, editor: Editor) {
 @connectEditorContext
 export default class MoveableManager extends React.PureComponent<{
     selectedTargets: Array<HTMLElement | SVGElement>;
-    selectedMenu: string,
-    verticalGuidelines: number[],
-    horizontalGuidelines: number[],
     zoom: number,
 }> {
     public moveable = React.createRef<Moveable>();
@@ -75,10 +72,7 @@ export default class MoveableManager extends React.PureComponent<{
     }
     public render() {
         const {
-            verticalGuidelines,
-            horizontalGuidelines,
             selectedTargets,
-            selectedMenu,
             zoom,
         } = this.props;
         // const
@@ -105,9 +99,6 @@ export default class MoveableManager extends React.PureComponent<{
             pinchable={["rotatable"]}
             zoom={1 / zoom}
             throttleResize={1}
-            clippable={selectedMenu === "Crop"}
-            passDragArea={selectedMenu === "Text"}
-            checkInput={selectedMenu === "Text"}
             throttleDragRotate={isShift ? 45 : 0}
             keepRatio={selectedTargets.length > 1 ? true : isShift}
             rotatable={true}
@@ -115,8 +106,6 @@ export default class MoveableManager extends React.PureComponent<{
             snapGap={false}
             isDisplayInnerSnapDigit={true}
             roundable={true}
-            verticalGuidelines={verticalGuidelines}
-            horizontalGuidelines={horizontalGuidelines}
             elementGuidelines={elementGuidelines as any}
             clipArea={true}
             clipVerticalGuidelines={[0, "50%", "100%"]}

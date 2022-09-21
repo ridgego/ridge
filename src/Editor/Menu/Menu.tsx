@@ -3,39 +3,27 @@ import { prefix } from "../utils/utils";
 import Icon from "../Icons/Icon";
 import MoveToolIcon from "../Icons/MoveToolIcon";
 import TextIcon from "../Icons/TextIcon";
-import CropIcon from "../Icons/CropIcon";
-import RectIcon from "../Icons/RectIcon";
-import OvalIcon from "../Icons/OvalIcon";
-import RoundRectIcon from "../Icons/RoundRectIcon";
-import KeyboardIcon from "../Icons/KeyboardIcon";
+import ZoomIn from "../Icons/ZoomInIcon";
+import ZoomOut from "../Icons/ZoomOutIcon";
 import styled from "react-css-styled";
 
 const MenuElement = styled("div", `
 {
     position: absolute;
     z-index: 2;
-    top: 10px;
-    left: 10px;
-    width: var(--menu);
-    border-radius: 8px;
-    border: 1px solid var(--line-border-card);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 42px;
+    border-bottom: 1px solid var(--line-border-card);
     box-shadow: 0 2px 8px 0 rgb(31 35 41 / 6%);
     background: #fff;
     box-sizing: border-box;
-    padding: 15px 7px 0px;
+    padding: 5px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-}
-
-.scena-menu-bottom {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    padding: 15px 7px 0px;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 svg, .scena-i {
@@ -43,9 +31,9 @@ svg, .scena-i {
 }
 
 .scena-icon {
-    position: relative;
-    display: block;
-    font-size: 0;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
     padding: 3px;
     box-sizing: border-box;
     cursor: pointer;
@@ -154,11 +142,9 @@ svg, .scena-i {
 `);
 const MENUS: Array<typeof Icon> = [
     MoveToolIcon,
-    TextIcon,
-    CropIcon,
-    RectIcon,
-    RoundRectIcon,
-    OvalIcon,
+    ZoomIn,
+    ZoomOut,
+    TextIcon
 ];
 export default class Menu extends React.PureComponent<{
     onSelect: (id: string) => any
@@ -171,9 +157,9 @@ export default class Menu extends React.PureComponent<{
         return (
             <MenuElement className={prefix("menu")}>
                 {this.renderMenus()}
-                <div className={prefix("menu-bottom")}>
+                {/* <div className={prefix("menu-bottom")}>
                     <KeyboardIcon />
-                </div>
+                </div> */}
             </MenuElement>
         );
     }

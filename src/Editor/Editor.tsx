@@ -6,7 +6,6 @@ import styled, { StyledElement } from "react-css-styled";
 import Menu from "./Menu/Menu";
 import Viewport from "./Viewport/Viewport";
 import { getContentElement, prefix, getIds, checkImageLoaded, checkInput, getParnetScenaElement, getScenaAttrs, setMoveMatrix, getOffsetOriginMatrix } from "./utils/utils";
-import Tabs from "./Tabs/Tabs";
 import EventBus from "./utils/EventBus";
 import { IObject } from "@daybrush/utils";
 import Memory from "./utils/Memory";
@@ -73,10 +72,9 @@ export default class Editor extends React.PureComponent<{
     };
     public state: ScenaEditorState = {
         selectedTargets: [],
-        horizontalGuides: [],
-        verticalGuides: [],
+        viewX: 0,
+        viewY: 0,
         zoom: 1,
-        selectedMenu: "MoveTool",
     };
     public historyManager = new HistoryManager(this);
     public console = new Debugger(this.props.debug);
@@ -86,15 +84,14 @@ export default class Editor extends React.PureComponent<{
     public keyManager = new KeyManager(this.console);
     public clipboardManager = new ClipboardManager(this);
 
-    public horizontalGuides = React.createRef<Guides>();
     public verticalGuides = React.createRef<Guides>();
-    public infiniteViewer = React.createRef<InfiniteViewer>();
     public selecto = React.createRef<Selecto>();
     public menu = React.createRef<Menu>();
     public moveableManager = React.createRef<MoveableManager>();
     public viewport = React.createRef<Viewport>();
-    public tabs = React.createRef<Tabs>();
     public editorElement = React.createRef<StyledElement<HTMLDivElement>>();
+    public workspaceWrapper = React.createRef<HTMLDivElement>();
+    public contentRef = React.createRef<HTMLDivElement>();
 
     public render() {
         return <EditorContext.Provider value={this}>
@@ -103,27 +100,24 @@ export default class Editor extends React.PureComponent<{
     }
     public renderChildren() {
         const {
-            horizontalGuides,
-            verticalGuides,
-            infiniteViewer,
             moveableManager,
             viewport,
             menu,
-            tabs,
             selecto,
             state,
+            contentRef,
+            workspaceWrapper
         } = this;
         const {
-            selectedMenu,
             selectedTargets,
             zoom,
+            viewX,
+            viewY
         } = state;
         const {
             width,
             height,
         } = this.props;
-        const horizontalSnapGuides = state.horizontalGuides;
-        const verticalSnapGuides = state.verticalGuides;
         let unit = 50;
 
         if (zoom < 0.8) {
@@ -131,147 +125,54 @@ export default class Editor extends React.PureComponent<{
         }
         return (
             <EditorElement className={prefix("editor")} ref={this.editorElement}>
-                <Tabs ref={tabs}></Tabs>
                 <Menu ref={menu} onSelect={this.onMenuChange} />
-                {/* <div className={prefix("reset")} onClick={e => {
-                    infiniteViewer.current!.scrollCenter();
-                }}></div> */}
-                {/* <Guides ref={horizontalGuides}
-                    type="horizontal" className={prefix("guides", "horizontal")} style={{}}
-                    snapThreshold={5}
-                    snaps={horizontalSnapGuides}
-                    displayDragPos={true}
-                    dragPosFormat={v => `${v}px`}
-                    zoom={zoom}
-                    unit={unit}
-                    backgroundColor="#fff"
-                    lineColor="#8f959e"
-                    textColor="#8f959e"
-                    onChangeGuides={e => {
-                        this.setState({
-                            horizontalGuides: e.guides,
-                        });
-                    }}
-                ></Guides>
-                <Guides ref={verticalGuides}
-                    type="vertical" className={prefix("guides", "vertical")} style={{}}
-                    snapThreshold={5}
-                    snaps={verticalSnapGuides}
-                    displayDragPos={true}
-                    dragPosFormat={v => `${v}px`}
-                    zoom={zoom}
-                    unit={unit}
-                    backgroundColor="#fff"
-                    lineColor="#8f959e"
-                    textColor="#8f959e"
-                    onChangeGuides={e => {
-                        this.setState({
-                            verticalGuides: e.guides,
-                        });
-                    }}
-                ></Guides> */}
-                <InfiniteViewer ref={infiniteViewer}
-                    className={prefix("viewer")}
-                    usePinch={true}
-                    useForceWheel={true}
-                    pinchThreshold={50}
-                    zoom={zoom}
-                    onDragStart={e => {
-                        const target = e.inputEvent.target;
-                        this.checkBlur();
-
-                        if (
-                            target.nodeName === "A"
-                            || moveableManager.current!.getMoveable().isMoveableElement(target)
-                            || moveableManager.current!.getMoveable().isDragging()
-                            || selectedTargets.some(t => t === target || t.contains(target))
-                        ) {
-                            this.console.log('drag stop', e);
-                            e.stop();
-                        }
-                    }}
-                    onDrag={e => {
-
-                    }}
-                    onDragEnd={e => {
-                        if (!e.isDrag) {
-                            selecto.current!.clickTarget(e.inputEvent);
-                        }
-                    }}
-                    onAbortPinch={e => {
-                        selecto.current!.triggerDragStart(e.inputEvent);
-                    }}
-                    onScroll={e => {
-                        // horizontalGuides.current!.scroll(e.scrollLeft);
-                        // horizontalGuides.current!.scrollGuides(e.scrollTop);
-
-                        // verticalGuides.current!.scroll(e.scrollTop);
-                        // verticalGuides.current!.scrollGuides(e.scrollLeft);
-                    }}
-                    onPinch={e => {
-                        if (moveableManager.current!.getMoveable().isDragging()) {
-                            return;
-                        }
-                        this.setState({
-                            zoom: e.zoom,
-                        });
-                    }}
-                >
-                    <Viewport ref={viewport}
-                        onBlur={this.onBlur}
+                <div ref={contentRef} className="content" style={{
+                        top: '42px',
+                        bottom: 0,
+                        position: 'absolute',
+                        width: '100%'
+                    }}>
+                    <div className="workspace" ref={workspaceWrapper}
                         style={{
-                            width: `${width}px`,
-                            height: `${height}px`,
+                            zoom: zoom
                         }}>
-                        <MoveableManager
-                            ref={moveableManager}
-                            selectedTargets={selectedTargets}
-                            selectedMenu={selectedMenu}
-                            verticalGuidelines={verticalSnapGuides}
-                            horizontalGuidelines={horizontalSnapGuides}
-                            zoom={zoom}
-                        ></MoveableManager>
-                    </Viewport>
-                </InfiniteViewer>
+                        <Viewport ref={viewport}
+                            onBlur={this.onBlur}
+                            style={{
+                                transform: `translate(${viewX}px, ${viewY}px)`,
+                                width: `${width}px`,
+                                height: `${height}px`,
+                            }}>
+                            <MoveableManager
+                                ref={moveableManager}
+                                selectedTargets={selectedTargets}
+                                zoom={zoom}
+                            ></MoveableManager>
+                        </Viewport>
+                    </div>
+                </div>
+                
                 <Selecto
                     ref={selecto}
                     getElementRect={getElementInfo}
-                    dragContainer={".scena-viewer"}
+                    dragContainer={".workspace"}
                     hitRate={0}
                     selectableTargets={[`.scena-viewport [${DATA_SCENA_ELEMENT_ID}]`]}
                     selectByClick={true}
                     selectFromInside={false}
                     toggleContinueSelect={["shift"]}
                     preventDefault={true}
-                    scrollOptions={
-                        infiniteViewer.current ? {
-                            container: infiniteViewer.current.getContainer(),
-                            threshold: 30,
-                            throttleTime: 30,
-                            getScrollPosition: () => {
-                                const current = infiniteViewer.current!;
-                                return [
-                                    current.getScrollLeft(),
-                                    current.getScrollTop(),
-                                ];
-                            },
-                        } : undefined
-                    }
                     onDragStart={e => {
                         const inputEvent = e.inputEvent;
+
+                        if (inputEvent.ctrlKey) {
+                            e.stop();
+                        }
                         const target = inputEvent.target;
 
                         this.console.log('Selecto Drag Start', target);
 
                         this.checkBlur();
-                        if (selectedMenu === "Text" && target.isContentEditable) {
-                            const contentElement = getContentElement(target);
-
-                            if (contentElement && contentElement.hasAttribute(DATA_SCENA_ELEMENT_ID)) {
-                                e.stop();
-                                this.setSelectedTargets([contentElement]);
-                            }
-                        }
                         if (
                             (inputEvent.type === "touchstart" && e.isTrusted)
                             || moveableManager.current!.getMoveable().isMoveableElement(target)
@@ -281,7 +182,7 @@ export default class Editor extends React.PureComponent<{
                         }
                     }}
                     onScroll={({ direction }) => {
-                        infiniteViewer.current!.scrollBy(direction[0] * 10, direction[1] * 10);
+                        // infiniteViewer.current!.scrollBy(direction[0] * 10, direction[1] * 10);
                     }}
                     onSelectEnd={({ isDragStart, selected, inputEvent, rect }) => {
                         if (isDragStart) {
@@ -303,7 +204,6 @@ export default class Editor extends React.PureComponent<{
     }
     public async componentDidMount() {
         const {
-            infiniteViewer,
             memory,
             eventBus,
         } = this;
@@ -311,9 +211,8 @@ export default class Editor extends React.PureComponent<{
         memory.set("color", "#333");
 
         requestAnimationFrame(() => {
-            // this.verticalGuides.current!.resize();
-            // this.horizontalGuides.current!.resize();
-            infiniteViewer.current!.scrollCenter();
+            this.fitToCenter();
+            
         });
         window.addEventListener("resize", this.onResize);
         const viewport = this.getViewport();
@@ -321,7 +220,6 @@ export default class Editor extends React.PureComponent<{
 
         eventBus.on("blur", () => {
             this.menu.current!.blur();
-            this.tabs.current!.blur();
         });
         eventBus.on("selectLayers", (e: any) => {
             const selected = e.selected as string[];
@@ -331,7 +229,6 @@ export default class Editor extends React.PureComponent<{
         eventBus.on("update", () => {
             this.forceUpdate();
         });
-
 
         this.keyManager.keydown(["left"], e => {
             this.move(-10, 0);
@@ -394,6 +291,19 @@ export default class Editor extends React.PureComponent<{
         this.clipboardManager.destroy();
         window.removeEventListener("resize", this.onResize);
     }
+
+    public fitToCenter() {
+        const { width : contentWidth, height: contentHeight } = this.contentRef.current!.getBoundingClientRect();
+        const { width, height } =  this.props;
+
+        if (contentWidth > width && contentHeight > height) {
+            this.setState({
+                viewX: ( contentWidth - width ) / 2,
+                viewY: ( contentHeight - height ) / 2,
+            })
+        }
+    }
+
     public promiseState(state: Partial<ScenaEditorState>) {
         return new Promise<void>(resolve => {
             this.setState(state, () => {
@@ -635,13 +545,18 @@ export default class Editor extends React.PureComponent<{
 
 
     private onMenuChange = (id: string) => {
+        if (id === 'ZoomIn') {
+            this.setState({
+                zoom: this.state.zoom + 0.1
+            });
+        }
         this.setState({
-            selectedMenu: id,
+            //selectedMenu: id,
         });
     }
     private selectEndMaker(rect: Rect) {
         const zoom = this.state.zoom;
-        const infiniteViewer = this.infiniteViewer.current!;
+        const infiniteViewer = this.workspaceWrapper.current!;
         const selectIcon = this.menu.current!.getSelected();
         const width = rect.width;
         const height = rect.height;
@@ -650,8 +565,8 @@ export default class Editor extends React.PureComponent<{
             return false;
         }
         const maker = selectIcon.maker(this.memory);
-        const scrollTop = -infiniteViewer.getScrollTop() * zoom;
-        const scrollLeft = -infiniteViewer.getScrollLeft() * zoom;
+        const scrollTop = -infiniteViewer.scrollTop * zoom;
+        const scrollLeft = -infiniteViewer.scrollLeft * zoom;
         const top = rect.top - scrollTop;
         const left = rect.left - scrollLeft;
 

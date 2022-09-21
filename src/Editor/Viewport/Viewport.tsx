@@ -69,6 +69,7 @@ export default class Viewport extends React.PureComponent<{
             ) as ScenaJSXElement;
         });
     }
+
     public getJSX(id: string) {
         return this.jsxs[id];
     }

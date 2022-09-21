@@ -13,15 +13,13 @@ const TabsElement = styled("div", `
 {
     position: absolute;
     right: 0;
-    width: 40px;
-    height: 100%;
+    top: 0;
+    width: 100%;
+    height: 42px;
     background: var(--back2);
     z-index: 10;
-    transform: translateZ(10px);
     box-sizing: border-box;
     padding-top: 30px;
-    transition: width ease 0.2s;
-    text-align: left;
 }
 .scena-tab {
     position: relative;

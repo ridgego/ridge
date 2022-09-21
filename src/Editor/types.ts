@@ -5,9 +5,8 @@ import { EDITOR_PROPERTIES } from "./consts";
 
 export interface ScenaEditorState {
     selectedTargets: Array<SVGElement | HTMLElement>;
-    horizontalGuides: number[];
-    verticalGuides: number[];
-    selectedMenu: string;
+    viewX: number,
+    viewY: number,
     zoom: number;
 }
 
