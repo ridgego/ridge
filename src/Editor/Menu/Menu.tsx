@@ -5,6 +5,7 @@ import MoveToolIcon from "../Icons/MoveToolIcon";
 import TextIcon from "../Icons/TextIcon";
 import ZoomIn from "../Icons/ZoomInIcon";
 import ZoomOut from "../Icons/ZoomOutIcon";
+import MenuZoomOptions from "./MenuZoomOptions";
 import styled from "react-css-styled";
 
 const MenuElement = styled("div", `
@@ -143,6 +144,7 @@ svg, .scena-i {
 const MENUS: Array<typeof Icon> = [
     MoveToolIcon,
     ZoomIn,
+    MenuZoomOptions,
     ZoomOut,
     TextIcon
 ];
@@ -157,9 +159,6 @@ export default class Menu extends React.PureComponent<{
         return (
             <MenuElement className={prefix("menu")}>
                 {this.renderMenus()}
-                {/* <div className={prefix("menu-bottom")}>
-                    <KeyboardIcon />
-                </div> */}
             </MenuElement>
         );
     }

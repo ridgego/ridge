@@ -1,5 +1,4 @@
 import * as React from "react";
-import InfiniteViewer from "react-infinite-viewer";
 import Guides from "@scena/react-guides";
 import Selecto, { Rect } from "react-selecto";
 import styled, { StyledElement } from "react-css-styled";
@@ -206,14 +205,35 @@ export default class Editor extends React.PureComponent<{
         const {
             memory,
             eventBus,
+            workspaceWrapper
         } = this;
         memory.set("background-color", "#4af");
         memory.set("color", "#333");
 
         requestAnimationFrame(() => {
             this.fitToCenter();
-            
         });
+
+        
+        let isViewPortMoving = false;
+
+        workspaceWrapper.current!.addEventListener('mousedown', (e) => {
+            isViewPortMoving = true;
+        });
+          
+        workspaceWrapper.current!.addEventListener('mousemove', event => {
+            if (isViewPortMoving && event.ctrlKey && this.state.selectedTargets.length === 0) {
+                this.setState({
+                    viewX: this.state.viewX + event.movementX,
+                    viewY: this.state.viewY + event.movementY
+                })
+            }
+        })
+
+        workspaceWrapper.current!.addEventListener('mouseup', (e) => {
+            isViewPortMoving = false;
+        });
+
         window.addEventListener("resize", this.onResize);
         const viewport = this.getViewport();
 
@@ -526,6 +546,7 @@ export default class Editor extends React.PureComponent<{
             };
         });
     }
+
     public getViewportInfos() {
         return this.getViewport().getViewportInfos();
     }
@@ -543,13 +564,26 @@ export default class Editor extends React.PureComponent<{
         return this.getViewport().moves(movedInfos).then(result => this.moveComplete(result, frameMap, isRestore));
     }
 
-
     private onMenuChange = (id: string) => {
         if (id === 'ZoomIn') {
             this.setState({
                 zoom: this.state.zoom + 0.1
             });
+        } else if (id === 'ZoomOut') {
+            this.setState({
+                zoom: this.state.zoom - 0.1
+            });
+        } else if (id.indexOf('zoom-')> -1) {
+            const zoomTo = id.split('-')[1];
+            if (zoomTo === 'fit') {
+                this.fitToCenter();
+            } else {
+                this.setState({
+                    zoom: parseFloat(zoomTo)
+                })
+            }
         }
+
         this.setState({
             //selectedMenu: id,
         });
