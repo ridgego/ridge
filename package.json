@@ -14,6 +14,7 @@
     "@egjs/agent": "^2.4.3",
     "@scena/matrix": "^1.1.1",
     "@scena/react-guides": "^0.17.1",
+    "antd": "^4.23.2",
     "framework-utils": "^1.1.0",
     "html2canvas": "^1.4.1",
     "moveable-helper": "^0.4.0",

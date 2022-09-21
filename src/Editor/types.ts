@@ -42,9 +42,14 @@ export interface SavedScenaData {
     frame: IObject<any>;
     children: SavedScenaData[];
 }
+
+export interface ComponentDef {
+    component: React.Component;
+}
 export interface ScenaProps {
     scenaElementId?: string;
     scenaAttrs?: IObject<any>;
+    fcp?: ComponentDef;
     scenaText?: string;
     scneaHTML?: string;
 }
@@ -79,9 +84,11 @@ export interface FrameInfo {
     frame: IObject<any>;
     order: IObject<any>;
 }
+
 export interface ElementInfo {
     jsx: ScenaJSXType;
     name: string;
+    fcp?: any;
     frame?: IObject<any>;
     frameOrder?: IObject<any>;
     moveMatrix?: number[];

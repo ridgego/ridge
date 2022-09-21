@@ -21,6 +21,7 @@ export default class Viewport extends React.PureComponent<{
         viewport: this.viewport,
     };
     public state = {};
+    public elements = [];
     public viewportRef = React.createRef<HTMLDivElement>();
     public render() {
         const style = this.props.style;
@@ -35,6 +36,7 @@ export default class Viewport extends React.PureComponent<{
     public componentDidMount() {
         this.ids.viewport.el = this.viewportRef.current!;
     }
+
     public renderChildren(children: ElementInfo[]): ScenaJSXElement[] {
         return children.map(info => {
             const jsx = info.jsx;
@@ -52,6 +54,7 @@ export default class Viewport extends React.PureComponent<{
                 props.scenaAttrs = info.attrs || {};
                 props.scenaText = info.innerText;
                 props.scenaHTML = info.innerHTML;
+                props.frame = info.frame;
 
                 return React.createElement(jsx, props) as ScenaJSXElement;
             } else if (isString(jsx.type)) {
@@ -61,9 +64,10 @@ export default class Viewport extends React.PureComponent<{
                 props.scenaAttrs = info.attrs || {};
                 props.scenaText = info.innerText;
                 props.scenaHTML = info.innerHTML;
+                props.frame = info.frame;
             }
             const jsxChildren = jsx.props.children;
-            return React.cloneElement(jsx, { ...jsx.props, ...props },
+            return React.cloneElement(jsx, { ...jsx.props, fcp: info.fcp, ...props },
                 ...(isArray(jsxChildren) ? jsxChildren : [jsxChildren]),
                 ...this.renderChildren(nextChildren),
             ) as ScenaJSXElement;

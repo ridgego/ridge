@@ -3,6 +3,23 @@ import "./App.css";
 import { ScenaProps } from "../Editor/types";
 import Editor, { makeScenaFunctionComponent } from "../Editor";
 
+import buttonFcp from "../components/antd/button/button.fcp";
+
+import { createRoot } from 'react-dom/client';
+
+const ReactFCComponent = makeScenaFunctionComponent('ReactFc', (props: ScenaProps) => {
+    const ref = React.createRef<HTMLDivElement>();
+    React.useEffect(() => {
+        const component = props.fcp?.component;
+
+        const root = createRoot(ref.current!);
+        root.render(<buttonFcp.component />);
+        console.log('ReactFC props', props);
+    }, ['scenaElementId']);
+    return <div className="badges" data-scena-element-id={props.scenaElementId} ref={ref}></div>;
+});
+
+
 const Badge = makeScenaFunctionComponent("Badge", function Badge(props: ScenaProps) {
     return <p className="badges" data-scena-element-id={props.scenaElementId}>
         <a href="https://www.npmjs.com/package/moveable" target="_blank">
@@ -50,6 +67,17 @@ class App extends React.Component {
                     "flex-direction": "column",
                     "text-align": "center",
                     "font-weight": 100,
+                },
+            },
+            {
+                jsx: <ReactFCComponent />, 
+                name: "(Logo)",
+                fcp: buttonFcp,
+                frame: {
+                    position: "absolute",
+                    width: "150px",
+                    height: "200px",
+                    "transform": "translate(125px, 100px)",
                 },
             },
             {
