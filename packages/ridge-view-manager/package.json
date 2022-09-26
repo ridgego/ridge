@@ -1,0 +1,31 @@
+{
+  "name": "ridge-view-manager",
+  "version": "1.0.0",
+  "description": "应用运行时前端组件管理器",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint",
+    "build": "babel src -d lib"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "ridge-render": "^1.0.0",
+    "ridge-runtime-i18n": "^1.0.0",
+    "debug": "^4.3.1",
+    "ky": "^0.24.0",
+    "lodash": "^4.17.15"
+  },
+  "files": [
+    "src",
+    "lib"
+  ],
+  "devDependencies": {
+    "@babel/cli": "~7.14.3",
+    "@babel/core": "~7.14.3",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-syntax-flow": "^7.16.5",
+    "@babel/preset-env": "~7.14.2",
+    "@babel/preset-react": "~7.13.13",
+    "@gw/eslint-config-common": "^2.0.8"
+  }
+}

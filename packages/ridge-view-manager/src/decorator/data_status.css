@@ -1,0 +1,31 @@
+.apollo-empty-status {
+    position:absolute;
+    left:0;right:0;top:0;bottom:0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.apollo-empty-status .empty-msg {
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.apollo-empty-status .empty-img {
+    width: 60px;
+    height: 60px;
+}
+.apollo-empty-status .empty-img img {
+    width: 60px;
+    height: 60px;
+}
+
+.cover-invalid {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: #ff4d4f;
+    padding: 5px 10px;
+    background-color: #faad1440;
+}

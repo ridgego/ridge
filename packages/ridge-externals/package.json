@@ -1,0 +1,11 @@
+{
+	"name": "ridge-externals",
+	"version": "1.0.0",
+	"scripts": {
+		"build": "node ./export.js"
+	},
+	"description": "图元编译期间标识为external的组件包列表",
+	"main": "index.js",
+	"dependencies": {},
+	"devDependencies": {}
+}

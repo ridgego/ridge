@@ -44,7 +44,7 @@ export interface SavedScenaData {
 }
 
 export interface ComponentDef {
-    component: React.Component;
+    component: any;
 }
 export interface ScenaProps {
     scenaElementId?: string;

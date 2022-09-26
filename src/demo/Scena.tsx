@@ -2,7 +2,6 @@ import * as React from "react";
 import "./App.css";
 import { ScenaProps } from "../Editor/types";
 import Editor, { makeScenaFunctionComponent } from "../Editor";
-import { env } from "process";
 
 const Badge = makeScenaFunctionComponent("Badge", function Badge(props: ScenaProps) {
     return <p className="badges" data-scena-element-id={props.scenaElementId}>

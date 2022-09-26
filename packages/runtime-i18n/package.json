@@ -1,0 +1,20 @@
+{
+  "name": "ridge-runtime-i18n",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ridge-view-manager": "^1.0.0",
+    "buffer": "^6.0.3",
+    "debug": "^4.3.4",
+    "gettext-parser": "^5.1.2",
+    "ky": "^0.24.0",
+    "node-gettext": "^3.0.0",
+    "process": "^0.11.10"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "ridge-render",
+  "version": "1.0.0",
+  "description": "提供前端组件渲染器接口及默认的React、Vue图元渲染器实现",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "babel src -d lib",
+    "postversion": "npm run build && git push --follow-tags && npm publish"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "ridge-externals": "1.0.0",
+    "debug": "^4.3.1",
+    "ky": "^0.24.0",
+    "loadjs": "^4.2.0",
+    "react": "~17.0.2",
+    "react-dom": "~17.0.2",
+    "resolve": "^1.17.0",
+    "resolve-path": "^1.4.0",
+    "vue": "^2.6.10"
+  },
+  "files": [
+    "src",
+    "lib"
+  ],
+  "devDependencies": {
+    "@babel/cli": "~7.14.3",
+    "@babel/core": "~7.14.3",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-syntax-flow": "^7.16.5",
+    "@babel/preset-env": "~7.14.2",
+    "@babel/preset-react": "~7.13.13",
+    "@gw/eslint-config-common": "^2.0.8"
+  }
+}
