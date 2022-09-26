@@ -1,0 +1,17 @@
+{
+  "name": "ridge-npm-service",
+  "version": "1.0.0",
+  "description": "Npm Package Management Service",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node ./test/start.js",
+    "build": "babel src -d build",
+    "test": "jest --notify --verbose --forceExit --detectOpenHandles",
+    "coverage": "jest --coverage",
+    "postversion": "git push --follow-tags && npm publish"
+  },
+  "license": "ISC",
+  "dependencies": {
+    
+  }
+}

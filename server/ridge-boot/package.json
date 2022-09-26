@@ -1,0 +1,28 @@
+{
+  "name": "ridge-boot",
+  "version": "1.0.0",
+  "description": "Boot loader for a koa-based modularized application booter",
+  "main": "src/bootstrap.js",
+  "scripts": {
+    "preversion": "npm test",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "postversion": "git push --follow-tags && npm publish"
+  },
+  "keywords": [
+    "koa",
+    "boot",
+    "modularized"
+  ],
+  "files": [
+    "src"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "co-body": "^6.0.0",
+    "debug": "^4.3.1",
+    "http-proxy": "^1.18.1",
+    "koa": "^2.12.0",
+    "querystring": "^0.2.0"
+  }
+}

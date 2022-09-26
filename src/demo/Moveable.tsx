@@ -1,11 +1,19 @@
+
 import * as React from "react";
 import "./App.css";
 import { ScenaProps } from "../Editor/types";
 import Editor, { makeScenaFunctionComponent } from "../Editor";
 
+import { FCViewManager } from 'ridge-view-manager';
+
 import buttonFcp from "../../components/antd/button/button.fcp";
 
 import { createRoot } from 'react-dom/client';
+
+const fcViewManager = new FCViewManager({
+    baseUrl: '/'
+});
+
 
 const ReactFCComponent = makeScenaFunctionComponent('ReactFc', (props: ScenaProps) => {
     const ref = React.createRef<HTMLDivElement>();
