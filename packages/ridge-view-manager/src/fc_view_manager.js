@@ -421,13 +421,19 @@ class FCViewManager {
     }
   }
 
-  async createComponentView (component, opts) {
+  async createComponentView ({
+    packageName,
+    path
+  }, el, viewConfig) {
     try {
-      const frontComponentView = new FrontComponentView(component, this.loader, opts.useLatestFCVersion)
-
+      const frontComponentView = new FrontComponentView({
+        el,
+        packageName,
+        path,
+        viewConfig,
+        loader: this.loader
+      })
       await frontComponentView.loadAndRender()
-      this.componentViews[opts.pageId][component.guid] = frontComponentView
-
       return frontComponentView
     } catch (e) {
       console.error('Error Create View', e)

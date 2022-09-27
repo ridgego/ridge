@@ -1,0 +1,17 @@
+{
+  "name": "ridge-component-antd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w",
+    "help": "build-fc --help",
+    "debug": "build-fc -w -s -p 8700",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "files": ["build"],
+  "author": "",
+  "license": "ISC"
+}

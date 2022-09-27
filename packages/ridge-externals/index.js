@@ -111,7 +111,7 @@ module.exports = {
       module: 'antd',
       root: 'antd',
       dependencies: ['react', 'moment'],
-      dist: 'antd/dist/antd-with-locales.min.js',
+      dist: 'antd/dist/antd.min.js',
       style: 'antd/dist/antd.variable.min.css'
     },
     {

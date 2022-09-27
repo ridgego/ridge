@@ -1,6 +1,6 @@
 const path = require('path'),
     webpack = require('webpack'),
-    fs = require('fs'),
+    fs = require('fs-extra'),
     glob = require('glob'),
     { CleanWebpackPlugin } = require('clean-webpack-plugin'),
     { merge } = require('webpack-merge'),
@@ -9,7 +9,6 @@ const path = require('path'),
     TerserPlugin = require("terser-webpack-plugin"),
     webpackCommonBase = require('./webpack.common.js'),
     args = require('args'),
-    servePack = require('./serve-pack'),
     chalk = require('chalk');
 
 args.option('dir', 'The Front Component Project Root Path', './')
@@ -19,7 +18,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
     .option('port', 'Package Provider Host Port')
     .option('analyse', 'Start Bundle Analyse Service');
 
-const log = console.log,
+    const log = console.log,
     BUILD_PATH = 'build',
     signals = {
         timestamp: new Date().getTime()
@@ -57,7 +56,7 @@ const log = console.log,
             log(chalk.green('未找到图元 ./src/**/*.fcp.js'));
         }
 
-        log(chalk.green('编译打包以下图元文件'));
+        log(chalk.green('编译打包以下图元文件:'));
 
         for (let i = 0; i < targetFiles.length; i++) {
             const file = targetFiles[i];
@@ -112,14 +111,13 @@ const log = console.log,
             }
         }
 
+        let ridgeConfig = {};
 
-        let apolloConfig = {};
-
-        if (fs.existsSync(path.resolve(packagePath, './apollo.config.js'))) {
+        if (fs.existsSync(path.resolve(packagePath, './ridge.config.js'))) {
             try {
-                apolloConfig = require(path.resolve(packagePath, './apollo.config.js'));
+                ridgeConfig = require(path.resolve(packagePath, './ridge.config.js'));
             } catch (e) {
-                log(chalk.red('apollo.config.js 文件格式不符合'));
+                log(chalk.red('ridge.config.js 文件格式不符合'));
             }
         }
 
@@ -146,7 +144,7 @@ const log = console.log,
             ]
         }, webpackCommonBase, {
             externals
-        }, argsConfig, apolloConfig.configureWebpack || {})),
+        }, argsConfig, ridgeConfig.configureWebpack || {})),
             // 引用 ProgressPlugin 打印编译过程进度详情
             // eslint-disable-next-line no-shadow-restricted-names
             progressPlugin = new ProgressPlugin(function (percentage, msg, ...arguments) {
@@ -216,6 +214,10 @@ const log = console.log,
                     console.log('  Build failed with errors.\n');
                     process.exit(1);
                 }
+
+                if (ridgeConfig && ridgeConfig.copy) {
+                    fs.copySync(packagePath, path.resolve(packagePath, ridgeConfig.copy));
+                }
                 console.log('  Build complete.\n');
             })
         }
@@ -224,5 +226,6 @@ const log = console.log,
 build(flags.dir);
 
 if (flags.port) {
+    const servePack = require('./serve-pack');
     servePack(flags.port, signals, buildResult);
 }

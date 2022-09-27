@@ -9,7 +9,7 @@ const download = require('download')
  * @returns {Promise<void>}
  */
 async function exportToLocal (servicePath, dist) {
-  for (let lib of index.externals) {
+  for (const lib of index.externals) {
     try {
       let moduleFolder = ''
       if (lib.dist.lastIndexOf('/') > -1) {
@@ -18,12 +18,11 @@ async function exportToLocal (servicePath, dist) {
       await download(
         `${servicePath}/${lib.module}@latest/${lib.dist}`,
         path.resolve(dist, `./${lib.module}@latest`, moduleFolder)
-      );
+      )
     } catch (e) {
       console.log(e)
     }
   }
 }
 
-
-exportToLocal('http://10.10.247.1:4877/api/unpkg','./unpkg')
+exportToLocal('http://10.10.247.1:4877/api/unpkg', './unpkg')

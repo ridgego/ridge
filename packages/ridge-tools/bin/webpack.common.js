@@ -26,10 +26,8 @@ module.exports = {
             {
               include: '.scoped.(sa|sc|c)ss$'
             }
-          ], path.resolve(__dirname, 'i18n-babel-plugin.js')]
+          ]]
         }
-      }, {
-        loader: path.resolve(__dirname, 'acne-loader.js') // 将 acne 编译成 ccv
       }]
     }, {
       test: /\.tsx?$/,
@@ -48,11 +46,7 @@ module.exports = {
       },
       {
         loader: 'sass-loader' // 将 Sass 编译成 CSS
-      },
-      {
-        loader: path.resolve(__dirname, 'acne-loader.js') // 将 acne 编译成 ccv
-      }
-      ]
+      }]
     }, {
       test: /\.less$/,
       use: [

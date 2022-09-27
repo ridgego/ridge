@@ -30,7 +30,8 @@
     "react-moveable": "^0.38.4",
     "react-selecto": "^1.19.1",
     "ridge-view-manager": "^1.0.0",
-    "scenejs": "^1.6.0"
+    "scenejs": "^1.6.0",
+    "standard": "^17.0.0"
   },
   "devDependencies": {
     "@daybrush/builder": "^0.1.2",
@@ -39,7 +40,6 @@
     "@types/react-dom": "^18.0.6",
     "css-loader": "^6.7.1",
     "html-webpack-plugin": "^5.5.0",
-    "standard": "^17.0.0",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.3.1",
     "typescript": "^4.8.2",

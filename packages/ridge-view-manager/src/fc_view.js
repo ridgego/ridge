@@ -18,10 +18,6 @@ class FCView {
      * @prop {Object} instancePropConfig 组件配置实例，这个属性也是最终传递给React/Vue组件的属性 （React组件还包括了事件属性）.另外还包含了一些组件未声明的系统属性，也可以在组件中使用的，一般用于系统级组件。普通组件注意不要和系统属性重名即可
      * @prop {Object} instancePropConfig.$$apolloApp 平台服务对象，包括了
      * @prop {Object} instancePropConfig.$$apolloApp.appSetting -应用配置
-     * @prop {Function} instancePropConfig.$$apolloApp.openLink -打开链接、跳转方法
-     * @prop {Function} instancePropConfig.$$apolloApp.closeCurrentPage -关闭当前页面方法
-     * @prop {Function} instancePropConfig.$$apolloApp.openScreenSaverPage -打开屏保页面
-     * @prop {Function} instancePropConfig.$$apolloApp.sendRequest -发出请求
      * @prop {function} instancePropConfig.$$apolloApp.setAppState -设置应用状态
      * @prop {FCView} instancePropConfig.$$apolloApp.viewManager -视图管理器实例
      * @prop {Object} instancePropConfig.$$contextVariables - 组件收到的应用上下文数据。当组件上定义表达式时，上面引用的变量值都以这个为准
@@ -34,23 +30,20 @@ class FCView {
      * @prop {Object.<string, function>} eventCallbacks 组件的事件回调信息。
      * @param {Loader} loader 加载器
      */
-  constructor ({ el, fcInstanceConfig, loader, apolloApp, contextVariables, scopeVariables, pageId, preloadChild, decorators }) {
+  constructor ({ el, packageName, path, viewConfig, loader, context, preloadChild, decorators }) {
     this.uuid = nanoid(10)
-    this.fcInstanceConfig = fcInstanceConfig || {}
-    this.fcId = fcInstanceConfig.guid || nanoid(6)
-    this.pageId = pageId
-    this.el = el || fcInstanceConfig.el
-    delete fcInstanceConfig.el
+    this.fcInstanceConfig = viewConfig || {}
+    this.fcId = this.fcInstanceConfig.guid || nanoid(6)
+    this.el = el
     this.loader = loader
-    this.apolloApp = apolloApp
-    // 初始化的上下文变量
-    this.contextVariables = contextVariables
-    // 局部变量
-    this.scopeVariables = scopeVariables
+    this.packageName = packageName
+    this.path = path
+
+    this.context = context
     // 默认值
-    this.defaultProps = fcInstanceConfig.props
+    this.defaultProps = this.fcInstanceConfig.props
     // 默认属性配置信息
-    this.instancePropConfig = Object.assign({}, fcInstanceConfig.props)
+    this.instancePropConfig = Object.assign({}, this.fcInstanceConfig.props)
     // 回调列表
     this.eventCallbacks = {}
     // 定义在元素上的原始事件
@@ -70,12 +63,6 @@ class FCView {
     this.isQuerying = false
     // 组件视图渲染器
     this.decorators = decorators
-    // 显隐情况
-    if (fcInstanceConfig.visible === false) {
-      this.visible = false
-    } else {
-      this.visible = true
-    }
   }
 
   /**
@@ -86,16 +73,8 @@ class FCView {
   async loadAndRender (el) {
     await this.loadComponentDefinition()
     await this.initChildViews()
-    if (this.fcInstanceConfig.isRelativeBlockContainer) {
-      // ht 的相对布局容器
-      this.relativeContainerMount(el)
-    } else {
-      if (!this.componentDefinition) {
-        return
-      }
-      this.initPropsAndEvents()
-      this.mount(el)
-    }
+    this.initPropsAndEvents()
+    this.mount(el)
   }
 
   /**
@@ -110,8 +89,11 @@ class FCView {
     log('loadComponentDefinition', this.fcInstanceConfig)
 
     // 加载组件定义信息
-    if (this.fcInstanceConfig.packageName != null || this.fcInstanceConfig.path != null) {
-      const componentDefinition = await this.loader.loadPel(this.fcInstanceConfig)
+    if (this.packageName && this.path) {
+      const componentDefinition = await this.loader.loadComponent({
+        packageName: this.packageName,
+        path: this.path
+      })
 
       if (!componentDefinition || !componentDefinition.factory) {
         log('加载图元失败: 未获取组件', this.fcInstanceConfig)

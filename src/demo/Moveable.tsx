@@ -5,23 +5,20 @@ import { ScenaProps } from "../Editor/types";
 import Editor, { makeScenaFunctionComponent } from "../Editor";
 
 import { FCViewManager } from 'ridge-view-manager';
-
-import buttonFcp from "../../components/antd/button/button.fcp";
-
 import { createRoot } from 'react-dom/client';
 
 const fcViewManager = new FCViewManager({
-    baseUrl: '/'
+    baseUrl: '/npm_packages'
 });
 
 
 const ReactFCComponent = makeScenaFunctionComponent('ReactFc', (props: ScenaProps) => {
     const ref = React.createRef<HTMLDivElement>();
     React.useEffect(() => {
-        const Component = props.fcp?.component;
+        fcViewManager.createComponentView(props.fcp, ref.current!, {
 
-        const root = createRoot(ref.current!);
-        root.render(<Component />);
+        });
+        
         console.log('ReactFC props', props);
     }, ['scenaElementId']);
     return <div className="badges" data-scena-element-id={props.scenaElementId} ref={ref}></div>;
@@ -80,7 +77,10 @@ class App extends React.Component {
             {
                 jsx: <ReactFCComponent />, 
                 name: "(Logo)",
-                fcp: buttonFcp,
+                fcp: {
+                    packageName: 'ridge-component-antd',
+                    path: 'build/button-button.fcp.js'
+                },
                 frame: {
                     position: "absolute",
                     width: "150px",
