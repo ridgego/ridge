@@ -1,4 +1,0 @@
-*.json
-script
-*.sample.js
-build/*.js
