@@ -68,7 +68,7 @@ const log = console.log,
         // 读取配置好的external目录
         const externals = {};
 
-        // 这里依赖到 @gw/wind-pack-externals， 这就需要编译前端组件的项目能随时更新到最新的external配置。
+        // 这里依赖到 ridge-externals， 这就需要编译前端组件的项目能随时更新到最新的external配置。
         // 另外的办法是在此获取web api的配置，但是缺点是无版本追踪
         log(chalk.green('以下依赖不加入组件包'));
         for (const external of webpackExternals.externals) {

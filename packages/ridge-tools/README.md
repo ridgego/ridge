@@ -37,8 +37,8 @@ build-fc --help
 
 ```
 {
-    "name": "@gw/apollo-standard-containers",
-    "version": "2.100.0-dev-11",
+    "name": "ridge-component-containers",
+    "version": "1.0.2",
     "description": "容器组件",
     "releaseNote": "新增弹出层",
     "releaseTime": "2022-05-01",

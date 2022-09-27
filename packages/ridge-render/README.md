@@ -13,7 +13,7 @@ VueRenderer
 
 ## 安装
 ```
-npm i @gw/fc-render
+npm i ridge-render
 ```
 
 ## 前端组件 (FC  Front Component)

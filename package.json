@@ -8,7 +8,9 @@
     "start": "webpack serve --open"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "server/*",
+    "components/*"
   ],
   "author": "",
   "license": "ISC",

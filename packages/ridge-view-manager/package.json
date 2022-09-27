@@ -14,8 +14,7 @@
     "ky": "^0.24.0",
     "lodash": "^4.17.15",
     "nanoid": "^4.0.0",
-    "ridge-render": "^1.0.0",
-    "ridge-runtime-i18n": "^1.0.0"
+    "ridge-render": "^1.0.0"
   },
   "files": [
     "src",
@@ -27,7 +26,6 @@
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-syntax-flow": "^7.16.5",
     "@babel/preset-env": "~7.14.2",
-    "@babel/preset-react": "~7.13.13",
-    "@gw/eslint-config-common": "^2.0.8"
+    "@babel/preset-react": "~7.13.13"
   }
 }

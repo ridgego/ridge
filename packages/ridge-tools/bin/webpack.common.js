@@ -9,7 +9,6 @@ module.exports = {
       loader: 'vue-loader'
     }, {
       test: /\.(js|jsx)$/,
-      exclude: /node_modules\/(?!(@gw)$\/).*/,
       use: [{
         loader: 'babel-loader',
         options: {
