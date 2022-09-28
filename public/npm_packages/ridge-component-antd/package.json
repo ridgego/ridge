@@ -11,7 +11,12 @@
     "bs": "build-fc -s",
     "pd": "npm publish --tag dev"
   },
-  "files": ["build"],
+  "files": [
+    "build"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "antd": "^4.23.2"
+  }
 }

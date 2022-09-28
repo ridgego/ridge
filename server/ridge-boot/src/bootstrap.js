@@ -48,7 +48,7 @@ class BootStrap {
     // 复制支持proxy反向代理功能，需要设置 config.proxy
     const callback = app.proxyEnabledCallback || app.callback()
 
-    listened = initServer(app, this.config, callback)
+    const listened = initServer(app, this.config, callback)
 
     // 加载所有模块、初始化服务实例、调用模块created方法
     await this.packagesCreated()

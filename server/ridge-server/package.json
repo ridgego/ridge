@@ -1,0 +1,18 @@
+{
+  "name": "ridge-server",
+  "version": "1.0.0",
+  "description": "Ridge Server",
+  "main": "boot.js",
+  "scripts": {
+    
+  },
+  "files": [
+    "src"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "ridge-boot": "^1.0.0",
+    "ridge-http": "^1.0.0",
+    "ridge-npm-service": "^1.0.0"
+  }
+}

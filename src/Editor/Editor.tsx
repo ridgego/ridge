@@ -1,5 +1,4 @@
 import * as React from "react";
-import Guides from "@scena/react-guides";
 import Selecto, { Rect } from "react-selecto";
 import styled, { StyledElement } from "react-css-styled";
 import Menu from "./Menu/Menu";
@@ -18,7 +17,7 @@ import { DATA_SCENA_ELEMENT_ID, EditorContext, EDITOR_CSS } from "./consts";
 import ClipboardManager from "./utils/ClipboardManager";
 import { NameType } from "scenejs";
 import { getAccurateAgent } from "@egjs/agent";
-import { invert, matrix3d,  } from "@scena/matrix";
+// import { invert, matrix3d,  } from "@scena/matrix";
 import { getElementInfo } from "react-moveable";
 
 
@@ -83,7 +82,6 @@ export default class Editor extends React.PureComponent<{
     public keyManager = new KeyManager(this.console);
     public clipboardManager = new ClipboardManager(this);
 
-    public verticalGuides = React.createRef<Guides>();
     public selecto = React.createRef<Selecto>();
     public menu = React.createRef<Menu>();
     public moveableManager = React.createRef<MoveableManager>();
@@ -721,11 +719,11 @@ export default class Editor extends React.PureComponent<{
             const frame = data.getFrame(info.el!);
             let nextMatrix = getOffsetOriginMatrix(info.el!, container);
 
-            nextMatrix = invert(nextMatrix, 4);
+            // nextMatrix = invert(nextMatrix, 4);
 
-            const moveMatrix = matrix3d(nextMatrix, info.moveMatrix);
+            // const moveMatrix = matrix3d(nextMatrix, info.moveMatrix);
 
-            setMoveMatrix(frame, moveMatrix);
+            // setMoveMatrix(frame, moveMatrix);
             data.render(info.el!);
         });
         return Promise.all(targets.map(target => checkImageLoaded(target))).then(() => {

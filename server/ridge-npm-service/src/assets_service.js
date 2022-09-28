@@ -1,12 +1,12 @@
-const { BadRequestError, HttpError, NotFoundError, ServiceUnavailableError } = require('@gw/wind-core-http')
+const { BadRequestError, HttpError, NotFoundError, ServiceUnavailableError } = require('ridge-http')
 const download = require('download')
 const axios = require('axios')
-const fs = require('fs')
+const fs = require('fs-extra')
 const tar = require('tar')
 const concat = require('concat')
 const hash = require('object-hash')
 const debug = require('debug')('apollo:assets')
-const webpackExternals = require('@gw/wind-pack-externals')
+const webpackExternals = require('ridge-externals')
 const path = require('path')
 // compareVersions = require('compare-versions');
 
@@ -34,12 +34,7 @@ class AssetsService {
   }
 
   async initRoute (router) {
-    if (!fs.existsSync(this.packageStorage)) {
-      await fs.mkdirSync(`${this.packageStorage}`)
-    }
-    if (!fs.existsSync(`${this.packageStorage}/fs-concat`)) {
-      await fs.mkdirSync(`${this.packageStorage}/fs-concat`)
-    }
+    fs.ensureDirSync(`${this.packageStorage}`)
     // 获取npm版本包的信息
     router.get(ASSETS_PREFIX + '/pkg/info', async (ctx, next) => {
       const { name, version, app } = ctx.query
@@ -255,9 +250,11 @@ class AssetsService {
     this.logger && this.logger.debug(`fetch with query name=${packageName}, version=${packageVersion}`)
 
     // 清空既有目录
-    fs.rmdirSync(distPath, {
-      recursive: true
-    })
+    if (fs.existsSync(distPath)) {
+      fs.rmdirSync(distPath, {
+        recursive: true
+      })
+    }
 
     this.mkdirsSync(distPath)
 

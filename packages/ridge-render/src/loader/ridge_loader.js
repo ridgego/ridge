@@ -192,12 +192,10 @@ class RidgeLoader {
 
         // 首先递归下载依赖的依赖
         if (externalModule.dependencies) {
-          await this.loadPelExternals(externalModule.dependencies)
+          await this.loadExternals(externalModule.dependencies)
         }
 
-        const externalLibPath = externalModule.dist
-          ? `${this.getServePath()}/npm_packages/${externalModule.dist}`
-          : `${this.getServePath()}/npm_packages/${externalModule.prod}`
+        const externalLibPath = `${this.baseUrl}/${externalModule.dist}`;
 
         if (externalModule.style) {
           // 外界定义的样式加载地址
@@ -218,8 +216,7 @@ class RidgeLoader {
               }
             }
           } else if (typeof externalModule.style === 'string') {
-            await this.loadScript(`${this.getServePath()}/npm_packages/${externalModule.style}`)
-            // await this.loadCss(`${this.getServePath()}/npm_packages/${externalModule.style}`);
+            await this.loadScript(`${this.baseUrl}/${externalModule.style}`)
           }
         }
 
@@ -592,7 +589,7 @@ class RidgeLoader {
             // 可以加载到包
             if (jsonLoaded.dependencies) {
               log('加载库依赖', jsonLoaded.name, Object.keys(jsonLoaded.dependencies))
-              await this.loadPelExternals(Object.keys(jsonLoaded.dependencies))
+              await this.loadExternals(Object.keys(jsonLoaded.dependencies))
             }
             this.packageJSONCache[packageName] = jsonLoaded
           } else {

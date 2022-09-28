@@ -1,5 +1,5 @@
 import FrontComponentView from './fc_view.js'
-import { FCLoader } from 'ridge-render'
+import { RidgeLoader } from 'ridge-render'
 import debug from 'debug'
 
 import AnimationDecorator from './decorator/animation_decorator.js'
@@ -17,7 +17,7 @@ const log = debug('runtime:fc-view-manager')
  *
  * 通过 fcViewManager.getComponentView(fcViewId, pageId) 可以获得一个前端组件实例
  * @class
- * @property {FCLoader} loader - 组件加载器实例
+ * @property {RidgeLoader} loader - 组件加载器实例
  * @property {Object} apolloApp - 应用服务实例
  * @property {Object} rootComponentViews  根上的组件， 以分页为单位
  * @property {Object} componentViews  展平后所有的组件， 以分页为单位
@@ -98,7 +98,7 @@ class FCViewManager {
      */
   constructor ({ baseUrl }) {
     /** @property 组件加载器 */
-    this.loader = new FCLoader(baseUrl)
+    this.loader = new RidgeLoader(baseUrl)
 
     /** @property 展平后所有的组件， 以分页为单位 */
     this.componentViews = {}

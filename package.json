@@ -18,7 +18,6 @@
     "@daybrush/utils": "^1.9.1",
     "@egjs/agent": "^2.4.3",
     "@scena/matrix": "^1.1.1",
-    "@scena/react-guides": "^0.17.1",
     "antd": "^4.23.2",
     "framework-utils": "^1.1.0",
     "html2canvas": "^1.4.1",
@@ -30,10 +29,10 @@
     "react-moveable": "^0.38.4",
     "react-selecto": "^1.19.1",
     "ridge-view-manager": "^1.0.0",
-    "scenejs": "^1.6.0",
-    "standard": "^17.0.0"
+    "scenejs": "^1.6.0"
   },
   "devDependencies": {
+    "standard": "^17.0.0",
     "@daybrush/builder": "^0.1.2",
     "@types/react": "^18.0.18",
     "@types/react-color": "^3.0.6",
