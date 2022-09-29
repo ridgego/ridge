@@ -25,5 +25,5 @@
     "src",
     "components",
     ""
-  ]
+, "editor/viewport/RidgeNode.jsx"  ]
 }
