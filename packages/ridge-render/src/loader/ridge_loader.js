@@ -24,6 +24,8 @@ class RidgeLoader {
    */
   constructor (baseUrl, opts) {
     this.baseUrl = baseUrl || ''
+    this.unpkgUrl = 'http://unpkg.com'
+
     important('RidgeLoader baseUrl: ' + this.baseUrl)
 
     /** @property 前端组件加载缓存 key: 组件lib名称或加载地址  value: 组件fcp */
@@ -122,7 +124,7 @@ class RidgeLoader {
    * @returns {string}
    */
   getComponentLibName ({ packageName, path }) {
-    return `${packageName}/build/${path}`
+    return `/${packageName}/${path}`
   }
 
   /**
@@ -195,7 +197,7 @@ class RidgeLoader {
           await this.loadExternals(externalModule.dependencies)
         }
 
-        const externalLibPath = `${this.baseUrl}/${externalModule.dist}`;
+        const externalLibPath = `${this.unpkgUrl}/${externalModule.dist}`;
 
         if (externalModule.style) {
           // 外界定义的样式加载地址
@@ -216,7 +218,7 @@ class RidgeLoader {
               }
             }
           } else if (typeof externalModule.style === 'string') {
-            await this.loadScript(`${this.baseUrl}/${externalModule.style}`)
+            await this.loadScript(`${this.unpkgUrl}/${externalModule.style}`)
           }
         }
 
@@ -233,7 +235,7 @@ class RidgeLoader {
                 }
               })
             } catch (e) {
-              console.error('第三方库加载异常 ', `${this.baseUrl}/${externalModule.module}@latest/${externalModule.dist}`)
+              console.error('第三方库加载异常 ', `${externalModule.module}`)
             }
           })()
         }
@@ -347,7 +349,7 @@ class RidgeLoader {
 
     // globalThis方式
     if (window[scriptLibName]) {
-      return window[scriptLibName]
+      return window[scriptLibName].default
     } else {
       return null;
     }

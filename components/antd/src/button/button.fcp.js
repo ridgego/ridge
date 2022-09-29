@@ -1,7 +1,11 @@
-import { Button } from 'antd'
+import AntdButton from "./AntdButton"
 
 export default {
   name: 'button',
-  component: Button,
-  props: []
+  component: AntdButton,
+  props: [{
+    name: 'text',
+    type: 'string',
+    value: '按钮'
+  }]
 }

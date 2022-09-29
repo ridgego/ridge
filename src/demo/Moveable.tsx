@@ -5,7 +5,6 @@ import { ScenaProps } from "../Editor/types";
 import Editor, { makeScenaFunctionComponent } from "../Editor";
 
 import { FCViewManager } from 'ridge-view-manager';
-import { createRoot } from 'react-dom/client';
 
 const fcViewManager = new FCViewManager({
     baseUrl: '/npm_packages'
@@ -21,7 +20,7 @@ const ReactFCComponent = makeScenaFunctionComponent('ReactFc', (props: ScenaProp
         
         console.log('ReactFC props', props);
     }, ['scenaElementId']);
-    return <div className="badges" data-scena-element-id={props.scenaElementId} ref={ref}></div>;
+    return <div className="ridge" data-scena-element-id={props.scenaElementId} ref={ref}></div>;
 });
 
 

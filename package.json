@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
+    "stats": "webpack --profile --json > stats.json",
     "start": "webpack serve --open"
   },
   "workspaces": [

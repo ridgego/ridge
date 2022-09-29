@@ -74,7 +74,7 @@ class FCView {
     await this.loadComponentDefinition()
     await this.initChildViews()
     this.initPropsAndEvents()
-    this.mount(el)
+    this.mount(el || this.el);
   }
 
   /**
@@ -269,7 +269,7 @@ class FCView {
       }
       // 属性进行动态绑定的情况 （动态属性） 这里只进行一次计算， 动态属性更新时会调用update进行更新
       // eslint-disable-next-line max-len
-      if (this.fcInstanceConfig.reactiveProps[prop.name]) {
+      if (this.fcInstanceConfig.reactiveProps && this.fcInstanceConfig.reactiveProps[prop.name]) {
         const context = Object.assign({}, this.contextVariables, {
           $scope: this.scopeVariables
         })
@@ -295,11 +295,7 @@ class FCView {
         fcView.setScopeVariables(this.scopeVariables)
       })
     }
-
-    // 按照图纸给出宽度和高度到属性设置 后面moute时可能还要调整
-    this.instancePropConfig.width = this.fcInstanceConfig.width
-    this.instancePropConfig.height = this.fcInstanceConfig.height
-
+    
     // 事件类属性写入，DOM初始化后事件才能挂到源头
     for (const event of this.componentDefinition.events || []) {
       this.instancePropConfig[event.name] = (...args) => {
@@ -321,19 +317,7 @@ class FCView {
       this.instancePropConfig[slotProp] = this.slotFcViews[slotProp]
     }
 
-    // 设置默认的系统级别字段 (未来废弃用 $$ 标识)
-    this.instancePropConfig.currentFcView = this
-    this.instancePropConfig.isRuntime = true
-    this.instancePropConfig.contextVariables = this.contextVariables
-    this.instancePropConfig.apolloApp = this.apolloApp
-
-    // 系统级属性用 $$ 标识
-    this.instancePropConfig.$$currentFcView = this
-    this.instancePropConfig.$$isRuntime = true
-    this.instancePropConfig.$$contextVariables = this.contextVariables
-    this.instancePropConfig.$$apolloApp = this.apolloApp
-    this.instancePropConfig.$$scopeVariables = this.scopeVariables
-    this.instancePropConfig.$$locale = this.apolloApp.locale
+    this.instancePropConfig.$$ridge = this
 
     try {
       Object.values(this.decorators).forEach(decorator => decorator.initPropEvents(this))
@@ -447,52 +431,28 @@ class FCView {
      * 执行组件初次加载 mount到具体DOM元素
      */
   mount (el, noRetry) {
-    if (el) {
-      this.el = el
-      // 检测到需要为DOM绑定事件，则在此处绑定
-      // !!!! 事件的回调已经统一注册到 this.eventCallbacks 之中了， 当emit时按名称会调用事件
-      if (this.domEvents.length) {
-        for (const eventName of this.domEvents) {
-          this.attachElEvent(el, eventName)
-        }
+    if (!el) {
+      console.error('No Element to Mount');
+    }
+
+    // 检测到需要为DOM绑定事件，则在此处绑定
+    // !!!! 事件的回调已经统一注册到 this.eventCallbacks 之中了， 当emit时按名称会调用事件
+    if (this.domEvents.length) {
+      for (const eventName of this.domEvents) {
+        this.attachElEvent(el, eventName)
       }
     }
 
     try {
-      if (this.el.style.position === 'absolute') {
-        // 对于绝对定位的元素，直接给定绝对定位的宽高信息
-        if (this.el.style.width && this.el.style.height) {
-          this.instancePropConfig.width = parseInt(this.el.style.width)
-          this.instancePropConfig.height = parseInt(this.el.style.height)
-        }
-      } else {
-        let rect = this.el.getBoundingClientRect()
-
-        if (this.el.style.display === 'none') {
-          this.el.style.display = ''
-          rect = this.el.getBoundingClientRect()
-          this.el.style.display = 'none'
-        }
-
-        if (rect.width > 0 && rect.height > 0) {
-          this.instancePropConfig.width = rect.width
-          this.instancePropConfig.height = rect.height
-        }
-      }
-      this.el.style.background = ''
       // 判断组件交互事件类型添加鼠标悬浮状态
-      this.checkFcViewEvents(this.fcInstanceConfig.in, this.el)
+      this.checkFcViewEvents(this.fcInstanceConfig.in, el)
 
       log('mount with', this.fcInstanceConfig.guid, this.instancePropConfig)
 
       // 更新所有动态属性
       Object.assign(this.instancePropConfig, this.evaluateReactiveProps())
       this.convertPropTypes(this.instancePropConfig, this.componentDefinition.props)
-      this.renderer = this.componentDefinition.factory.mount(this.el, this.instancePropConfig)
-      // 检查数据获取是否满足， 如果未获取 显示一个加载中的遮罩层
-      // this.checkDBLoaded();
-
-      // this.renderAnimation();
+      this.renderer = this.componentDefinition.factory.mount(el, this.instancePropConfig)
       try {
         Object.values(this.decorators).forEach(decorator => decorator.mounted(this))
       } catch (e) {
@@ -680,9 +640,7 @@ class FCView {
   setVisible (visible) {
     this.visible = visible
     if (this.el) {
-      if (visible) {
-        this.el.style.display = 'inherit'
-      } else {
+      if (visible === false) {
         this.el.style.display = 'none'
       }
     }
@@ -836,32 +794,6 @@ class FCView {
         console.error('事件处理异常', e)
       }
       return false
-    }
-  }
-
-  layout () {
-    if (this.el) {
-      let rect = this.el.getBoundingClientRect()
-
-      if (this.el.style.display === 'none') {
-        this.el.style.display = ''
-        rect = this.el.getBoundingClientRect()
-        this.el.style.display = 'none'
-      }
-
-      if (rect.width > 0 && rect.height > 0) {
-        this.instancePropConfig.width = rect.width
-        this.instancePropConfig.height = rect.height
-      }
-
-      this.updateProps({
-        width: rect.width,
-        height: rect.height
-      })
-
-      for (const childFcView of this.childrenFcViews) {
-        childFcView.layout()
-      }
     }
   }
 

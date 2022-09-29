@@ -2,10 +2,10 @@ import FrontComponentView from './fc_view.js'
 import { RidgeLoader } from 'ridge-render'
 import debug from 'debug'
 
-import AnimationDecorator from './decorator/animation_decorator.js'
-import DataStatusDecorator from './decorator/data_status_decorator.js'
-import TooltipDecorator from './decorator/tooltip_decorator.js'
-import ThemeDecorator from './decorator/theme_decorator.js'
+// import AnimationDecorator from './decorator/animation_decorator.js'
+// import DataStatusDecorator from './decorator/data_status_decorator.js'
+// import TooltipDecorator from './decorator/tooltip_decorator.js'
+// import ThemeDecorator from './decorator/theme_decorator.js'
 
 import ScrollBarDecorator from './decorator/scrollbar_decorator.js'
 
@@ -126,10 +126,10 @@ class FCViewManager {
 
     // 组件渲染器
     this.viewDecorators = {
-      animation: new AnimationDecorator(this),
-      dataStatus: new DataStatusDecorator(this),
-      tooltip: new TooltipDecorator(this),
-      theme: new ThemeDecorator(this)
+      // animation: new AnimationDecorator(this),
+      // dataStatus: new DataStatusDecorator(this),
+      // tooltip: new TooltipDecorator(this),
+      // theme: new ThemeDecorator(this)
     }
     // 支持从全局修改decorators
     if (window.top.fdreConfig && window.top.fdreConfig.fcViewDecorators) {
@@ -431,6 +431,7 @@ class FCViewManager {
         packageName,
         path,
         viewConfig,
+        decorators: this.viewDecorators,
         loader: this.loader
       })
       await frontComponentView.loadAndRender()
