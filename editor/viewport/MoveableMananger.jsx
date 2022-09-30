@@ -11,22 +11,18 @@ export default class MoveableManager extends React.Component {
         const {
             selectedTargets,
             zoom,
+            rectChange,
         } = this.props;
 
         if (!selectedTargets.length) {
             return this.renderViewportMoveable();
         }
-        const moveableData = this.moveableData;
-        const elementGuidelines = [document.querySelector(".scena-viewport"), ...moveableData.getTargets()].filter(el => {
-            return selectedTargets.indexOf(el) === -1;
-        });
-
-        const isShift = this.keyManager.shiftKey;
+        const selectedElement = selectedTargets.map(t => document.getElementById(t));
+        const elementGuidelines = [document.querySelector(".scena-viewport"), ...selectedElement];
 
         return <Moveable
-            ables={[DimensionViewable, DelteButtonViewable]}
             ref={this.moveable}
-            targets={selectedTargets}
+            targets={selectedElement}
             dimensionViewable={true}
             deleteButtonViewable={false}
             draggable={true}
@@ -35,9 +31,9 @@ export default class MoveableManager extends React.Component {
             pinchable={["rotatable"]}
             zoom={1 / zoom}
             throttleResize={1}
-            throttleDragRotate={isShift ? 45 : 0}
+            throttleDragRotate={0}
             /* When resize or scale, keeps a ratio of the width, height. */
-            keepRatio={selectedTargets.length > 1 ? true : isShift}
+            keepRatio={selectedTargets.length > 1 ? true : false}
             rotatable={false}
             snappable={true}
             snapGap={false}
@@ -63,7 +59,10 @@ export default class MoveableManager extends React.Component {
                 console.log("onDrag left, top", left, top);
                 // target!.style.left = `${left}px`;
                 // target!.style.top = `${top}px`;
-                console.log("onDrag translate", dist);
+                console.log("onDrag Delta", delta);
+                rectChange(target, {
+                    delta
+                })
                 // target.style.transform = transform;
             }}
             onDragEnd={({ target, isDrag, clientX, clientY }) => {
@@ -101,8 +100,6 @@ export default class MoveableManager extends React.Component {
                 console.log("onScaleEnd", target, isDrag);
             }}
 
-            /* rotatable */
-            rotatable={true}
             throttleRotate={0}
             onRotateStart={({ target, clientX, clientY }) => {
                 console.log("onRotateStart", target);
@@ -120,7 +117,6 @@ export default class MoveableManager extends React.Component {
             }}
             // Enabling pinchable lets you use events that
             // can be used in draggable, resizable, scalable, and rotateable.
-            pinchable={true}
             onPinchStart={({ target, clientX, clientY, datas }) => {
                 // pinchStart event occur before dragStart, rotateStart, scaleStart, resizeStart
                 console.log("onPinchStart");
@@ -138,18 +134,7 @@ export default class MoveableManager extends React.Component {
 
 
     renderViewportMoveable() {
-        const moveableData = this.moveableData;
-        const viewport = this.getViewport();
-        const target = viewport ? viewport.viewportRef.current : null;
-
-        return <Moveable
-            ref={this.moveable}
-            // rotatable={true}
-            target={target}
-            origin={false}
-            onRotateStart={moveableData.onRotateStart}
-            onRotate={moveableData.onRotate}
-        ></Moveable>
+        return <div></div>
     }
     
     componentDidMount() {

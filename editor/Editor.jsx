@@ -6,6 +6,7 @@ import MoveableManager from "./viewport/MoveableMananger.jsx";
 export default class Editor extends React.Component {
     constructor(props) {
         super(props);
+        this.contentRef = React.createRef()
         this.state = {
             selectedTargets: [],
             viewX: 0,
@@ -15,10 +16,8 @@ export default class Editor extends React.Component {
     }
     render() {
         const {
-            moveableManager,
             viewport,
             menu,
-            selecto,
             state,
             contentRef,
             workspaceWrapper
@@ -30,8 +29,7 @@ export default class Editor extends React.Component {
             viewY
         } = state;
         const {
-            width,
-            height,
+            pageConfig
         } = this.props;
         let unit = 50;
 
@@ -51,14 +49,15 @@ export default class Editor extends React.Component {
                             zoom: zoom
                         }}>
                         <Viewport ref={viewport}
+                            { ... pageConfig }
                             onBlur={this.onBlur}
                             style={{
                                 transform: `translate(${viewX}px, ${viewY}px)`,
-                                width: `${width}px`,
-                                height: `${height}px`,
+                                width: `${pageConfig.properties.width}px`,
+                                height: `${pageConfig.properties.height}px`,
                             }}>
                             <MoveableManager
-                                ref={moveableManager}
+                                rectChange={this.rectChange.bind(this)}
                                 selectedTargets={selectedTargets}
                                 zoom={zoom}
                             ></MoveableManager>
@@ -67,7 +66,6 @@ export default class Editor extends React.Component {
                 </div>
                 
                 <Selecto
-                    ref={selecto}
                     dragContainer={".workspace"}
                     hitRate={0}
                     selectableTargets={[`.viewport-container .ridge-node`]}
@@ -82,8 +80,6 @@ export default class Editor extends React.Component {
                             e.stop();
                         }
                         const target = inputEvent.target;
-
-                        this.console.log('Selecto Drag Start', target);
                     }}
                     onScroll={({ direction }) => {
                         // infiniteViewer.current!.scrollBy(direction[0] * 10, direction[1] * 10);
@@ -92,26 +88,54 @@ export default class Editor extends React.Component {
                         if (isDragStart) {
                             inputEvent.preventDefault();
                         }
-                        if (this.selectEndMaker(rect)) {
-                            return;
-                        }
-                        this.setSelectedTargets(selected).then(() => {
-                            if (!isDragStart) {
-                                return;
-                            }
-                        });
+                        this.setSelectedTargets(selected);
                     }}
                 ></Selecto>
             </div>
         );
     }
 
-    componentDidMount() {
+    rectChange(target, opts) {
+        const { styleChange, pageConfig } = this.props;
+        const nodeId = target.getAttribute('ridge-componet-id');
 
+        const targetNode = pageConfig.nodes.filter(n => n.id === nodeId)[0];
+
+
+        let newTop = parseInt(targetNode.style.top);
+        let newLeft = parseInt(targetNode.style.left);
+
+        if (opts.delta) {
+            newTop += opts.delta[1];
+            newLeft += opts.delta[0];
+        }
+        if (targetNode) {
+            styleChange({
+                targetNode,
+                style: {
+                    top: newTop + 'px',
+                    left: newLeft + 'px'
+                }
+            })
+        }
+
+        console.log(target, opts);
+    }
+
+    setSelectedTargets(selected) {
+        this.setState({
+            selectedTargets: selected.map(el => el.getAttribute('id'))
+        })
+    }
+
+    componentDidMount() {
+        this.fitToCenter()
     }
    
     fitToCenter() {
-        const { width : contentWidth, height: contentHeight } = this.contentRef.current.getBoundingClientRect();
+        const refRect = this.contentRef.current.getBoundingClientRect();
+        const contentWidth = refRect.width;
+        const contentHeight = refRect.height;
         const { width, height } =  this.props;
 
         if (contentWidth > width && contentHeight > height) {

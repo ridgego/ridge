@@ -2,5 +2,6 @@
     "eslint.enable": false,
     "standard._legacyModuleResolve": true,
     "standard.trace.server": "verbose",
-    "standard.usePackageJson": false
+    "standard.usePackageJson": false,
+    "standard.enable": true
 }
