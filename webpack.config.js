@@ -25,19 +25,18 @@ module.exports = {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: [{
-            loader: 'babel-loader',
-            options: {
-                    cacheDirectory: true,
-                    presets: [
-                        [
-                            '@babel/env',
-                            { modules: false }
-                        ],
-                        '@babel/react'
-                    ]
-                }
+          loader: 'babel-loader',
+          options: {
+            cacheDirectory: true,
+            presets: [
+              [
+                '@babel/env',
+                { modules: false }
+              ],
+              '@babel/react'
+            ]
           }
-        ]
+        }]
       },
       {
         test: /\.css$/i,
