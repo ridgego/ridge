@@ -1,4 +1,4 @@
-import AntdButton from "./AntdButton"
+import AntdButton from './AntdButton'
 
 export default {
   name: 'button',

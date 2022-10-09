@@ -1,11 +1,11 @@
-import AntdButton from './AntdButton'
+import AntdButton from './AntdInput'
 
 export default {
   name: 'button',
   component: AntdButton,
   props: [{
-    name: 'text',
+    name: 'placeholder',
     type: 'string',
-    value: '按钮'
+    value: '请输入内容'
   }]
 }

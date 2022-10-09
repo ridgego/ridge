@@ -1,7 +1,7 @@
 {
   "name": "ridge-component-antd",
   "version": "1.0.0",
-  "description": "",
+  "description": "Antd组件",
   "main": "index.js",
   "scripts": {
     "build": "build-fc",
@@ -14,6 +14,9 @@
   "files": [
     "build"
   ],
+  "ridge": {
+    "pacakgeIcon": "previews/antd.svg"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {

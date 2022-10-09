@@ -14,6 +14,9 @@
   "files": [
     "build"
   ],
+  "ridge": {
+    "pacakgeIcon": "previews/antd.svg"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
