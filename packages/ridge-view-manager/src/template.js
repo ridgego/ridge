@@ -1,4 +1,4 @@
-import _ from 'lodash'
+// import _ from 'lodash'
 import debug from 'debug'
 const log = debug('runtime:template')
 const compiledTemplates = new Map()

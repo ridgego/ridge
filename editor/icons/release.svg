@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" fill="currentColor" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>发布</title>
+    <g id="组件" stroke="none" stroke-width="1"  fill-rule="evenodd">
+        <g id="顶部工具栏" transform="translate(-1880.000000, -12.000000)"  fill-rule="nonzero">
+            <g id="发布">
+                <path d="M1892.96,25.3538462 L1887.04,23.2615385 L1892.32,16.1230769 L1885.54667,22.7692308 L1880,20.8615385 L1896,12 L1892.96,25.3538462 Z M1886.88,28 L1886.88,24.3076923 L1888.8,24.9230769 L1886.88,28 L1886.88,28 Z"></path>
+            </g>
+        </g>
+    </g>
+</svg>

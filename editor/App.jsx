@@ -2,19 +2,13 @@ import React from 'react'
 import Editor from './Editor.jsx'
 import { Map, List } from 'immutable'
 
-import { FCViewManager } from 'ridge-view-manager'
-
-const fcViewManager = new FCViewManager({
-  baseUrl: '/npm_packages'
-})
-
 class App extends React.Component {
   constructor (props) {
     super(props)
 
     this.pageConfig = {
       properties: {
-        width: 320,
+        width: 800,
         height: 640
       },
       nodes: [{
@@ -29,8 +23,6 @@ class App extends React.Component {
         },
         style: {
           position: 'absolute',
-          left: '100px',
-          top: '30px',
           width: '80px',
           height: '40px'
         }
@@ -46,13 +38,31 @@ class App extends React.Component {
         },
         style: {
           position: 'absolute',
-          left: '20px',
-          top: '22px',
           width: '80px',
           height: '50px'
         }
       }]
     }
+
+    // for (let i = 0; i < 10; i++) {
+    //   this.pageConfig.nodes.push({
+    //     id: i + 1,
+    //     name: 'button',
+    //     component: {
+    //       packageName: 'ridge-component-antd',
+    //       path: 'build/button-button.fcp.js'
+    //     },
+    //     props: {
+
+    //     },
+    //     style: {
+    //       position: 'absolute',
+    //       transform: `translate(${Math.random() * 1900}px, ${Math.random() * 960}px)`,
+    //       width: '80px',
+    //       height: '50px'
+    //     }
+    //   })
+    // }
 
     this.pageProperties = Map(this.pageConfig.properties)
     this.pageNodes = List(this.pageConfig.nodes)

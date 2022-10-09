@@ -2,6 +2,7 @@ import React from 'react'
 import Selecto from 'react-selecto'
 import Viewport from './viewport/ViewPort.jsx'
 import MoveableManager from './viewport/MoveableMananger.jsx'
+import Toolbar from './Toolbar.jsx'
 
 export default class Editor extends React.Component {
   constructor (props) {
@@ -22,7 +23,8 @@ export default class Editor extends React.Component {
       state,
       contentRef,
       workspaceWrapper,
-      movableManager
+      movableManager,
+      zoomChange
     } = this
     const {
       selectedTargets,
@@ -36,6 +38,7 @@ export default class Editor extends React.Component {
 
     return (
       <div className='ridge-editor'>
+        <Toolbar zoom={zoom} zoomChange={zoomChange.bind(this)} />
         <div
           ref={contentRef} className='content' style={{
             top: '42px',
@@ -154,6 +157,16 @@ export default class Editor extends React.Component {
     }, () => {
 
     })
+  }
+
+  zoomChange (zoom) {
+    if (zoom) {
+      this.setState({
+        zoom
+      })
+    } else {
+      this.fitToCenter()
+    }
   }
 
   componentDidMount () {

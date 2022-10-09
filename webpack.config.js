@@ -39,6 +39,16 @@ module.exports = {
         }]
       },
       {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+        // test: /\.svg$/,
+        include: [
+          /icons/
+        ],
+        use: [
+          '@svgr/webpack', 'url-loader'
+        ]
+      },
+      {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader']
       }

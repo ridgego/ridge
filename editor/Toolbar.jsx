@@ -1,96 +1,95 @@
-import React from "react";
+import React from 'react'
+import { Button, Divider, Dropdown, Menu } from 'antd'
+import { PlusOutlined, MinusOutlined } from '@ant-design/icons'
+import 'antd/dist/antd.css'
 
 export default class Toolbar extends React.Component {
-    constructor(props) {
-        super(props);
-        this.ref = React.createRef()
-        this.state = {
-            selectedTargets: [],
-            viewX: 0,
-            viewY: 0,
-            zoom: 1
-        }
+  constructor (props) {
+    super(props)
+    this.ref = React.createRef()
+    this.state = {
+      selectedTargets: [],
+      viewX: 0,
+      viewY: 0
     }
+  }
 
-    render() {
-        const {
-            viewport,
-            menu,
-            state,
-            contentRef,
-            workspaceWrapper
-        } = this;
-        const {
-            selectedTargets,
-            zoom,
-            viewX,
-            viewY
-        } = state;
-        const {
-            pageConfig
-        } = this.props;
-        let unit = 50;
+  render () {
+    const { zoom, zoomChange } = this.props
+    const zoomMenu = (
+      <Menu>
+        <Menu.Item
+          key='100'
+          onClick={() => zoomChange()}
+        >
+          适应窗口
+        </Menu.Item>
+        {[
+          {
+            key: 0.8,
+            value: '80%'
+          },
+          {
+            key: 1,
+            value: '100%'
+          },
+          {
+            key: 1.5,
+            value: '150%'
+          },
+          {
+            key: 2,
+            value: '200%'
+          }
+        ].map(info => (
+          <Menu.Item
+            key={info.key}
+            onClick={() => zoomChange(info.key)}
+          >
+            {info.value}
+          </Menu.Item>
+        ))}
+      </Menu>
+    )
+    return (
+      <div className='ridge-toolbar'>
+        <Divider
+          type='vertical'
+        />
+        <div class='left' />
+        <div className='right'>
+          <Button
+            title='减小画布'
+            type='text'
+            onClick={() => zoomChange(zoom - 0.05)}
+            icon={<MinusOutlined />}
+          />
 
-        if (zoom < 0.8) {
-            unit = Math.floor(1 / zoom) * 50;
-        }
-        return (
-            <div className="ridge-editor">
-              
-              <div ref={contentRef} className="content" style={{
-                      top: '42px',
-                      bottom: 0,
-                      position: 'absolute',
-                      width: '100%'
-                  }}>
-                  <div className="workspace" ref={workspaceWrapper}
-                      style={{
-                          zoom: zoom
-                      }}>
-                      <Viewport ref={viewport}
-                          { ... pageConfig }
-                          onBlur={this.onBlur}
-                          style={{
-                              transform: `translate(${viewX}px, ${viewY}px)`,
-                              width: `${pageConfig.properties.width}px`,
-                              height: `${pageConfig.properties.height}px`,
-                          }}>
-                          <MoveableManager
-                              rectChange={this.rectChange.bind(this)}
-                              selectedTargets={selectedTargets}
-                              zoom={zoom}
-                          ></MoveableManager>
-                      </Viewport>
-                  </div>
-              </div>
-              
-              <Selecto
-                  dragContainer={".workspace"}
-                  hitRate={0}
-                  selectableTargets={[`.viewport-container .ridge-node`]}
-                  selectByClick={true}
-                  selectFromInside={false}
-                  toggleContinueSelect={["shift"]}
-                  preventDefault={true}
-                  onDragStart={e => {
-                      const inputEvent = e.inputEvent;
+          <Dropdown
+            overlay={zoomMenu}
+            placement='bottomLeft'
+          >
+            <Button
+              type='text'
+              size='middle'
+              style={{
+                padding: 0,
+                width: '50px'
+              }}
+            >
+              {Math.round(zoom * 100) + '%'}
+            </Button>
+          </Dropdown>
 
-                      if (inputEvent.ctrlKey) {
-                          e.stop();
-                      }
-                      const target = inputEvent.target;
-                  }}
-                  onScroll={({ direction }) => {
-                      // infiniteViewer.current!.scrollBy(direction[0] * 10, direction[1] * 10);
-                  }}
-                  onSelectEnd={({ isDragStart, selected, inputEvent, rect }) => {
-                      if (isDragStart) {
-                          inputEvent.preventDefault();
-                      }
-                      this.setSelectedTargets(selected);
-                  }}
-              ></Selecto>
-            </div>
-        );
-    }
+          <Button
+            title='增大画布'
+            type='text'
+            icon={<PlusOutlined />}
+            onClick={() => zoomChange(zoom + 0.05)}
+          />
+
+        </div>
+      </div>
+    )
+  }
 }

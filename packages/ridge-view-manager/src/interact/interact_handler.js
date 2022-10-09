@@ -1,6 +1,6 @@
 import debug from 'debug'
 import ky from 'ky'
-import template from '../template.js'
+// import template from '../template.js'
 
 const trace = debug('runtime:in')
 const updateLocale = async (appName, locale) => {
