@@ -18,9 +18,8 @@ export default class MoveableManager extends React.Component {
   render () {
     const {
       selectedTargets,
-      guideLineNodes,
       zoom,
-      rectChange
+      styleChange
     } = this.props
 
     const { resizeStart, moveable } = this
@@ -61,6 +60,7 @@ export default class MoveableManager extends React.Component {
           transform
         }) => {
           target.style.transform = transform
+          styleChange && styleChange(target)
         }}
         onDragGroupStart={groupDrag => {
 
@@ -93,9 +93,6 @@ export default class MoveableManager extends React.Component {
         onDragEnd={({ target, isDrag, clientX, clientY }) => {
         }}
         onResizeStart={({ target, clientX, clientY }) => {
-          resizeStart.x = clientX
-          resizeStart.y = clientY
-          // console.log('onResizeStart', target)
         }}
         onResize={({
           target,
@@ -107,6 +104,7 @@ export default class MoveableManager extends React.Component {
           target.style.transform = transform
           delta[0] && (target.style.width = `${width}px`)
           delta[1] && (target.style.height = `${height}px`)
+          styleChange && styleChange(target)
         }}
         onResizeEnd={({ target, isDrag, clientX, clientY }) => {
           console.log('onResizeEnd', target, isDrag)

@@ -11,11 +11,15 @@ export default class RidgeNode extends React.Component {
     this.ref = React.createRef()
   }
 
+  updateProps (props) {
+    this.view.updateProps(props)
+  }
+
   componentDidMount () {
     const {
       props
     } = this
-    fcViewManager.createComponentView(props.component, this.ref.current, props.props)
+    this.view = fcViewManager.createComponentView(props.component, this.ref.current, props.props)
     console.log('ReactFC props', props)
   }
 

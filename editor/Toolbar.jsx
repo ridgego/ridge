@@ -1,6 +1,8 @@
 import React from 'react'
-import { Button, Divider, Dropdown, Menu } from 'antd'
-import { PlusOutlined, MinusOutlined } from '@ant-design/icons'
+import { Divider, Dropdown, Menu } from 'antd'
+import { Button, Space } from '@douyinfe/semi-ui'
+import { IconPlusStroked, IconMinusStroked, IconCandlestickChartStroked } from '@douyinfe/semi-icons'
+
 import 'antd/dist/antd.css'
 
 export default class Toolbar extends React.Component {
@@ -56,13 +58,13 @@ export default class Toolbar extends React.Component {
         <Divider
           type='vertical'
         />
-        <div class='left' />
-        <div className='right'>
+        <div className='left' />
+        <Space spacing={3}>
           <Button
             title='减小画布'
-            type='text'
+            type='tertiary'
             onClick={() => zoomChange(zoom - 0.05)}
-            icon={<MinusOutlined />}
+            icon={<IconMinusStroked />}
           />
 
           <Dropdown
@@ -70,8 +72,7 @@ export default class Toolbar extends React.Component {
             placement='bottomLeft'
           >
             <Button
-              type='text'
-              size='middle'
+              type='tertiary'
               style={{
                 padding: 0,
                 width: '50px'
@@ -83,12 +84,17 @@ export default class Toolbar extends React.Component {
 
           <Button
             title='增大画布'
-            type='text'
-            icon={<PlusOutlined />}
+            type='tertiary'
+            icon={<IconPlusStroked />}
             onClick={() => zoomChange(zoom + 0.05)}
           />
-
-        </div>
+        </Space>
+        <Button
+          title='增大画布'
+          type='tertiary'
+          icon={<IconCandlestickChartStroked />}
+          onClick={() => zoomChange(zoom + 0.05)}
+        />
       </div>
     )
   }

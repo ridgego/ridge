@@ -18,6 +18,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@daybrush/utils": "^1.9.1",
+    "@douyinfe/semi-ui": "^2.20.4",
     "@egjs/agent": "^2.4.3",
     "@scena/matrix": "^1.1.1",
     "antd": "^4.23.4",

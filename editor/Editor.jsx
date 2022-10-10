@@ -3,14 +3,17 @@ import Selecto from 'react-selecto'
 import Viewport from './viewport/ViewPort.jsx'
 import MoveableManager from './viewport/MoveableMananger.jsx'
 import Toolbar from './Toolbar.jsx'
+import ComponentPropsPanel from './panels/ComponentPropsPanel.jsx'
 
 export default class Editor extends React.Component {
   constructor (props) {
     super(props)
     this.contentRef = React.createRef()
     this.movableManager = React.createRef()
+    this.nodePropPanelRef = React.createRef()
     this.state = {
       selectedTargets: [],
+      currentNodeProps: {},
       viewX: 0,
       viewY: 0,
       zoom: 1.4
@@ -22,12 +25,16 @@ export default class Editor extends React.Component {
       viewport,
       state,
       contentRef,
+      nodePropPanelRef,
       workspaceWrapper,
+      nodeStyleChange,
       movableManager,
+      nodeCanvasChange,
       zoomChange
     } = this
     const {
       selectedTargets,
+      currentNodeProps,
       zoom,
       viewX,
       viewY
@@ -47,11 +54,8 @@ export default class Editor extends React.Component {
             width: '100%'
           }}
         >
-          <div
-            className='workspace' ref={workspaceWrapper}
-            style={{
-            }}
-          >
+          <ComponentPropsPanel node={currentNodeProps} ref={nodePropPanelRef} inputStyleChange={nodeCanvasChange.bind(this)} />
+          <div className='workspace' ref={workspaceWrapper}>
             <Viewport
               ref={viewport}
               {... pageConfig}
@@ -64,8 +68,7 @@ export default class Editor extends React.Component {
             >
               <MoveableManager
                 ref={movableManager}
-                rectChange={this.rectChange.bind(this)}
-                guideLineNodes={pageConfig.nodes}
+                styleChange={nodeStyleChange.bind(this)}
                 selectedTargets={selectedTargets}
                 zoom={zoom}
               />
@@ -84,7 +87,6 @@ export default class Editor extends React.Component {
           onDragStart={e => {
             const inputEvent = e.inputEvent
             const target = inputEvent.target
-            console.log('drag start', target)
             // Group Selected for resize or move
             if (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1) {
               e.stop()
@@ -107,7 +109,6 @@ export default class Editor extends React.Component {
             // const target = inputEvent.target
           }}
           onScroll={({ direction }) => {
-            // infiniteViewer.current!.scrollBy(direction[0] * 10, direction[1] * 10);
           }}
           onSelectEnd={({ isDragStart, selected, inputEvent, rect }) => {
             if (isDragStart) {
@@ -120,42 +121,34 @@ export default class Editor extends React.Component {
     )
   }
 
-  rectChange (target, opts) {
-    console.log('rect change', opts)
-    const { styleChange, pageConfig } = this.props
-    const nodeId = target.getAttribute('ridge-componet-id')
+  nodeStyleChange (el) {
+    this.nodePropPanelRef.current?.styleChange(el)
+  }
 
-    const targetNode = pageConfig.nodes.filter(n => n.id === nodeId)[0]
+  /**
+   * Update To Canvas Style
+   */
+  nodeCanvasChange (values, field) {
+    const { selectedTargets } = this.state
+    document.getElementById(selectedTargets[0]).style.width = values.width + 'px'
+    document.getElementById(selectedTargets[0]).style.height = values.height + 'px'
+    document.getElementById(selectedTargets[0]).style.transform = `translate(${values.x}px, ${values.y}px)`
+    const moveable = this.movableManager.current?.getMoveable()
+    moveable.updateTarget()
+  }
 
-    let newTop = parseInt(targetNode.style.top)
-    let newLeft = parseInt(targetNode.style.left)
-    // const newWidth = parseInt(targetNode.style.width)
-    // const newHeight = parseInt(targetNode.style.height)
-
-    if (opts.delta) {
-      newTop += opts.delta.y || 0
-      newLeft += opts.delta.x || 0
-      // newWidth += opts.delta.width || 0
-      // newHeight += opts.delta.height || 0
-    }
-    if (targetNode) {
-      styleChange({
-        targetNode,
-        style: {
-          // width: newWidth + 'px',
-          // height: newHeight + 'px',
-          top: newTop + 'px',
-          left: newLeft + 'px'
-        }
-      })
-    }
+  nodePropChange (node) {
+    this.nodePropPanelRef.current?.nodeChange(node)
   }
 
   setSelectedTargets (selected) {
     this.setState({
       selectedTargets: selected.map(el => el.getAttribute('id'))
     }, () => {
-
+      if (selected.length === 1) {
+        this.nodeStyleChange(selected[0])
+        this.nodePropChange()
+      }
     })
   }
 

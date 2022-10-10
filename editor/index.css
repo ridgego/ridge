@@ -1,3 +1,53 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, menu, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+main, menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, main, menu, nav, section {
+	display: block;
+}
+/* HTML5 hidden-attribute fix for newer browsers */
+*[hidden] {
+    display: none;
+}
+body {
+	line-height: 1;
+}
+menu, ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -13,55 +63,66 @@ body {
     --line-color: #ECEFF2;
     --nav-background: #fff;
     --body-background: #F8F9FB;
-  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+.workspace {
+  width: 100%;
+  height: 100%;
+}
+
+.moveable-line {
+  background: var(--color-primary)!important;
+}
+
+.moveable-control {
+  width: 10px!important;
+  height: 10px!important;
+  border: 1px solid var(--color-primary)!important;
+  box-sizing: border-box;
+  background: #fff!important;
+  margin-top: -5px!important;
+  margin-left: -5px!important;
+  z-index: 10;
+}
+
+.ridge-editor .content {
+  top: 42px;
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  background: var(--body-background);
+}
+
+.ridge-toolbar {
+  padding: 6px;
+  border-bottom: 1px solid var(--line-color);
+  height: 42px;
+  display: flex;
+}
+
+.ridge-toolbar .left {
+  flex: 1;
+}
+
+.ridge-toolbar .right {
   
-  code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-      monospace;
-  }
-  .workspace {
-    width: 100%;
-    height: 100%;
-  }
-  
-  .moveable-line {
-    background: var(--color-primary)!important;
-  }
-  
-  .moveable-control {
-    width: 10px!important;
-    height: 10px!important;
-    border: 1px solid var(--color-primary)!important;
-    box-sizing: border-box;
-    background: #fff!important;
-    margin-top: -5px!important;
-    margin-left: -5px!important;
-    z-index: 10;
-  }
+}
 
-  .ridge-editor .content {
-    top: 42px;
-    bottom: 0;
-    position: absolute;
-    width: 100%;
-    background: var(--body-background);
-  }
-
-  .ridge-toolbar {
-    padding: 6px;
-    border-bottom: 1px solid var(--line-color);
-    height: 42px;
-    display: flex;
-  }
-
-  .ridge-toolbar .left {
-    flex: 1;
-  }
-
-  .ridge-toolbar .right {
-    
-  }
-
-  .ridge-toolbar .ant-btn .anticon {
-    color: var(--text-primary)
-  }
+.ridge-toolbar .ant-btn .anticon {
+  color: var(--text-primary)
+}
+.component-props-panel {
+  width: 404px;
+  background: #fff;
+  border: 1px solid var(--line-color);
+  padding: 4px;
+  border-radius: 5px;
+  right: 10px;
+  top: 10px;
+  z-index: 101;
+  position: absolute;
+}
