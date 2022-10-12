@@ -3,7 +3,7 @@ import Selecto from 'react-selecto'
 import Viewport from './viewport/ViewPort.jsx'
 import MoveableManager from './viewport/MoveableMananger.jsx'
 import Toolbar from './Toolbar.jsx'
-import ComponentPropsPanel from './panels/ComponentPropsPanel.jsx'
+import RightPropsPanel from './panels/RightPropsPanel.jsx'
 
 export default class Editor extends React.Component {
   constructor (props) {
@@ -54,7 +54,7 @@ export default class Editor extends React.Component {
             width: '100%'
           }}
         >
-          <ComponentPropsPanel node={currentNodeProps} ref={nodePropPanelRef} inputStyleChange={nodeCanvasChange.bind(this)} />
+          <RightPropsPanel node={currentNodeProps} ref={nodePropPanelRef} inputStyleChange={nodeCanvasChange.bind(this)} />
           <div className='workspace' ref={workspaceWrapper}>
             <Viewport
               ref={viewport}
@@ -106,7 +106,6 @@ export default class Editor extends React.Component {
               movableManager.current.getMoveable().dragStart(inputEvent)
               e.stop()
             }
-            // const target = inputEvent.target
           }}
           onScroll={({ direction }) => {
           }}
@@ -146,8 +145,10 @@ export default class Editor extends React.Component {
       selectedTargets: selected.map(el => el.getAttribute('id'))
     }, () => {
       if (selected.length === 1) {
-        this.nodeStyleChange(selected[0])
-        this.nodePropChange()
+        const nodeId = selected[0].getAttribute('ridge-componet-id')
+        this.nodePropChange(this.props.pageConfig.nodes.filter(n => n.id === nodeId)[0], selected[0])
+      } else if (selected.length === 0) {
+        this.nodePropChange(null)
       }
     })
   }

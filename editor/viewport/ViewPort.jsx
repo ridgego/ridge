@@ -11,11 +11,9 @@ export default class Viewport extends React.Component {
       <div className='viewport-container' onBlur={this.props.onBlur} style={style}>
         {this.props.children}
         <div className='viewport' ref={this.viewportRef}>
-          {
-                    nodes && nodes.map(node => {
-                      return <RidgeNode key={node.id} {...node} />
-                    })
-                }
+          {nodes && nodes.map(node => {
+            return <RidgeNode key={node.id} {...node} />
+          })}
         </div>
       </div>
     )

@@ -12,8 +12,8 @@ class App extends React.Component {
         height: 640
       },
       nodes: [{
-        id: '1',
-        name: 'button',
+        id: 'dkjerk',
+        nameProp: '',
         component: {
           packageName: 'ridge-component-antd',
           path: 'build/button-button.fcp.js'
@@ -27,8 +27,8 @@ class App extends React.Component {
           height: '40px'
         }
       }, {
-        id: '2',
-        name: 'button',
+        id: 'fewlrkj',
+        name: '按钮2',
         component: {
           packageName: 'ridge-component-antd',
           path: 'build/button-button.fcp.js'

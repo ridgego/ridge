@@ -74,7 +74,7 @@ class FCView {
     await this.loadComponentDefinition()
     await this.initChildViews()
     this.initPropsAndEvents()
-    this.mount(el || this.el);
+    this.mount(el || this.el)
   }
 
   /**
@@ -295,7 +295,7 @@ class FCView {
         fcView.setScopeVariables(this.scopeVariables)
       })
     }
-    
+
     // 事件类属性写入，DOM初始化后事件才能挂到源头
     for (const event of this.componentDefinition.events || []) {
       this.instancePropConfig[event.name] = (...args) => {
@@ -432,7 +432,7 @@ class FCView {
      */
   mount (el, noRetry) {
     if (!el) {
-      console.error('No Element to Mount');
+      console.error('No Element to Mount')
     }
 
     // 检测到需要为DOM绑定事件，则在此处绑定
@@ -524,6 +524,12 @@ class FCView {
       props[reactiveProp] = template(this.fcInstanceConfig.reactiveProps[reactiveProp], this.getVariableContext())
     }
     return props
+  }
+
+  patchProps (props) {
+    // 合并更新值
+    Object.assign(this.instancePropConfig, props)
+    this.renderer.updateProps(this.instancePropConfig)
   }
 
   /**

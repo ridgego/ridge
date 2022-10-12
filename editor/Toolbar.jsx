@@ -1,9 +1,6 @@
 import React from 'react'
-import { Divider, Dropdown, Menu } from 'antd'
-import { Button, Space } from '@douyinfe/semi-ui'
-import { IconPlusStroked, IconMinusStroked, IconCandlestickChartStroked } from '@douyinfe/semi-icons'
-
-import 'antd/dist/antd.css'
+import { Button, Space, Dropdown, Divider } from '@douyinfe/semi-ui'
+import { IconPlusStroked, IconMinusStroked, IconCandlestickChartStroked, IconCustomize } from '@douyinfe/semi-icons'
 
 export default class Toolbar extends React.Component {
   constructor (props) {
@@ -17,15 +14,15 @@ export default class Toolbar extends React.Component {
   }
 
   render () {
-    const { zoom, zoomChange } = this.props
+    const { zoom, zoomChange, itemClick } = this.props
     const zoomMenu = (
-      <Menu>
-        <Menu.Item
+      <Dropdown.Menu>
+        <Dropdown.Item
           key='100'
           onClick={() => zoomChange()}
         >
           适应窗口
-        </Menu.Item>
+        </Dropdown.Item>
         {[
           {
             key: 0.8,
@@ -44,21 +41,26 @@ export default class Toolbar extends React.Component {
             value: '200%'
           }
         ].map(info => (
-          <Menu.Item
+          <Dropdown.Item
             key={info.key}
             onClick={() => zoomChange(info.key)}
           >
             {info.value}
-          </Menu.Item>
+          </Dropdown.Item>
         ))}
-      </Menu>
+      </Dropdown.Menu>
     )
     return (
       <div className='ridge-toolbar'>
-        <Divider
-          type='vertical'
-        />
-        <div className='left' />
+        <div className='left'>
+          <Button
+            title='添加组件'
+            type='tertiary'
+            onClick={() => itemClick('insert-panel')}
+            icon={<IconCustomize />}
+          />
+
+        </div>
         <Space spacing={3}>
           <Button
             title='减小画布'
@@ -68,7 +70,7 @@ export default class Toolbar extends React.Component {
           />
 
           <Dropdown
-            overlay={zoomMenu}
+            render={zoomMenu}
             placement='bottomLeft'
           >
             <Button
@@ -90,10 +92,10 @@ export default class Toolbar extends React.Component {
           />
         </Space>
         <Button
-          title='增大画布'
+          title='属性面板'
           type='tertiary'
           icon={<IconCandlestickChartStroked />}
-          onClick={() => zoomChange(zoom + 0.05)}
+          onClick={() => itemClick('props-panel')}
         />
       </div>
     )

@@ -40,15 +40,20 @@ export default class ObjectForm extends React.Component {
                 {section.rows.map((row, j) => {
                   return (
                     <Row key={j}>
-                      <Space>
-                        {row.cols.map((col, k) => {
-                          return (
-                            <Col key={k} span={24 / row.cols.length}>
-                              {renderCol(col)}
-                            </Col>
-                          )
-                        })}
-                      </Space>
+                      {row.cols.length > 1 &&
+                        <Space>
+                          {row.cols.map((col, k) => {
+                            return (
+                              <Col key={k} span={24 / row.cols.length}>
+                                {renderCol(col)}
+                              </Col>
+                            )
+                          })}
+                        </Space>}
+                      {row.cols.length === 1 &&
+                        <Col span={24}>
+                          {renderCol(row.cols[0])}
+                        </Col>}
                     </Row>
                   )
                 })}

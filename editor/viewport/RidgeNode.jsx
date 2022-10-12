@@ -1,9 +1,4 @@
 import React from 'react'
-import { FCViewManager } from 'ridge-view-manager'
-
-const fcViewManager = new FCViewManager({
-  baseUrl: '/npm_packages'
-})
 
 export default class RidgeNode extends React.Component {
   constructor (props) {
@@ -16,10 +11,12 @@ export default class RidgeNode extends React.Component {
   }
 
   componentDidMount () {
+    const { fcViewManager } = window
     const {
       props
     } = this
     this.view = fcViewManager.createComponentView(props.component, this.ref.current, props.props)
+    fcViewManager.componentViews[props.id] = this.view
     console.log('ReactFC props', props)
   }
 

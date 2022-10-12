@@ -421,7 +421,7 @@ class FCViewManager {
     }
   }
 
-  async createComponentView ({
+  createComponentView ({
     packageName,
     path
   }, el, viewConfig) {
@@ -434,12 +434,17 @@ class FCViewManager {
         decorators: this.viewDecorators,
         loader: this.loader
       })
-      await frontComponentView.loadAndRender()
+      frontComponentView.loadAndRender()
+
       return frontComponentView
     } catch (e) {
       console.error('Error Create View', e)
       return null
     }
+  }
+
+  addComponentView (pageId, view) {
+
   }
 
   getComponentViews (pageId = UNDEFINED_PAGE_ID) {

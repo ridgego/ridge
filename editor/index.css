@@ -116,7 +116,7 @@ code {
   color: var(--text-primary)
 }
 .component-props-panel {
-  width: 404px;
+  width: 360px;
   background: #fff;
   border: 1px solid var(--line-color);
   padding: 4px;

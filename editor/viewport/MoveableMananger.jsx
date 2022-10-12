@@ -60,7 +60,6 @@ export default class MoveableManager extends React.Component {
           transform
         }) => {
           target.style.transform = transform
-          styleChange && styleChange(target)
         }}
         onDragGroupStart={groupDrag => {
 
@@ -91,6 +90,7 @@ export default class MoveableManager extends React.Component {
           })
         }}
         onDragEnd={({ target, isDrag, clientX, clientY }) => {
+          styleChange && styleChange(target)
         }}
         onResizeStart={({ target, clientX, clientY }) => {
         }}
@@ -104,10 +104,9 @@ export default class MoveableManager extends React.Component {
           target.style.transform = transform
           delta[0] && (target.style.width = `${width}px`)
           delta[1] && (target.style.height = `${height}px`)
-          styleChange && styleChange(target)
         }}
         onResizeEnd={({ target, isDrag, clientX, clientY }) => {
-          console.log('onResizeEnd', target, isDrag)
+          styleChange && styleChange(target)
         }}
         /* scalable */
         /* Only one of resizable, scalable, warpable can be used. */
