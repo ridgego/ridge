@@ -126,3 +126,40 @@ code {
   z-index: 101;
   position: absolute;
 }
+
+.component-add-panel {
+  width: 420px;
+  background: #fff;
+  border: 1px solid var(--line-color);
+  padding: 4px;
+  border-radius: 5px;
+  left: 10px;
+  bottom: 10px;
+  top: 10px;
+  z-index: 101;
+  position: absolute;
+}
+
+.component-add-panel .package-tab {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 2px;
+}
+
+.component-add-panel .semi-tabs-bar-button .semi-tabs-tab {
+  padding: 8px 3px;
+}
+
+.component-add-panel .package-tab img {
+  width: 24px;
+  height: 24px;
+}
+
+.component-add-panel .component-loading {
+  background: #2e32380d;
+  border-radius: 4px;
+  height: 100px;
+}

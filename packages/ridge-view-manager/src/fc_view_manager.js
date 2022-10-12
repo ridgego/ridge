@@ -1,5 +1,4 @@
 import FrontComponentView from './fc_view.js'
-import { RidgeLoader } from 'ridge-render'
 import debug from 'debug'
 
 // import AnimationDecorator from './decorator/animation_decorator.js'
@@ -96,9 +95,9 @@ class FCViewManager {
      * @param {string} config.app - 应用名称，通常参数从请求URL获取
      * @param {object} config.apolloApp - 前端运行时实例，提供各种框架运行时服务
      */
-  constructor ({ baseUrl }) {
+  constructor (loader) {
     /** @property 组件加载器 */
-    this.loader = new RidgeLoader(baseUrl)
+    this.loader = loader
 
     /** @property 展平后所有的组件， 以分页为单位 */
     this.componentViews = {}

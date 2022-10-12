@@ -15,7 +15,7 @@ class App extends React.Component {
         id: 'dkjerk',
         nameProp: '',
         component: {
-          packageName: 'ridge-component-antd',
+          packageName: 'ridge-antd',
           path: 'build/button-button.fcp.js'
         },
         props: {
@@ -30,7 +30,7 @@ class App extends React.Component {
         id: 'fewlrkj',
         name: '按钮2',
         component: {
-          packageName: 'ridge-component-antd',
+          packageName: 'ridge-antd',
           path: 'build/button-button.fcp.js'
         },
         props: {

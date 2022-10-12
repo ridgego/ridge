@@ -4,6 +4,7 @@ import Viewport from './viewport/ViewPort.jsx'
 import MoveableManager from './viewport/MoveableMananger.jsx'
 import Toolbar from './Toolbar.jsx'
 import RightPropsPanel from './panels/RightPropsPanel.jsx'
+import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 
 export default class Editor extends React.Component {
   constructor (props) {
@@ -54,6 +55,7 @@ export default class Editor extends React.Component {
             width: '100%'
           }}
         >
+          <ComponentAddPanel />
           <RightPropsPanel node={currentNodeProps} ref={nodePropPanelRef} inputStyleChange={nodeCanvasChange.bind(this)} />
           <div className='workspace' ref={workspaceWrapper}>
             <Viewport

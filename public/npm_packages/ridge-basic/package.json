@@ -1,7 +1,7 @@
 {
-  "name": "ridge-antd",
+  "name": "ridge-basic",
   "version": "1.0.0",
-  "description": "Antd组件",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "build": "build-fc",
@@ -14,7 +14,7 @@
   "files": [
     "build"
   ],
-  "icon": "antd.svg",
+  "icon": "icon.svg",
   "components": [{
     "title": "按钮",
     "path": "build/button-button.fcp.js"
@@ -23,8 +23,5 @@
     "path": "build/input-input.fcp.js"
   }],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "antd": "^4.23.2"
-  }
+  "license": "ISC"
 }

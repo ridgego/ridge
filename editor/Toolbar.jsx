@@ -56,6 +56,7 @@ export default class Toolbar extends React.Component {
           <Button
             title='添加组件'
             type='tertiary'
+            theme='borderless'
             onClick={() => itemClick('insert-panel')}
             icon={<IconCustomize />}
           />
