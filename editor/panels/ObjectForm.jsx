@@ -10,6 +10,7 @@ export default class ObjectForm extends React.Component {
   renderCol (col) {
     const {
       InputNumber,
+      TextArea,
       Input
     } = Form
     switch (col.control) {
@@ -17,13 +18,15 @@ export default class ObjectForm extends React.Component {
         return <InputNumber label={col.label} field={col.field} />
       case 'text':
         return <Input label={col.label} field={col.field} />
+      case 'css-style':
+        return <TextArea label={col.label} field={col.field} />
       default:
         break
     }
   }
 
   render () {
-    const { renderCol } = this
+    const renderCol = this.renderCol.bind(this)
     const { Section } = Form
     const { sections, getFormApi, onValueChange } = this.props
     return (

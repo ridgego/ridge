@@ -1,8 +1,8 @@
-import AntdIutton from './AntdInput'
+import AntdIut from './AntdInput'
 
 export default {
-  name: 'button',
-  component: () => AntdIutton,
+  name: 'input',
+  component: AntdIut,
   props: [{
     name: 'placeholder',
     type: 'string',

@@ -6,24 +6,45 @@ import Toolbar from './Toolbar.jsx'
 import RightPropsPanel from './panels/RightPropsPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 
+import { nanoid } from './utils/string'
+
 export default class Editor extends React.Component {
   constructor (props) {
     super(props)
     this.contentRef = React.createRef()
     this.movableManager = React.createRef()
+    this.workspaceWrapper = React.createRef()
+    this.viewPortRef = React.createRef()
     this.nodePropPanelRef = React.createRef()
     this.state = {
       selectedTargets: [],
+      pageProps: {},
+      nodes: [],
       currentNodeProps: {},
       viewX: 0,
       viewY: 0,
-      zoom: 1.4
+      zoom: 1
+    }
+  }
+
+  loadPage (pageConfig) {
+    this.setState({
+      nodes: pageConfig.nodes,
+      pageProps: pageConfig.properties
+    }, () => {
+      this.fitToCenter()
+    })
+  }
+
+  getPageConfig () {
+    return {
+      nodes: this.state.nodes
     }
   }
 
   render () {
     const {
-      viewport,
+      viewPortRef,
       state,
       contentRef,
       nodePropPanelRef,
@@ -31,18 +52,19 @@ export default class Editor extends React.Component {
       nodeStyleChange,
       movableManager,
       nodeCanvasChange,
+      workspaceDragOver,
+      workspaceDrop,
       zoomChange
     } = this
     const {
       selectedTargets,
       currentNodeProps,
+      nodes,
       zoom,
       viewX,
+      pageProps,
       viewY
     } = state
-    const {
-      pageConfig
-    } = this.props
 
     return (
       <div className='ridge-editor'>
@@ -57,15 +79,15 @@ export default class Editor extends React.Component {
         >
           <ComponentAddPanel />
           <RightPropsPanel node={currentNodeProps} ref={nodePropPanelRef} inputStyleChange={nodeCanvasChange.bind(this)} />
-          <div className='workspace' ref={workspaceWrapper}>
+          <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver}>
             <Viewport
-              ref={viewport}
-              {... pageConfig}
+              ref={viewPortRef}
+              nodes={nodes}
               style={{
                 transform: `translate(${viewX}px, ${viewY}px) scale(${zoom})`,
                 transformOrigin: 'center',
-                width: `${pageConfig.properties.width}px`,
-                height: `${pageConfig.properties.height}px`
+                width: `${pageProps.width}px`,
+                height: `${pageProps.height}px`
               }}
             >
               <MoveableManager
@@ -77,7 +99,6 @@ export default class Editor extends React.Component {
             </Viewport>
           </div>
         </div>
-
         <Selecto
           dragContainer='.workspace'
           hitRate={0}
@@ -122,6 +143,47 @@ export default class Editor extends React.Component {
     )
   }
 
+  workspaceDragOver (ev) {
+    ev.preventDefault()
+    ev.dataTransfer.dropEffect = 'move'
+  }
+
+  /**
+   * 放置组件事件
+   * @param {*} ev
+   */
+  workspaceDrop (ev) {
+    ev.preventDefault()
+    // Get the id of the target and add the moved element to the target's DOM
+    const data = ev.dataTransfer.getData('text/plain')
+    const component = JSON.parse(data)
+    const { viewPortRef } = this
+    const { zoom } = this.state
+    const workspaceRect = viewPortRef.current.getBoundingClientRect()
+
+    const width = component.width ?? 100
+    const height = component.height ?? 100
+    const posX = parseInt((ev.pageX - workspaceRect.left - width / 2) / zoom)
+    const posY = parseInt((ev.pageY - workspaceRect.top - height / 2) / zoom)
+
+    const ta = [].concat(this.state.nodes).concat([{
+      id: nanoid(10),
+      name: '按钮',
+      component,
+      props: {},
+      style: {
+        transform: `translate(${posX}px, ${posY}.px)`,
+        position: 'absolute',
+        width: width + 'px',
+        height: height + 'px'
+      }
+    }])
+
+    this.setState({
+      nodes: ta
+    })
+  }
+
   nodeStyleChange (el) {
     this.nodePropPanelRef.current?.styleChange(el)
   }
@@ -148,7 +210,7 @@ export default class Editor extends React.Component {
     }, () => {
       if (selected.length === 1) {
         const nodeId = selected[0].getAttribute('ridge-componet-id')
-        this.nodePropChange(this.props.pageConfig.nodes.filter(n => n.id === nodeId)[0], selected[0])
+        this.nodePropChange(this.state.nodes.filter(n => n.id === nodeId)[0], selected[0])
       } else if (selected.length === 0) {
         this.nodePropChange(null)
       }
@@ -166,14 +228,13 @@ export default class Editor extends React.Component {
   }
 
   componentDidMount () {
-    this.fitToCenter()
   }
 
   fitToCenter () {
     const refRect = this.contentRef.current.getBoundingClientRect()
     const contentWidth = refRect.width
     const contentHeight = refRect.height
-    const { width, height } = this.props.pageConfig.properties
+    const { width, height } = this.state.pageProps
 
     if (contentWidth > width && contentHeight > height) {
       this.setState({

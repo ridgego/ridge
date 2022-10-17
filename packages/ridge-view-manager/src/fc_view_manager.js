@@ -420,7 +420,7 @@ class FCViewManager {
     }
   }
 
-  createComponentView ({
+  async createComponentView ({
     packageName,
     path
   }, el, viewConfig) {
@@ -433,7 +433,7 @@ class FCViewManager {
         decorators: this.viewDecorators,
         loader: this.loader
       })
-      frontComponentView.loadAndRender()
+      await frontComponentView.loadAndRender()
 
       return frontComponentView
     } catch (e) {

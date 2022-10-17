@@ -11,7 +11,9 @@ export default {
   }, {
     label: '样式',
     name: 'style',
-    type: 'cssStyle',
-    value: {}
+    type: 'css-style',
+    value: {
+      fontSize: '14px'
+    }
   }]
 }

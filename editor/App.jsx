@@ -73,14 +73,15 @@ class App extends React.Component {
     }
   }
 
+  componentDidMount () {
+    this.editorRef.current.loadPage(this.pageConfig)
+  }
+
   render () {
     return (
       <div className='app'>
         <Editor
-          pageConfig={this.state.pageConfig}
-          styleChange={this.styleChange.bind(this)}
-          ref={this.editor}
-          debug
+          ref={this.editorRef}
         />
       </div>
     )

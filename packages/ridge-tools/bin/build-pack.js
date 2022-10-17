@@ -48,12 +48,23 @@ args.option('dir', 'The Front Component Project Root Path', './')
 
         const packageJson = require(path.resolve(packagePath, './package.json'));
 
-        const targetFiles = await promiseGlob('./src/**/*.fcp.js'),
+        let ridgeConfig = {};
+
+        if (fs.existsSync(path.resolve(packagePath, './ridge.config.js'))) {
+            try {
+                ridgeConfig = require(path.resolve(packagePath, './ridge.config.js'));
+                log(chalk.green('配置文件 ' + path.resolve(packagePath, './ridge.config.js')))
+            } catch (e) {
+                log(chalk.green('配置文件未找到或无效' + path.resolve(packagePath, './ridge.config.js')));
+            }
+        }
+
+        const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.d.js'),
 
             entry = {};
 
         if (targetFiles.length === 0) {
-            log(chalk.green('未找到图元 ./src/**/*.fcp.js'));
+            log(chalk.green('未找到图元 ' + ridgeConfig.pattern ?? './src/**/*.d.js'));
         }
 
         log(chalk.green('编译打包以下图元文件:'));
@@ -111,22 +122,12 @@ args.option('dir', 'The Front Component Project Root Path', './')
             }
         } 
 
-        let ridgeConfig = {};
-
-        if (fs.existsSync(path.resolve(packagePath, './ridge.config.js'))) {
-            try {
-                ridgeConfig = require(path.resolve(packagePath, './ridge.config.js'));
-            } catch (e) {
-                log(chalk.red('ridge.config.js 文件格式不符合'));
-            }
-        }
-
         // 创建webpack 编译器  这里使用webpack api方式进行编译
         const compiler = webpack(merge({
             entry,
             output: {
                 filename: chunkData => {
-                    return chunkData.chunk.name.substring(0, chunkData.chunk.name.indexOf('.')) + '.fcp.js';
+                    return chunkData.chunk.name.substring(0, chunkData.chunk.name.indexOf('.')) + '.d.js';
                 },
                 // filename: '[name].js',
                 // 图元的全局唯一ID (pelUId) 也是图元的下载地址

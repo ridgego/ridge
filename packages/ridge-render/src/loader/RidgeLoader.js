@@ -167,7 +167,7 @@ class RidgeLoader {
 
     this.componentLoading.set(componentUrl, 'loading')
     try {
-      const fcp = this.doLoadComponent({ packageName, path })
+      const fcp = await this.doLoadComponent({ packageName, path })
       this.notifyComponentLoaded(componentUrl, fcp)
 
       this.componentCache[componentUrl] = fcp
@@ -182,7 +182,7 @@ class RidgeLoader {
   async doLoadComponent ({
     packageName, path
   }) {
-    await this.confirmPackageDependenciesIndividual(packageName)
+    await this.confirmPackageDependencies(packageName)
     // Load Dependecies in package.json
     const fcp = await this.loadComponentScript({ packageName, path })
     if (fcp) {
@@ -540,7 +540,7 @@ class RidgeLoader {
     if (this.packageJSONCache[packageName]) {
       if (this.packageJSONCache[packageName].dependencies) {
         log('加载库依赖', packageName, Object.keys(this.packageJSONCache[packageName].dependencies))
-        await this.loadPelExternals(Object.keys(this.packageJSONCache[packageName].dependencies))
+        await this.loadExternals(Object.keys(this.packageJSONCache[packageName].dependencies))
       }
     } else {
       try {
@@ -549,6 +549,7 @@ class RidgeLoader {
         const packageJSONObject = await await ky.get(packageJSONUrl).json()
 
         this.packageJSONCache[packageJSONObject] = packageJSONObject
+        await this.loadExternals(Object.keys(this.packageJSONCache[packageName].dependencies))
         return packageJSONObject
       } catch (e) {
         throw new Error('组件包未安装:' + packageName)

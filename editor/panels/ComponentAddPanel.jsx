@@ -1,5 +1,6 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, Button, List } from '@douyinfe/semi-ui'
+import { nanoid } from '../utils/string'
 
 class AddMenu extends React.Component {
   constructor () {
@@ -16,6 +17,33 @@ class AddMenu extends React.Component {
 
   }
 
+  renderPackageComponents () {
+    const { fcViewManager } = window
+    const currentPackageObject = this.state.packages.filter(p => p.name === this.state.currentPackage)[0]
+    currentPackageObject.components.forEach(({
+      path
+    }) => {
+      const targetEl = document.querySelector('[data-component-path="' + this.state.currentPackage + '/' + path + '"]')
+      if (targetEl.getAttribute('ridge-mounted')) {
+        return
+      }
+      fcViewManager.createComponentView({
+        packageName: this.state.currentPackage,
+        path
+      }, targetEl).then(() => {
+        targetEl.setAttribute('ridge-mouted', '1')
+      })
+    })
+  }
+
+  tabChange (key) {
+    this.setState({
+      currentPackage: key
+    }, () => {
+      this.renderPackageComponents()
+    })
+  }
+
   componentDidMount () {
     const { packageManager } = window
     if (!this.state.packageListingLoaded) {
@@ -24,21 +52,35 @@ class AddMenu extends React.Component {
           currentPackage: packageManager.packageNames[0],
           packages: result,
           packageListingLoaded: true
+        }, () => {
+          this.renderPackageComponents()
         })
       })
     }
   }
 
-  async loadAndRenderPackage (packageName) {
+  dragStart (ev, {
+    packageName,
+    path
+  }) {
+    ev.dataTransfer.setData('text/plain', JSON.stringify({
+      packageName,
+      path
+    }))
   }
 
   render () {
     const { packageListingLoaded, packages } = this.state
+    const { dragStart } = this
+
+    const tabChange = this.tabChange.bind(this)
     return (
       <div className='component-add-panel'>
         {!packageListingLoaded && <Spin size='large' />}
         <Tabs
-          tabPosition='left' type='button' tabBarExtraContent={
+          tabPosition='left'
+          type='button'
+          tabBarExtraContent={
             <Button
               onClick={() => {
                 alert('you have clicked me!')
@@ -46,7 +88,8 @@ class AddMenu extends React.Component {
             >
               更多
             </Button>
-        }
+            }
+          onChange={key => tabChange(key)}
         >
           {packages && packages.map(pkg => {
             return (
@@ -54,6 +97,7 @@ class AddMenu extends React.Component {
                 style={{
                   padding: '4px'
                 }}
+                closable
                 className='tab-title'
                 tab={
                   <div className='package-tab'>
@@ -63,6 +107,7 @@ class AddMenu extends React.Component {
                 }
                 key={pkg.name}
                 itemKey={pkg.name}
+
               >
                 <List
                   grid={{
@@ -71,14 +116,25 @@ class AddMenu extends React.Component {
                   }}
                   dataSource={pkg.components}
                   renderItem={item => (
-                    <List.Item style={{}}>
+                    <List.Item>
                       <div
-                        className='component-loading' style={{
-                          height: '80px'
-                        }}
+                        draggable
+                        onDragStart={ev => dragStart(ev, {
+                          packageName: pkg.name,
+                          width: item.width,
+                          height: item.height,
+                          path: item.path
+                        })}
+                        className='component-container'
                       >
-                        <h3 style={{ color: 'var(--semi-color-text-0)', fontWeight: 500 }}>{item.path}</h3>
+                        <div
+                          data-component-path={pkg.name + '/' + item.path} style={{
+                            width: item.width + 'px',
+                            height: item.height + 'px'
+                          }}
+                        />
                       </div>
+                      <div>{item.title}</div>
                     </List.Item>
                   )}
                 />

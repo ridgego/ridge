@@ -1,7 +1,7 @@
 {
   "name": "ridge-basic",
   "version": "1.0.0",
-  "description": "",
+  "description": "原子组件",
   "main": "index.js",
   "scripts": {
     "build": "build-fc",
@@ -16,11 +16,15 @@
   ],
   "icon": "icon.svg",
   "components": [{
-    "title": "按钮",
-    "path": "build/button-button.fcp.js"
+    "title": "文本",
+    "path": "build/text-text.d.js",
+    "width": 100,
+    "height": 32
   }, {
-    "title": "输入框",
-    "path": "build/input-input.fcp.js"
+    "title": "矩形",
+    "path": "build/rect-rect.d.js",
+    "width": 100,
+    "height": 100
   }],
   "author": "",
   "license": "ISC"

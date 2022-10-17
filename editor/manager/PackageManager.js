@@ -1,9 +1,10 @@
+import { nanoid } from '../utils/string'
 
 export default class PackageManager {
   constructor (loader) {
     /** @property 组件加载器 */
     this.loader = loader
-    this.packageNames = ['ridge-basic', 'ridge-antd', 'ridge-bizchart']
+    this.packageNames = ['ridge-antd', 'ridge-basic', 'ridge-bizchart']
     this.packagesDetails = []
   }
 
@@ -16,6 +17,29 @@ export default class PackageManager {
 
   async loadPackageComponents (packageName) {
     const packageJSONObject = this.loader.getPackageJSON(packageName)
+  }
+
+  generateComponent ({
+    packageName,
+    width,
+    height,
+    path
+  }) {
+    return {
+      id: nanoid(),
+      component: {
+        packageName,
+        path
+      },
+      props: {
+
+      },
+      style: {
+        position: 'absolute',
+        width: width + 'px',
+        height: height + 'px'
+      }
+    }
   }
 
   async loadPackages () {

@@ -95,6 +95,7 @@ export default class ComponentPropsPanel extends React.Component {
       // 更新组件属性
       const { fcViewManager } = window
       const fcView = fcViewManager.componentViews[node.id]
+      this.fcView = fcView
       const componentDefiProps = fcView.componentDefinition.props
       const styledProps = []
       let styleSections = List(basicStyleSections)
@@ -103,19 +104,24 @@ export default class ComponentPropsPanel extends React.Component {
           cols: [
             {
               label: prop.label,
-              control: 'text',
+              control: prop.type,
               field: 'props.' + prop.name
             }
           ]
         })
+        if (prop.type === 'css-style' && fcView.instancePropConfig[prop.name]) {
+          fcView.instancePropConfig[prop.name] = JSON.stringify(fcView.instancePropConfig[prop.name], '\\n', 2)
+        }
       }
-      this.styleApi.setValue('props', fcView.instancePropConfig)
       styleSections = styleSections.concat({
         rows: styledProps
       })
       this.setState({
         styleSections
       }, () => {
+        this.styleApi.setValue('props', fcView.instancePropConfig, {
+          notNotify: true
+        })
       })
     } else {
       this.setState({
@@ -156,6 +162,18 @@ export default class ComponentPropsPanel extends React.Component {
       if (this.currentNode && Object.keys(field).filter(p => p.indexOf('props.') > -1)) {
         const { fcViewManager } = window
         const fcView = fcViewManager.componentViews[this.currentNode.id]
+
+        const componentDefiProps = fcView.componentDefinition.props
+        for (const prop of componentDefiProps) {
+          if (prop.type === 'css-style' && values.props[prop.name]) {
+            try {
+              values.props[prop.name] = JSON.parse(values.props[prop.name])
+            } catch (e) {
+              values.props[prop.name] = fcView.instancePropConfig[prop.name]
+            }
+          }
+        }
+
         fcView.patchProps(values.props)
       }
     }
