@@ -46,9 +46,31 @@ const pageConfigSection = [{
     }]
   }, {
     cols: [{
-      label: '页面宽度',
-      control: 'text',
-      field: 'name'
+      label: '页面布局',
+      control: 'select',
+      field: 'type',
+      options: [{
+        label: '固定宽高',
+        value: 'fixed'
+      }, {
+        label: '宽高自适应',
+        value: 'fit-wh'
+      }, {
+        label: '宽度自适应',
+        value: 'fit-w'
+      }]
+    }]
+  }, {
+    cols: [{
+      label: '宽度',
+      when: 'type === "fixed"',
+      control: 'number',
+      field: 'width'
+    }, {
+      label: '高度',
+      when: 'type === "fixed"',
+      control: 'number',
+      field: 'height'
     }]
   }]
 }]
@@ -131,23 +153,38 @@ export default class ComponentPropsPanel extends React.Component {
     }
   }
 
+  setPagePropValue (pageProps) {
+    this.pagePropFormApi.setValues(pageProps, {
+      notNotify: true
+    })
+  }
+
   render () {
     const {
       styleSections,
       pageConfigSection
     } = this.state
     const {
-      inputStyleChange
+      inputStyleChange,
+      pagePropChange
     } = this.props
 
     // 回写styleApi句柄以便直接操作基础form
     const basicStyleAPI = (formApi) => {
+      window.componentPropFormApi = formApi
       this.styleApi = formApi
     }
+    // 回写styleApi句柄以便直接操作基础form
+    const cbPagePropFormApi = (formApi) => {
+      window.pagePropFormApi = formApi
+      this.pagePropFormApi = formApi
+    }
 
-    // 基础表单修改
-    const propChange = (values, field) => {
+    // 组件属性表单项修改
+    const componentPropValueChange = (values, field) => {
       console.log('prop change', field, values)
+
+      // 处理固有属性修改（）
       let isStyleChanged = false
       for (const fieldKey of Object.keys(field)) {
         if (field[fieldKey] !== this.currentStyle[fieldKey] && fieldKey !== 'props') {
@@ -177,6 +214,11 @@ export default class ComponentPropsPanel extends React.Component {
         fcView.patchProps(values.props)
       }
     }
+
+    const pagePropValueChange = (values, field) => {
+      pagePropChange && pagePropChange(values)
+    }
+
     return (
       <div className='component-props-panel'>
         <Tabs
@@ -186,15 +228,15 @@ export default class ComponentPropsPanel extends React.Component {
           }}
         >
           <TabPane tab='属性' itemKey='style'>
-            <ObjectForm sections={styleSections} getFormApi={basicStyleAPI} onValueChange={propChange} />
+            <ObjectForm sections={styleSections} getFormApi={basicStyleAPI} onValueChange={componentPropValueChange} />
           </TabPane>
           <TabPane tab='交互' itemKey='interact' />
         </Tabs>
-        <Tabs ype='card'>
-          <TabPane tab='页面属性' itemKey='page'>
-            <ObjectForm sections={pageConfigSection} />
-          </TabPane>
-        </Tabs>
+        <ObjectForm
+          style={{
+            display: styleSections.length === 0 ? 'initial' : 'none'
+          }} sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
+        />
       </div>
     )
   }

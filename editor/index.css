@@ -94,6 +94,7 @@ code {
   bottom: 0;
   position: absolute;
   width: 100%;
+  overflow: hidden;
   background: var(--body-background);
 }
 
@@ -166,4 +167,8 @@ code {
   width: 100%;
   border-radius: 4px;
   height: 120px;
+}
+
+.dialog-resource {
+  width: 80%;
 }

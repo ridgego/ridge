@@ -1,6 +1,6 @@
 import React from 'react'
-import { Button, Space, Dropdown, Divider } from '@douyinfe/semi-ui'
-import { IconPlusStroked, IconMinusStroked, IconCandlestickChartStroked, IconCustomize } from '@douyinfe/semi-icons'
+import { Button, Space, Dropdown, Divider, SplitButtonGroup } from '@douyinfe/semi-ui'
+import { IconPlusStroked, IconMinusStroked, IconCandlestickChartStroked, IconCustomize, IconGlobeStroke, IconBrackets, IconBox, IconList } from '@douyinfe/semi-icons'
 
 export default class Toolbar extends React.Component {
   constructor (props) {
@@ -53,18 +53,35 @@ export default class Toolbar extends React.Component {
     return (
       <div className='ridge-toolbar'>
         <div className='left'>
-          <Button
-            title='添加组件'
-            type='tertiary'
-            theme='borderless'
-            onClick={() => itemClick('insert-panel')}
-            icon={<IconCustomize />}
-          />
+          <Space spacing={2}>
+            <Button
+              title='管理应用页面'
+              type='tertiary'
+              theme='borderless'
+              onClick={() => itemClick('insert-panel')}
+              icon={<IconBox />}
+            />
+            <Button
+              title='添加组件'
+              type='tertiary'
+              theme='borderless'
+              onClick={() => itemClick('insert-panel')}
+              icon={<IconCustomize />}
+            />
+            <Button
+              title='组件'
+              type='tertiary'
+              theme='borderless'
+              onClick={() => itemClick('insert-panel')}
+              icon={<IconList />}
+            />
+          </Space>
 
         </div>
-        <Space spacing={3}>
+        <Space spacing={2}>
           <Button
             title='减小画布'
+            theme='borderless'
             type='tertiary'
             onClick={() => zoomChange(zoom - 0.05)}
             icon={<IconMinusStroked />}
@@ -76,6 +93,7 @@ export default class Toolbar extends React.Component {
           >
             <Button
               type='tertiary'
+              theme='borderless'
               style={{
                 padding: 0,
                 width: '50px'
@@ -87,17 +105,37 @@ export default class Toolbar extends React.Component {
 
           <Button
             title='增大画布'
+            theme='borderless'
             type='tertiary'
             icon={<IconPlusStroked />}
             onClick={() => zoomChange(zoom + 0.05)}
           />
         </Space>
         <Button
+          title='页面变量'
+          theme='borderless'
+          type='tertiary'
+          icon={<IconBrackets />}
+          onClick={() => itemClick('file-manager')}
+        />
+        <Button
           title='属性面板'
+          theme='borderless'
           type='tertiary'
           icon={<IconCandlestickChartStroked />}
           onClick={() => itemClick('props-panel')}
         />
+        <SplitButtonGroup aria-label='项目操作按钮组'>
+          <Dropdown
+            menu={[{
+              node: 'item', name: '运行页面', onClick: () => console.log('编辑项目点击'), icon: <IconGlobeStroke />
+            }, {
+              node: 'item', name: '运行应用', onClick: () => console.log('编辑项目点击')
+            }]} trigger='click' position='bottomRight'
+          >
+            <Button theme='borderless' icon={<IconGlobeStroke />}>运行/分发</Button>
+          </Dropdown>
+        </SplitButtonGroup>
       </div>
     )
   }

@@ -1,6 +1,5 @@
 import React from 'react'
 import Editor from './Editor.jsx'
-import { Map, List } from 'immutable'
 
 class App extends React.Component {
   constructor (props) {
@@ -8,6 +7,8 @@ class App extends React.Component {
 
     this.pageConfig = {
       properties: {
+        name: '新增页面',
+        type: 'fixed',
         width: 800,
         height: 640
       },
@@ -64,12 +65,9 @@ class App extends React.Component {
     //   })
     // }
 
-    this.pageProperties = Map(this.pageConfig.properties)
-    this.pageNodes = List(this.pageConfig.nodes)
     this.editorRef = React.createRef()
 
     this.state = {
-      pageConfig: JSON.parse(JSON.stringify(this.pageConfig))
     }
   }
 

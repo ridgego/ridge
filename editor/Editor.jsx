@@ -1,10 +1,14 @@
 import React from 'react'
 import Selecto from 'react-selecto'
+import { Modal } from '@douyinfe/semi-ui'
+
 import Viewport from './viewport/ViewPort.jsx'
 import MoveableManager from './viewport/MoveableMananger.jsx'
 import Toolbar from './Toolbar.jsx'
 import RightPropsPanel from './panels/RightPropsPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
+
+import FileManager from './file-manager/FileManager.jsx'
 
 import { nanoid } from './utils/string'
 
@@ -15,7 +19,7 @@ export default class Editor extends React.Component {
     this.movableManager = React.createRef()
     this.workspaceWrapper = React.createRef()
     this.viewPortRef = React.createRef()
-    this.nodePropPanelRef = React.createRef()
+    this.rightPanelRef = React.createRef()
     this.state = {
       selectedTargets: [],
       pageProps: {},
@@ -23,6 +27,7 @@ export default class Editor extends React.Component {
       currentNodeProps: {},
       viewX: 0,
       viewY: 0,
+      modalFileShow: false,
       zoom: 1
     }
   }
@@ -32,6 +37,7 @@ export default class Editor extends React.Component {
       nodes: pageConfig.nodes,
       pageProps: pageConfig.properties
     }, () => {
+      this.rightPanelRef.current?.setPagePropValue(this.state.pageProps)
       this.fitToCenter()
     })
   }
@@ -42,16 +48,22 @@ export default class Editor extends React.Component {
     }
   }
 
+  componentDidMount () {
+    this.initSpaceDragEvents()
+  }
+
   render () {
     const {
       viewPortRef,
       state,
       contentRef,
-      nodePropPanelRef,
+      rightPanelRef,
       workspaceWrapper,
-      nodeStyleChange,
+      onNodeStyleChange,
       movableManager,
-      nodeCanvasChange,
+      onPagePropChange,
+      onToolbarItemClick,
+      onNodeCanvasChange,
       workspaceDragOver,
       workspaceDrop,
       zoomChange
@@ -63,22 +75,18 @@ export default class Editor extends React.Component {
       zoom,
       viewX,
       pageProps,
-      viewY
+      viewY,
+      modalFileShow
     } = state
 
     return (
       <div className='ridge-editor'>
-        <Toolbar zoom={zoom} zoomChange={zoomChange.bind(this)} />
+        <Toolbar zoom={zoom} zoomChange={zoomChange.bind(this)} itemClick={onToolbarItemClick.bind(this)} />
         <div
-          ref={contentRef} className='content' style={{
-            top: '42px',
-            bottom: 0,
-            position: 'absolute',
-            width: '100%'
-          }}
+          ref={contentRef} className='content'
         >
           <ComponentAddPanel />
-          <RightPropsPanel node={currentNodeProps} ref={nodePropPanelRef} inputStyleChange={nodeCanvasChange.bind(this)} />
+          <RightPropsPanel node={currentNodeProps} ref={rightPanelRef} inputStyleChange={onNodeCanvasChange.bind(this)} pagePropChange={onPagePropChange.bind(this)} />
           <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver}>
             <Viewport
               ref={viewPortRef}
@@ -92,7 +100,7 @@ export default class Editor extends React.Component {
             >
               <MoveableManager
                 ref={movableManager}
-                styleChange={nodeStyleChange.bind(this)}
+                styleChange={onNodeStyleChange.bind(this)}
                 selectedTargets={selectedTargets}
                 zoom={zoom}
               />
@@ -126,7 +134,7 @@ export default class Editor extends React.Component {
               e.stop()
             }
             if (inputEvent.ctrlKey) {
-              movableManager.current.getMoveable().dragStart(inputEvent)
+              // movableManager.current.getMoveable().dragStart(inputEvent)
               e.stop()
             }
           }}
@@ -139,6 +147,22 @@ export default class Editor extends React.Component {
             this.setSelectedTargets(selected)
           }}
         />
+        <Modal
+          title='配置应用资源'
+          visible={modalFileShow}
+          className='dialog-resource'
+          size='large'
+          height={640}
+          footer={null}
+          onCancel={() => {
+            this.setState({
+              modalFileShow: false
+            })
+          }}
+          closeOnEsc
+        >
+          <FileManager />
+        </Modal>
       </div>
     )
   }
@@ -184,14 +208,32 @@ export default class Editor extends React.Component {
     })
   }
 
-  nodeStyleChange (el) {
-    this.nodePropPanelRef.current?.styleChange(el)
+  onToolbarItemClick (cmd, opts) {
+    switch (cmd) {
+      case 'file-manager':
+        this.setState({
+          modalFileShow: true
+        })
+        break
+      default:
+        break
+    }
+  }
+
+  onNodeStyleChange (el) {
+    this.rightPanelRef.current?.styleChange(el)
+  }
+
+  onPagePropChange (values) {
+    this.setState({
+      pageProps: values
+    })
   }
 
   /**
    * Update To Canvas Style
    */
-  nodeCanvasChange (values, field) {
+  onNodeCanvasChange (values, field) {
     const { selectedTargets } = this.state
     document.getElementById(selectedTargets[0]).style.width = values.width + 'px'
     document.getElementById(selectedTargets[0]).style.height = values.height + 'px'
@@ -201,7 +243,7 @@ export default class Editor extends React.Component {
   }
 
   nodePropChange (node) {
-    this.nodePropPanelRef.current?.nodeChange(node)
+    this.rightPanelRef.current?.nodeChange(node)
   }
 
   setSelectedTargets (selected) {
@@ -227,7 +269,28 @@ export default class Editor extends React.Component {
     }
   }
 
-  componentDidMount () {
+  initSpaceDragEvents () {
+    const { workspaceWrapper } = this
+    let isViewPortMoving = false
+
+    workspaceWrapper.current?.addEventListener('mousedown', (e) => {
+      if (e.ctrlKey) {
+        isViewPortMoving = true
+      }
+    })
+
+    workspaceWrapper.current?.addEventListener('mousemove', event => {
+      if (isViewPortMoving && event.ctrlKey && this.state.selectedTargets.length === 0) {
+        this.setState({
+          viewX: this.state.viewX + event.movementX,
+          viewY: this.state.viewY + event.movementY
+        })
+      }
+    })
+
+    workspaceWrapper.current?.addEventListener('mouseup', (e) => {
+      isViewPortMoving = false
+    })
   }
 
   fitToCenter () {
