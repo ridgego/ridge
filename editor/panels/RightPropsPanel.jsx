@@ -37,6 +37,15 @@ const basicStyleSections = [{
   ]
 }]
 
+const pageVariableSection = [{
+  rows: [{
+    cols: [{
+      control: 'variable',
+      field: 'variables'
+    }]
+  }]
+}]
+
 const pageConfigSection = [{
   rows: [{
     cols: [{
@@ -159,6 +168,10 @@ export default class ComponentPropsPanel extends React.Component {
     })
   }
 
+  setPageVariabelValue (variables) {
+    this.pagePropFormApi.setValue('variables', variables)
+  }
+
   render () {
     const {
       styleSections,
@@ -166,7 +179,8 @@ export default class ComponentPropsPanel extends React.Component {
     } = this.state
     const {
       inputStyleChange,
-      pagePropChange
+      pagePropChange,
+      pageVariableChange
     } = this.props
 
     // 回写styleApi句柄以便直接操作基础form
@@ -178,6 +192,10 @@ export default class ComponentPropsPanel extends React.Component {
     const cbPagePropFormApi = (formApi) => {
       window.pagePropFormApi = formApi
       this.pagePropFormApi = formApi
+    }
+
+    const cbPageVariableFormApi = formApi => {
+      this.pageVariableFormApi = formApi
     }
 
     // 组件属性表单项修改
@@ -219,6 +237,10 @@ export default class ComponentPropsPanel extends React.Component {
       pagePropChange && pagePropChange(values)
     }
 
+    const pageVariableValueChange = (values, field) => {
+      pageVariableChange && pageVariableChange(values)
+    }
+
     return (
       <div className='component-props-panel'>
         <Tabs
@@ -232,11 +254,31 @@ export default class ComponentPropsPanel extends React.Component {
           </TabPane>
           <TabPane tab='交互' itemKey='interact' />
         </Tabs>
-        <ObjectForm
+        <Tabs
+          type='card'
           style={{
             display: styleSections.length === 0 ? 'initial' : 'none'
-          }} sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
-        />
+          }}
+        >
+          <TabPane tab='页面属性' itemKey='page-prop'>
+            <ObjectForm
+              style={{
+              }} sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
+            />
+          </TabPane>
+          <TabPane
+            tab='页面变量' itemKey='variables' style={{
+              height: '100%',
+              overflow: 'auto'
+            }}
+          >
+            <ObjectForm
+              style={{
+              }} sections={pageVariableSection} getFormApi={cbPageVariableFormApi} onValueChange={pageVariableValueChange}
+            />
+          </TabPane>
+        </Tabs>
+
       </div>
     )
   }

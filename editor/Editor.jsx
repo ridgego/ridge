@@ -25,6 +25,7 @@ export default class Editor extends React.Component {
       pageProps: {},
       nodes: [],
       currentNodeProps: {},
+      pageVariables: {},
       viewX: 0,
       viewY: 0,
       modalFileShow: false,
@@ -35,9 +36,11 @@ export default class Editor extends React.Component {
   loadPage (pageConfig) {
     this.setState({
       nodes: pageConfig.nodes,
-      pageProps: pageConfig.properties
+      pageProps: pageConfig.properties,
+      pageVariables: pageConfig.variables
     }, () => {
       this.rightPanelRef.current?.setPagePropValue(this.state.pageProps)
+      this.rightPanelRef.current?.setPageVariabelValue(this.state.pageVariables)
       this.fitToCenter()
     })
   }
@@ -71,6 +74,7 @@ export default class Editor extends React.Component {
     const {
       selectedTargets,
       currentNodeProps,
+      pageVariables,
       nodes,
       zoom,
       viewX,
@@ -86,7 +90,7 @@ export default class Editor extends React.Component {
           ref={contentRef} className='content'
         >
           <ComponentAddPanel />
-          <RightPropsPanel node={currentNodeProps} ref={rightPanelRef} inputStyleChange={onNodeCanvasChange.bind(this)} pagePropChange={onPagePropChange.bind(this)} />
+          <RightPropsPanel node={currentNodeProps} ref={rightPanelRef} inputStyleChange={onNodeCanvasChange.bind(this)} pagePropChange={onPagePropChange.bind(this)} pageVariables={pageVariables} />
           <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver}>
             <Viewport
               ref={viewPortRef}

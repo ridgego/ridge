@@ -125,6 +125,7 @@ code {
   right: 10px;
   top: 10px;
   z-index: 101;
+  max-height: calc(100% - 20px);
   position: absolute;
 }
 
