@@ -4,7 +4,7 @@ export default class PackageManager {
   constructor (loader) {
     /** @property 组件加载器 */
     this.loader = loader
-    this.packageNames = ['ridge-antd', 'ridge-basic', 'ridge-bizchart']
+    this.packageNames = ['ridge-antd', 'ridge-basic', 'ridge-container']
     this.packagesDetails = []
   }
 

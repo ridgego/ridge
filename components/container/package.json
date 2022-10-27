@@ -1,0 +1,25 @@
+{
+  "name": "ridge-container",
+  "version": "1.0.0",
+  "description": "容器",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w",
+    "help": "build-fc --help",
+    "debug": "build-fc -w -s -p 8700",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "components": [{
+    "title": "弹性容器",
+    "path": "build/flex-index.fcp.js",
+    "width": 300,
+    "height": 120
+  }],
+  "author": "",
+  "license": "ISC"
+}

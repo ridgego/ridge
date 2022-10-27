@@ -9,7 +9,7 @@ import RidgeApplicationService from './service/RidgeApplicationService'
 
 const baseUrl = '/npm_packages'
 
-const ridgeLoader = new RidgeLoader(baseUrl)
+const ridgeLoader = new RidgeLoader(baseUrl, baseUrl)
 
 const fcViewManager = new FCViewManager(ridgeLoader)
 const packageManager = new PackageManager(ridgeLoader)

@@ -41,7 +41,7 @@ class RidgeLoader {
     window.fcExternalLoaded = []
 
     // 调试服务的地址
-    this.debugUrl = null
+    this.debugUrl = window.localStorage.ridgeDebugUrl
     // 调试组件包名称
     this.debugPackageName = null
 
@@ -65,6 +65,22 @@ class RidgeLoader {
 
     // 组件加载中的Map
     this.componentLoading = new Map()
+
+    this.initDebug()
+  }
+
+  async getDebugPackage () {
+    if (this.debugPackage) {
+      return this.debugPackage
+    }
+    if (this.debugUrl) {
+      this.debugPackage = await ky.get(this.debugUrl + '/package.json', {
+        timeout: 100
+      })
+      return this.debugPackage
+    } else {
+      return null
+    }
   }
 
   /**
@@ -111,7 +127,11 @@ class RidgeLoader {
    * @returns {string}
    */
   getComponentUrl ({ packageName, path }) {
-    return `${this.baseUrl}/${packageName}/${path}`
+    if (this.debugPackage && packageName === this.debugPackage.name) {
+      return `${this.debugUrl}/${packageName}/${path}`
+    } else {
+      return `${this.baseUrl}/${packageName}/${path}`
+    }
   }
 
   getPackageJSONUrl (packageName) {
@@ -509,6 +529,11 @@ class RidgeLoader {
   }
 
   async getPackageJSON (packageName) {
+    const debugObject = await this.getDebugPackage()
+    if (debugObject && debugObject.name === packageName) {
+      return debugObject
+    }
+
     if (this.packageJSONCache[packageName] != null) {
       // 未加载成功
       if (this.packageJSONCache[packageName] === 'rejected') {
