@@ -15,10 +15,11 @@ export default class RidgeNode extends React.Component {
     const {
       props
     } = this
-    this.view = fcViewManager.createComponentView(props.component, this.ref.current, props.props)
+    this.view = fcViewManager.createElementView(props.component, this.ref.current, props.props)
 
     this.view.then(fufilled => {
       fcViewManager.componentViews[props.id] = fufilled
+      this.view = fufilled
     })
     console.log('ReactFC props', props)
   }

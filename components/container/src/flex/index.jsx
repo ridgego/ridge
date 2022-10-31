@@ -35,6 +35,7 @@ export default class FlexContainer extends React.Component {
 
     if (this.props.flexContainerOverflow === 'overlay') {
       this.$el.current.style.overflow = 'hidden'
+
       this.$el.current.onmouseover = () => {
         this.$el.current.style.overflow = 'overlay'
       }
@@ -42,6 +43,36 @@ export default class FlexContainer extends React.Component {
         this.$el.current.style.overflow = 'hidden'
       }
     }
+
+    const that = this
+    const el = this.$el.current
+    this.$el.current.addEventListener('mouseover', ev => {
+      console.log('over event', ev)
+      window.droppableContainer = that
+      el.style.backgroundColor = '#eee'
+    })
+
+    this.$el.current.addEventListener('drop', ev => {
+      console.log('drop event', ev)
+    })
+
+    this.$el.current.addEventListener('mouseout', ev => {
+      window.droppableContainer = null
+      console.log('over event', ev)
+      el.style.backgroundColor = ''
+    })
+  }
+
+  appendElement (el, event) {
+    if (el === this.$el.current.closest('[ridge-componet-id]')) {
+      return
+    }
+    el.style.position = ''
+    el.style.transform = ''
+    if (this.props.direction === 'row' && this.props.alignItems === 'stretch') {
+      el.style.height = ''
+    }
+    this.$el.current.appendChild(el)
   }
 
   async updateProps (newProps) {

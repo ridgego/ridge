@@ -27,7 +27,7 @@ class AddMenu extends React.Component {
       if (targetEl.getAttribute('ridge-mounted')) {
         return
       }
-      fcViewManager.createComponentView({
+      fcViewManager.createElementView({
         packageName: this.state.currentPackage,
         path
       }, targetEl).then(() => {

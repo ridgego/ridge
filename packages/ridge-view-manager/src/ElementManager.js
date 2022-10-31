@@ -1,4 +1,4 @@
-import FrontComponentView from './fc_view.js'
+import ElementView from './ElementView.js'
 import debug from 'debug'
 
 // import AnimationDecorator from './decorator/animation_decorator.js'
@@ -9,7 +9,7 @@ import debug from 'debug'
 import ScrollBarDecorator from './decorator/scrollbar_decorator.js'
 
 const UNDEFINED_PAGE_ID = 'global'
-const log = debug('runtime:fc-view-manager')
+const log = debug('ridge:element-manager')
 
 /**
  * 前端组件视图管理器，用于创建和获取前端组件操作类 FcView。全局范围仅有一个实例：fcViewManager
@@ -88,7 +88,7 @@ const log = debug('runtime:fc-view-manager')
     interpreter.mount(el);
 }
  */
-class FCViewManager {
+class ViewManager {
   /**
      * @param {Object} config - 基础配置
      * @param {string} config.baseUrl - 组态化组件资源服务地址
@@ -420,12 +420,19 @@ class FCViewManager {
     }
   }
 
-  async createComponentView ({
+  /**
+   * 从组件定义创建一个页面元素实例
+   * @param {*} 组件全局ID
+   * @param {*} el
+   * @param {*} viewConfig 默认配置顺序
+   * @returns
+   */
+  async createElementView ({
     packageName,
     path
   }, el, viewConfig) {
     try {
-      const frontComponentView = new FrontComponentView({
+      const frontComponentView = new ElementView({
         el,
         packageName,
         path,
@@ -532,4 +539,4 @@ class FCViewManager {
   }
 }
 
-export default FCViewManager
+export default ViewManager

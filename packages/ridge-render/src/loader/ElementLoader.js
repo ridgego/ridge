@@ -16,13 +16,19 @@ if (window.top.globalExternalConfig) {
  * 组件定义（js及其依赖）加载服务类
  * @class
  */
-class RidgeLoader {
+class ElementLoader {
   /**
    * 构造器
-   * @param {string} baseUrl  图元下载基础地址
-   * @param {object} opts 第三方依赖定义信息，这个配置会覆盖 @gw/wind-pack-externals 中webpackExternals 定义
+   * @param {string} baseUrl  元素下载基础地址
+   * @param {string} unpkgUrl  第三方库下载地址
+   * @param {object} externalOptions 第三方依赖定义信息，这个配置会覆盖 wind-pack-externals 中webpackExternals 定义
    */
-  constructor (baseUrl, unpkgUrl, externalOptions) {
+  constructor ({
+    baseUrl,
+    unpkgUrl,
+    debugUrl,
+    externalOptions
+  }) {
     this.baseUrl = baseUrl ?? ''
     this.unpkgUrl = unpkgUrl ?? 'http://unpkg.com'
 
@@ -41,7 +47,7 @@ class RidgeLoader {
     window.fcExternalLoaded = []
 
     // 调试服务的地址
-    this.debugUrl = window.localStorage.ridgeDebugUrl
+    this.debugUrl = debugUrl
     // 调试组件包名称
     this.debugPackageName = null
 
@@ -65,8 +71,6 @@ class RidgeLoader {
 
     // 组件加载中的Map
     this.componentLoading = new Map()
-
-    this.initDebug()
   }
 
   async getDebugPackage () {
@@ -74,10 +78,12 @@ class RidgeLoader {
       return this.debugPackage
     }
     if (this.debugUrl) {
-      this.debugPackage = await ky.get(this.debugUrl + '/package.json', {
-        timeout: 100
-      })
-      return this.debugPackage
+      try {
+        this.debugPackage = await ky.get(this.debugUrl + '/package.json').json()
+        return this.debugPackage
+      } catch (e) {
+        return null
+      }
     } else {
       return null
     }
@@ -128,7 +134,7 @@ class RidgeLoader {
    */
   getComponentUrl ({ packageName, path }) {
     if (this.debugPackage && packageName === this.debugPackage.name) {
-      return `${this.debugUrl}/${packageName}/${path}`
+      return `${this.debugUrl}/${path}`
     } else {
       return `${this.baseUrl}/${packageName}/${path}`
     }
@@ -529,9 +535,12 @@ class RidgeLoader {
   }
 
   async getPackageJSON (packageName) {
-    const debugObject = await this.getDebugPackage()
-    if (debugObject && debugObject.name === packageName) {
-      return debugObject
+    if (this.debugUrl) {
+      const packageObject = await this.getDebugPackage()
+      if (packageObject.name === packageName) {
+        this.setPackageCache(packageObject.name, packageObject)
+        return packageObject
+      }
     }
 
     if (this.packageJSONCache[packageName] != null) {
@@ -573,11 +582,12 @@ class RidgeLoader {
 
         const packageJSONObject = await await ky.get(packageJSONUrl).json()
 
-        this.packageJSONCache[packageJSONObject] = packageJSONObject
+        this.packageJSONCache[packageJSONObject.name] = packageJSONObject
         await this.loadExternals(Object.keys(this.packageJSONCache[packageName].dependencies))
         return packageJSONObject
       } catch (e) {
-        throw new Error('组件包未安装:' + packageName)
+        console.log(e)
+        throw new Error('组件包未安装:' + packageName, e)
       }
     }
   }
@@ -619,4 +629,4 @@ class RidgeLoader {
   }
 }
 
-export default RidgeLoader
+export default ElementLoader

@@ -19,10 +19,11 @@ export default class MoveableManager extends React.Component {
     const {
       selectedTargets,
       zoom,
-      styleChange
+      dragEnd,
+      resizeEnd
     } = this.props
 
-    const { resizeStart, moveable } = this
+    const { moveable } = this
 
     const selectedElement = selectedTargets.map(t => document.getElementById(t))
 
@@ -89,8 +90,8 @@ export default class MoveableManager extends React.Component {
             delta[1] && (target.style.height = `${height}px`)
           })
         }}
-        onDragEnd={({ target, isDrag, clientX, clientY }) => {
-          styleChange && styleChange(target)
+        onDragEnd={ev => {
+          dragEnd && dragEnd(ev.target, ev)
         }}
         onResizeStart={({ target, clientX, clientY }) => {
         }}
@@ -106,7 +107,7 @@ export default class MoveableManager extends React.Component {
           delta[1] && (target.style.height = `${height}px`)
         }}
         onResizeEnd={({ target, isDrag, clientX, clientY }) => {
-          styleChange && styleChange(target)
+          resizeEnd && resizeEnd(target)
         }}
         /* scalable */
         /* Only one of resizable, scalable, warpable can be used. */

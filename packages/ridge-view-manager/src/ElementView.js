@@ -11,7 +11,7 @@ const captureEvents = ['onclick', 'ondblclick', 'onmouseup', 'onmousedown', 'onm
  * - 通过 fcViewManager.getComponentView 方式获取实例
  * @class
  */
-class FCView {
+class ElementView {
   /**
      * @prop {String} fcId 组件ID
      * @prop {String} pageId 组件所在页面ID
@@ -114,7 +114,7 @@ class FCView {
     if (this.fcInstanceConfig.slotElements) {
       for (const prop in this.fcInstanceConfig.slotElements) {
         const fcInstanceConfig = this.fcInstanceConfig.slotElements[prop]
-        const slotFcView = new FCView({
+        const slotFcView = new ElementView({
           decorators: this.decorators,
           fcInstanceConfig,
           loader: this.loader,
@@ -147,7 +147,7 @@ class FCView {
     if (this.childrenFcViews.length === 0) {
       for (const children of this.fcInstanceConfig.children || []) {
         log('加载组件的子节点', children)
-        const childView = new FCView({
+        const childView = new ElementView({
           fcInstanceConfig: children,
           loader: this.loader,
           apolloApp: this.apolloApp,
@@ -180,7 +180,7 @@ class FCView {
      * @returns null
      */
   cloneView () {
-    const fcv = new FCView({
+    const fcv = new ElementView({
       decorators: this.decorators,
       fcInstanceConfig: this.fcInstanceConfig,
       loader: this.loader,
@@ -859,4 +859,4 @@ class FCView {
   }
 }
 
-export default FCView
+export default ElementView

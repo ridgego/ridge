@@ -59,12 +59,12 @@ args.option('dir', 'The Front Component Project Root Path', './')
             }
         }
 
-        const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.d.js'),
+        const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.def.js'),
 
             entry = {};
 
         if (targetFiles.length === 0) {
-            log(chalk.green('未找到图元 ' + ridgeConfig.pattern ?? './src/**/*.d.js'));
+            log(chalk.green('未找到图元 ' + ridgeConfig.pattern ?? './src/**/*.def.js'));
         }
 
         log(chalk.green('编译打包以下图元文件:'));
@@ -126,9 +126,10 @@ args.option('dir', 'The Front Component Project Root Path', './')
         const compiler = webpack(merge({
             entry,
             output: {
-                filename: chunkData => {
-                    return chunkData.chunk.name.substring(0, chunkData.chunk.name.indexOf('.')) + '.d.js';
-                },
+                filename:  '[name].js',
+                // chunkData => {
+                //     return chunkData.chunk.name.substring(0, chunkData.chunk.name.indexOf('.')) + '.js';
+                // },
                 // filename: '[name].js',
                 // 图元的全局唯一ID (pelUId) 也是图元的下载地址
                 library: `/${packageJson.name}/${BUILD_PATH}/[name].js`,

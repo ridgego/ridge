@@ -8,10 +8,5 @@ export default {
     label: '方向',
     type: 'select',
     value: ''
-  }, {
-    name: 'direction',
-    label: '方向',
-    type: 'select',
-    value: ''
   }]
 }

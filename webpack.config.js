@@ -7,7 +7,7 @@ module.exports = {
   devServer: {
     static: './public'
   },
-  devtool: 'eval-source-map',
+  devtool: 'eval',
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'index.html'),

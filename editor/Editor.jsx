@@ -62,11 +62,12 @@ export default class Editor extends React.Component {
       contentRef,
       rightPanelRef,
       workspaceWrapper,
-      onNodeStyleChange,
       movableManager,
       onPagePropChange,
       onToolbarItemClick,
       onNodeCanvasChange,
+      onNodeResizeEnd,
+      onNodeDragEnd,
       workspaceDragOver,
       workspaceDrop,
       zoomChange
@@ -91,7 +92,7 @@ export default class Editor extends React.Component {
         >
           <ComponentAddPanel />
           <RightPropsPanel node={currentNodeProps} ref={rightPanelRef} inputStyleChange={onNodeCanvasChange.bind(this)} pagePropChange={onPagePropChange.bind(this)} pageVariables={pageVariables} />
-          <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver}>
+          <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
             <Viewport
               ref={viewPortRef}
               nodes={nodes}
@@ -104,7 +105,8 @@ export default class Editor extends React.Component {
             >
               <MoveableManager
                 ref={movableManager}
-                styleChange={onNodeStyleChange.bind(this)}
+                resizeEnd={onNodeResizeEnd.bind(this)}
+                dragEnd={onNodeDragEnd.bind(this)}
                 selectedTargets={selectedTargets}
                 zoom={zoom}
               />
@@ -198,7 +200,9 @@ export default class Editor extends React.Component {
       id: nanoid(10),
       name: '按钮',
       component,
-      props: {},
+      props: {
+        __isEditor: true
+      },
       style: {
         transform: `translate(${posX}px, ${posY}.px)`,
         position: 'absolute',
@@ -224,8 +228,16 @@ export default class Editor extends React.Component {
     }
   }
 
-  onNodeStyleChange (el) {
+  onNodeResizeEnd (el) {
     this.rightPanelRef.current?.styleChange(el)
+  }
+
+  onNodeDragEnd (el, event) {
+    this.rightPanelRef.current?.styleChange(el)
+
+    if (window.droppableContainer) {
+      window.droppableContainer.appendElement(el, event)
+    }
   }
 
   onPagePropChange (values) {

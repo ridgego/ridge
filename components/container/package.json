@@ -16,9 +16,9 @@
   ],
   "components": [{
     "title": "弹性容器",
-    "path": "build/flex-index.fcp.js",
+    "path": "build/flex-index.def.js",
     "width": 300,
-    "height": 120
+    "height": 200
   }],
   "author": "",
   "license": "ISC"
