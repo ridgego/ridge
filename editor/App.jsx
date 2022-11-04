@@ -14,33 +14,29 @@ class App extends React.Component {
       },
       nodes: [{
         id: 'dkjerk',
-        nameProp: '',
-        component: {
-          packageName: 'ridge-antd',
-          path: 'build/button-button.fcp.js'
-        },
-        props: {
-
-        },
-        style: {
-          position: 'absolute',
-          width: '80px',
-          height: '40px'
+        name: '按钮1',
+        componentPath: 'ridge-antd/build/button-button.fcp.js',
+        componentConfig: {
+          props: {},
+          position: {
+            x: 20,
+            y: 55,
+            width: 80,
+            height: 35
+          }
         }
       }, {
         id: 'fewlrkj',
         name: '按钮2',
-        component: {
-          packageName: 'ridge-antd',
-          path: 'build/button-button.fcp.js'
-        },
-        props: {
-
-        },
-        style: {
-          position: 'absolute',
-          width: '80px',
-          height: '50px'
+        componentPath: 'ridge-antd/build/button-button.fcp.js',
+        componentConfig: {
+          props: {},
+          position: {
+            x: 20,
+            y: 355,
+            width: 80,
+            height: 35
+          }
         }
       }]
     }
@@ -67,8 +63,7 @@ class App extends React.Component {
 
     this.editorRef = React.createRef()
 
-    this.state = {
-    }
+    this.state = {}
   }
 
   componentDidMount () {

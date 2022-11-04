@@ -20,6 +20,7 @@ export default class MoveableManager extends React.Component {
       selectedTargets,
       zoom,
       dragEnd,
+      drag,
       resizeEnd
     } = this.props
 
@@ -56,11 +57,9 @@ export default class MoveableManager extends React.Component {
         clipTargetBounds
         onDragStart={({ target, clientX, clientY }) => {
         }}
-        onDrag={({
-          target,
-          transform
-        }) => {
-          target.style.transform = transform
+        onDrag={ev => {
+          ev.target.style.transform = ev.transform
+          drag && drag(ev.target, ev)
         }}
         onDragGroupStart={groupDrag => {
 

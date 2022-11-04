@@ -1,12 +1,12 @@
 import React from 'react'
-import Selecto from 'react-selecto'
+import Selecto from 'selecto'
+import Moveable from 'moveable'
 import { Modal } from '@douyinfe/semi-ui'
 
-import Viewport from './viewport/ViewPort.jsx'
-import MoveableManager from './viewport/MoveableMananger.jsx'
 import Toolbar from './Toolbar.jsx'
 import RightPropsPanel from './panels/RightPropsPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
+import { PageElementManager, RidgeContext } from 'ridge-view-manager'
 
 import FileManager from './file-manager/FileManager.jsx'
 
@@ -20,10 +20,9 @@ export default class Editor extends React.Component {
     this.workspaceWrapper = React.createRef()
     this.viewPortRef = React.createRef()
     this.rightPanelRef = React.createRef()
+
     this.state = {
-      selectedTargets: [],
       pageProps: {},
-      nodes: [],
       currentNodeProps: {},
       pageVariables: {},
       viewX: 0,
@@ -34,14 +33,24 @@ export default class Editor extends React.Component {
   }
 
   loadPage (pageConfig) {
+    this.ridgeContext = new RidgeContext({
+      loader: window.loader
+    })
+    this.pageElementManager = new PageElementManager(this.ridgeContext)
+
+    console.log('pageConfig', pageConfig)
+
     this.setState({
-      nodes: pageConfig.nodes,
       pageProps: pageConfig.properties,
-      pageVariables: pageConfig.variables
+      pageVariables: pageConfig.variables ?? {}
     }, () => {
+      this.fitToCenter()
+      console.log('state', this.state)
+      for (const node of pageConfig.nodes) {
+        this.addElement(node)
+      }
       this.rightPanelRef.current?.setPagePropValue(this.state.pageProps)
       this.rightPanelRef.current?.setPageVariabelValue(this.state.pageVariables)
-      this.fitToCenter()
     })
   }
 
@@ -62,21 +71,16 @@ export default class Editor extends React.Component {
       contentRef,
       rightPanelRef,
       workspaceWrapper,
-      movableManager,
       onPagePropChange,
       onToolbarItemClick,
       onNodeCanvasChange,
-      onNodeResizeEnd,
-      onNodeDragEnd,
       workspaceDragOver,
       workspaceDrop,
       zoomChange
     } = this
     const {
-      selectedTargets,
       currentNodeProps,
       pageVariables,
-      nodes,
       zoom,
       viewX,
       pageProps,
@@ -93,9 +97,9 @@ export default class Editor extends React.Component {
           <ComponentAddPanel />
           <RightPropsPanel node={currentNodeProps} ref={rightPanelRef} inputStyleChange={onNodeCanvasChange.bind(this)} pagePropChange={onPagePropChange.bind(this)} pageVariables={pageVariables} />
           <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
-            <Viewport
+            <div
               ref={viewPortRef}
-              nodes={nodes}
+              className='viewport-container'
               style={{
                 transform: `translate(${viewX}px, ${viewY}px) scale(${zoom})`,
                 transformOrigin: 'center',
@@ -103,17 +107,19 @@ export default class Editor extends React.Component {
                 height: `${pageProps.height}px`
               }}
             >
-              <MoveableManager
+              <div className='viewport' />
+              {/* <MoveableManager
                 ref={movableManager}
                 resizeEnd={onNodeResizeEnd.bind(this)}
+                drag={onNodeDrag.bind(this)}
                 dragEnd={onNodeDragEnd.bind(this)}
                 selectedTargets={selectedTargets}
                 zoom={zoom}
-              />
-            </Viewport>
+              /> */}
+            </div>
           </div>
         </div>
-        <Selecto
+        {/* <Selecto
           dragContainer='.workspace'
           hitRate={0}
           selectableTargets={['.viewport-container .ridge-node']}
@@ -152,7 +158,7 @@ export default class Editor extends React.Component {
             }
             this.setSelectedTargets(selected)
           }}
-        />
+        /> */}
         <Modal
           title='配置应用资源'
           visible={modalFileShow}
@@ -171,6 +177,14 @@ export default class Editor extends React.Component {
         </Modal>
       </div>
     )
+  }
+
+  addElement (node) {
+    const div = document.createElement('div')
+
+    this.viewPortRef.current.appendChild(div)
+
+    this.pageElementManager.createElement(node.componentPath, div, node.componentConfig)
   }
 
   workspaceDragOver (ev) {
@@ -232,11 +246,81 @@ export default class Editor extends React.Component {
     this.rightPanelRef.current?.styleChange(el)
   }
 
+  onNodeDrag (dragEl, event) {
+    const target = this.getDroppableTarget(dragEl, {
+      x: event.clientX,
+      y: event.clientY
+    })
+    if (target) {
+      target.ridgeNode.setDroppable()
+    }
+  }
+
+  /**
+   * 判断正拖拽的节点是否在容器内部区域。（存在嵌套、重叠情况下取最顶层那个）
+   * @param {Element} dragEl 被拖拽的DOM Element
+   * @param {{x, y}} pointPos 鼠标位置
+   * @returns {Element} 可放置的容器DOM Element
+   */
+  getDroppableTarget (dragEl, pointPos) {
+    const droppableElements = document.querySelectorAll('.ridge-node[ridge-droppable]')
+
+    const filtered = Array.from(droppableElements).filter(el => {
+      const { x, y, width, height } = el.getBoundingClientRect()
+      return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height) && el !== dragEl
+    })
+
+    let target = null
+    if (filtered.length === 1) {
+      target = filtered[0]
+    } else if (filtered.length > 1) {
+      const sorted = filtered.sort((a, b) => {
+        if (a.contains(b)) {
+          return 1
+        } else if (b.contains(a)) {
+          return -1
+        } else {
+          return (a.style.zIndex > b.style.zIndex) ? 1 : -1
+        }
+      })
+      target = sorted[0]
+    }
+    droppableElements.forEach(el => {
+      if (el !== target) {
+        el.ridgeNode.unsetDroppable()
+      }
+    })
+    return target
+  }
+
   onNodeDragEnd (el, event) {
     this.rightPanelRef.current?.styleChange(el)
 
-    if (window.droppableContainer) {
-      window.droppableContainer.appendElement(el, event)
+    const targetContainer = this.getDroppableTarget(el, {
+      x: event.clientX,
+      y: event.clientY
+    })
+
+    if (targetContainer) {
+      // 放置到容器上
+      targetContainer.ridgeViewObject.invoke('dropElement', [el])
+      this.movableManager.current?.getMoveable().updateTarget()
+      targetContainer.ridgeNode.unsetDroppable()
+      el.ridgeContainer = targetContainer
+    } else {
+      // 到ViewPort上
+      if (el.ridgeContainer) {
+        const { zoom } = this.state
+
+        const transform = `translate(${event.currentTarget.state.left / zoom}px, ${event.currentTarget.state.top / zoom}px)`
+        el.style.position = 'absolute'
+        el.style.width = event.currentTarget.state.width + 'px'
+        el.style.height = event.currentTarget.state.height + 'px'
+        el.ridgeContainer = null
+        this.viewPortRef.current.getViewPortRef().appendChild(el)
+        el.style.transform = transform
+        this.movableManager.current?.getMoveable().updateTarget()
+      }
     }
   }
 

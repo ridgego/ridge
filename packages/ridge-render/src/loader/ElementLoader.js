@@ -74,9 +74,6 @@ class ElementLoader {
   }
 
   async getDebugPackage () {
-    if (this.debugPackage) {
-      return this.debugPackage
-    }
     if (this.debugUrl) {
       try {
         this.debugPackage = await ky.get(this.debugUrl + '/package.json').json()
@@ -162,10 +159,23 @@ class ElementLoader {
    * @param {String} packageName Npm package from which component belongs to
    * @param {String} path Component path
    */
-  async loadComponent ({
-    packageName,
-    path
-  }) {
+  async loadComponent (componentPath) {
+    let packageName, path
+    if (typeof componentPath === 'object') {
+      packageName = componentPath.packageName
+      path = componentPath.path
+    } else {
+      // 抽取包和路径
+      const paths = componentPath.split('/')
+      if (paths[0].startsWith('@')) {
+        packageName = paths.splice(0, 2).join('/')
+        path = paths.join('/')
+      } else {
+        packageName = paths.splice(0, 1).join('/')
+        path = paths.join('/')
+      }
+    }
+
     const componentUrl = this.getComponentUrl({ packageName, path })
     const cache = this.getComponent(componentUrl)
 
@@ -535,38 +545,41 @@ class ElementLoader {
   }
 
   async getPackageJSON (packageName) {
+    if (this.packageJSONCache[packageName]) {
+      return this.packageJSONCache[packageName]
+    }
+
     if (this.debugUrl) {
       const packageObject = await this.getDebugPackage()
-      if (packageObject.name === packageName) {
+      if (packageObject && packageObject.name === packageName) {
+        this.prefixPackageJSON(packageObject, this.debugUrl)
         this.setPackageCache(packageObject.name, packageObject)
         return packageObject
       }
     }
 
-    if (this.packageJSONCache[packageName] != null) {
-      // 未加载成功
-      if (this.packageJSONCache[packageName] === 'rejected') {
-        return null
-      }
-      if (this.packageJSONCache[packageName] instanceof Promise) {
-        await this.packageJSONCache[packageName]
-      }
-      // 已加载
-      if (typeof this.packageJSONCache[packageName] === 'object') {
-        return this.packageJSONCache[packageName]
-      }
-    }
     const packageJSONUrl = this.getPackageJSONUrl(packageName)
 
     try {
-      this.packageJSONCache[packageName] = await ky.get(packageJSONUrl).json()
-      if (this.packageJSONCache[packageName].icon) {
-        this.packageJSONCache[packageName].icon = `${this.baseUrl}/${this.packageJSONCache[packageName].name}/${this.packageJSONCache[packageName].icon}`
-      }
-      return this.packageJSONCache[packageName]
+      const packageObject = await ky.get(packageJSONUrl).json()
+      this.prefixPackageJSON(packageObject, this.baseUrl + '/' + packageName)
+      this.setPackageCache(packageObject)
+
+      return packageObject
     } catch (e) {
-      this.packageJSONCache[packageName] = 'rejected'
-      return null
+      console.error('NPM Package Not Loaded: ', packageName, e)
+    }
+  }
+
+  prefixPackageJSON (packageObject, prefix) {
+    if (packageObject.icon) {
+      packageObject.icon = `${prefix}/${packageObject.icon}`
+    }
+
+    for (const com of packageObject.components ?? []) {
+      if (com.icon) {
+        com.icon = `${prefix}/${com.icon}`
+      }
     }
   }
 

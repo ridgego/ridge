@@ -2,12 +2,12 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
 module.exports = {
-  entry: './editor/index.jsx',
+  entry: './index.jsx',
   mode: 'development',
   devServer: {
-    static: './public'
+    static: '../public'
   },
-  devtool: 'eval',
+  devtool: 'eval-source-map',
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'index.html'),
@@ -51,6 +51,15 @@ module.exports = {
       {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.less$/i,
+        use: [
+          // compiles Less to CSS
+          'style-loader',
+          'css-loader',
+          'less-loader'
+        ]
       }
     ]
   },

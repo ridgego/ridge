@@ -136,6 +136,7 @@ export default class ComponentPropsPanel extends React.Component {
             {
               label: prop.label,
               control: prop.type,
+              optionList: prop.optionList,
               field: 'props.' + prop.name
             }
           ]
@@ -169,7 +170,9 @@ export default class ComponentPropsPanel extends React.Component {
   }
 
   setPageVariabelValue (variables) {
-    this.pagePropFormApi.setValue('variables', variables)
+    this.pagePropFormApi.setValue('variables', variables, {
+      notNotify: true
+    })
   }
 
   render () {

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "容器",
   "main": "index.js",
+  "icon": "icon.svg",
   "scripts": {
     "build": "build-fc",
     "watch": "build-fc -w",
@@ -17,6 +18,7 @@
   "components": [{
     "title": "弹性容器",
     "path": "build/flex-index.def.js",
+    "icon": "flex-container.svg",
     "width": 300,
     "height": 200
   }],

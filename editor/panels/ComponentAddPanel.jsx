@@ -1,10 +1,12 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, Button, List } from '@douyinfe/semi-ui'
-import { nanoid } from '../utils/string'
+import PackageManager from '../manager/PackageManager'
 
 class AddMenu extends React.Component {
   constructor () {
     super()
+    this.packageManager = new PackageManager(window.loader)
+
     this.ref = React.createRef()
     this.state = {
       packages: [],
@@ -23,16 +25,16 @@ class AddMenu extends React.Component {
     currentPackageObject.components.forEach(({
       path
     }) => {
-      const targetEl = document.querySelector('[data-component-path="' + this.state.currentPackage + '/' + path + '"]')
-      if (targetEl.getAttribute('ridge-mounted')) {
-        return
-      }
-      fcViewManager.createElementView({
-        packageName: this.state.currentPackage,
-        path
-      }, targetEl).then(() => {
-        targetEl.setAttribute('ridge-mouted', '1')
-      })
+      // const targetEl = document.querySelector('[data-component-path="' + this.state.currentPackage + '/' + path + '"]')
+      // if (targetEl.getAttribute('ridge-mounted')) {
+      //   return
+      // }
+      // fcViewManager.createElementView({
+      //   packageName: this.state.currentPackage,
+      //   path
+      // }, targetEl).then(() => {
+      //   targetEl.setAttribute('ridge-mouted', '1')
+      // })
     })
   }
 
@@ -45,11 +47,10 @@ class AddMenu extends React.Component {
   }
 
   componentDidMount () {
-    const { packageManager } = window
     if (!this.state.packageListingLoaded) {
-      packageManager.getBuildInPackages().then(result => {
+      this.packageManager.getBuildInPackages().then(result => {
         this.setState({
-          currentPackage: packageManager.packageNames[0],
+          currentPackage: this.packageManager.packageNames[0],
           packages: result,
           packageListingLoaded: true
         }, () => {
@@ -61,11 +62,15 @@ class AddMenu extends React.Component {
 
   dragStart (ev, {
     packageName,
-    path
+    path,
+    width,
+    height
   }) {
     ev.dataTransfer.setData('text/plain', JSON.stringify({
       packageName,
-      path
+      path,
+      width,
+      height
     }))
   }
 
@@ -127,12 +132,7 @@ class AddMenu extends React.Component {
                         })}
                         className='component-container'
                       >
-                        <div
-                          data-component-path={pkg.name + '/' + item.path} style={{
-                            width: item.width + 'px',
-                            height: item.height + 'px'
-                          }}
-                        />
+                        <img src={item.icon} />
                       </div>
                       <div>{item.title}</div>
                     </List.Item>

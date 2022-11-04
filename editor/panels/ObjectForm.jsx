@@ -66,7 +66,7 @@ export default class ObjectForm extends React.Component {
       case 'text':
         return <Input label={col.label} field={col.field} />
       case 'select':
-        return <Select label={col.label} field={col.field} optionList={col.options} />
+        return <Select label={col.label} field={col.field} optionList={col.optionList} />
       case 'css-style':
         return <TextArea label={col.label} field={col.field} />
       case 'variable':
@@ -101,13 +101,13 @@ export default class ObjectForm extends React.Component {
     }
     const renderSection = (section, i) => {
       return (
-        <>
+        <div key={i}>
           {section.title &&
-            <Section key={i}>
+            <Section>
               {section.rows.map(renderRows)}
             </Section>}
           {!section.title && section.rows.map(renderRows)}
-        </>
+        </div>
       )
     }
 

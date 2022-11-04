@@ -22,6 +22,7 @@
     "height": 35
   }, {
     "title": "输入框",
+    "icon": "img/Input.svg",
     "path": "build/input-input.def.js",
     "width": 120,
     "height": 35

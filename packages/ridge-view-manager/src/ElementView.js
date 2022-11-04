@@ -7,7 +7,7 @@ const captureEvents = ['onclick', 'ondblclick', 'onmouseup', 'onmousedown', 'onm
 
 /**
  * 组件加载、渲染管理类
- * - 每个图元都有一个对应的FCView实例封装
+ * - 每个图元都有一个对应的ElementView实例封装
  * - 通过 fcViewManager.getComponentView 方式获取实例
  * @class
  */
@@ -317,7 +317,9 @@ class ElementView {
       this.instancePropConfig[slotProp] = this.slotFcViews[slotProp]
     }
 
-    this.instancePropConfig.$$ridge = this
+    this.instancePropConfig.__elementView = this
+
+    this.editorFeatures = this.componentDefinition.editorFeatures ?? {}
 
     try {
       Object.values(this.decorators).forEach(decorator => decorator.initPropEvents(this))

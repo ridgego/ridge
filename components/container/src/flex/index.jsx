@@ -46,33 +46,50 @@ export default class FlexContainer extends React.Component {
 
     const that = this
     const el = this.$el.current
-    this.$el.current.addEventListener('mouseover', ev => {
-      console.log('over event', ev)
-      window.droppableContainer = that
-      el.style.backgroundColor = '#eee'
-    })
-
-    this.$el.current.addEventListener('drop', ev => {
-      console.log('drop event', ev)
-    })
-
-    this.$el.current.addEventListener('mouseout', ev => {
-      window.droppableContainer = null
-      console.log('over event', ev)
-      el.style.backgroundColor = ''
-    })
   }
 
-  appendElement (el, event) {
+  dropElement (el, event) {
     if (el === this.$el.current.closest('[ridge-componet-id]')) {
       return
     }
+    const {
+      // 相关系统变量
+      direction = 'row',
+      alignItems = 'stretch',
+      justify = 'flex-start'
+    } = this.props
+
+    const afterNode = this.getAfterNode(el, this.$el.current.childNodes, direction)
     el.style.position = ''
     el.style.transform = ''
-    if (this.props.direction === 'row' && this.props.alignItems === 'stretch') {
+    if (direction === 'row' && alignItems === 'stretch') {
       el.style.height = ''
     }
-    this.$el.current.appendChild(el)
+    if (direction === 'column' && alignItems === 'stretch') {
+      el.style.width = ''
+    }
+    el.dataset.containerId = this.props.__elementView.fcId
+    if (afterNode) {
+      this.$el.current.insertBefore(el, afterNode)
+    } else {
+      this.$el.current.appendChild(el)
+    }
+  }
+
+  getAfterNode (dropped, siblings, row) {
+    const droppedRect = dropped.getBoundingClientRect()
+    const pos = (row === 'row') ? (droppedRect.x + droppedRect.width / 2) : (droppedRect.y + droppedRect.height / 2)
+    let last = 10000000000
+    let result = null
+    for (const sibling of siblings) {
+      const siblingRect = sibling.getBoundingClientRect()
+      const siblingpos = (row === 'row') ? (siblingRect.x + siblingRect.width / 2) : (siblingRect.y + siblingRect.height / 2)
+      if (pos < siblingpos && siblingpos < last) {
+        last = siblingpos
+        result = sibling
+      }
+    }
+    return result
   }
 
   async updateProps (newProps) {
@@ -90,9 +107,11 @@ export default class FlexContainer extends React.Component {
       ...props
     } = newProps
 
+    this.props = newProps
     if (this.$el.current) {
       Object.assign(this.$el.current.style, this.getContainerStyle(newProps))
     }
+
     await this.initFlexContent(childrenViews, currentFcView, direction, alignItems, containerAutoStrech)
   }
 
@@ -283,23 +302,21 @@ export default class FlexContainer extends React.Component {
   getContainerStyle (props) {
     const {
       // 相关系统变量
-      __isEditor,
       padding,
       direction = 'row',
       alignItems = 'stretch',
-      justify = 'flex-start'
+      justify = 'flex-start',
+      border
     } = props
     const containerStyle = {
       width: '100%',
       height: '100%',
       display: 'flex',
+      border,
       flexDirection: direction,
       justifyContent: justify,
       alignItems,
       padding
-    }
-    if (__isEditor) {
-      containerStyle.border = '1px solid #eee'
     }
     return containerStyle
   }

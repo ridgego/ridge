@@ -1,52 +1,23 @@
 {
-  "name": "movable",
+  "name": "ridge-platform",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "stats": "webpack --config webpack.prod.js --profile --json > stats.json",
     "start": "webpack serve --open"
   },
   "workspaces": [
+    "editor",
     "packages/*",
     "server/*",
     "components/*"
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@douyinfe/semi-ui": "^2.20.4",
-    "@monaco-editor/react": "^4.4.6",
-    "html2canvas": "^1.4.1",
-    "immutable": "^4.1.0",
-    "localforage": "^1.10.0",
-    "monaco-editor": "^0.34.0",
-    "moveable-helper": "^0.4.0",
-    "nanoid": "^4.0.0",
-    "react": "^18.2.0",
-    "react-color": "^2.19.3",
-    "react-dom": "^18.2.0",
-    "react-moveable": "^0.38.4",
-    "react-selecto": "^1.19.1",
-    "ridge-view-manager": "^1.0.0",
-    "standard": "^17.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@daybrush/builder": "^0.1.2",
-    "@svgr/webpack": "^6.4.0",
-    "@types/react": "^18.0.18",
-    "@types/react-color": "^3.0.6",
-    "@types/react-dom": "^18.0.6",
-    "css-loader": "^6.7.1",
-    "html-webpack-plugin": "^5.5.0",
-    "style-loader": "^3.3.1",
-    "ts-loader": "^9.3.1",
-    "typescript": "^4.8.2",
-    "url-loader": "^4.1.1",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.10.1"
+    "standard": "^17.0.0"
   },
   "browserslist": [
       "last 1 chrome version",
