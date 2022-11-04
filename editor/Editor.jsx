@@ -10,6 +10,7 @@ import { PageElementManager, RidgeContext } from 'ridge-view-manager'
 
 import FileManager from './file-manager/FileManager.jsx'
 
+import './editor.less'
 import { nanoid } from './utils/string'
 
 export default class Editor extends React.Component {
@@ -20,6 +21,13 @@ export default class Editor extends React.Component {
     this.workspaceWrapper = React.createRef()
     this.viewPortRef = React.createRef()
     this.rightPanelRef = React.createRef()
+
+    this.ridgeContext = new RidgeContext({
+      loader: window.loader
+    })
+
+    this.pageElementManager = new PageElementManager(this.ridgeContext)
+    this.ridgeContext.setCurrentPageManager('default', this.pageElementManager)
 
     this.state = {
       pageProps: {},
@@ -33,22 +41,15 @@ export default class Editor extends React.Component {
   }
 
   loadPage (pageConfig) {
-    this.ridgeContext = new RidgeContext({
-      loader: window.loader
-    })
-    this.pageElementManager = new PageElementManager(this.ridgeContext)
-
     console.log('pageConfig', pageConfig)
+
+    this.pageElementManager.mount(this.viewPortRef.current, pageConfig.nodes)
 
     this.setState({
       pageProps: pageConfig.properties,
       pageVariables: pageConfig.variables ?? {}
     }, () => {
       this.fitToCenter()
-      console.log('state', this.state)
-      for (const node of pageConfig.nodes) {
-        this.addElement(node)
-      }
       this.rightPanelRef.current?.setPagePropValue(this.state.pageProps)
       this.rightPanelRef.current?.setPageVariabelValue(this.state.pageVariables)
     })
@@ -94,7 +95,7 @@ export default class Editor extends React.Component {
         <div
           ref={contentRef} className='content'
         >
-          <ComponentAddPanel />
+          <ComponentAddPanel context={this.ridgeContext} />
           <RightPropsPanel node={currentNodeProps} ref={rightPanelRef} inputStyleChange={onNodeCanvasChange.bind(this)} pagePropChange={onPagePropChange.bind(this)} pageVariables={pageVariables} />
           <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
             <div
@@ -119,46 +120,6 @@ export default class Editor extends React.Component {
             </div>
           </div>
         </div>
-        {/* <Selecto
-          dragContainer='.workspace'
-          hitRate={0}
-          selectableTargets={['.viewport-container .ridge-node']}
-          selectByClick
-          selectFromInside={false}
-          toggleContinueSelect={['shift']}
-          preventDefault
-          onDragStart={e => {
-            const inputEvent = e.inputEvent
-            const target = inputEvent.target
-            // Group Selected for resize or move
-            if (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1) {
-              e.stop()
-            }
-            const closestRidgeNode = target.closest('.ridge-node')
-
-            if (closestRidgeNode) {
-              this.setState({
-                selectedTargets: [closestRidgeNode].map(el => el.getAttribute('id'))
-              }, () => {
-                movableManager.current.getMoveable().dragStart(inputEvent)
-              })
-              this.setSelectedTargets([closestRidgeNode])
-              e.stop()
-            }
-            if (inputEvent.ctrlKey) {
-              // movableManager.current.getMoveable().dragStart(inputEvent)
-              e.stop()
-            }
-          }}
-          onScroll={({ direction }) => {
-          }}
-          onSelectEnd={({ isDragStart, selected, inputEvent, rect }) => {
-            if (isDragStart) {
-              inputEvent.preventDefault()
-            }
-            this.setSelectedTargets(selected)
-          }}
-        /> */}
         <Modal
           title='配置应用资源'
           visible={modalFileShow}
@@ -177,14 +138,6 @@ export default class Editor extends React.Component {
         </Modal>
       </div>
     )
-  }
-
-  addElement (node) {
-    const div = document.createElement('div')
-
-    this.viewPortRef.current.appendChild(div)
-
-    this.pageElementManager.createElement(node.componentPath, div, node.componentConfig)
   }
 
   workspaceDragOver (ev) {
@@ -370,6 +323,8 @@ export default class Editor extends React.Component {
   }
 
   initSpaceDragEvents () {
+    this.initSelecto()
+    this.initMoveable()
     const { workspaceWrapper } = this
     let isViewPortMoving = false
 
@@ -390,6 +345,231 @@ export default class Editor extends React.Component {
 
     workspaceWrapper.current?.addEventListener('mouseup', (e) => {
       isViewPortMoving = false
+    })
+  }
+
+  initMoveable () {
+    this.moveable = new Moveable(document.body, {
+      target: [],
+      dimensionViewable: true,
+      deleteButtonViewable: false,
+      // If the container is null, the position is fixed. (default: parentElement(document.body))
+      container: document.body,
+      snappable: true,
+      snapGap: false,
+      draggable: true,
+      resizable: true,
+      scalable: true,
+      rotatable: false,
+      warpable: true,
+      // Enabling pinchable lets you use events that
+      // can be used in draggable, resizable, scalable, and rotateable.
+      pinchable: true, // ["resizable", "scalable", "rotatable"]
+      origin: true,
+      keepRatio: false,
+      // Resize, Scale Events at edges.
+      edge: false,
+      throttleDrag: 0,
+      throttleResize: 1,
+      throttleScale: 0,
+      throttleRotate: 0,
+      elementGuidelines: [document.querySelector('.viewport-container')],
+      clipArea: true,
+      clipVerticalGuidelines: [0, '50%', '100%'],
+      clipHorizontalGuidelines: [0, '50%', '100%'],
+      clipTargetBounds: true
+    })
+
+    this.moveable.on('drag', ev => {
+      ev.target.style.transform = ev.transform
+      // drag && drag(ev.target, ev)
+    })
+
+    this.moveable.on('resize', ({
+      target,
+      width,
+      height,
+      delta,
+      transform
+    }) => {
+      target.style.transform = transform
+      delta[0] && (target.style.width = `${width}px`)
+      delta[1] && (target.style.height = `${height}px`)
+    })
+
+    /**
+     ref={moveable}
+        targets={selectedElement}
+        dimensionViewable
+        deleteButtonViewable={false}
+        draggable
+         Only one of resizable, scalable, warpable can be used.
+        resizable
+        pinchable={['rotatable']}
+        zoom={1 / zoom}
+        throttleResize={1}
+        throttleDragRotate={0}
+        /* When resize or scale, keeps a ratio of the width, height.
+        keepRatio={selectedTargets.length > 1}
+        rotatable={false}
+        snappable
+        snapGap={false}
+        isDisplayInnerSnapDigit
+        roundable
+        elementGuidelines={elementGuidelines}
+        clipArea
+        clipVerticalGuidelines={[0, '50%', '100%']}
+        clipHorizontalGuidelines={[0, '50%', '100%']}
+        clipTargetBounds
+        onDragStart={({ target, clientX, clientY }) => {
+        }}
+        onDragGroupStart={groupDrag => {
+
+        }}
+        onDragGroup={({
+          events
+        }) => {
+          events.forEach(({
+            target,
+            transform
+          }) => {
+            target.style.transform = transform
+          })
+        }}
+        onResizeGroup={({
+          events
+        }) => {
+          events.forEach(({
+            target,
+            width,
+            height,
+            delta,
+            transform
+          }) => {
+            target.style.transform = transform
+            delta[0] && (target.style.width = `${width}px`)
+            delta[1] && (target.style.height = `${height}px`)
+          })
+        }}
+        onDragEnd={ev => {
+          dragEnd && dragEnd(ev.target, ev)
+        }}
+        onResizeStart={({ target, clientX, clientY }) => {
+        }}
+        onResize={({
+          target,
+          width,
+          height,
+          delta,
+          transform
+        }) => {
+          target.style.transform = transform
+          delta[0] && (target.style.width = `${width}px`)
+          delta[1] && (target.style.height = `${height}px`)
+        }}
+        onResizeEnd={({ target, isDrag, clientX, clientY }) => {
+          resizeEnd && resizeEnd(target)
+        }}
+        /* scalable */
+    /* Only one of resizable, scalable, warpable can be used.
+        scalable
+        throttleScale={0}
+        onScaleStart={({ target, clientX, clientY }) => {
+          console.log('onScaleStart', target)
+        }}
+        onScale={({
+          target, scale, dist, delta, transform,
+          clientX, clientY
+        }) => {
+          console.log('onScale scale', scale)
+        }}
+        onScaleEnd={({ target, isDrag, clientX, clientY }) => {
+          console.log('onScaleEnd', target, isDrag)
+        }}
+        throttleRotate={0}
+        onRotateStart={({ target, clientX, clientY }) => {
+          console.log('onRotateStart', target)
+        }}
+        onRotate={({
+          target,
+          delta, dist,
+          transform,
+          clientX, clientY
+        }) => {
+          console.log('onRotate', dist)
+        }}
+        onRotateEnd={({ target, isDrag, clientX, clientY }) => {
+          console.log('onRotateEnd', target, isDrag)
+        }}
+            // Enabling pinchable lets you use events that
+            // can be used in draggable, resizable, scalable, and rotateable.
+        onPinchStart={({ target, clientX, clientY, datas }) => {
+          // pinchStart event occur before dragStart, rotateStart, scaleStart, resizeStart
+          console.log('onPinchStart')
+        }}
+        onPinch={({ target, clientX, clientY, datas }) => {
+          // pinch event occur before drag, rotate, scale, resize
+          console.log('onPinch')
+        }}
+        onPinchEnd={({ isDrag, target, clientX, clientY, datas }) => {
+          // pinchEnd event occur before dragEnd, rotateEnd, scaleEnd, resizeEnd
+          console.log('onPinchEnd')
+        }}
+     */
+  }
+
+  initSelecto () {
+    this.selecto = new Selecto({
+      // The container to add a selection element
+      // container: '.viewport',
+      // Selecto's root container (No transformed container. (default: null)
+      rootContainer: null,
+      // The area to drag selection element (default: container)
+      dragContainer: '.workspace',
+      // Targets to select. You can register a queryselector or an Element.
+      selectableTargets: ['.viewport-container .ridge-element'],
+      // Whether to select by click (default: true)
+      selectByClick: true,
+      // Whether to select from the target inside (default: true)
+      selectFromInside: false,
+      // After the select, whether to select the next target with the selected target (deselected if the target is selected again).
+      continueSelect: false,
+      // Determines which key to continue selecting the next target via keydown and keyup.
+      toggleContinueSelect: 'shift',
+      preventDefault: true,
+      // The container for keydown and keyup events
+      keyContainer: window,
+      // The rate at which the target overlaps the drag area to be selected. (default: 100)
+      hitRate: 0
+    })
+
+    this.selecto.on('dragStart', e => {
+      const inputEvent = e.inputEvent
+      const target = inputEvent.target
+      // Group Selected for resize or move
+      if (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1) {
+        e.stop()
+      }
+      const closestRidgeNode = target.closest('.ridge-element')
+
+      if (closestRidgeNode) {
+        this.moveable.target = closestRidgeNode
+        this.moveable.dragStart(inputEvent)
+        e.stop()
+      }
+      if (inputEvent.ctrlKey) {
+        // movableManager.current.getMoveable().dragStart(inputEvent)
+        e.stop()
+      }
+    })
+
+    this.selecto.on('selectEnd', ({ isDragStart, selected, inputEvent, rect }) => {
+      if (isDragStart) {
+        inputEvent.preventDefault()
+      }
+      this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
+      this.moveable.target = selected
+      // this.setSelectedTargets(selected)
     })
   }
 

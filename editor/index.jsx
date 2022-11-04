@@ -2,20 +2,6 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.less'
 import App from './App.jsx'
-import { ElementLoader } from 'ridge-render'
-import { ViewManager } from 'ridge-view-manager'
-import PackageManager from './manager/PackageManager'
-import RidgeApplicationService from './service/RidgeApplicationService'
-
-const baseUrl = '/npm_packages'
-
-const loader = new ElementLoader({
-  baseUrl,
-  debugUrl: 'https://localhost:8700',
-  unpkgUrl: baseUrl
-})
-
-window.loader = loader
 
 // const fcViewManager = new ViewManager(loader)
 // const packageManager = new PackageManager(loader)

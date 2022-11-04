@@ -9,6 +9,18 @@ class RidgeContext {
       debugUrl: 'https://localhost:8700',
       unpkgUrl: baseUrl
     })
+    this.pageElementManagers = {}
+    this.currentPage = ''
+  }
+
+  setCurrentPageManager (name, pageElementManager) {
+    this.pageElementManagers[name] = pageElementManager
+    this.currentPage = name
+    this.currentPageElementManager = pageElementManager
+  }
+
+  getCurrentPageElementManager () {
+    return this.currentPageElementManager
   }
 
   emit (event, payload) {

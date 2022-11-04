@@ -5,8 +5,6 @@ import PackageManager from '../manager/PackageManager'
 class AddMenu extends React.Component {
   constructor () {
     super()
-    this.packageManager = new PackageManager(window.loader)
-
     this.ref = React.createRef()
     this.state = {
       packages: [],
@@ -48,6 +46,7 @@ class AddMenu extends React.Component {
 
   componentDidMount () {
     if (!this.state.packageListingLoaded) {
+      this.packageManager = new PackageManager(this.props.context.loader)
       this.packageManager.getBuildInPackages().then(result => {
         this.setState({
           currentPackage: this.packageManager.packageNames[0],

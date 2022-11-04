@@ -31,6 +31,18 @@ class PageElementManager {
       return null
     }
   }
+
+  async mount (el, nodes) {
+    const creatings = []
+    for (const node of nodes) {
+      const div = document.createElement('div')
+      el.appendChild(div)
+
+      creatings.push(await this.createElement(node.componentPath, div, node.componentConfig))
+    }
+
+    await Promise.allSettled(creatings)
+  }
 }
 
 export default PageElementManager

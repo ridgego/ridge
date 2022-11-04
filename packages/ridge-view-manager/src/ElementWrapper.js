@@ -25,6 +25,8 @@ class ElementWrapper {
 
   async loadAndInitialize (el) {
     if (this.componentConfig.position) {
+      this.el.className = 'ridge-element'
+      this.el.style.position = 'absolute'
       this.el.style.width = this.componentConfig.position.width + 'px'
       this.el.style.height = this.componentConfig.position.height + 'px'
       this.el.style.transform = `translate(${this.componentConfig.position.x}px, ${this.componentConfig.position.y}px)`
