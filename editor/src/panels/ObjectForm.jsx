@@ -60,6 +60,9 @@ export default class ObjectForm extends React.Component {
       Select,
       Input
     } = Form
+    if (col.type === 'string' && !col.control) {
+      col.control = 'text'
+    }
     switch (col.control) {
       case 'number':
         return <InputNumber label={col.label} field={col.field} />
@@ -101,7 +104,7 @@ export default class ObjectForm extends React.Component {
     }
     const renderSection = (section, i) => {
       return (
-        <div key={i}>
+        <div key={i} className='object-section'>
           {section.title &&
             <Section>
               {section.rows.map(renderRows)}

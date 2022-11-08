@@ -55,8 +55,8 @@ class ElementLoader {
 
     this.externalOptions = externalOptions ?? {}
 
-    if (window.top.fdreConfig && window.top.fdreConfig.loaderOptions) {
-      Object.assign(this.externalOptions, window.top.fdreConfig.loaderOptions)
+    if (window.top.ridgeConfig && window.top.ridgeConfig.loaderExternalOptions) {
+      Object.assign(this.externalOptions, window.top.ridgeConfig.loaderExternalOptions)
     }
 
     this.scriptLoadingPromises = {}
@@ -74,16 +74,19 @@ class ElementLoader {
   }
 
   async getDebugPackage () {
+    if (this.debugPackage !== undefined) {
+      return this.debugPackage
+    }
     if (this.debugUrl) {
       try {
         this.debugPackage = await ky.get(this.debugUrl + '/package.json').json()
-        return this.debugPackage
       } catch (e) {
-        return null
+        this.debugPackage = null
       }
     } else {
-      return null
+      this.debugPackage = null
     }
+    return this.debugPackage
   }
 
   /**

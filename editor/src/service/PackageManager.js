@@ -4,7 +4,7 @@ export default class PackageManager {
   constructor (loader) {
     /** @property 组件加载器 */
     this.loader = loader
-    this.packageNames = ['ridge-antd', 'ridge-basic', 'ridge-container']
+    this.packageNames = ['ridge-antd', 'ridge-basic']
     this.packagesDetails = []
   }
 
@@ -13,10 +13,6 @@ export default class PackageManager {
       await this.loadPackages()
     }
     return this.packagesDetails
-  }
-
-  async loadPackageComponents (packageName) {
-    const packageJSONObject = this.loader.getPackageJSON(packageName)
   }
 
   generateComponent ({
@@ -44,9 +40,14 @@ export default class PackageManager {
 
   async loadPackages () {
     const packagesLoading = []
+    const debugPkg = await this.loader.getDebugPackage()
+    if (debugPkg) {
+      packagesLoading.push(await this.loader.getPackageJSON(debugPkg.name))
+    }
     for (const pkname of this.packageNames) {
       packagesLoading.push(await this.loader.getPackageJSON(pkname))
     }
+
     await Promise.allSettled(packagesLoading)
     this.packagesDetails = packagesLoading.filter(n => n != null)
 

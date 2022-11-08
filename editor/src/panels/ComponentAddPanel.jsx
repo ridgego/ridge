@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, Button, List } from '@douyinfe/semi-ui'
-import PackageManager from '../manager/PackageManager'
+import PackageManager from '../service/PackageManager'
 
 class AddMenu extends React.Component {
   constructor () {
@@ -59,18 +59,8 @@ class AddMenu extends React.Component {
     }
   }
 
-  dragStart (ev, {
-    packageName,
-    path,
-    width,
-    height
-  }) {
-    ev.dataTransfer.setData('text/plain', JSON.stringify({
-      packageName,
-      path,
-      width,
-      height
-    }))
+  dragStart (ev, info) {
+    ev.dataTransfer.setData('text/plain', JSON.stringify(info))
   }
 
   render () {
@@ -124,10 +114,9 @@ class AddMenu extends React.Component {
                       <div
                         draggable
                         onDragStart={ev => dragStart(ev, {
-                          packageName: pkg.name,
                           width: item.width,
                           height: item.height,
-                          path: item.path
+                          componentPath: pkg.name + '/' + item.path
                         })}
                         className='component-container'
                       >

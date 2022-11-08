@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
 module.exports = {
-  entry: './index.jsx',
+  entry: './src/index.jsx',
   mode: 'development',
   devServer: {
     static: '../public'
@@ -10,7 +10,7 @@ module.exports = {
   devtool: 'eval-source-map',
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'index.html'),
+      template: path.resolve(__dirname, './src/index.html'),
       title: 'Output Management'
     })
   ],

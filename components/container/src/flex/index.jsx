@@ -48,7 +48,7 @@ export default class FlexContainer extends React.Component {
     const el = this.$el.current
   }
 
-  dropElement (el, event) {
+  dropElement (el, targetEl) {
     if (el === this.$el.current.closest('[ridge-componet-id]')) {
       return
     }
@@ -68,7 +68,7 @@ export default class FlexContainer extends React.Component {
     if (direction === 'column' && alignItems === 'stretch') {
       el.style.width = ''
     }
-    el.dataset.containerId = this.props.__elementView.fcId
+    el.setAttribute('containerId', this.props.elementWrapper.id)
     if (afterNode) {
       this.$el.current.insertBefore(el, afterNode)
     } else {

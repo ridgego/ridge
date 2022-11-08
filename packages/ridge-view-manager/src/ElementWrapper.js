@@ -1,6 +1,12 @@
 import debug from 'debug'
+import { nanoid } from 'nanoid'
 import template from './template'
 const log = debug('ridge:el-wrapper')
+
+export const STATUS_DROPPABLE = 'droppable'
+export const STATUS_LOADING = 'loading'
+
+export const ATTR_DROPPABLE = 'droppable'
 
 class ElementWrapper {
   constructor ({
@@ -9,14 +15,19 @@ class ElementWrapper {
     componentPath,
     componentConfig
   }) {
+    this.id = componentConfig.id ?? nanoid(10)
     this.el = el
     this.componentPath = componentPath
     this.componentConfig = componentConfig
     this.loader = context.loader
     this.context = context
 
+    this.statusList = []
+
     // 组件（React/Vue）收到的属性数据
-    this.instancePropConfig = componentConfig.props
+    this.instancePropConfig = componentConfig.props || {}
+
+    this.el.elementWrapper = this
   }
 
   setWrapperStyle (style) {
@@ -24,16 +35,26 @@ class ElementWrapper {
   }
 
   async loadAndInitialize (el) {
+    this.el.className = 'ridge-element'
     if (this.componentConfig.position) {
-      this.el.className = 'ridge-element'
       this.el.style.position = 'absolute'
       this.el.style.width = this.componentConfig.position.width + 'px'
       this.el.style.height = this.componentConfig.position.height + 'px'
       this.el.style.transform = `translate(${this.componentConfig.position.x}px, ${this.componentConfig.position.y}px)`
     }
+
     await this.loadComponentDefinition()
+
+    if (this.componentDefinition) {
+      if (this.componentDefinition.editorFeatures) {
+        if (this.componentDefinition.editorFeatures.droppable) {
+          this.el.setAttribute(ATTR_DROPPABLE, '1')
+        }
+      }
+    }
     this.initPropsAndEvents()
     this.mount(el ?? this.el)
+    this.removeStatus('loading')
   }
 
   async loadComponentDefinition () {
@@ -60,6 +81,7 @@ class ElementWrapper {
         }
       }
       this.setStatus('Preparing')
+
       this.componentDefinition = componentDefinition
     }
 
@@ -152,7 +174,7 @@ class ElementWrapper {
     //   this.instancePropConfig[slotProp] = this.slotFcViews[slotProp]
     // }
 
-    this.instancePropConfig.__elementView = this
+    this.instancePropConfig.elementWrapper = this
 
     this.editorFeatures = this.componentDefinition.editorFeatures ?? {}
 
@@ -204,12 +226,40 @@ class ElementWrapper {
     // }
   }
 
+  updateProperties (props) {
+    // 合并更新值
+    Object.assign(this.instancePropConfig, props)
+
+    if (this.renderer) {
+      try {
+        log('updateProps', this.fcId, this.instancePropConfig)
+        this.renderer.updateProps(this.instancePropConfig)
+      } catch (e) {
+        log('用属性渲染组件出错', this.fcInstanceConfig.guid, this.instancePropConfig, this)
+      }
+    } else {
+      log('updateProps umounted', this.fcId, this.instancePropConfig)
+    }
+  }
+
+  invoke (method, args) {
+    this.renderer.invoke(method, args)
+  }
+
   getCreateChildElement (name) {
 
   }
 
   setStatus (status) {
+    if (status === STATUS_DROPPABLE) {
+      this.el.style.border = '2px solid #12e'
+    }
+  }
 
+  removeStatus (status) {
+    if (status === STATUS_DROPPABLE) {
+      this.el.style.border = ''
+    }
   }
 
   /**
@@ -229,4 +279,5 @@ class ElementWrapper {
     }
   }
 }
+
 export default ElementWrapper

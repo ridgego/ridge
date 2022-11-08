@@ -1,6 +1,5 @@
 import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
-import { List } from 'immutable'
 import ObjectForm from './ObjectForm.jsx'
 
 const basicStyleSections = [{
@@ -92,12 +91,28 @@ export default class ComponentPropsPanel extends React.Component {
     this.currentNode = null
     this.currentStyle = {}
     this.state = {
-      styleSections: [],
+      nodePropsSection: [],
       pageConfigSection
     }
   }
 
-  styleChange (el) {
+  loadPage ({
+    properties,
+    variables
+  }) {
+    this.pageProperties = properties
+    this.pageVariables = variables
+
+    this.pagePropFormApi.setValues(this.pageProperties, {
+      notNotify: true
+    })
+
+    this.pagePropFormApi.setValue('variables', variables, {
+      notNotify: true
+    })
+  }
+
+  elementMove (el) {
     if (el.style.transform) {
       const matched = el.style.transform.match(/[0-9.]+/g)
       this.currentStyle.x = parseInt(matched[0])
@@ -110,74 +125,66 @@ export default class ComponentPropsPanel extends React.Component {
     this.currentStyle.height = parseInt(el.style.height)
 
     for (const propKey of Object.keys(this.currentStyle)) {
-      this.styleApi.setValue(propKey, this.currentStyle[propKey])
+      this.styleApi.setValue(propKey, this.currentStyle[propKey], {
+        notNotify: true
+      })
     }
   }
 
-  // 画布上选择节点触发
-  nodeChange (node, el) {
+  elementSelected (el) {
     if (el) {
-      this.styleChange(el)
-    }
+      const elementWrapper = el.elementWrapper
 
-    this.currentNode = node
-
-    if (node) {
-      // 更新组件属性
-      const { fcViewManager } = window
-      const fcView = fcViewManager.componentViews[node.id]
-      this.fcView = fcView
-      const componentDefiProps = fcView.componentDefinition.props
-      const styledProps = []
-      let styleSections = List(basicStyleSections)
-      for (const prop of componentDefiProps) {
-        styledProps.push({
-          cols: [
-            {
-              label: prop.label,
-              control: prop.type,
-              optionList: prop.optionList,
-              field: 'props.' + prop.name
+      if (elementWrapper.componentDefinition) {
+        const componentDefiProps = elementWrapper.componentDefinition.props
+        const styledProps = []
+        let nodePropsSection = JSON.parse(JSON.stringify(basicStyleSections))
+        for (const prop of componentDefiProps) {
+          const control = {
+            label: prop.label,
+            type: prop.type,
+            control: prop.control,
+            field: 'props.' + prop.name
+          }
+          if (!control.control) {
+            if (control.type === 'string') {
+              control.control = 'text'
             }
-          ]
-        })
-        if (prop.type === 'css-style' && fcView.instancePropConfig[prop.name]) {
-          fcView.instancePropConfig[prop.name] = JSON.stringify(fcView.instancePropConfig[prop.name], '\\n', 2)
+          }
+          styledProps.push({
+            cols: [
+              control
+            ]
+          })
         }
-      }
-      styleSections = styleSections.concat({
-        rows: styledProps
-      })
-      this.setState({
-        styleSections
-      }, () => {
-        this.styleApi.setValue('props', fcView.instancePropConfig, {
-          notNotify: true
+        nodePropsSection = nodePropsSection.concat({
+          rows: styledProps
         })
-      })
+        this.setState({
+          nodePropsSection
+        }, () => {
+          this.styleApi.setValue('props', elementWrapper.instancePropConfig, {
+            notNotify: true
+          })
+        })
+      }
+      this.currentElement = el
+      this.elementMove(el)
     } else {
+      this.currentElement = null
       this.setState({
-        styleSections: []
-      }, () => {
+        nodePropsSection: []
       })
     }
   }
 
-  setPagePropValue (pageProps) {
-    this.pagePropFormApi.setValues(pageProps, {
-      notNotify: true
-    })
-  }
-
-  setPageVariabelValue (variables) {
-    this.pagePropFormApi.setValue('variables', variables, {
-      notNotify: true
-    })
+  nodeRectChange (el) {
+    this.styleChange(el)
   }
 
   render () {
     const {
-      styleSections,
+      nodePropsSection,
       pageConfigSection
     } = this.state
     const {
@@ -205,34 +212,12 @@ export default class ComponentPropsPanel extends React.Component {
     const componentPropValueChange = (values, field) => {
       console.log('prop change', field, values)
 
-      // 处理固有属性修改（）
-      let isStyleChanged = false
-      for (const fieldKey of Object.keys(field)) {
-        if (field[fieldKey] !== this.currentStyle[fieldKey] && fieldKey !== 'props') {
-          isStyleChanged = true
+      const changedKeys = Object.keys(field)
+      const changedKey = changedKeys[0]
+      if (changedKey) {
+        if (this.currentElement && changedKey.startsWith('props.')) {
+          this.currentElement.elementWrapper.updateProperties(values.props)
         }
-      }
-      if (isStyleChanged) {
-        console.log('trigger canvas change')
-        inputStyleChange(values, field)
-      }
-
-      if (this.currentNode && Object.keys(field).filter(p => p.indexOf('props.') > -1)) {
-        const { fcViewManager } = window
-        const fcView = fcViewManager.componentViews[this.currentNode.id]
-
-        const componentDefiProps = fcView.componentDefinition.props
-        for (const prop of componentDefiProps) {
-          if (prop.type === 'css-style' && values.props[prop.name]) {
-            try {
-              values.props[prop.name] = JSON.parse(values.props[prop.name])
-            } catch (e) {
-              values.props[prop.name] = fcView.instancePropConfig[prop.name]
-            }
-          }
-        }
-
-        fcView.patchProps(values.props)
       }
     }
 
@@ -249,18 +234,18 @@ export default class ComponentPropsPanel extends React.Component {
         <Tabs
           type='card'
           style={{
-            display: styleSections.length === 0 ? 'none' : 'initial'
+            display: nodePropsSection.length === 0 ? 'none' : 'initial'
           }}
         >
           <TabPane tab='属性' itemKey='style'>
-            <ObjectForm sections={styleSections} getFormApi={basicStyleAPI} onValueChange={componentPropValueChange} />
+            <ObjectForm sections={nodePropsSection} getFormApi={basicStyleAPI} onValueChange={componentPropValueChange} />
           </TabPane>
           <TabPane tab='交互' itemKey='interact' />
         </Tabs>
         <Tabs
           type='card'
           style={{
-            display: styleSections.length === 0 ? 'initial' : 'none'
+            display: nodePropsSection.length === 0 ? 'initial' : 'none'
           }}
         >
           <TabPane tab='页面属性' itemKey='page-prop'>

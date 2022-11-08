@@ -8,15 +8,18 @@ class PageElementManager {
 
   /**
    * 从组件定义创建一个页面元素实例
-   * @param {*} 组件全局ID
-   * @param {*} el
+   * @param {Element} el 创建在某个页面元素下
+   * @param {String} 组件ID/Path
    * @param {*} viewConfig 默认配置顺序
    * @returns
    */
-  async createElement (componentPath, el, componentConfig) {
+  async createElement (el, componentPath, componentConfig) {
     try {
+      const div = document.createElement('div')
+      el.appendChild(div)
+
       const elementWrapper = new ElementWrapper({
-        el,
+        el: div,
         componentPath,
         componentConfig,
         context: this.context
@@ -35,10 +38,7 @@ class PageElementManager {
   async mount (el, nodes) {
     const creatings = []
     for (const node of nodes) {
-      const div = document.createElement('div')
-      el.appendChild(div)
-
-      creatings.push(await this.createElement(node.componentPath, div, node.componentConfig))
+      creatings.push(await this.createElement(el, node.componentPath, node.componentConfig))
     }
 
     await Promise.allSettled(creatings)
