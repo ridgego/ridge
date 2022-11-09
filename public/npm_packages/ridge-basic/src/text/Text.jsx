@@ -1,8 +1,6 @@
 export default ({
-  ridgeRuntime,
   text,
-  style,
-  input
+  style
 }) => {
   const stl = Object.assign({
     width: '100%',
@@ -11,10 +9,9 @@ export default ({
   return (
     <div
       style={stl}
-      contentEditable={!ridgeRuntime}
-      onInput={() => input()}
+      contentEditable
     >
-      {text}
+      文本内容
     </div>
   )
 }

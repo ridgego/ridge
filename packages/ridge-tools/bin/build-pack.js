@@ -104,22 +104,23 @@ args.option('dir', 'The Front Component Project Root Path', './')
                 minimize: false
             };
         } else {
-            argsConfig.optimization = {
-                minimize: true,
-                minimizer: [
-                    new TerserPlugin({
-                        minify: TerserPlugin.uglifyJsMinify,
-                        // `terserOptions` options will be passed to `uglify-js`
-                        // Link to options - https://github.com/mishoo/UglifyJS#minify-options
-                        terserOptions: {
-                            compress: {
-                                drop_debugger: true,
-                                drop_console: true
-                            }
-                        }
-                    })
-                ]
-            }
+            argsConfig.mode = 'production'
+            // argsConfig.optimization = {
+            //     minimize: true,
+            //     minimizer: [
+            //         new TerserPlugin({
+            //             minify: TerserPlugin.uglifyJsMinify,
+            //             // `terserOptions` options will be passed to `uglify-js`
+            //             // Link to options - https://github.com/mishoo/UglifyJS#minify-options
+            //             terserOptions: {
+            //                 compress: {
+            //                     drop_debugger: true,
+            //                     drop_console: true
+            //                 }
+            //             }
+            //         })
+            //     ]
+            // }
         } 
 
         // 创建webpack 编译器  这里使用webpack api方式进行编译

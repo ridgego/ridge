@@ -1,4 +1,6 @@
 export default ({
+  ridgeRuntime,
+  src,
   text,
   style
 }) => {
@@ -7,11 +9,9 @@ export default ({
     height: '100%'
   }, style ?? {})
   return (
-    <div
+    <img
       style={stl}
-      contentEditable
-    >
-      文本内容
-    </div>
+      src={src}
+    />
   )
 }
