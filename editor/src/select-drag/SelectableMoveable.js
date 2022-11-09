@@ -3,14 +3,21 @@ import Moveable from 'moveable'
 
 class SelectableMoveable {
   constructor ({
-    dropableSelectors
+    dropableSelectors,
+    root
   }) {
+    this.rootEl = root
     this.dropableSelectors = dropableSelectors
   }
 
   init () {
     this.initSelecto()
     this.initMoveable()
+  }
+
+  setZoom (zoom) {
+    // this.moveable.zoom = zoom
+    // this.selecto.zoom = zoom
   }
 
   initMoveable () {
@@ -71,7 +78,23 @@ class SelectableMoveable {
         // if (target.elementWrapper.id !== ev.target.getAttribute('containerId')) {
         target.elementWrapper.invoke('dropElement', [ev.target])
         // }
+        ev.target.setAttribute('containerId', target.elementWrapper.id)
         target.elementWrapper.removeStatus('drappable')
+      } else {
+        // 到ViewPort上
+        if (ev.target.getAttribute('containerId')) {
+          const bcr = ev.target.getBoundingClientRect()
+          const rbcr = sm.rootEl.getBoundingClientRect()
+          const transform = `translate(${bcr.x - rbcr.x}px, ${bcr.y - rbcr.y}px)`
+          ev.target.style.position = 'absolute'
+          ev.target.style.width = bcr.width + 'px'
+          ev.target.style.height = bcr.height + 'px'
+          ev.target.removeAttribute('containerId')
+          ev.target.setAttribute('snappable', true)
+          sm.rootEl.appendChild(ev.target)
+          ev.target.style.transform = transform
+          sm.moveable.updateTarget()
+        }
       }
     })
 
@@ -95,7 +118,9 @@ class SelectableMoveable {
         target,
         transform
       }) => {
-        target.style.transform = transform
+        if (!target.getAttribute('containerId')) {
+          target.style.transform = transform
+        }
       })
     })
 
@@ -290,7 +315,7 @@ class SelectableMoveable {
       }
       this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
 
-      this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
+      this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
       console.log('guide lines', selected, this.moveable.elementGuidelines, this.guidelines)
       this.moveable.target = selected
       if (selected.length <= 1) {

@@ -5,8 +5,9 @@ export default {
   component: FlexBoxContainer,
   props: [{
     name: 'direction',
-    label: '方向',
-    type: 'select',
+    label: '排列方向',
+    type: 'string',
+    control: 'select',
     optionList: [{
       label: '横向',
       value: 'row'
@@ -16,9 +17,10 @@ export default {
     }],
     value: 'row'
   }, {
-    name: 'alignItems',
-    label: '对齐',
-    type: 'select',
+    name: 'justify',
+    label: '对齐方式',
+    type: 'string',
+    control: 'select',
     optionList: [{
       label: '顶端',
       value: 'flex-start'
@@ -29,15 +31,44 @@ export default {
       label: '正中',
       value: 'center'
     }, {
-      label: '拉伸',
+      label: '中央平分',
+      value: 'space-between'
+    }, {
+      label: '两端平分',
+      value: 'space-around'
+    }],
+    value: 'flex-start'
+  }, {
+    name: 'alignItems',
+    label: '交叉对齐',
+    type: 'string',
+    control: 'select',
+    optionList: [{
+      label: '起点对齐',
+      value: 'flex-start'
+    }, {
+      label: '终点对齐',
+      value: 'flex-end'
+    }, {
+      label: '正中对齐',
+      value: 'center'
+    }, {
+      label: '填充对齐',
       value: 'stretch'
     }],
     value: 'flex-start'
   }, {
     name: 'border',
     label: '边框',
-    type: 'border',
+    type: 'string',
+    control: 'border',
     value: '1px solid #ccc'
+  }, {
+    name: 'padding',
+    label: '内边距',
+    type: 'string',
+    control: 'padding',
+    value: '5px'
   }],
   editorFeatures: {
     droppable: true

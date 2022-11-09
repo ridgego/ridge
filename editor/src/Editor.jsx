@@ -7,6 +7,7 @@ import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 import { PageElementManager, RidgeContext } from 'ridge-view-manager'
 import SelectableMoveable from './select-drag/SelectableMoveable.js'
 import FileManager from './panels/FileManager.jsx'
+import { fitRectIntoBounds } from './utils/rectUtils'
 
 import './editor.less'
 
@@ -32,10 +33,6 @@ export default class Editor extends React.Component {
       modalFileShow: false,
       zoom: 1
     }
-
-    this.selectMove = new SelectableMoveable({
-      dropableSelectors: '.ridge-element[droppable]'
-    })
   }
 
   loadPage (pageConfig) {
@@ -277,12 +274,17 @@ export default class Editor extends React.Component {
       this.setState({
         zoom
       })
+      this.selectMove.setZoom(1 / zoom)
     } else {
       this.fitToCenter()
     }
   }
 
   initSpaceDragEvents () {
+    this.selectMove = new SelectableMoveable({
+      dropableSelectors: '.ridge-element[droppable]',
+      root: this.viewPortRef.current
+    })
     this.selectMove.init()
 
     this.selectMove.onNodeSelected(this.onNodeSelected.bind(this))
@@ -317,11 +319,18 @@ export default class Editor extends React.Component {
     const contentHeight = refRect.height
     const { width, height } = this.state.pageProps
 
-    if (contentWidth > width && contentHeight > height) {
-      this.setState({
-        viewX: (contentWidth - width) / 2,
-        viewY: (contentHeight - height) / 2
-      })
-    }
+    const fit = fitRectIntoBounds({ width, height }, { width: contentWidth, height: contentHeight })
+
+    this.setState({
+      zoom: fit.width / width,
+      viewX: (contentWidth - width) / 2,
+      viewY: (contentHeight - height) / 2
+    })
+    // if (contentWidth > width && contentHeight > height) {
+    // this.setState({
+    //   viewX: (contentWidth - width) / 2,
+    //   viewY: (contentHeight - height) / 2
+    // })
+    // }
   }
 }

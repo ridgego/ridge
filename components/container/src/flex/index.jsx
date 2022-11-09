@@ -68,7 +68,7 @@ export default class FlexContainer extends React.Component {
     if (direction === 'column' && alignItems === 'stretch') {
       el.style.width = ''
     }
-    el.setAttribute('containerId', this.props.elementWrapper.id)
+    el.setAttribute('snappable', 'false')
     if (afterNode) {
       this.$el.current.insertBefore(el, afterNode)
     } else {

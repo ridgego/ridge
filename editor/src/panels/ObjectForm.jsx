@@ -1,5 +1,6 @@
 import React from 'react'
-import { Form, Row, Col, Space, withField, ArrayField, Button, useFieldState } from '@douyinfe/semi-ui'
+import { HexColorPicker } from 'react-colorful'
+import { Form, Select, Row, Col, Space, withField, ArrayField, Button, useFieldState, InputNumber, Popover } from '@douyinfe/semi-ui'
 
 const VariableListEdit = withField((props) => {
   const value = props.value
@@ -47,6 +48,51 @@ const VariableListEdit = withField((props) => {
   )
 }, { })
 
+const BorderEdit = withField((props) => {
+  let sp = [0, 'solid', '#fff']
+  if (props.value) {
+    sp = props.value.split(' ')
+    sp[0] = parseInt(sp[0])
+  }
+  return (
+    <Space>
+      <InputNumber
+        style={{
+          width: '64px'
+        }}
+        defaultValue={sp[0]}
+        value={sp[0]} onChange={value => {
+          props.onChange(value + 'px ' + sp[1] + ' ' + sp[2])
+        }}
+      /> <Select
+        value={sp[1]} optionList={[{
+          label: '实线',
+          value: 'solid'
+        }, {
+          label: '点划线',
+          value: 'dashed'
+        }]}
+        onChange={value => {
+          props.onChange(sp[0] + 'px ' + value + ' ' + sp[2])
+        }}
+         />
+      <Popover content={
+        <HexColorPicker
+          color={sp[2]} onChange={value => {
+            props.onChange(sp[0] + 'px ' + sp[1] + ' ' + value)
+          }}
+        />
+      }
+      >
+        <Button style={{
+          backgroundColor: sp[2]
+        }}
+        />
+      </Popover>
+    </Space>
+  )
+})
+
 export default class ObjectForm extends React.Component {
   constructor (props) {
     super(props)
@@ -70,6 +116,8 @@ export default class ObjectForm extends React.Component {
         return <Input label={col.label} field={col.field} />
       case 'select':
         return <Select label={col.label} field={col.field} optionList={col.optionList} />
+      case 'border':
+        return <BorderEdit label={col.label} field={col.field} />
       case 'css-style':
         return <TextArea label={col.label} field={col.field} />
       case 'variable':

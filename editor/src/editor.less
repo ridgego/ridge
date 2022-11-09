@@ -42,7 +42,6 @@ body {
       }
     }
     .component-props-panel {
-      width: 360px;
       background: var(--semi-color-bg-0);
       border: 1px solid var(--semi-color-border);
       padding: 4px;
@@ -55,7 +54,6 @@ body {
     }
 
     .component-add-panel {
-      width: 420px;
       background: var(--semi-color-bg-0);
       border: 1px solid var(--semi-color-border);
       padding: 4px;
@@ -66,5 +64,25 @@ body {
       z-index: 101;
       position: absolute;
     }
+  }
+}
+
+
+@media (min-width: 1400px) {
+  .component-add-panel {
+    width: 420px;
+  }
+  .component-props-panel {
+    width: 360px;
+  }
+}
+
+
+@media (max-width: 1400px) {
+  .component-add-panel {
+    width: 360px;
+  }
+  .component-props-panel {
+    width: 300px;
   }
 }

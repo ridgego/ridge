@@ -151,6 +151,9 @@ export default class ComponentPropsPanel extends React.Component {
               control.control = 'text'
             }
           }
+          if (prop.optionList) {
+            control.optionList = prop.optionList
+          }
           styledProps.push({
             cols: [
               control
@@ -160,6 +163,7 @@ export default class ComponentPropsPanel extends React.Component {
         nodePropsSection = nodePropsSection.concat({
           rows: styledProps
         })
+        console.log('nodePropsSection', nodePropsSection)
         this.setState({
           nodePropsSection
         }, () => {
