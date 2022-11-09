@@ -36,6 +36,7 @@ class ElementWrapper {
 
   async loadAndInitialize (el) {
     this.el.className = 'ridge-element'
+    this.el.setAttribute('id', 'el-' + this.id)
     this.el.setAttribute('snappable', 'true')
     if (this.componentConfig.position) {
       this.el.style.position = 'absolute'

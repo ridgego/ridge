@@ -301,6 +301,7 @@ class SelectableMoveable {
         this.moveable.elementGuidelines = this.guidelines
         this.moveable.dragStart(inputEvent)
         this.ons && this.ons(closestRidgeNode)
+        this.selected = [closestRidgeNode]
         e.stop()
       }
       if (inputEvent.ctrlKey) {
@@ -316,11 +317,11 @@ class SelectableMoveable {
       this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
 
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
-      console.log('guide lines', selected, this.moveable.elementGuidelines, this.guidelines)
       this.moveable.target = selected
       if (selected.length <= 1) {
         this.ons && this.ons(selected[0])
       }
+      this.selected = selected
       // this.setSelectedTargets(selected)
     })
   }

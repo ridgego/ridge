@@ -35,6 +35,18 @@ class PageElementManager {
     }
   }
 
+  removeElements (elements) {
+    for (const el of elements) {
+      let target = el
+      if (typeof target === 'string') {
+        target = this.pageElements[target]
+      }
+      const id = target.elementWrapper.id
+      delete this.pageElements[id]
+      target.parentElement.removeChild(target)
+    }
+  }
+
   async mount (el, nodes) {
     const creatings = []
     for (const node of nodes) {

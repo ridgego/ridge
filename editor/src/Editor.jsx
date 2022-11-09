@@ -8,6 +8,7 @@ import { PageElementManager, RidgeContext } from 'ridge-view-manager'
 import SelectableMoveable from './select-drag/SelectableMoveable.js'
 import FileManager from './panels/FileManager.jsx'
 import { fitRectIntoBounds } from './utils/rectUtils'
+import MouseStrap from 'mousetrap'
 
 import './editor.less'
 
@@ -56,6 +57,7 @@ export default class Editor extends React.Component {
   }
 
   componentDidMount () {
+    this.initKeyEvents()
     this.initSpaceDragEvents()
   }
 
@@ -100,17 +102,7 @@ export default class Editor extends React.Component {
                 width: `${pageProps.width}px`,
                 height: `${pageProps.height}px`
               }}
-            >
-              <div className='viewport' />
-              {/* <MoveableManager
-                ref={movableManager}
-                resizeEnd={onNodeResizeEnd.bind(this)}
-                drag={onNodeDrag.bind(this)}
-                dragEnd={onNodeDragEnd.bind(this)}
-                selectedTargets={selectedTargets}
-                zoom={zoom}
-              /> */}
-            </div>
+            />
           </div>
         </div>
         <Modal
@@ -136,6 +128,10 @@ export default class Editor extends React.Component {
   workspaceDragOver (ev) {
     ev.preventDefault()
     ev.dataTransfer.dropEffect = 'move'
+  }
+
+  removeNode () {
+    this.pageElementManager.removeElements(this.selectMove.selected)
   }
 
   /**
@@ -164,22 +160,6 @@ export default class Editor extends React.Component {
         height
       }
     })
-
-    // const ta = [].concat(this.state.nodes).concat([{
-    //   id: nanoid(10),
-    //   name: '按钮',
-    //   component,
-    //   props: {
-    //     __isEditor: true
-    //   },
-    //   style: {
-
-    //   }
-    // }])
-
-    // this.setState({
-    //   nodes: ta
-    // })
   }
 
   onToolbarItemClick (cmd, opts) {
@@ -196,47 +176,6 @@ export default class Editor extends React.Component {
 
   onNodeResizeEnd (el) {
     this.rightPanelRef.current?.styleChange(el)
-  }
-
-  onNodeDrag (dragEl, event) {
-    const target = this.getDroppableTarget(dragEl, {
-      x: event.clientX,
-      y: event.clientY
-    })
-    if (target) {
-      target.elementWrapper.invoke('setDroppable', [true])
-    }
-  }
-
-  onNodeDragEnd (el, event) {
-    this.rightPanelRef.current?.styleChange(el)
-
-    const targetContainer = this.getDroppableTarget(el, {
-      x: event.clientX,
-      y: event.clientY
-    })
-
-    if (targetContainer) {
-      // 放置到容器上
-      targetContainer.ridgeViewObject.invoke('dropElement', [el])
-      this.movableManager.current?.getMoveable().updateTarget()
-      targetContainer.ridgeNode.unsetDroppable()
-      el.ridgeContainer = targetContainer
-    } else {
-      // 到ViewPort上
-      if (el.ridgeContainer) {
-        const { zoom } = this.state
-
-        const transform = `translate(${event.currentTarget.state.left / zoom}px, ${event.currentTarget.state.top / zoom}px)`
-        el.style.position = 'absolute'
-        el.style.width = event.currentTarget.state.width + 'px'
-        el.style.height = event.currentTarget.state.height + 'px'
-        el.ridgeContainer = null
-        this.viewPortRef.current.getViewPortRef().appendChild(el)
-        el.style.transform = transform
-        this.movableManager.current?.getMoveable().updateTarget()
-      }
-    }
   }
 
   onPagePropChange (values) {
@@ -311,6 +250,10 @@ export default class Editor extends React.Component {
     workspaceWrapper.current?.addEventListener('mouseup', (e) => {
       isViewPortMoving = false
     })
+  }
+
+  initKeyEvents () {
+    MouseStrap.bind('del', this.removeNode.bind(this))
   }
 
   fitToCenter () {
