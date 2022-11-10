@@ -6,6 +6,7 @@ class AddMenu extends React.Component {
   constructor () {
     super()
     this.ref = React.createRef()
+    this.packageManager = new PackageManager(window.Ridge.loader)
     this.state = {
       packages: [],
       currentPackage: 'ridge-basic',
@@ -18,7 +19,6 @@ class AddMenu extends React.Component {
   }
 
   renderPackageComponents () {
-    const { fcViewManager } = window
     const currentPackageObject = this.state.packages.filter(p => p.name === this.state.currentPackage)[0]
     currentPackageObject.components.forEach(({
       path
@@ -46,7 +46,6 @@ class AddMenu extends React.Component {
 
   componentDidMount () {
     if (!this.state.packageListingLoaded) {
-      this.packageManager = new PackageManager(this.props.context.loader)
       this.packageManager.getBuildInPackages().then(result => {
         this.setState({
           currentPackage: this.packageManager.packageNames[0],

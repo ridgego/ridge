@@ -3,7 +3,13 @@ import ElementWrapper from './ElementWrapper'
 class PageElementManager {
   constructor (context) {
     this.context = context
+    this.properties = {}
+    this.pageVariableConfig = []
     this.pageElements = {}
+  }
+
+  getPageProperties () {
+    return this.properties
   }
 
   /**
@@ -47,18 +53,40 @@ class PageElementManager {
     }
   }
 
-  async load (el, html) {
-    const creatings = []
-    const container = document.createElement('div')
-    container.innerHTML = html
+  async initializeElement (el) {
+    const elementWrapper = new ElementWrapper({
+      el,
+      page: this
+    })
+    await elementWrapper.initialize()
+  }
 
-    const rootNode = container.querySelectorAll('body>div')
+  async initialize (el) {
+    const pageConfig = el.querySelector('[id="ridge-page-config"]')
 
-    for (const node of nodes) {
-      creatings.push(await this.createElement(el, node.componentPath, node.componentConfig))
+    for (const opt of pageConfig.children) {
+      this.properties[opt.getAttribute('key')] = opt.getAttribute('value')
     }
 
-    await Promise.allSettled(creatings)
+    const pageVariable = el.querySelector('[id="ridge-page-variables"]')
+
+    for (const opt of pageVariable.children) {
+      const v = {
+        name: opt.getAttribute('key'),
+        type: opt.getAttribute('type'),
+        value: opt.getAttribute('value')
+      }
+      this.pageVariableConfig.push(v)
+    }
+
+    const rootNode = el.querySelectorAll('body>div')
+
+    const initializeRootElements = []
+    for (const node of rootNode) {
+      initializeRootElements.push(await this.initializeElement(node))
+    }
+
+    await Promise.allSettled(initializeRootElements)
   }
 }
 

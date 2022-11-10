@@ -7,12 +7,16 @@ class App extends React.Component {
 
     this.pageConfig = `
       <head>
-        <title>新增页面</title>
-        <meta name="type" content="fixed" />
-        <meta name="width" content="800" />
-        <meta name="height" content="600" />
-        <var name="name" type="string">Ridge</var>
       </head>
+      <datalist id="ridge-page-config">
+        <option value="新增页面" key="title" />
+        <option value="fixed" key="type" />
+        <option value="800" key="width" />
+        <option value="600" key="height" />
+      </datalist>
+      <datalist id="ridge-page-variables">
+        <option value="Ridge" type="string" key="name" />
+      </datalist>
       <body>
         <div ridge-id="dkjerk" ridge-path="ridge-antd/build/button-button.fcp.js" data-name="按钮1" 
           style="position: absolute; transform: translate(20px, 55px); width: 80px; height: 35px;">

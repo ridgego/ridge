@@ -30,14 +30,15 @@ export default class Editor extends React.Component {
   }
 
   loadPage (pageConfig) {
+    debugger
     const { Ridge } = window
 
-    this.pageElementManager = Ridge.mount(this.viewPortRef.current, pageConfig)
+    this.viewPortRef.current.innerHTML = pageConfig
 
-    this.rightPanelRef.current?.loadPage(pageConfig)
+    this.pageElementManager = Ridge.initialize(this.viewPortRef.current, 'editor-page')
 
     this.setState({
-      pageProps: pageConfig.properties
+      pageProps: this.pageElementManager.getPageProperties()
     }, () => {
       this.fitToCenter()
     })

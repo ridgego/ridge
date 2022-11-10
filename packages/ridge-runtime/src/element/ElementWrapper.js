@@ -11,23 +11,23 @@ export const ATTR_DROPPABLE = 'droppable'
 class ElementWrapper {
   constructor ({
     el,
-    context,
-    componentPath,
-    componentConfig
+    page
   }) {
-    this.id = componentConfig.id ?? nanoid(10)
     this.el = el
-    this.componentPath = componentPath
-    this.componentConfig = componentConfig
-    this.loader = context.loader
-    this.context = context
-
     this.statusList = []
 
     // 组件（React/Vue）收到的属性数据
     this.instancePropConfig = componentConfig.props || {}
 
+    this.page = page
     this.el.elementWrapper = this
+  }
+
+  async initialize () {
+    this.el.className = 'ridge-element'
+    this.el.setAttribute('snappable', 'true')
+
+    this.componentPath = this.el.getAttribute('ridge-path')
   }
 
   setWrapperStyle (style) {
@@ -37,7 +37,7 @@ class ElementWrapper {
   async loadAndInitialize (el) {
     this.el.className = 'ridge-element'
     this.el.setAttribute('id', 'el-' + this.id)
-    this.el.setAttribute('snappable', 'true')
+
     if (this.componentConfig.position) {
       this.el.style.position = 'absolute'
       this.el.style.width = this.componentConfig.position.width + 'px'

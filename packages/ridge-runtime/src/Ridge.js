@@ -17,8 +17,13 @@ class Ridge {
     this.pageElementManagers = {}
   }
 
-  mount (html, el) {
+  initialize (el, id) {
+    const pageElementManager = new PageElementManager()
+    pageElementManager.initialize(el)
 
+    this.pageElementManagers[id ?? 'default'] = pageElementManager
+
+    return pageElementManager
   }
 
   registerMethod (name, method) {
