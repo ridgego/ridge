@@ -47,8 +47,13 @@ class PageElementManager {
     }
   }
 
-  async mount (el, nodes) {
+  async load (el, html) {
     const creatings = []
+    const container = document.createElement('div')
+    container.innerHTML = html
+
+    const rootNode = container.querySelectorAll('body>div')
+
     for (const node of nodes) {
       creatings.push(await this.createElement(el, node.componentPath, node.componentConfig))
     }

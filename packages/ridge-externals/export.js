@@ -1,4 +1,4 @@
-const index = require('./index')
+const index = require('../ridge-runtime/src/utils/externals')
 const path = require('path')
 const download = require('download')
 

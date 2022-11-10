@@ -1,6 +1,6 @@
 import debug from 'debug'
 import { nanoid } from 'nanoid'
-import template from './template'
+import template from '../template'
 const log = debug('ridge:el-wrapper')
 
 export const STATUS_DROPPABLE = 'droppable'

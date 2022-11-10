@@ -59,12 +59,12 @@ args.option('dir', 'The Front Component Project Root Path', './')
             }
         }
 
-        const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.def.js'),
+        const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.d.js'),
 
             entry = {};
 
         if (targetFiles.length === 0) {
-            log(chalk.green('未找到图元 ' + ridgeConfig.pattern ?? './src/**/*.def.js'));
+            log(chalk.green('未找到图元 ' + ridgeConfig.pattern ?? './src/**/*.d.js'));
         }
 
         log(chalk.green('编译打包以下图元文件:'));

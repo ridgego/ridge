@@ -1,8 +1,9 @@
-import RepeatContainer from './index.jsx'
+import FlexBoxContainer from './index.jsx'
+import bordered from '../bordered.d'
 
 export default {
-  name: 'repeat-container',
-  component: RepeatContainer,
+  name: 'flex-container',
+  component: FlexBoxContainer,
   props: [{
     name: 'direction',
     label: '排列方向',
@@ -57,19 +58,7 @@ export default {
       value: 'stretch'
     }],
     value: 'flex-start'
-  }, {
-    name: 'border',
-    label: '边框',
-    type: 'string',
-    control: 'border',
-    value: '1px solid #ccc'
-  }, {
-    name: 'padding',
-    label: '内边距',
-    type: 'string',
-    control: 'padding',
-    value: '5px'
-  }],
+  }, ...bordered.props],
   editorFeatures: {
     droppable: true
   }

@@ -1,6 +1,4 @@
-import ReactPelFactory from '../factory/ReactPelFactory'
-import VuePelFactory from '../factory/VuePelFactory'
-import webpackExternals from 'ridge-externals'
+import webpackExternals from '../utils/externals'
 import ky from 'ky'
 import debug from 'debug'
 import loadjs from 'loadjs'
@@ -9,9 +7,6 @@ import loadjs from 'loadjs'
 const log = debug('editor:ridge-loader')
 const important = debug('important')
 
-if (window.top.globalExternalConfig) {
-  webpackExternals.externals.push(...window.top.globalExternalConfig)
-}
 /**
  * 组件定义（js及其依赖）加载服务类
  * @class
@@ -263,16 +258,6 @@ class ElementLoader {
           fc = (await fc()).default
         }
       }
-      if (fc.props) {
-        // vue 图元
-        fcp.factory = new VuePelFactory(fc)
-      } else {
-        fcp.factory = new ReactPelFactory(fc)
-      }
-    }
-    if (fcp.factory) {
-      // 加载渲染器依赖
-      await fcp.factory.loadDependencies()
     } else {
       log('组件 Component定义未加载到', fcp)
     }

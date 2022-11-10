@@ -17,12 +17,12 @@
   "icon": "icon.svg",
   "components": [{
     "title": "文本",
-    "path": "build/text-text.d.js",
+    "path": "build/text-text.def.js",
     "width": 100,
     "height": 32
   }, {
     "title": "矩形",
-    "path": "build/rect-rect.d.js",
+    "path": "build/rect-rect.def.js",
     "width": 100,
     "height": 100
   }],

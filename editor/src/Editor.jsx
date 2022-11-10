@@ -4,7 +4,6 @@ import { Modal } from '@douyinfe/semi-ui'
 import Toolbar from './Toolbar.jsx'
 import RightPropsPanel from './panels/RightPropsPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
-import { PageElementManager, RidgeContext } from 'ridge-view-manager'
 import SelectableMoveable from './select-drag/SelectableMoveable.js'
 import FileManager from './panels/FileManager.jsx'
 import { fitRectIntoBounds } from './utils/rectUtils'
@@ -20,12 +19,6 @@ export default class Editor extends React.Component {
     this.workspaceWrapper = React.createRef()
     this.viewPortRef = React.createRef()
     this.rightPanelRef = React.createRef()
-    this.ridgeContext = new RidgeContext({
-      debugUrl: 'https://localhost:8700'
-    })
-
-    this.pageElementManager = new PageElementManager(this.ridgeContext)
-    this.ridgeContext.setCurrentPageManager('default', this.pageElementManager)
 
     this.state = {
       pageProps: {},
@@ -37,9 +30,9 @@ export default class Editor extends React.Component {
   }
 
   loadPage (pageConfig) {
-    console.log('pageConfig', pageConfig)
+    const { Ridge } = window
 
-    this.pageElementManager.mount(this.viewPortRef.current, pageConfig.nodes)
+    this.pageElementManager = Ridge.mount(this.viewPortRef.current, pageConfig)
 
     this.rightPanelRef.current?.loadPage(pageConfig)
 
@@ -48,12 +41,6 @@ export default class Editor extends React.Component {
     }, () => {
       this.fitToCenter()
     })
-  }
-
-  getPageConfig () {
-    return {
-      nodes: this.state.nodes
-    }
   }
 
   componentDidMount () {

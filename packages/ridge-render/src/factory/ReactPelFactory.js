@@ -1,5 +1,5 @@
 import PelFactory from './PelFactory'
-import ReactRenderer from '../renderer/ReactRenderer'
+import ReactRenderer from '../../../ridge-runtime/src/render/ReactRenderer'
 /**
  * React类型图元实例构建工厂
  */

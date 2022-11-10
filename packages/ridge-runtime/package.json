@@ -1,5 +1,5 @@
 {
-  "name": "ridge-view-manager",
+  "name": "ridge-runtime",
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
@@ -11,18 +11,19 @@
     "debug": "^4.3.1",
     "lodash": "^4.17.15",
     "nanoid": "^4.0.0",
-    "ridge-render": "^1.0.0"
+    "ky": "^0.24.0",
+    "loadjs": "^4.2.0"
   },
   "files": [
     "src",
     "lib"
   ],
   "devDependencies": {
-    "@babel/cli": "~7.14.3",
-    "@babel/core": "~7.14.3",
+    "@babel/cli": "^7.14.3",
+    "@babel/core": "^7.14.3",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-syntax-flow": "^7.16.5",
-    "@babel/preset-env": "~7.14.2",
-    "@babel/preset-react": "~7.13.13"
+    "@babel/preset-env": "^7.14.2",
+    "@babel/preset-react": "^7.13.13"
   }
 }

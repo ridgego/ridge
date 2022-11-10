@@ -5,62 +5,23 @@ class App extends React.Component {
   constructor (props) {
     super(props)
 
-    this.pageConfig = {
-      properties: {
-        name: '新增页面',
-        type: 'fixed',
-        width: 800,
-        height: 640
-      },
-      nodes: [{
-        id: 'dkjerk',
-        name: '按钮1',
-        componentPath: 'ridge-antd/build/button-button.fcp.js',
-        componentConfig: {
-          props: {},
-          position: {
-            x: 20,
-            y: 55,
-            width: 80,
-            height: 35
-          }
-        }
-      }, {
-        id: 'fewlrkj',
-        name: '按钮2',
-        componentPath: 'ridge-antd/build/button-button.fcp.js',
-        componentConfig: {
-          props: {},
-          position: {
-            x: 20,
-            y: 355,
-            width: 80,
-            height: 35
-          }
-        }
-      }]
-    }
-
-    // for (let i = 0; i < 10; i++) {
-    //   this.pageConfig.nodes.push({
-    //     id: i + 1,
-    //     name: 'button',
-    //     component: {
-    //       packageName: 'ridge-component-antd',
-    //       path: 'build/button-button.fcp.js'
-    //     },
-    //     props: {
-
-    //     },
-    //     style: {
-    //       position: 'absolute',
-    //       transform: `translate(${Math.random() * 1900}px, ${Math.random() * 960}px)`,
-    //       width: '80px',
-    //       height: '50px'
-    //     }
-    //   })
-    // }
-
+    this.pageConfig = `
+      <head>
+        <title>新增页面</title>
+        <meta name="type" content="fixed" />
+        <meta name="width" content="800" />
+        <meta name="height" content="600" />
+        <var name="name" type="string">Ridge</var>
+      </head>
+      <body>
+        <div ridge-id="dkjerk" ridge-path="ridge-antd/build/button-button.fcp.js" data-name="按钮1" 
+          style="position: absolute; transform: translate(20px, 55px); width: 80px; height: 35px;">
+        </div>
+        <div ridge-id="dkjerk" ridge-path="ridge-antd/build/button-button.fcp.js" data-name="按钮2" data-props-text="请点击" data-event-click=""
+          style="position: absolute; transform: translate(420px, 100px); width: 80px; height: 35px;">
+        </div>
+      </body>
+    `
     this.editorRef = React.createRef()
 
     this.state = {}
