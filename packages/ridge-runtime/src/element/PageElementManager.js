@@ -1,8 +1,10 @@
 import ElementWrapper from './ElementWrapper'
+import { nanoid } from '../utils/string'
 
 class PageElementManager {
-  constructor (context) {
-    this.context = context
+  constructor (ridge) {
+    this.ridge = ridge
+    this.context = {}
     this.properties = {}
     this.pageVariableConfig = []
     this.pageElements = {}
@@ -13,26 +15,26 @@ class PageElementManager {
   }
 
   /**
-   * 从组件定义创建一个页面元素实例
-   * @param {Element} el 创建在某个页面元素下
+   * 从组件定义片段创建一个页面元素实例
+   * @param {Object} fraction 来自
    * @param {String} 组件ID/Path
    * @param {*} viewConfig 默认配置顺序
    * @returns
    */
-  async createElement (el, componentPath, componentConfig) {
+  createElement (fraction) {
     try {
       const div = document.createElement('div')
-      el.appendChild(div)
+      div.setAttribute('ridge-id', nanoid(10))
+      div.setAttribute('component-path', fraction.componentPath)
+      div.dataset.name = fraction.name
+      div.style.position = 'absolute'
+      div.style.width = (fraction.width ?? 100) + 'px'
+      div.style.height = (fraction.height ?? 100) + 'px'
 
       const elementWrapper = new ElementWrapper({
         el: div,
-        componentPath,
-        componentConfig,
-        context: this.context
+        page: this
       })
-
-      await elementWrapper.loadAndInitialize()
-
       this.pageElements[elementWrapper.id] = elementWrapper
       return elementWrapper
     } catch (e) {
@@ -59,9 +61,15 @@ class PageElementManager {
       page: this
     })
     await elementWrapper.initialize()
+    return elementWrapper
   }
 
+  /**
+   * 根据页面配置(HTML DOM)初始化页面
+   * @param {Element} el DOM 根元素
+   */
   async initialize (el) {
+    this.pageRootEl = el
     const pageConfig = el.querySelector('[id="ridge-page-config"]')
 
     for (const opt of pageConfig.children) {
@@ -79,7 +87,9 @@ class PageElementManager {
       this.pageVariableConfig.push(v)
     }
 
-    const rootNode = el.querySelectorAll('body>div')
+    this.context.pageProperties = this.properties
+
+    const rootNode = el.querySelectorAll('div')
 
     const initializeRootElements = []
     for (const node of rootNode) {

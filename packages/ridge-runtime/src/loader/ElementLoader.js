@@ -1,4 +1,4 @@
-import webpackExternals from '../utils/externals'
+import webpackExternals from 'ridge-externals'
 import ky from 'ky'
 import debug from 'debug'
 import loadjs from 'loadjs'

@@ -20,6 +20,55 @@ class SelectableMoveable {
     // this.selecto.zoom = zoom
   }
 
+  checkDropTargetStatus (el, x, y) {
+    const target = this.getDroppableTarget(el, {
+      x,
+      y
+    })
+    if (target) {
+      target.elementWrapper.setStatus('droppable')
+    }
+  }
+
+  onElementDragEnd (el, x, y) {
+    const target = this.getDroppableTarget(el, {
+      x,
+      y
+    })
+    if (target) {
+      if (el && el.elementWrapper) {
+        // if (target.elementWrapper.id !== ev.target.getAttribute('containerId')) {
+        target.elementWrapper.invoke('dropElement', [el])
+        // }
+        el.setAttribute('containerId', target.elementWrapper.id)
+      } else {
+        const div = document.createElement('div')
+        target.elementWrapper.invoke('dropElement', [div])
+      }
+      target.elementWrapper.removeStatus('drappable')
+    } else {
+      // 到ViewPort上
+      if (el && el.elementWrapper) {
+        if (el.getAttribute('containerId') || // 从另一个容器拖出
+            el.parentElement == null // 新建
+        ) {
+          this.rootEl.appendChild(el)
+          const rbcr = this.rootEl.getBoundingClientRect()
+          const transform = `translate(${x - rbcr.x}px, ${y - rbcr.y}px)`
+          el.style.position = 'absolute'
+          el.removeAttribute('containerId')
+          el.setAttribute('snappable', true)
+          const bcr = el.getBoundingClientRect()
+          el.style.width = bcr.width + 'px'
+          el.style.height = bcr.height + 'px'
+          el.style.transform = transform
+          this.moveable.updateTarget()
+        }
+      } else {
+      }
+    }
+  }
+
   initMoveable () {
     const sm = this
     this.moveable = new Moveable(document.body, {
@@ -59,43 +108,14 @@ class SelectableMoveable {
 
     this.moveable.on('drag', ev => {
       ev.target.style.transform = ev.transform
-      const target = this.getDroppableTarget(ev.target, {
-        x: ev.clientX,
-        y: ev.clientY
-      })
-      if (target) {
-        target.elementWrapper.setStatus('droppable')
-      }
+
+      this.checkDropTargetStatus(ev.target, ev.clientX, ev.clientY)
+
       sm.onm && sm.onm(ev.target)
     })
 
     this.moveable.on('dragEnd', ev => {
-      const target = this.getDroppableTarget(ev.target, {
-        x: ev.clientX,
-        y: ev.clientY
-      })
-      if (target) {
-        // if (target.elementWrapper.id !== ev.target.getAttribute('containerId')) {
-        target.elementWrapper.invoke('dropElement', [ev.target])
-        // }
-        ev.target.setAttribute('containerId', target.elementWrapper.id)
-        target.elementWrapper.removeStatus('drappable')
-      } else {
-        // 到ViewPort上
-        if (ev.target.getAttribute('containerId')) {
-          const bcr = ev.target.getBoundingClientRect()
-          const rbcr = sm.rootEl.getBoundingClientRect()
-          const transform = `translate(${bcr.x - rbcr.x}px, ${bcr.y - rbcr.y}px)`
-          ev.target.style.position = 'absolute'
-          ev.target.style.width = bcr.width + 'px'
-          ev.target.style.height = bcr.height + 'px'
-          ev.target.removeAttribute('containerId')
-          ev.target.setAttribute('snappable', true)
-          sm.rootEl.appendChild(ev.target)
-          ev.target.style.transform = transform
-          sm.moveable.updateTarget()
-        }
-      }
+      this.onElementDragEnd(ev.target, ev.clientX, ev.clientY)
     })
 
     this.moveable.on('resize', ({

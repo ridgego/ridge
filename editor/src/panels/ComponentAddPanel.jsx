@@ -61,10 +61,9 @@ class AddMenu extends React.Component {
   dragStart (ev, info) {
     ev.dataTransfer.setData('text/plain', JSON.stringify(info))
 
-    console.log(ev)
     const img = new window.Image()
     img.src = info.icon
-    ev.dataTransfer.setDragImage(img, 64, 64)
+    ev.dataTransfer.setDragImage(img, 60, 60)
   }
 
   render () {
@@ -117,12 +116,9 @@ class AddMenu extends React.Component {
                     <List.Item>
                       <div
                         draggable
-                        onDragStart={ev => dragStart(ev, {
-                          width: item.width,
-                          height: item.height,
-                          icon: item.icon,
+                        onDragStart={ev => dragStart(ev, Object.assign(item, {
                           componentPath: pkg.name + '/' + item.path
-                        })}
+                        }))}
                         className='component-container'
                       >
                         <img src={item.icon} />

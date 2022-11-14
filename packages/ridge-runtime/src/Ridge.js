@@ -17,8 +17,17 @@ class Ridge {
     this.pageElementManagers = {}
   }
 
+  /**
+   * 通用库功能： 加载组件
+   * @param {String} componentPath 组件路径
+   * @returns 组件定义信息
+   */
+  loadComponent (componentPath) {
+    return this.loader.loadComponent(componentPath)
+  }
+
   initialize (el, id) {
-    const pageElementManager = new PageElementManager()
+    const pageElementManager = new PageElementManager(this)
     pageElementManager.initialize(el)
 
     this.pageElementManagers[id ?? 'default'] = pageElementManager

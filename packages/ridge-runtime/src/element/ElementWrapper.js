@@ -1,5 +1,5 @@
 import debug from 'debug'
-import { nanoid } from 'nanoid'
+import ReactRenderer from '../render/ReactRenderer'
 import template from '../template'
 const log = debug('ridge:el-wrapper')
 
@@ -14,10 +14,11 @@ class ElementWrapper {
     page
   }) {
     this.el = el
-    this.statusList = []
+
+    this.id = el.getAttribute('ridge-id')
 
     // 组件（React/Vue）收到的属性数据
-    this.instancePropConfig = componentConfig.props || {}
+    this.instancePropConfig = {}
 
     this.page = page
     this.el.elementWrapper = this
@@ -27,7 +28,20 @@ class ElementWrapper {
     this.el.className = 'ridge-element'
     this.el.setAttribute('snappable', 'true')
 
-    this.componentPath = this.el.getAttribute('ridge-path')
+    this.componentPath = this.el.getAttribute('component-path')
+
+    this.componentDefinition = await this.loadComponentDefinition()
+
+    if (this.componentDefinition) {
+      if (this.componentDefinition.editorFeatures) {
+        if (this.componentDefinition.editorFeatures.droppable) {
+          this.el.setAttribute(ATTR_DROPPABLE, '1')
+        }
+      }
+      this.initPropsAndEvents()
+      this.mount(this.el)
+      this.removeStatus('loading')
+    }
   }
 
   setWrapperStyle (style) {
@@ -60,18 +74,14 @@ class ElementWrapper {
   }
 
   async loadComponentDefinition () {
-    if (this.componentDefinition) {
-      return
-    }
-
     // 加载组件定义信息
     if (this.componentPath) {
       this.setStatus('loading')
-      const componentDefinition = await this.loader.loadComponent(this.componentPath)
+      const componentDefinition = await this.page.ridge.loadComponent(this.componentPath)
 
-      if (!componentDefinition || !componentDefinition.factory) {
+      if (!componentDefinition || !componentDefinition.component) {
         log('加载图元失败: 未获取组件', this.componentPath)
-        return
+        return null
       }
 
       // 枚举组件定义属性，加载相关的字体资源
@@ -84,13 +94,12 @@ class ElementWrapper {
       }
       this.setStatus('Preparing')
 
-      this.componentDefinition = componentDefinition
-    }
-
-    try {
-      this.context && this.context.emit('component-loaded', this)
-    } catch (e) {
-      //
+      try {
+        this.context && this.context.emit('component-loaded', this)
+      } catch (e) {
+        //
+      }
+      return componentDefinition
     }
   }
 
@@ -200,32 +209,12 @@ class ElementWrapper {
     // }
 
     try {
-      // 判断组件交互事件类型添加鼠标悬浮状态
-      // this.checkFcViewEvents(this.fcInstanceConfig.in, el)
-
       // 更新所有动态属性
-      // Object.assign(this.instancePropConfig, this.evaluateReactiveProps())
-      // this.convertPropTypes(this.instancePropConfig, this.componentDefinition.props)
-      this.renderer = this.componentDefinition.factory.mount(el, this.instancePropConfig)
-
+      this.renderer = new ReactRenderer(this.componentDefinition.component, this.el, this.instancePropConfig)
       // this.context.emit('mouted', this)
     } catch (e) {
-      // 一些因干扰异常产生的组件渲染问题处理：重试一次
       console.error(e)
     }
-    // 对于设置了显隐的情况，就进行一次显示处理
-    // if (this.fcInstanceConfig.reactiveBuildInProps && this.fcInstanceConfig.reactiveBuildInProps.visible) {
-    //   const isVisible = template(this.fcInstanceConfig.reactiveBuildInProps.visible, this.getVariableContext())
-
-    //   if (isVisible === 'false' || isVisible === false) {
-    //     // 更新显示
-    //     this.setVisible(false)
-    //   } else {
-    //     this.setVisible(true)
-    //   }
-    // } else {
-    //   this.setVisible(this.visible)
-    // }
   }
 
   updateProperties (props) {

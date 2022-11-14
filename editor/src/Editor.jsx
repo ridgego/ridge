@@ -4,8 +4,8 @@ import { Modal } from '@douyinfe/semi-ui'
 import Toolbar from './Toolbar.jsx'
 import RightPropsPanel from './panels/RightPropsPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
-import SelectableMoveable from './select-drag/SelectableMoveable.js'
 import FileManager from './panels/FileManager.jsx'
+import SelectableMoveable from './select-drag/SelectableMoveable.js'
 import { fitRectIntoBounds } from './utils/rectUtils'
 import MouseStrap from 'mousetrap'
 
@@ -30,7 +30,6 @@ export default class Editor extends React.Component {
   }
 
   loadPage (pageConfig) {
-    debugger
     const { Ridge } = window
 
     this.viewPortRef.current.innerHTML = pageConfig
@@ -128,26 +127,23 @@ export default class Editor extends React.Component {
    */
   workspaceDrop (ev) {
     ev.preventDefault()
-    // Get the id of the target and add the moved element to the target's DOM
-    const data = ev.dataTransfer.getData('text/plain')
-    const component = JSON.parse(data)
     const { viewPortRef } = this
     const { zoom } = this.state
     const workspaceRect = viewPortRef.current.getBoundingClientRect()
+    // Get the id of the target and add the moved element to the target's DOM
+    const data = ev.dataTransfer.getData('text/plain')
+    const fraction = JSON.parse(data)
 
-    const width = component.width ?? 100
-    const height = component.height ?? 100
+    const newElement = this.pageElementManager.createElement(fraction)
+
+    const width = fraction.width ?? 100
+    const height = fraction.height ?? 100
     const posX = parseInt((ev.pageX - workspaceRect.left - width / 2) / zoom)
     const posY = parseInt((ev.pageY - workspaceRect.top - height / 2) / zoom)
 
-    this.pageElementManager.createElement(this.viewPortRef.current, component.componentPath, {
-      position: {
-        x: posX,
-        y: posY,
-        width,
-        height
-      }
-    })
+    this.selectMove.onElementDragEnd(newElement.el, ev.pageX, ev.pageY)
+
+    newElement.initialize()
   }
 
   onToolbarItemClick (cmd, opts) {
