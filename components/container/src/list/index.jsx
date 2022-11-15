@@ -29,11 +29,27 @@ export default class RepeatContainer extends React.Component {
   }
 
   dropElement (el, targetEl) {
+    if (el.parentElement === this.$el.current) {
+      el.setAttribute('snappable', 'false')
+      el.style.position = ''
+      el.style.transform = ''
+      return true
+    }
+    const children = this.$el.current.children
+
+    if (children.length) {
+      const confirm = (window.Ridge && window.Ridge.confirm) || window.confirm
+      if (!confirm('列表已经有列表项模板， 是否确认替换？ （替换后原有模板会被删除）')) {
+        return false
+      }
+      this.$el.current.removeChild(children[0])
+    }
     console.log('drop element', el)
     el.setAttribute('snappable', 'false')
     el.style.position = ''
     el.style.transform = ''
     this.$el.current.appendChild(el)
+    return true
   }
 
   render () {

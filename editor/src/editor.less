@@ -51,6 +51,20 @@ body {
       z-index: 101;
       max-height: calc(100% - 20px);
       position: absolute;
+
+    }
+
+    .object-form {
+      .semi-space.with-code-expr {
+        .semi-button-tertiary {
+          visibility: hidden;
+        }
+        &:hover {
+          .semi-button-tertiary {
+            visibility: initial;
+          } 
+        }
+      }
     }
 
     .component-add-panel {

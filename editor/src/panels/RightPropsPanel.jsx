@@ -8,6 +8,7 @@ const basicStyleSections = [{
       cols: [{
         label: '名称',
         control: 'text',
+        bindable: false,
         field: 'name'
       }]
     },
@@ -15,22 +16,35 @@ const basicStyleSections = [{
       cols: [{
         label: '坐标X',
         control: 'number',
-        field: 'x'
+        field: 'style.x',
+        fieldEx: 'ex.style.x'
       }, {
         label: '坐标Y',
         control: 'number',
-        field: 'y'
+        field: 'style.y',
+        fieldEx: 'ex.style.Y'
       }]
     },
     {
       cols: [{
         label: '宽度',
         control: 'number',
-        field: 'width'
+        field: 'style.width',
+        fieldEx: 'ex.style.width'
       }, {
         label: '高度',
         control: 'number',
-        field: 'height'
+        field: 'style.height',
+        fieldEx: 'ex.style.height'
+      }]
+    },
+    {
+      cols: [{
+        label: '运行展示',
+        type: 'boolean',
+        control: 'checkbox',
+        field: 'style.visible',
+        fieldEx: 'ex.style.visible'
       }]
     }
   ]
@@ -50,6 +64,7 @@ const pageConfigSection = [{
     cols: [{
       label: '页面名称',
       control: 'text',
+      bindable: false,
       field: 'name'
     }]
   }, {
@@ -57,6 +72,7 @@ const pageConfigSection = [{
       label: '页面布局',
       control: 'select',
       field: 'type',
+      bindable: false,
       options: [{
         label: '固定宽高',
         value: 'fixed'
@@ -72,11 +88,13 @@ const pageConfigSection = [{
     cols: [{
       label: '宽度',
       when: 'type === "fixed"',
+      bindable: false,
       control: 'number',
       field: 'width'
     }, {
       label: '高度',
       when: 'type === "fixed"',
+      bindable: false,
       control: 'number',
       field: 'height'
     }]
@@ -113,22 +131,9 @@ export default class ComponentPropsPanel extends React.Component {
   }
 
   elementMove (el) {
-    if (el.style.transform) {
-      const matched = el.style.transform.match(/[0-9.]+/g)
-      this.currentStyle.x = parseInt(matched[0])
-      this.currentStyle.y = parseInt(matched[1])
-    } else {
-      this.currentStyle.x = 0
-      this.currentStyle.y = 0
-    }
-    this.currentStyle.width = parseInt(el.style.width)
-    this.currentStyle.height = parseInt(el.style.height)
-
-    for (const propKey of Object.keys(this.currentStyle)) {
-      this.styleApi.setValue(propKey, this.currentStyle[propKey], {
-        notNotify: true
-      })
-    }
+    this.styleApi.setValues(el.elementWrapper.getWrapperStyle(), {
+      notNotify: true
+    })
   }
 
   elementSelected (el) {
@@ -143,8 +148,12 @@ export default class ComponentPropsPanel extends React.Component {
           const control = {
             label: prop.label,
             type: prop.type,
+            bindable: prop.bindable,
             control: prop.control,
             field: 'props.' + prop.name
+          }
+          if (control.bindable) {
+            control.fieldExpr = '' + prop.name
           }
           if (!control.control) {
             if (control.type === 'string') {
@@ -163,7 +172,6 @@ export default class ComponentPropsPanel extends React.Component {
         nodePropsSection = nodePropsSection.concat({
           rows: styledProps
         })
-        console.log('nodePropsSection', nodePropsSection)
         this.setState({
           nodePropsSection
         }, () => {

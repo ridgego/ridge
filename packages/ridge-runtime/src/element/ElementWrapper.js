@@ -19,6 +19,13 @@ class ElementWrapper {
 
     // 组件（React/Vue）收到的属性数据
     this.instancePropConfig = {}
+    // 组件绑定的属性数据
+    this.instancePropBinding = {}
+
+    // Wrapper元素的样式数据
+    this.stylePropValue = {}
+    // Wrapper元素的绑定样式数据
+    this.stylePropBind = {}
 
     this.page = page
     this.el.elementWrapper = this
@@ -239,6 +246,24 @@ class ElementWrapper {
 
   getCreateChildElement (name) {
 
+  }
+
+  getWrapperStyle () {
+    const result = {
+      style: {}
+    }
+    if (this.el.style.transform) {
+      const matched = this.el.style.transform.match(/[0-9.]+/g)
+      result.style.x = parseInt(matched[0])
+      result.style.y = parseInt(matched[1])
+    } else {
+      result.style.x = 0
+      result.style.y = 0
+    }
+    result.style.width = parseInt(this.el.style.width)
+    result.style.height = parseInt(this.el.style.height)
+
+    return result
   }
 
   setStatus (status) {

@@ -112,7 +112,28 @@ export default class FlexContainer extends React.Component {
       Object.assign(this.$el.current.style, this.getContainerStyle(newProps))
     }
 
-    await this.initFlexContent(childrenViews, currentFcView, direction, alignItems, containerAutoStrech)
+    this.resizeChildren(this.$el.current.children, direction, alignItems)
+
+    // await this.initFlexContent(childrenViews, currentFcView, direction, alignItems, containerAutoStrech)
+  }
+
+  /**
+   *
+   * @param {*} flexNode
+   * @param {*} direction
+   * @param {*} alignItems
+   */
+  resizeChildren (children, direction, alignItems) {
+    if (direction === 'row' && alignItems === 'stretch') {
+      for (const childEl of children) {
+        childEl.style.height = ''
+      }
+    }
+    if (direction === 'column' && alignItems === 'stretch') {
+      for (const childEl of children) {
+        childEl.style.width = ''
+      }
+    }
   }
 
   /**

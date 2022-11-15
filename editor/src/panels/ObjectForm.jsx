@@ -1,5 +1,6 @@
 import React from 'react'
 import { HexColorPicker } from 'react-colorful'
+import { IconCode } from '@douyinfe/semi-icons'
 import { Form, Select, Row, Col, Space, withField, ArrayField, Button, useFieldState, InputNumber, Popover } from '@douyinfe/semi-ui'
 
 const VariableListEdit = withField((props) => {
@@ -93,6 +94,14 @@ const BorderEdit = withField((props) => {
   )
 })
 
+const CodeExprEdit = withField(props => {
+  if (props.value) {
+    return <Button type='primary' size='small' theme='borderless' icon={<IconCode />} />
+  } else {
+    return <Button type='tertiary' size='small' theme='borderless' icon={<IconCode />} />
+  }
+})
+
 export default class ObjectForm extends React.Component {
   constructor (props) {
     super(props)
@@ -104,26 +113,49 @@ export default class ObjectForm extends React.Component {
       InputNumber,
       TextArea,
       Select,
+      Checkbox,
       Input
     } = Form
     if (col.type === 'string' && !col.control) {
       col.control = 'text'
     }
+    let RenderField = null
     switch (col.control) {
       case 'number':
-        return <InputNumber label={col.label} field={col.field} />
+        RenderField = <InputNumber label={col.label} field={col.field} />
+        break
       case 'text':
-        return <Input label={col.label} field={col.field} />
+        RenderField = <Input label={col.label} field={col.field} />
+        break
+      case 'checkbox':
+        RenderField = <Checkbox label={col.label} field={col.field} />
+        break
       case 'select':
-        return <Select label={col.label} field={col.field} optionList={col.optionList} />
+        RenderField = <Select label={col.label} field={col.field} optionList={col.optionList} />
+        break
       case 'border':
-        return <BorderEdit label={col.label} field={col.field} />
+        RenderField = <BorderEdit label={col.label} field={col.field} />
+        break
       case 'css-style':
-        return <TextArea label={col.label} field={col.field} />
+        RenderField = <TextArea label={col.label} field={col.field} />
+        break
       case 'variable':
-        return <VariableListEdit noLabel field={col.field} />
+        RenderField = <VariableListEdit noLabel field={col.field} />
+        break
       default:
         break
+    }
+
+    if (col.bindable === false) {
+      return RenderField
+    } else {
+      // 封装动态绑定的支持
+      return (
+        <Space spacing={1} className='with-code-expr'>
+          {RenderField}
+          <CodeExprEdit noLabel fieldStyle={{ width: '42px' }} field={col.fieldExpr} />
+        </Space>
+      )
     }
   }
 
@@ -134,18 +166,22 @@ export default class ObjectForm extends React.Component {
       return (
         <Row key={j}>
           {row.cols.length > 1 &&
-            <Space>
+            <Space spacing={4}>
               {row.cols.map((col, k) => {
                 return (
                   <Col key={k} span={24 / row.cols.length}>
-                    {renderCol(col)}
+                    <Space spacing={1} className='with-code-expr'>
+                      {renderCol(col)}
+                    </Space>
                   </Col>
                 )
               })}
             </Space>}
           {row.cols.length === 1 &&
             <Col span={24}>
-              {renderCol(row.cols[0])}
+              <Space spacing={1} className='with-code-expr'>
+                {renderCol(row.cols[0])}
+              </Space>
             </Col>}
         </Row>
       )

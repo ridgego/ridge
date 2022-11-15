@@ -30,43 +30,51 @@ class SelectableMoveable {
     }
   }
 
+  /**
+   * 鼠标拖拽元素（新增/既有）到页面区域
+   * @param {Element} el 元素DOM对象
+   * @param {number} x 鼠标当前位置X
+   * @param {number} y 鼠标位置Y
+   */
   onElementDragEnd (el, x, y) {
+    // 获取可放置的容器
     const target = this.getDroppableTarget(el, {
       x,
       y
     })
-    if (target) {
-      if (el && el.elementWrapper) {
-        // if (target.elementWrapper.id !== ev.target.getAttribute('containerId')) {
-        target.elementWrapper.invoke('dropElement', [el])
-        // }
-        el.setAttribute('containerId', target.elementWrapper.id)
+    if (target) { // 放置到容器中
+      const result = target.elementWrapper.invoke('dropElement', [el])
+      // 这里容器会提供 dropElement 方法，并未wrapper提供放置位置
+      if (result === false) {
+        // 容器反馈不能放置，则还是放置到页面根部
+        this.putElementToRoot(el, x, y)
       } else {
-        const div = document.createElement('div')
-        target.elementWrapper.invoke('dropElement', [div])
+        // 放置好后，设置容器containerId标识 （是否有必要）
+        el.setAttribute('containerId', target.elementWrapper.id)
       }
       target.elementWrapper.removeStatus('drappable')
     } else {
       // 到ViewPort上
-      if (el && el.elementWrapper) {
-        if (el.getAttribute('containerId') || // 从另一个容器拖出
-            el.parentElement == null // 新建
-        ) {
-          this.rootEl.appendChild(el)
-          const rbcr = this.rootEl.getBoundingClientRect()
-          const transform = `translate(${x - rbcr.x}px, ${y - rbcr.y}px)`
-          el.style.position = 'absolute'
-          el.removeAttribute('containerId')
-          el.setAttribute('snappable', true)
-          const bcr = el.getBoundingClientRect()
-          el.style.width = bcr.width + 'px'
-          el.style.height = bcr.height + 'px'
-          el.style.transform = transform
-          this.moveable.updateTarget()
-        }
-      } else {
+      if (el.getAttribute('containerId') || // 从另一个容器拖出
+          el.parentElement == null // 新建
+      ) {
+        el.removeAttribute('containerId')
+        this.putElementToRoot(el, x, y)
       }
     }
+  }
+
+  putElementToRoot (el, x, y) {
+    this.rootEl.appendChild(el)
+    const rbcr = this.rootEl.getBoundingClientRect()
+    const bcr = el.getBoundingClientRect()
+    const transform = `translate(${x - rbcr.x - bcr.width / 2}px, ${y - rbcr.y - bcr.height / 2}px)`
+    el.style.position = 'absolute'
+    el.setAttribute('snappable', true)
+    el.style.width = bcr.width + 'px'
+    el.style.height = bcr.height + 'px'
+    el.style.transform = transform
+    this.moveable.updateTarget()
   }
 
   initMoveable () {

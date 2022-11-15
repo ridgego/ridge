@@ -2,12 +2,12 @@ import ElementWrapper from './ElementWrapper'
 import { nanoid } from '../utils/string'
 
 class PageElementManager {
-  constructor (ridge) {
+  constructor (ridge, el) {
     this.ridge = ridge
+    this.pageRootEl = el
     this.context = {}
     this.properties = {}
     this.pageVariableConfig = []
-    this.pageElements = {}
   }
 
   getPageProperties () {
@@ -35,7 +35,6 @@ class PageElementManager {
         el: div,
         page: this
       })
-      this.pageElements[elementWrapper.id] = elementWrapper
       return elementWrapper
     } catch (e) {
       console.error('Error Create Element', e)
@@ -49,8 +48,6 @@ class PageElementManager {
       if (typeof target === 'string') {
         target = this.pageElements[target]
       }
-      const id = target.elementWrapper.id
-      delete this.pageElements[id]
       target.parentElement.removeChild(target)
     }
   }
@@ -68,15 +65,14 @@ class PageElementManager {
    * 根据页面配置(HTML DOM)初始化页面
    * @param {Element} el DOM 根元素
    */
-  async initialize (el) {
-    this.pageRootEl = el
-    const pageConfig = el.querySelector('[id="ridge-page-config"]')
+  async initialize () {
+    const pageConfig = this.pageRootEl.querySelector('[id="ridge-page-config"]')
 
     for (const opt of pageConfig.children) {
       this.properties[opt.getAttribute('key')] = opt.getAttribute('value')
     }
 
-    const pageVariable = el.querySelector('[id="ridge-page-variables"]')
+    const pageVariable = this.pageRootEl.querySelector('[id="ridge-page-variables"]')
 
     for (const opt of pageVariable.children) {
       const v = {
@@ -89,7 +85,7 @@ class PageElementManager {
 
     this.context.pageProperties = this.properties
 
-    const rootNode = el.querySelectorAll('div')
+    const rootNode = this.pageRootEl.querySelectorAll('div')
 
     const initializeRootElements = []
     for (const node of rootNode) {
