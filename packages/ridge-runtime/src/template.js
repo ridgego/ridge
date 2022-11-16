@@ -1,6 +1,8 @@
 // import _ from 'lodash'
 import debug from 'debug'
-const log = debug('runtime:template')
+import lodashTemplate from 'lodash/template'
+import lodashAt from 'lodash/at'
+const log = debug('rg:template')
 const compiledTemplates = new Map()
 
 export default function template (tplString, variables) {
@@ -9,13 +11,11 @@ export default function template (tplString, variables) {
   }
 
   // 增加lodash对象到变量，使所有_的方法都能被表达式使用
-  Object.assign(variables, {
-    _
-  })
+  Object.assign(variables, {})
   // eslint-disable-next-line no-new-func
   if (typeof tplString === 'string') {
     if (tplString.startsWith('${')) {
-      // 用 ${} 为模板计算 这类方式只有110版本才有，问题是性能低容易出错，后续版本弃用
+      // 用 ${} 为模板计算 这类性能低容易出错
       try {
         // eslint-disable-next-line no-new-func
         const func = new Function(...Object.keys(variables), `return \`${tplString}\`;`)
@@ -27,7 +27,7 @@ export default function template (tplString, variables) {
     } else if (tplString.match(/{{([\s\S]+?)}}/g)) {
       // 用 {{ 为模板进行计算的情况 }}
       if (!compiledTemplates.get(tplString)) {
-        compiledTemplates.set(tplString, _.template(tplString, {
+        compiledTemplates.set(tplString, lodashTemplate(tplString, {
           interpolate: /{{([\s\S]+?)}}/g
         }))
       }
@@ -38,7 +38,7 @@ export default function template (tplString, variables) {
         // 首先转换为模板字符串
         const tplStringCon = `{{JSON.stringify(${tplString})}}`
         // 用lodash计算为结果字符串
-        const tplFunc = _.template(tplStringCon, {
+        const tplFunc = lodashTemplate(tplStringCon, {
           interpolate: /{{([\s\S]+?)}}/g
         })
 
@@ -47,7 +47,7 @@ export default function template (tplString, variables) {
       } catch (err) {
         try {
           // 按路径获取
-          return _.at(variables, tplString)[0]
+          return lodashAt(variables, tplString)[0]
         } catch (err1) {
           try {
             // 按JSON格式

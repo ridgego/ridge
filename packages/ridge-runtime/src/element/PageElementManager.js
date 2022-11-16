@@ -1,13 +1,13 @@
 import ElementWrapper from './ElementWrapper'
-import { nanoid } from '../utils/string'
+import { nanoid, trim } from '../utils/string'
 
 class PageElementManager {
   constructor (ridge, el) {
     this.ridge = ridge
     this.pageRootEl = el
-    this.context = {}
     this.properties = {}
     this.pageVariableConfig = []
+    this.pageVariableValues = {}
   }
 
   getPageProperties () {
@@ -27,7 +27,6 @@ class PageElementManager {
       div.setAttribute('ridge-id', nanoid(10))
       div.setAttribute('component-path', fraction.componentPath)
       div.dataset.name = fraction.name
-      div.style.position = 'absolute'
       div.style.width = (fraction.width ?? 100) + 'px'
       div.style.height = (fraction.height ?? 100) + 'px'
 
@@ -83,16 +82,46 @@ class PageElementManager {
       this.pageVariableConfig.push(v)
     }
 
-    this.context.pageProperties = this.properties
-
-    const rootNode = this.pageRootEl.querySelectorAll('div')
+    const rootNodes = this.pageRootEl.querySelectorAll('div')
 
     const initializeRootElements = []
-    for (const node of rootNode) {
+    for (const node of rootNodes) {
       initializeRootElements.push(await this.initializeElement(node))
     }
 
     await Promise.allSettled(initializeRootElements)
+  }
+
+  updateVariableConfig (variablesConfig) {
+    this.pageVariableConfig = variablesConfig
+
+    this.pageVariableValues = {}
+
+    for (const pv of this.pageVariableConfig) {
+      if (trim(pv.name)) {
+        this.pageVariableValues[trim(pv.name)] = pv.value
+      }
+    }
+    this.forceUpdate()
+  }
+
+  /**
+   * 整页按照变量和动态数据完全更新
+   */
+  forceUpdate () {
+    const elements = this.pageRootEl.querySelectorAll('div[ridge-id]')
+
+    for (const el of elements) {
+      el.elementWrapper.forceUpdate()
+    }
+  }
+
+  getVariableValues () {
+    return this.pageVariableValues
+  }
+
+  getVariableConfig () {
+    return this.pageVariableConfig
   }
 }
 

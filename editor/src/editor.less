@@ -97,6 +97,16 @@ body {
         }
       }
     }
+
+    .data-panel {
+      background: var(--semi-color-bg-0);
+      border: 1px solid var(--semi-color-border);
+      padding: 4px;
+      border-radius: 5px;
+      bottom: 10px;
+      z-index: 101;
+      position: absolute;
+    }
   }
 }
 
@@ -104,6 +114,11 @@ body {
 @media (min-width: 1400px) {
   .component-add-panel {
     width: 420px;
+  }
+  .data-panel {
+    height: 430px;
+    left: 430px;
+    right: 370px;
   }
   .component-props-panel {
     width: 360px;
@@ -114,6 +129,11 @@ body {
 @media (max-width: 1400px) {
   .component-add-panel {
     width: 360px;
+  }
+  .data-panel {
+    height: 370px;
+    left: 370px;
+    right: 310px;
   }
   .component-props-panel {
     width: 300px;

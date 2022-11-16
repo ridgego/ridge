@@ -8,6 +8,9 @@ export const STATUS_LOADING = 'loading'
 
 export const ATTR_DROPPABLE = 'droppable'
 
+/**
+ * 组件封装类
+ */
 class ElementWrapper {
   constructor ({
     el,
@@ -17,9 +20,10 @@ class ElementWrapper {
 
     this.id = el.getAttribute('ridge-id')
 
-    // 组件（React/Vue）收到的属性数据
+    // 组件配置的属性静态值
     this.instancePropConfig = {}
-    // 组件绑定的属性数据
+
+    // 组件配置的属性动态值
     this.instancePropBinding = {}
 
     // Wrapper元素的样式数据
@@ -27,8 +31,15 @@ class ElementWrapper {
     // Wrapper元素的绑定样式数据
     this.stylePropBind = {}
 
+    // 组件的scope值数据
+    this.scopeVariableValues = {}
+
     this.page = page
     this.el.elementWrapper = this
+  }
+
+  setScopeVariableValues (scopeVariableValues) {
+    this.scopeVariableValues = scopeVariableValues
   }
 
   async initialize () {
@@ -130,7 +141,7 @@ class ElementWrapper {
 
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
-      // 默认值次序： 控件实例化给的默认值 -> 组态化定义的默认值 -> 前端组件的默认值 (这个不给就用默认值了)
+      // 默认值次序：  控件实例化给的默认值 -> 组态化定义的默认值 -> 前端组件的默认值 (这个不给就用默认值了)
       if (this.instancePropConfig[prop.name] == null && prop.value != null) {
         this.instancePropConfig[prop.name] = prop.value
       }
@@ -202,9 +213,6 @@ class ElementWrapper {
     // for (const slotProp in this.slotFcViews) {
     //   this.instancePropConfig[slotProp] = this.slotFcViews[slotProp]
     // }
-
-    this.instancePropConfig.elementWrapper = this
-
     this.editorFeatures = this.componentDefinition.editorFeatures ?? {}
 
     // try {
@@ -238,27 +246,55 @@ class ElementWrapper {
   updateStyle (style) {
     // 合并更新值
     Object.assign(this.stylePropValue, style)
-    this.el.style.width = this.stylePropValue.width + 'px'
-    this.el.style.height = this.stylePropValue.height + 'px'
+
+    this.el.style.width = this.stylePropValue.width ? (this.stylePropValue.width + 'px') : ''
+    this.el.style.height = this.stylePropValue.height ? (this.stylePropValue.height + 'px') : ''
+    this.el.style.position = this.stylePropValue.position
     if (this.stylePropValue.position === 'absolute') {
-      this.el.style.transform(`translate(${this.stylePropValue.x}px, ${this.stylePropValue.y}px)`)
+      this.el.style.transform = `translate(${this.stylePropValue.x}px, ${this.stylePropValue.y}px)`
+    } else {
+      this.el.style.transform = ''
     }
+
+    this.el.dataset.style = JSON.stringify(this.stylePropValue)
   }
 
   updateProperties (props) {
     // 合并更新值
-    Object.assign(this.instancePropConfig, props)
+    const newProps = Object.assign({
+      elementWrapper: this
+    }, this.instancePropConfig, props)
 
     if (this.renderer) {
       try {
-        log('updateProps', this.fcId, this.instancePropConfig)
-        this.renderer.updateProps(this.instancePropConfig)
+        log('updateProps', this.id, newProps)
+        this.renderer.updateProps(newProps)
       } catch (e) {
-        log('用属性渲染组件出错', this.fcInstanceConfig.guid, this.instancePropConfig, this)
+        log('用属性渲染组件出错', this.id, newProps, this)
       }
     } else {
-      log('updateProps umounted', this.fcId, this.instancePropConfig)
+      log('updateProps umounted', this.id, newProps)
     }
+  }
+
+  /**
+     * 获取当前组件可见的上下文变量信息
+     */
+  getVariableContext () {
+    return Object.assign({},
+      this.page.getVariableValues(),
+      this.scopeVariableValues
+    )
+  }
+
+  forceUpdate () {
+    const updated = {}
+    Object.assign(updated, this.instancePropConfig)
+
+    for (const propBindKey of Object.keys(this.instancePropBinding)) {
+      updated[propBindKey] = template(this.instancePropBinding[propBindKey], this.getVariableContext())
+    }
+    this.updateProperties(updated)
   }
 
   updatePropertiesExpression (propsEx) {
@@ -278,7 +314,7 @@ class ElementWrapper {
   getCreateChildElement (name) {}
 
   /**
-   * 获取封装层样式，包括  x/y/width/height/visible/rotate...
+   * 获取封装层样式，包括  x/y/width/height/visible/rotate
    * @returns
    */
   getStyle () {
@@ -288,6 +324,7 @@ class ElementWrapper {
       const matched = this.el.style.transform.match(/[0-9.]+/g)
       style.x = parseInt(matched[0])
       style.y = parseInt(matched[1])
+      style.position = 'absolute'
     } else {
       style.x = 0
       style.y = 0
@@ -295,7 +332,12 @@ class ElementWrapper {
     style.width = parseInt(this.el.style.width)
     style.height = parseInt(this.el.style.height)
 
-    return style
+    Object.assign(this.stylePropValue, style)
+    return this.stylePropValue
+  }
+
+  getName () {
+    return this.el.dataset.name
   }
 
   getPropsValue () {
@@ -342,8 +384,18 @@ class ElementWrapper {
   /** --------------------------------------
    * Config Only
    **/
+
+  /**
+   * 组件配置信息发生改变，通过编辑器配置面板传入
+   * @param {*} values
+   * @param {*} field
+   */
   propConfigUpdate (values, field) {
     for (const key of Object.keys(field)) {
+      if (key === 'name') {
+        this.el.dataset.name = field[key]
+        continue
+      }
       const keySplited = key.split('.')
 
       if (keySplited[0] === 'props') {
@@ -357,7 +409,6 @@ class ElementWrapper {
         this.updateStyle({
           [keySplited[1]]: field[key]
         })
-        this.el.dataset.style = JSON.stringify(this.stylePropValue)
       }
 
       if (keySplited[0] === 'ex') {
@@ -373,6 +424,19 @@ class ElementWrapper {
           })
           this.el.dataset.styleEx = JSON.stringify(this.stylePropBind)
         }
+      }
+    }
+    this.forceUpdate()
+  }
+
+  getPropConfigValues () {
+    return {
+      name: this.el.dataset.name,
+      props: this.getPropsValue(),
+      style: this.getStyle(),
+      ex: {
+        props: this.getPropsBinding(),
+        style: this.getStyleBinding()
       }
     }
   }

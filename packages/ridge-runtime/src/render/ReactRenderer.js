@@ -104,7 +104,7 @@ export default class ReactRenderer extends Renderer {
   updateProps (props) {
     // 方法说明： If the React element was previously rendered into container,
     // this will perform an update on it and only mutate the DOM as necessary to reflect the latest React element.
-    Object.assign(this.props, props)
+    this.props = props
 
     if (this.renderRef && this.renderRef.current && typeof this.renderRef.current.updateProps === 'function') {
       this.renderRef.current.updateProps(props)

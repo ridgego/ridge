@@ -35,6 +35,10 @@ class Ridge {
     return pageElementManager
   }
 
+  getPageElementManager (id) {
+    return this.pageElementManagers[id]
+  }
+
   registerMethod (name, method) {
     this[name] = method
   }

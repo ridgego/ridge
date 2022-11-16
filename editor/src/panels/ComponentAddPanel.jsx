@@ -6,7 +6,7 @@ class AddMenu extends React.Component {
   constructor () {
     super()
     this.ref = React.createRef()
-    this.packageManager = new PackageManager(window.Ridge.loader)
+    this.packageManager = new PackageManager()
     this.state = {
       packages: [],
       currentPackage: 'ridge-basic',

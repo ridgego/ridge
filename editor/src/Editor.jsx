@@ -2,7 +2,8 @@ import React from 'react'
 import { Modal } from '@douyinfe/semi-ui'
 
 import Toolbar from './Toolbar.jsx'
-import RightPropsPanel from './panels/RightPropsPanel.jsx'
+import ConfigPanel from './panels/ConfigPanel.jsx'
+import DataPanel from './panels/DataPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 import FileManager from './panels/FileManager.jsx'
 import SelectableMoveable from './select-drag/SelectableMoveable.js'
@@ -19,6 +20,7 @@ export default class Editor extends React.Component {
     this.workspaceWrapper = React.createRef()
     this.viewPortRef = React.createRef()
     this.rightPanelRef = React.createRef()
+    this.dataPanelRef = React.createRef()
 
     this.state = {
       pageProps: {},
@@ -36,6 +38,7 @@ export default class Editor extends React.Component {
 
     this.pageElementManager = Ridge.initialize(this.viewPortRef.current, 'editor-page')
 
+    this.dataPanelRef.current.loadVariables(this.pageElementManager.getVariableConfig())
     this.setState({
       pageProps: this.pageElementManager.getPageProperties()
     }, () => {
@@ -55,15 +58,12 @@ export default class Editor extends React.Component {
       contentRef,
       rightPanelRef,
       workspaceWrapper,
-      onPagePropChange,
       onToolbarItemClick,
-      onNodeCanvasChange,
       workspaceDragOver,
       workspaceDrop,
       zoomChange
     } = this
     const {
-      pageVariables,
       zoom,
       viewX,
       pageProps,
@@ -77,8 +77,8 @@ export default class Editor extends React.Component {
         <div
           ref={contentRef} className='content'
         >
-          <ComponentAddPanel context={this.ridgeContext} />
-          <RightPropsPanel ref={rightPanelRef} onPagePropChange={onPagePropChange} inputStyleChange={onNodeCanvasChange.bind(this)} pageVariables={pageVariables} />
+          <ComponentAddPanel />
+          <ConfigPanel ref={rightPanelRef} />
           <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
             <div
               ref={viewPortRef}
@@ -91,6 +91,7 @@ export default class Editor extends React.Component {
               }}
             />
           </div>
+          <DataPanel ref={this.dataPanelRef} />
         </div>
         <Modal
           title='配置应用资源'
@@ -127,19 +128,19 @@ export default class Editor extends React.Component {
    */
   workspaceDrop (ev) {
     ev.preventDefault()
-    const { viewPortRef } = this
-    const { zoom } = this.state
-    const workspaceRect = viewPortRef.current.getBoundingClientRect()
+    // const { viewPortRef } = this
+    // const { zoom } = this.state
+    // const workspaceRect = viewPortRef.current.getBoundingClientRect()
     // Get the id of the target and add the moved element to the target's DOM
     const data = ev.dataTransfer.getData('text/plain')
     const fraction = JSON.parse(data)
 
     const newElement = this.pageElementManager.createElement(fraction)
 
-    const width = fraction.width ?? 100
-    const height = fraction.height ?? 100
-    const posX = parseInt((ev.pageX - workspaceRect.left - width / 2) / zoom)
-    const posY = parseInt((ev.pageY - workspaceRect.top - height / 2) / zoom)
+    // const width = fraction.width ?? 100
+    // const height = fraction.height ?? 100
+    // const posX = parseInt((ev.pageX - workspaceRect.left - width / 2) / zoom)
+    // const posY = parseInt((ev.pageY - workspaceRect.top - height / 2) / zoom)
 
     this.selectMove.onElementDragEnd(newElement.el, ev.pageX, ev.pageY)
 
@@ -189,7 +190,7 @@ export default class Editor extends React.Component {
   }
 
   onNodeMove (el) {
-    this.rightPanelRef.current?.elementMove(el)
+    // this.rightPanelRef.current?.elementMove(el)
   }
 
   zoomChange (zoom) {

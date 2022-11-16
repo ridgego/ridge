@@ -16,11 +16,17 @@ const basicStyleSections = [{
       cols: [{
         label: '坐标X',
         control: 'number',
+        readonly: (values) => {
+          return !(values && values.style && values.style.position === 'absolute')
+        },
         field: 'style.x',
         fieldEx: 'ex.style.x'
       }, {
         label: '坐标Y',
         control: 'number',
+        readonly: (values) => {
+          return !(values && values.style && values.style.position === 'absolute')
+        },
         field: 'style.y',
         fieldEx: 'ex.style.Y'
       }]
@@ -101,7 +107,7 @@ const pageConfigSection = [{
   }]
 }]
 
-export default class ComponentPropsPanel extends React.Component {
+export default class ComponentPanel extends React.Component {
   constructor (props) {
     super(props)
     this.ref = React.createRef()
@@ -143,7 +149,7 @@ export default class ComponentPropsPanel extends React.Component {
       if (elementWrapper.componentDefinition) {
         const componentDefiProps = elementWrapper.componentDefinition.props
         const styledProps = []
-        let nodePropsSection = JSON.parse(JSON.stringify(basicStyleSections))
+        // let nodePropsSection = Object.assign()JSON.parse(JSON.stringify(basicStyleSections))
         for (const prop of componentDefiProps) {
           const control = {
             label: prop.label,
@@ -167,12 +173,15 @@ export default class ComponentPropsPanel extends React.Component {
             ]
           })
         }
-        nodePropsSection = nodePropsSection.concat({
+        const nodePropsSection = basicStyleSections.concat({
           rows: styledProps
         })
         this.setState({
           nodePropsSection
         }, () => {
+          this.componentPropFormApi.setValue('name', elementWrapper.getName(), {
+            notNotify: true
+          })
           this.componentPropFormApi.setValue('props', elementWrapper.getPropsValue(), {
             notNotify: true
           })
@@ -213,12 +222,12 @@ export default class ComponentPropsPanel extends React.Component {
 
     // 回写styleApi句柄以便直接操作基础form
     const basicPropsAPI = (formApi) => {
-      window.componentPropFormApi = formApi
+      window.Ridge.componentPropFormApi = formApi
       this.componentPropFormApi = formApi
     }
     // 回写styleApi句柄以便直接操作基础form
     const cbPagePropFormApi = (formApi) => {
-      window.pagePropFormApi = formApi
+      window.Ridge.pagePropFormApi = formApi
       this.pagePropFormApi = formApi
     }
 

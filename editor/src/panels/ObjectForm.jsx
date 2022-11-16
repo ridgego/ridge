@@ -111,7 +111,6 @@ const CodeExprEdit = withField(props => {
       content={
         <article style={{ padding: 8, width: 360 }}>
           <span> 请输入表达式 </span>
-          isOpen: [{JSON.stringify(open)}]
           <TextArea value={props.value} onChange={exprChange} />
         </article>
     }
@@ -139,10 +138,17 @@ export default class ObjectForm extends React.Component {
     if (col.type === 'string' && !col.control) {
       col.control = 'text'
     }
+
+    const readonly = col.readonly ? col.readonly(this.api.getValues()) : false
+    const hidden = col.hidden ? col.hidden(this.api.getValues()) : false
+
+    if (hidden) {
+      return
+    }
     let RenderField = null
     switch (col.control) {
       case 'number':
-        RenderField = <InputNumber label={col.label} field={col.field} />
+        RenderField = <InputNumber label={col.label} disabled={readonly} field={col.field} />
         break
       case 'text':
         RenderField = <Input label={col.label} field={col.field} />
@@ -173,7 +179,7 @@ export default class ObjectForm extends React.Component {
       return (
         <Space spacing={1} className='with-code-expr'>
           {RenderField}
-          <CodeExprEdit noLabel fieldStyle={{ width: '28px' }} field={col.fieldEx} />
+          <CodeExprEdit noLabel fieldStyle={{ width: '36px' }} field={col.fieldEx} />
         </Space>
       )
     }
@@ -215,11 +221,16 @@ export default class ObjectForm extends React.Component {
     }
 
     const { sections, getFormApi, onValueChange, style } = this.props
+
+    const callback = (api) => {
+      this.api = api
+      getFormApi && getFormApi(api)
+    }
     return (
       <div className='object-form' style={style}>
         <Form
           labelPosition='left'
-          getFormApi={getFormApi}
+          getFormApi={callback}
           onValueChange={onValueChange}
           style={{ padding: 10, width: '100%' }}
         >

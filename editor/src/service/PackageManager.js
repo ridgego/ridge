@@ -1,9 +1,8 @@
 import { nanoid } from '../utils/string'
 
 export default class PackageManager {
-  constructor (loader) {
+  constructor () {
     /** @property 组件加载器 */
-    this.loader = loader
     this.packageNames = ['ridge-antd', 'ridge-basic']
     this.packagesDetails = []
   }
@@ -40,12 +39,12 @@ export default class PackageManager {
 
   async loadPackages () {
     const packagesLoading = []
-    const debugPkg = await this.loader.getDebugPackage()
+    const debugPkg = await window.Ridge.loader.getDebugPackage()
     if (debugPkg) {
-      packagesLoading.push(await this.loader.getPackageJSON(debugPkg.name))
+      packagesLoading.push(await window.Ridge.loader.getPackageJSON(debugPkg.name))
     }
     for (const pkname of this.packageNames) {
-      packagesLoading.push(await this.loader.getPackageJSON(pkname))
+      packagesLoading.push(await window.Ridge.loader.getPackageJSON(pkname))
     }
 
     await Promise.allSettled(packagesLoading)
