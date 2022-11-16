@@ -35,6 +35,17 @@ class ElementWrapper {
     this.el.className = 'ridge-element'
     this.el.setAttribute('snappable', 'true')
 
+    if (this.el.dataset.props) {
+      this.instancePropConfig = JSON.parse(this.el.dataset.props)
+    }
+    if (this.el.dataset.propsEx) {
+      this.instancePropBinding = JSON.parse(this.el.dataset.propsEx)
+    }
+
+    if (this.el.dataset.styleEx) {
+      this.instancePropConfig = JSON.parse(this.el.dataset.styleEx)
+    }
+
     this.componentPath = this.el.getAttribute('component-path')
 
     this.componentDefinition = await this.loadComponentDefinition()
@@ -224,6 +235,16 @@ class ElementWrapper {
     }
   }
 
+  updateStyle (style) {
+    // 合并更新值
+    Object.assign(this.stylePropValue, style)
+    this.el.style.width = this.stylePropValue.width + 'px'
+    this.el.style.height = this.stylePropValue.height + 'px'
+    if (this.stylePropValue.position === 'absolute') {
+      this.el.style.transform(`translate(${this.stylePropValue.x}px, ${this.stylePropValue.y}px)`)
+    }
+  }
+
   updateProperties (props) {
     // 合并更新值
     Object.assign(this.instancePropConfig, props)
@@ -240,30 +261,53 @@ class ElementWrapper {
     }
   }
 
+  updatePropertiesExpression (propsEx) {
+    // 合并更新值
+    Object.assign(this.instancePropBinding, propsEx)
+  }
+
+  updateStyleExpression (styleEx) {
+    // 合并更新值
+    Object.assign(this.stylePropBind, styleEx)
+  }
+
   invoke (method, args) {
     this.renderer.invoke(method, args)
   }
 
-  getCreateChildElement (name) {
+  getCreateChildElement (name) {}
 
-  }
-
-  getWrapperStyle () {
-    const result = {
-      style: {}
+  /**
+   * 获取封装层样式，包括  x/y/width/height/visible/rotate...
+   * @returns
+   */
+  getStyle () {
+    const style = {
     }
     if (this.el.style.transform) {
       const matched = this.el.style.transform.match(/[0-9.]+/g)
-      result.style.x = parseInt(matched[0])
-      result.style.y = parseInt(matched[1])
+      style.x = parseInt(matched[0])
+      style.y = parseInt(matched[1])
     } else {
-      result.style.x = 0
-      result.style.y = 0
+      style.x = 0
+      style.y = 0
     }
-    result.style.width = parseInt(this.el.style.width)
-    result.style.height = parseInt(this.el.style.height)
+    style.width = parseInt(this.el.style.width)
+    style.height = parseInt(this.el.style.height)
 
-    return result
+    return style
+  }
+
+  getPropsValue () {
+    return this.instancePropConfig
+  }
+
+  getPropsBinding () {
+    return this.instancePropBinding
+  }
+
+  getStyleBinding () {
+    return this.stylePropBind
   }
 
   setStatus (status) {
@@ -293,6 +337,48 @@ class ElementWrapper {
       }
       return false
     }
+  }
+
+  /** --------------------------------------
+   * Config Only
+   **/
+  propConfigUpdate (values, field) {
+    for (const key of Object.keys(field)) {
+      const keySplited = key.split('.')
+
+      if (keySplited[0] === 'props') {
+        this.updateProperties({
+          [keySplited[1]]: field[key]
+        })
+        this.el.dataset.props = JSON.stringify(this.instancePropConfig)
+      }
+
+      if (keySplited[0] === 'style') {
+        this.updateStyle({
+          [keySplited[1]]: field[key]
+        })
+        this.el.dataset.style = JSON.stringify(this.stylePropValue)
+      }
+
+      if (keySplited[0] === 'ex') {
+        if (keySplited[1] === 'props') {
+          this.updatePropertiesExpression({
+            [keySplited[2]]: field[key]
+          })
+          this.el.dataset.propsEx = JSON.stringify(this.instancePropBinding)
+        }
+        if (keySplited[1] === 'style') {
+          this.updateStyleExpression({
+            [keySplited[2]]: field[key]
+          })
+          this.el.dataset.styleEx = JSON.stringify(this.stylePropBind)
+        }
+      }
+    }
+  }
+
+  eventConfigUpdate () {
+
   }
 }
 

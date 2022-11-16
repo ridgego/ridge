@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
 import { IconCode } from '@douyinfe/semi-icons'
-import { Form, Select, Row, Col, Space, withField, ArrayField, Button, useFieldState, InputNumber, Popover } from '@douyinfe/semi-ui'
+import { Form, Select, Row, Col, Space, withField, ArrayField, Button, useFieldState, InputNumber, Popover, TextArea } from '@douyinfe/semi-ui'
 
 const VariableListEdit = withField((props) => {
   const value = props.value
@@ -95,11 +95,31 @@ const BorderEdit = withField((props) => {
 })
 
 const CodeExprEdit = withField(props => {
-  if (props.value) {
-    return <Button type='primary' size='small' theme='borderless' icon={<IconCode />} />
-  } else {
-    return <Button type='tertiary' size='small' theme='borderless' icon={<IconCode />} />
+  const [open, setOpen] = useState(false)
+  const popVisibleChange = visible => {
+    setOpen(visible)
   }
+  const exprChange = value => {
+    props && props.onChange(value)
+  }
+  return (
+    <Popover
+      position='leftTop'
+      onVisibleChange={popVisibleChange}
+      showArrow
+      trigger='click'
+      content={
+        <article style={{ padding: 8, width: 360 }}>
+          <span> 请输入表达式 </span>
+          isOpen: [{JSON.stringify(open)}]
+          <TextArea value={props.value} onChange={exprChange} />
+        </article>
+    }
+    >
+      {props.value && <Button type='primary' size='small' theme='borderless' icon={<IconCode />} />}
+      {!props.value && <Button className={open ? 'is-open' : ''} type='tertiary' size='small' theme='borderless' icon={<IconCode />} />}
+    </Popover>
+  )
 })
 
 export default class ObjectForm extends React.Component {
@@ -153,7 +173,7 @@ export default class ObjectForm extends React.Component {
       return (
         <Space spacing={1} className='with-code-expr'>
           {RenderField}
-          <CodeExprEdit noLabel fieldStyle={{ width: '42px' }} field={col.fieldExpr} />
+          <CodeExprEdit noLabel fieldStyle={{ width: '28px' }} field={col.fieldEx} />
         </Space>
       )
     }
@@ -170,18 +190,14 @@ export default class ObjectForm extends React.Component {
               {row.cols.map((col, k) => {
                 return (
                   <Col key={k} span={24 / row.cols.length}>
-                    <Space spacing={1} className='with-code-expr'>
-                      {renderCol(col)}
-                    </Space>
+                    {renderCol(col)}
                   </Col>
                 )
               })}
             </Space>}
           {row.cols.length === 1 &&
             <Col span={24}>
-              <Space spacing={1} className='with-code-expr'>
-                {renderCol(row.cols[0])}
-              </Space>
+              {renderCol(row.cols[0])}
             </Col>}
         </Row>
       )

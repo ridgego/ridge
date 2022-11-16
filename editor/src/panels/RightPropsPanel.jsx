@@ -40,7 +40,7 @@ const basicStyleSections = [{
     },
     {
       cols: [{
-        label: '运行展示',
+        label: '显示',
         type: 'boolean',
         control: 'checkbox',
         field: 'style.visible',
@@ -105,7 +105,7 @@ export default class ComponentPropsPanel extends React.Component {
   constructor (props) {
     super(props)
     this.ref = React.createRef()
-    this.styleApi = null
+    this.componentPropFormApi = null
     this.currentNode = null
     this.currentStyle = {}
     this.state = {
@@ -131,7 +131,7 @@ export default class ComponentPropsPanel extends React.Component {
   }
 
   elementMove (el) {
-    this.styleApi.setValues(el.elementWrapper.getWrapperStyle(), {
+    this.componentPropFormApi.setValue('style', el.elementWrapper.getStyle(), {
       notNotify: true
     })
   }
@@ -152,9 +152,7 @@ export default class ComponentPropsPanel extends React.Component {
             control: prop.control,
             field: 'props.' + prop.name
           }
-          if (control.bindable) {
-            control.fieldExpr = '' + prop.name
-          }
+          control.fieldEx = 'ex.props.' + prop.name
           if (!control.control) {
             if (control.type === 'string') {
               control.control = 'text'
@@ -175,7 +173,16 @@ export default class ComponentPropsPanel extends React.Component {
         this.setState({
           nodePropsSection
         }, () => {
-          this.styleApi.setValue('props', elementWrapper.instancePropConfig, {
+          this.componentPropFormApi.setValue('props', elementWrapper.getPropsValue(), {
+            notNotify: true
+          })
+          this.componentPropFormApi.setValue('style', el.elementWrapper.getStyle(), {
+            notNotify: true
+          })
+          this.componentPropFormApi.setValue('ex.props', elementWrapper.getPropsBinding(), {
+            notNotify: true
+          })
+          this.componentPropFormApi.setValue('ex.style', elementWrapper.getStyleBinding(), {
             notNotify: true
           })
         })
@@ -200,15 +207,14 @@ export default class ComponentPropsPanel extends React.Component {
       pageConfigSection
     } = this.state
     const {
-      inputStyleChange,
       pagePropChange,
       pageVariableChange
     } = this.props
 
     // 回写styleApi句柄以便直接操作基础form
-    const basicStyleAPI = (formApi) => {
+    const basicPropsAPI = (formApi) => {
       window.componentPropFormApi = formApi
-      this.styleApi = formApi
+      this.componentPropFormApi = formApi
     }
     // 回写styleApi句柄以便直接操作基础form
     const cbPagePropFormApi = (formApi) => {
@@ -222,15 +228,7 @@ export default class ComponentPropsPanel extends React.Component {
 
     // 组件属性表单项修改
     const componentPropValueChange = (values, field) => {
-      console.log('prop change', field, values)
-
-      const changedKeys = Object.keys(field)
-      const changedKey = changedKeys[0]
-      if (changedKey) {
-        if (this.currentElement && changedKey.startsWith('props.')) {
-          this.currentElement.elementWrapper.updateProperties(values.props)
-        }
-      }
+      this.currentElement.elementWrapper.propConfigUpdate(values, field)
     }
 
     const pagePropValueChange = (values, field) => {
@@ -250,7 +248,7 @@ export default class ComponentPropsPanel extends React.Component {
           }}
         >
           <TabPane tab='属性' itemKey='style'>
-            <ObjectForm sections={nodePropsSection} getFormApi={basicStyleAPI} onValueChange={componentPropValueChange} />
+            <ObjectForm sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} />
           </TabPane>
           <TabPane tab='交互' itemKey='interact' />
         </Tabs>
