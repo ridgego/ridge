@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Space, Dropdown, Divider, SplitButtonGroup } from '@douyinfe/semi-ui'
+import { Button, Space, Dropdown, SplitButtonGroup } from '@douyinfe/semi-ui'
 import { IconPlusStroked, IconMinusStroked, IconCandlestickChartStroked, IconCustomize, IconGlobeStroke, IconBrackets, IconBox, IconList } from '@douyinfe/semi-icons'
 
 export default class Toolbar extends React.Component {
@@ -7,14 +7,15 @@ export default class Toolbar extends React.Component {
     super(props)
     this.ref = React.createRef()
     this.state = {
-      selectedTargets: [],
-      viewX: 0,
-      viewY: 0
+      addComponentPanelShow: true,
+      componentPropPanelShow: true,
+      dataPanelShow: true
     }
   }
 
   render () {
-    const { zoom, zoomChange, itemClick } = this.props
+    const { addComponentPanelShow, componentPropPanelShow, dataPanelShow } = this.state
+    const { zoom, zoomChange, togglePanel } = this.props
     const zoomMenu = (
       <Dropdown.Menu>
         <Dropdown.Item
@@ -50,6 +51,32 @@ export default class Toolbar extends React.Component {
         ))}
       </Dropdown.Menu>
     )
+
+    const toggleAddComponentPanel = () => {
+      if (document.getElementById('componentAddPanel')) {
+        document.getElementById('componentAddPanel').setShow(!addComponentPanelShow)
+        this.setState({
+          addComponentPanelShow: !addComponentPanelShow
+        })
+      }
+    }
+    const toggleComponentPropPanel = () => {
+      if (document.getElementById('componentPropPanel')) {
+        document.getElementById('componentPropPanel').setShow(!componentPropPanelShow)
+        this.setState({
+          componentPropPanelShow: !componentPropPanelShow
+        })
+      }
+    }
+
+    const toggleDataPanel = () => {
+      if (document.getElementById('dataPanel')) {
+        document.getElementById('dataPanel').setShow(!dataPanelShow)
+        this.setState({
+          dataPanelShow: !dataPanelShow
+        })
+      }
+    }
     return (
       <div className='ridge-toolbar'>
         <div className='left'>
@@ -63,9 +90,9 @@ export default class Toolbar extends React.Component {
             />
             <Button
               title='添加组件'
-              type='tertiary'
-              theme='borderless'
-              onClick={() => itemClick('insert-panel')}
+              type={addComponentPanelShow ? 'primary' : 'tertiary'}
+              theme={addComponentPanelShow ? 'light' : 'borderless'}
+              onClick={() => toggleAddComponentPanel()}
               icon={<IconCustomize />}
             />
             <Button
@@ -78,52 +105,50 @@ export default class Toolbar extends React.Component {
           </Space>
 
         </div>
-        <Space spacing={2}>
-          <Button
-            title='减小画布'
-            theme='borderless'
-            type='tertiary'
-            onClick={() => zoomChange(zoom - 0.05)}
-            icon={<IconMinusStroked />}
-          />
-
-          <Dropdown
-            render={zoomMenu}
-            placement='bottomLeft'
-          >
-            <Button
-              type='tertiary'
-              theme='borderless'
-              style={{
-                padding: 0,
-                width: '50px'
-              }}
-            >
-              {Math.round(zoom * 100) + '%'}
-            </Button>
-          </Dropdown>
-
-          <Button
-            title='增大画布'
-            theme='borderless'
-            type='tertiary'
-            icon={<IconPlusStroked />}
-            onClick={() => zoomChange(zoom + 0.05)}
-          />
-        </Space>
         <Button
-          title='页面变量'
+          title='减小画布'
           theme='borderless'
           type='tertiary'
+          onClick={() => zoomChange(zoom - 0.05)}
+          icon={<IconMinusStroked />}
+        />
+
+        <Dropdown
+          render={zoomMenu}
+          placement='bottomLeft'
+        >
+          <Button
+            type='tertiary'
+            theme='borderless'
+            style={{
+              padding: 0,
+              width: '50px'
+            }}
+          >
+            {Math.round(zoom * 100) + '%'}
+          </Button>
+        </Dropdown>
+
+        <Button
+          title='增大画布'
+          theme='borderless'
+          type='tertiary'
+          icon={<IconPlusStroked />}
+          onClick={() => zoomChange(zoom + 0.05)}
+        />
+        <Button
+          title='数据面板'
+          type={dataPanelShow ? 'primary' : 'tertiary'}
+          theme={dataPanelShow ? 'light' : 'borderless'}
           icon={<IconBrackets />}
-          onClick={() => itemClick('file-manager')}
+          onClick={() => toggleDataPanel()}
         />
         <Button
           title='属性面板'
-          theme='borderless'
-          type='tertiary'
+          type={componentPropPanelShow ? 'primary' : 'tertiary'}
+          theme={componentPropPanelShow ? 'light' : 'borderless'}
           icon={<IconCandlestickChartStroked />}
-          onClick={() => itemClick('props-panel')}
+          onClick={() => toggleComponentPropPanel()}
         />
         <SplitButtonGroup aria-label='项目操作按钮组'>
           <Dropdown

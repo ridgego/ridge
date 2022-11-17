@@ -1,6 +1,8 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from './ObjectForm.jsx'
+import './config-panel.less'
 
 const basicStyleSections = [{
   rows: [
@@ -115,6 +117,7 @@ export default class ComponentPanel extends React.Component {
     this.currentNode = null
     this.currentStyle = {}
     this.state = {
+      show: true,
       nodePropsSection: [],
       pageConfigSection
     }
@@ -210,8 +213,19 @@ export default class ComponentPanel extends React.Component {
     this.styleChange(el)
   }
 
+  componentDidMount () {
+    document.getElementById('componentPropPanel').setShow = this.setShow.bind(this)
+  }
+
+  setShow (show) {
+    this.setState({
+      show
+    })
+  }
+
   render () {
     const {
+      show,
       nodePropsSection,
       pageConfigSection
     } = this.state
@@ -249,44 +263,45 @@ export default class ComponentPanel extends React.Component {
     }
 
     return (
-      <div className='component-props-panel'>
-        <Tabs
-          type='card'
-          style={{
-            display: nodePropsSection.length === 0 ? 'none' : 'initial'
-          }}
-        >
-          <TabPane tab='属性' itemKey='style'>
-            <ObjectForm sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} />
-          </TabPane>
-          <TabPane tab='交互' itemKey='interact' />
-        </Tabs>
-        <Tabs
-          type='card'
-          style={{
-            display: nodePropsSection.length === 0 ? 'initial' : 'none'
-          }}
-        >
-          <TabPane tab='页面属性' itemKey='page-prop'>
-            <ObjectForm
-              style={{
-              }} sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
-            />
-          </TabPane>
-          <TabPane
-            tab='页面变量' itemKey='variables' style={{
-              height: '100%',
-              overflow: 'auto'
+      ReactDOM.createPortal(
+        <div ref={this.ref} className={'component-props-panel ' + (show ? 'is-show' : '')} id='componentPropPanel'>
+          <Tabs
+            type='card'
+            style={{
+              display: nodePropsSection.length === 0 ? 'none' : 'initial'
             }}
           >
-            <ObjectForm
-              style={{
-              }} sections={pageVariableSection} getFormApi={cbPageVariableFormApi} onValueChange={pageVariableValueChange}
-            />
-          </TabPane>
-        </Tabs>
+            <TabPane tab='属性' itemKey='style'>
+              <ObjectForm sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} />
+            </TabPane>
+            <TabPane tab='交互' itemKey='interact' />
+          </Tabs>
+          <Tabs
+            type='card'
+            style={{
+              display: nodePropsSection.length === 0 ? 'initial' : 'none'
+            }}
+          >
+            <TabPane tab='页面属性' itemKey='page-prop'>
+              <ObjectForm
+                style={{
+                }} sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
+              />
+            </TabPane>
+            <TabPane
+              tab='页面变量' itemKey='variables' style={{
+                height: '100%',
+                overflow: 'auto'
+              }}
+            >
+              <ObjectForm
+                style={{
+                }} sections={pageVariableSection} getFormApi={cbPageVariableFormApi} onValueChange={pageVariableValueChange}
+              />
+            </TabPane>
+          </Tabs>
 
-      </div>
+        </div>, document.body)
     )
   }
 }

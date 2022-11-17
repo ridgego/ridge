@@ -1,0 +1,51 @@
+.component-props-panel {
+    background: var(--semi-color-bg-0);
+    border: 1px solid var(--semi-color-border);
+    padding: 4px;
+    border-radius: 5px;
+    right: 10px;
+    top: 50px;
+    bottom: 10px;
+    z-index: 101;
+    max-height: calc(100% - 20px);
+    position: absolute;
+    transform: translateX(400px);
+    &.is-show {
+      transform: translateX(0);
+    }
+  }
+
+.object-form {
+    .semi-space.with-code-expr {
+        .semi-button-tertiary {
+        visibility: hidden;
+        }
+        .semi-button-tertiary.is-open {
+        visibility: initial;
+        } 
+        &:hover {
+        .semi-button-tertiary {
+            visibility: initial;
+        } 
+        }
+    }
+    .semi-form-field-main>.semi-checkbox {
+        padding: 6px 0;
+    }
+}
+
+
+
+@media (min-width: 1400px) {
+    .component-props-panel {
+        width: 360px;
+    }
+  }
+  
+  
+  @media (max-width: 1400px) {
+    .component-props-panel {
+        width: 360px;
+    }
+  }
+    

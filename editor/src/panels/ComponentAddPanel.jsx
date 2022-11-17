@@ -1,13 +1,17 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import { Tabs, TabPane, Spin, Button, List } from '@douyinfe/semi-ui'
 import PackageManager from '../service/PackageManager'
+import './component-add.less'
 
 class AddMenu extends React.Component {
   constructor () {
     super()
+    this.el = document.createElement('div')
     this.ref = React.createRef()
     this.packageManager = new PackageManager()
     this.state = {
+      show: true,
       packages: [],
       currentPackage: 'ridge-basic',
       packageListingLoaded: false
@@ -56,6 +60,17 @@ class AddMenu extends React.Component {
         })
       })
     }
+    document.getElementById('componentAddPanel').setShow = this.setShow.bind(this)
+  }
+
+  setShow (show) {
+    this.setState({
+      show
+    })
+  }
+
+  getShow () {
+    return this.show
   }
 
   dragStart (ev, info) {
@@ -67,72 +82,75 @@ class AddMenu extends React.Component {
   }
 
   render () {
-    const { packageListingLoaded, packages } = this.state
+    const { packageListingLoaded, packages, show } = this.state
     const { dragStart } = this
 
     const tabChange = this.tabChange.bind(this)
     return (
-      <div className='component-add-panel'>
-        {!packageListingLoaded && <Spin size='large' />}
-        <Tabs
-          tabPosition='left'
-          type='button'
-          tabBarExtraContent={
-            <Button
-              onClick={() => {
-                alert('you have clicked me!')
-              }}
-            >
-              更多
-            </Button>
-            }
-          onChange={key => tabChange(key)}
-        >
-          {packages && packages.map(pkg => {
-            return (
-              <TabPane
-                style={{
-                  padding: '4px'
+      ReactDOM.createPortal(
+        <div className={'component-add-panel ' + (show ? 'is-show' : '')} id='componentAddPanel'>
+          {!packageListingLoaded && <Spin size='large' />}
+          <Tabs
+            tabPosition='left'
+            type='button'
+            tabBarExtraContent={
+              <Button
+                onClick={() => {
+                  alert('you have clicked me!')
                 }}
-                closable
-                className='tab-title'
-                tab={
-                  <div className='package-tab'>
-                    <img className='package-icon' src={pkg.icon} />
-                    <span>{pkg.description}</span>
-                  </div>
-                }
-                key={pkg.name}
-                itemKey={pkg.name}
-
               >
-                <List
-                  grid={{
-                    gutter: 12,
-                    span: 12
+                更多
+              </Button>
+            }
+            onChange={key => tabChange(key)}
+          >
+            {packages && packages.map(pkg => {
+              return (
+                <TabPane
+                  style={{
+                    padding: '4px'
                   }}
-                  dataSource={pkg.components}
-                  renderItem={item => (
-                    <List.Item>
-                      <div
-                        draggable
-                        onDragStart={ev => dragStart(ev, Object.assign(item, {
-                          componentPath: pkg.name + '/' + item.path
-                        }))}
-                        className='component-container'
-                      >
-                        <img src={item.icon} />
-                      </div>
-                      <div>{item.title}</div>
-                    </List.Item>
-                  )}
-                />
-              </TabPane>
-            )
-          })}
+                  closable
+                  className='tab-title'
+                  tab={
+                    <div className='package-tab'>
+                      <img className='package-icon' src={pkg.icon} />
+                      <span>{pkg.description}</span>
+                    </div>
+                }
+                  key={pkg.name}
+                  itemKey={pkg.name}
+                >
+                  <List
+                    grid={{
+                      gutter: 12,
+                      span: 12
+                    }}
+                    dataSource={pkg.components}
+                    renderItem={item => (
+                      <List.Item>
+                        <div
+                          draggable
+                          onDragStart={ev => dragStart(ev, Object.assign(item, {
+                            componentPath: pkg.name + '/' + item.path
+                          }))}
+                          className='component-container'
+                        >
+                          <img src={item.icon} />
+                        </div>
+                        <div>{item.title}</div>
+                      </List.Item>
+                    )}
+                  />
+                </TabPane>
+              )
+            })}
 
-        </Tabs>
-      </div>
+          </Tabs>
+        </div>,
+        document.body
+      )
+
     )
   }
 }

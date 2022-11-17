@@ -73,7 +73,8 @@ export default class Editor extends React.Component {
 
     return (
       <div className='ridge-editor'>
-        <Toolbar zoom={zoom} zoomChange={zoomChange.bind(this)} itemClick={onToolbarItemClick.bind(this)} />
+        <Toolbar zoom={zoom} zoomChange={zoomChange.bind(this)} itemClick={onToolbarItemClick.bind(this)} {...state} />
+
         <div
           ref={contentRef} className='content'
         >
@@ -145,6 +146,12 @@ export default class Editor extends React.Component {
     this.selectMove.onElementDragEnd(newElement.el, ev.pageX, ev.pageY)
 
     newElement.initialize()
+  }
+
+  togglePanel (panel) {
+    this.setState({
+      [panel]: !this.state[panel]
+    })
   }
 
   onToolbarItemClick (cmd, opts) {

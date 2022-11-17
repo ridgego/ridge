@@ -1,0 +1,48 @@
+.component-add-panel {
+    background: var(--semi-color-bg-0);
+    border: 1px solid var(--semi-color-border);
+    padding: 4px;
+    border-radius: 5px;
+    left: 10px;
+    bottom: 10px;
+    top: 50px;
+    z-index: 101;
+    position: absolute;
+    transform: translateX(-400px);
+    &.is-show {
+      transform: translateX(0);
+    }
+
+    .semi-tabs-bar-button {
+      width: 64px;
+    }
+    .component-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      border-radius: 4px;
+      height: 90px;
+      background-color: var(--semi-color-tertiary-light-default);
+      img {
+        width: 90%;
+        height: 90%;
+      }
+    }
+  }
+
+  
+@media (min-width: 1400px) {
+    .component-add-panel {
+        width: 300px;
+    }
+}
+  
+  
+@media (max-width: 1400px) {
+    .component-add-panel {
+        width: 240px;
+    }
+
+}
+  
