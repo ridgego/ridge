@@ -15,20 +15,13 @@ import './editor.less'
 export default class Editor extends React.Component {
   constructor (props) {
     super(props)
-    this.contentRef = React.createRef()
-    this.movableManager = React.createRef()
-    this.workspaceWrapper = React.createRef()
+    this.workspaceRef = React.createRef()
     this.viewPortRef = React.createRef()
     this.rightPanelRef = React.createRef()
     this.dataPanelRef = React.createRef()
+    this.addComponentRef = React.createRef()
 
-    this.state = {
-      pageProps: {},
-      viewX: 0,
-      viewY: 0,
-      modalFileShow: false,
-      zoom: 1
-    }
+    this.state = {}
   }
 
   loadPage (pageConfig) {
@@ -39,50 +32,32 @@ export default class Editor extends React.Component {
     this.pageElementManager = Ridge.initialize(this.viewPortRef.current, 'editor-page')
 
     this.dataPanelRef.current.loadVariables(this.pageElementManager.getVariableConfig())
-    this.setState({
-      pageProps: this.pageElementManager.getPageProperties()
-    }, () => {
-      this.fitToCenter()
+
+
+    const pageProperties = this.pageElementManager.getPageProperties()
+    this.editorViewPort.layout({
+      width: pageProperties.width,
+      height: pageProperties.height
     })
   }
 
   componentDidMount () {
-    this.initKeyEvents()
-    this.initSpaceDragEvents()
+    this.initWorkspace()
   }
 
 
-  initSpaceDragEvents () {
+  initWorkspace () {
     this.selectMove = new SelectableMoveable({
       dropableSelectors: '.ridge-element[droppable]',
       root: this.viewPortRef.current
     })
-    this.selectMove.init()
 
+    this.editorViewPort =  new EdtiorViewPort({
+      workSpaceEl: this.workspaceRef.current
+      viewPortEl: this.viewPortRef.current
+      zoomable: true
+    })
     this.selectMove.onNodeSelected(this.onNodeSelected.bind(this))
-    this.selectMove.onNodeMove(this.onNodeMove.bind(this))
-    this.selectMove.onNodeResize(this.onNodeMove.bind(this))
-    const { workspaceWrapper } = this
-    let isViewPortMoving = false
-
-    workspaceWrapper.current?.addEventListener('mousedown', (e) => {
-      if (e.ctrlKey) {
-        isViewPortMoving = true
-      }
-    })
-
-    workspaceWrapper.current?.addEventListener('mousemove', event => {
-      if (isViewPortMoving && event.ctrlKey && this.state.selectedTargets.length === 0) {
-        this.setState({
-          viewX: this.state.viewX + event.movementX,
-          viewY: this.state.viewY + event.movementY
-        })
-      }
-    })
-
-    workspaceWrapper.current?.addEventListener('mouseup', (e) => {
-      isViewPortMoving = false
-    })
   }
 
 
@@ -92,7 +67,7 @@ export default class Editor extends React.Component {
       state,
       contentRef,
       rightPanelRef,
-      workspaceWrapper,
+      workspaceRef,
       onToolbarItemClick,
       workspaceDragOver,
       workspaceDrop,
@@ -116,7 +91,7 @@ export default class Editor extends React.Component {
         <div
           ref={contentRef} className='content'
         >
-          <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
+          <div className='workspace' ref={workspaceRef} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
             <div
               ref={viewPortRef}
               className='viewport-container'
