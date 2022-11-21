@@ -9,9 +9,7 @@
   },
   "workspaces": [
     "editor",
-    "packages/*",
-    "server/*",
-    "components/*"
+    "packages/*"
   ],
   "author": "",
   "license": "ISC",

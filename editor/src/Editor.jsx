@@ -1,12 +1,12 @@
 import React from 'react'
-import { Modal } from '@douyinfe/semi-ui'
 
 import Toolbar from './Toolbar.jsx'
 import ConfigPanel from './panels/ConfigPanel.jsx'
 import DataPanel from './panels/DataPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 import FileManager from './panels/FileManager.jsx'
-import SelectableMoveable from './select-drag/SelectableMoveable.js'
+import SelectableMoveable from './workspace/SelectableMoveable.js'
+import EdtiorViewPort from './workspace/EdtiorViewPort.js'
 import { fitRectIntoBounds } from './utils/rectUtils'
 import MouseStrap from 'mousetrap'
 
@@ -51,6 +51,41 @@ export default class Editor extends React.Component {
     this.initSpaceDragEvents()
   }
 
+
+  initSpaceDragEvents () {
+    this.selectMove = new SelectableMoveable({
+      dropableSelectors: '.ridge-element[droppable]',
+      root: this.viewPortRef.current
+    })
+    this.selectMove.init()
+
+    this.selectMove.onNodeSelected(this.onNodeSelected.bind(this))
+    this.selectMove.onNodeMove(this.onNodeMove.bind(this))
+    this.selectMove.onNodeResize(this.onNodeMove.bind(this))
+    const { workspaceWrapper } = this
+    let isViewPortMoving = false
+
+    workspaceWrapper.current?.addEventListener('mousedown', (e) => {
+      if (e.ctrlKey) {
+        isViewPortMoving = true
+      }
+    })
+
+    workspaceWrapper.current?.addEventListener('mousemove', event => {
+      if (isViewPortMoving && event.ctrlKey && this.state.selectedTargets.length === 0) {
+        this.setState({
+          viewX: this.state.viewX + event.movementX,
+          viewY: this.state.viewY + event.movementY
+        })
+      }
+    })
+
+    workspaceWrapper.current?.addEventListener('mouseup', (e) => {
+      isViewPortMoving = false
+    })
+  }
+
+
   render () {
     const {
       viewPortRef,
@@ -74,12 +109,13 @@ export default class Editor extends React.Component {
     return (
       <div className='ridge-editor'>
         <Toolbar zoom={zoom} zoomChange={zoomChange.bind(this)} itemClick={onToolbarItemClick.bind(this)} {...state} />
+        <ComponentAddPanel />
+        <DataPanel ref={this.dataPanelRef} />
+        <ConfigPanel ref={rightPanelRef} />
 
         <div
           ref={contentRef} className='content'
         >
-          <ComponentAddPanel />
-          <ConfigPanel ref={rightPanelRef} />
           <div className='workspace' ref={workspaceWrapper} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
             <div
               ref={viewPortRef}
@@ -92,24 +128,7 @@ export default class Editor extends React.Component {
               }}
             />
           </div>
-          <DataPanel ref={this.dataPanelRef} />
         </div>
-        <Modal
-          title='配置应用资源'
-          visible={modalFileShow}
-          className='dialog-resource'
-          size='large'
-          height={640}
-          footer={null}
-          onCancel={() => {
-            this.setState({
-              modalFileShow: false
-            })
-          }}
-          closeOnEsc
-        >
-          <FileManager />
-        </Modal>
       </div>
     )
   }
@@ -211,61 +230,10 @@ export default class Editor extends React.Component {
     }
   }
 
-  initSpaceDragEvents () {
-    this.selectMove = new SelectableMoveable({
-      dropableSelectors: '.ridge-element[droppable]',
-      root: this.viewPortRef.current
-    })
-    this.selectMove.init()
-
-    this.selectMove.onNodeSelected(this.onNodeSelected.bind(this))
-    this.selectMove.onNodeMove(this.onNodeMove.bind(this))
-    this.selectMove.onNodeResize(this.onNodeMove.bind(this))
-    const { workspaceWrapper } = this
-    let isViewPortMoving = false
-
-    workspaceWrapper.current?.addEventListener('mousedown', (e) => {
-      if (e.ctrlKey) {
-        isViewPortMoving = true
-      }
-    })
-
-    workspaceWrapper.current?.addEventListener('mousemove', event => {
-      if (isViewPortMoving && event.ctrlKey && this.state.selectedTargets.length === 0) {
-        this.setState({
-          viewX: this.state.viewX + event.movementX,
-          viewY: this.state.viewY + event.movementY
-        })
-      }
-    })
-
-    workspaceWrapper.current?.addEventListener('mouseup', (e) => {
-      isViewPortMoving = false
-    })
-  }
 
   initKeyEvents () {
     MouseStrap.bind('del', this.removeNode.bind(this))
   }
 
-  fitToCenter () {
-    const refRect = this.contentRef.current.getBoundingClientRect()
-    const contentWidth = refRect.width
-    const contentHeight = refRect.height
-    const { width, height } = this.state.pageProps
-
-    const fit = fitRectIntoBounds({ width, height }, { width: contentWidth, height: contentHeight })
-
-    this.setState({
-      zoom: fit.width / width,
-      viewX: (contentWidth - width) / 2,
-      viewY: (contentHeight - height) / 2
-    })
-    // if (contentWidth > width && contentHeight > height) {
-    // this.setState({
-    //   viewX: (contentWidth - width) / 2,
-    //   viewY: (contentHeight - height) / 2
-    // })
-    // }
-  }
+ 
 }

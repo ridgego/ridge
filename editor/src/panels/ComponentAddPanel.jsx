@@ -4,7 +4,7 @@ import { Tabs, TabPane, Spin, Button, List } from '@douyinfe/semi-ui'
 import PackageManager from '../service/PackageManager'
 import './component-add.less'
 
-class AddMenu extends React.Component {
+class ComponentAddPanel extends React.Component {
   constructor () {
     super()
     this.el = document.createElement('div')
@@ -26,17 +26,7 @@ class AddMenu extends React.Component {
     const currentPackageObject = this.state.packages.filter(p => p.name === this.state.currentPackage)[0]
     currentPackageObject.components.forEach(({
       path
-    }) => {
-      // const targetEl = document.querySelector('[data-component-path="' + this.state.currentPackage + '/' + path + '"]')
-      // if (targetEl.getAttribute('ridge-mounted')) {
-      //   return
-      // }
-      // fcViewManager.createElementView({
-      //   packageName: this.state.currentPackage,
-      //   path
-      // }, targetEl).then(() => {
-      //   targetEl.setAttribute('ridge-mouted', '1')
-      // })
+    }) => {      
     })
   }
 
@@ -155,4 +145,4 @@ class AddMenu extends React.Component {
   }
 }
 
-export default AddMenu
+export default ComponentAddPanel
