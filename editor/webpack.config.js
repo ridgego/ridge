@@ -5,7 +5,11 @@ module.exports = {
   entry: './src/index.jsx',
   mode: 'development',
   devServer: {
-    static: '../public'
+    static: {
+      directory: path.join(__dirname, '../public')
+    },
+    compress: true,
+    port: 9000
   },
   devtool: 'eval-source-map',
   plugins: [

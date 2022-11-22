@@ -213,7 +213,9 @@ export default class Editor extends React.Component {
 
   initSpaceDragEvents () {
     this.selectMove = new SelectableMoveable({
-      dropableSelectors: '.ridge-element[droppable]',
+      selectorSelectable: ['.viewport-container .ridge-element'],
+      selectorDropContainer: '.workspace',
+      selectorDropableTarget: '.ridge-element[droppable]',
       root: this.viewPortRef.current
     })
     this.selectMove.init()

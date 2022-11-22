@@ -3,11 +3,15 @@ import Moveable from 'moveable'
 
 class SelectableMoveable {
   constructor ({
-    dropableSelectors,
+    selectorDropableTarget,
+    selectorDropContainer,
+    selectorSelectable,
     root
   }) {
     this.rootEl = root
-    this.dropableSelectors = dropableSelectors
+    this.selectorDropContainer = selectorDropContainer
+    this.selectorDropableTarget = selectorDropableTarget
+    this.selectorSelectable = selectorSelectable
   }
 
   init () {
@@ -295,9 +299,9 @@ class SelectableMoveable {
       // Selecto's root container (No transformed container. (default: null)
       rootContainer: null,
       // The area to drag selection element (default: container)
-      dragContainer: '.workspace',
+      dragContainer: this.selectorDropContainer,
       // Targets to select. You can register a queryselector or an Element.
-      selectableTargets: ['.viewport-container .ridge-element'],
+      selectableTargets: this.selectorSelectable,
       // Whether to select by click (default: true)
       selectByClick: true,
       // Whether to select from the target inside (default: true)
@@ -373,7 +377,7 @@ class SelectableMoveable {
    * @returns {Element} 可放置的容器DOM Element
    */
   getDroppableTarget (dragEl, pointPos) {
-    const droppableElements = document.querySelectorAll(this.dropableSelectors)
+    const droppableElements = document.querySelectorAll(this.selectorDropableTarget)
 
     const filtered = Array.from(droppableElements).filter(el => {
       const { x, y, width, height } = el.getBoundingClientRect()
