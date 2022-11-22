@@ -1,1 +1,0 @@
-declare module 'ridge-view-manager';
