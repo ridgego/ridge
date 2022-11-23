@@ -13,12 +13,20 @@ export default class WorkSpaceControl {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
     this.zoomable = zoomable
+
+    this.selectorDropableTarget = '.viewport-container.active [droppable="1"]'
     this.init()
   }
 
   init () {
     this.initSelecto()
     this.initMoveable()
+
+    this.initComponentDrop()
+  }
+
+  setPageManager (manager) {
+    this.pageManager = manager
   }
 
   setViewPort (width, height) {
@@ -93,8 +101,8 @@ export default class WorkSpaceControl {
   }
 
   putElementToRoot (el, x, y) {
-    this.rootEl.appendChild(el)
-    const rbcr = this.rootEl.getBoundingClientRect()
+    this.viewPortEl.appendChild(el)
+    const rbcr = this.viewPortEl.getBoundingClientRect()
     const bcr = el.getBoundingClientRect()
     const transform = `translate(${x - rbcr.x - bcr.width / 2}px, ${y - rbcr.y - bcr.height / 2}px)`
     el.style.position = 'absolute'
@@ -298,6 +306,42 @@ export default class WorkSpaceControl {
       this.selected = selected
       // this.setSelectedTargets(selected)
     })
+  }
+
+  initComponentDrop () {
+    this.workspaceEl.addEventListener('dragover', ev => {
+      ev.preventDefault()
+      ev.dataTransfer.dropEffect = 'move'
+    })
+
+    this.workspaceEl.addEventListener('drop', ev => {
+      this.workspaceDrop(ev)
+    })
+  }
+
+  /**
+   * 放置组件事件
+   * @param {*} ev
+   */
+  workspaceDrop (ev) {
+    ev.preventDefault()
+    // const { viewPortRef } = this
+    // const { zoom } = this.state
+    // const workspaceRect = viewPortRef.current.getBoundingClientRect()
+    // Get the id of the target and add the moved element to the target's DOM
+    const data = ev.dataTransfer.getData('text/plain')
+    const fraction = JSON.parse(data)
+
+    const newElement = this.pageManager.createElement(fraction)
+
+    // const width = fraction.width ?? 100
+    // const height = fraction.height ?? 100
+    // const posX = parseInt((ev.pageX - workspaceRect.left - width / 2) / zoom)
+    // const posY = parseInt((ev.pageY - workspaceRect.top - height / 2) / zoom)
+
+    this.onElementDragEnd(newElement.el, ev.pageX, ev.pageY)
+
+    newElement.initialize()
   }
 
   onNodeSelected (ons) {

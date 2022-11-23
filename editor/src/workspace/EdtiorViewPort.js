@@ -3,7 +3,7 @@
 * 支持整个工作区拖拽、放入及整体Zoom
 */
 class EdtiorViewPort {
-  constructor({
+  constructor ({
     workSpaceEl,
     selectorViewPort,
     zoomable,
@@ -20,7 +20,6 @@ class EdtiorViewPort {
   }) {
 
   }
-
 
   init () {
     const { workspaceWrapper } = this

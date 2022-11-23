@@ -9,6 +9,7 @@
   },
   "workspaces": [
     "editor",
+    "server/*",
     "packages/*"
   ],
   "author": "",

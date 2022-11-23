@@ -36,6 +36,7 @@ export default class Editor extends React.Component {
 
     const pageProperties = this.pageElementManager.getPageProperties()
     this.workspaceControl.setViewPort(pageProperties.width, pageProperties.height)
+    this.workspaceControl.setPageManager(this.pageElementManager)
   }
 
   componentDidMount () {
@@ -55,9 +56,7 @@ export default class Editor extends React.Component {
       rightPanelRef,
       dataPanelRef,
       workspaceRef,
-      state,
-      workspaceDragOver,
-      workspaceDrop
+      state
     } = this
 
     const {
@@ -98,48 +97,18 @@ export default class Editor extends React.Component {
           }}
         />
 
-        <div className='workspace' ref={workspaceRef} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
+        <div className='workspace' ref={workspaceRef}>
           <div
             ref={viewPortRef}
-            className='viewport-container'
+            className='viewport-container active'
           />
         </div>
       </>
     )
   }
 
-  workspaceDragOver (ev) {
-    ev.preventDefault()
-    ev.dataTransfer.dropEffect = 'move'
-  }
-
   removeNode () {
     this.pageElementManager.removeElements(this.selectMove.selected)
-  }
-
-  /**
-   * 放置组件事件
-   * @param {*} ev
-   */
-  workspaceDrop (ev) {
-    ev.preventDefault()
-    // const { viewPortRef } = this
-    // const { zoom } = this.state
-    // const workspaceRect = viewPortRef.current.getBoundingClientRect()
-    // Get the id of the target and add the moved element to the target's DOM
-    const data = ev.dataTransfer.getData('text/plain')
-    const fraction = JSON.parse(data)
-
-    const newElement = this.pageElementManager.createElement(fraction)
-
-    // const width = fraction.width ?? 100
-    // const height = fraction.height ?? 100
-    // const posX = parseInt((ev.pageX - workspaceRect.left - width / 2) / zoom)
-    // const posY = parseInt((ev.pageY - workspaceRect.top - height / 2) / zoom)
-
-    this.selectMove.onElementDragEnd(newElement.el, ev.pageX, ev.pageY)
-
-    newElement.initialize()
   }
 
   togglePanel (panel) {
