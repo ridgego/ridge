@@ -1,5 +1,4 @@
 import React from 'react'
-
 import ConfigPanel from './panels/ConfigPanel.jsx'
 import DataPanel from './panels/DataPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
@@ -18,7 +17,13 @@ export default class Editor extends React.Component {
     this.dataPanelRef = React.createRef()
     this.addComponentRef = React.createRef()
 
-    this.state = {}
+    this.state = {
+      componentPanelVisible: true,
+      propPanelVisible: true,
+      outlinePanelVisible: true,
+      pagesPanelVisible: true,
+      dataPanelVisible: true
+    }
   }
 
   loadPage (pageConfig) {
@@ -50,15 +55,48 @@ export default class Editor extends React.Component {
       rightPanelRef,
       dataPanelRef,
       workspaceRef,
+      state,
       workspaceDragOver,
       workspaceDrop
     } = this
+
+    const {
+      componentPanelVisible,
+      dataPanelVisible,
+      propPanelVisible,
+      outlinePanelVisible,
+      pagesPanelVisible
+    } = state
     return (
       <>
-        <MenuBar />
-        <ComponentAddPanel />
-        <DataPanel ref={dataPanelRef} />
-        <ConfigPanel ref={rightPanelRef} />
+        <MenuBar
+          {...state} toggleVisible={name => {
+            this.setState({
+              [name]: !this.state[name]
+            })
+          }}
+        />
+        <ComponentAddPanel
+          visible={componentPanelVisible} onClose={() => {
+            this.setState({
+              componentPanelVisible: false
+            })
+          }}
+        />
+        <DataPanel
+          title='数据' ref={dataPanelRef} visible={dataPanelVisible} onClose={() => {
+            this.setState({
+              dataPanelVisible: false
+            })
+          }}
+        />
+        <ConfigPanel
+          ref={rightPanelRef} visible={propPanelVisible} onClose={() => {
+            this.setState({
+              propPanelVisible: false
+            })
+          }}
+        />
 
         <div className='workspace' ref={workspaceRef} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
           <div

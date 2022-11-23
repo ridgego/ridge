@@ -246,7 +246,7 @@ export default class ComponentPanel extends React.Component {
     }
 
     return (
-      <MoveablePanel right='10px' bottom='430px' width='420px' top='10px'>
+      <MoveablePanel right='10px' bottom='430px' width='420px' top='10px' {...this.props}>
         <div ref={this.ref} className={'component-props-panel ' + (show ? 'is-show' : '')} id='componentPropPanel'>
           <Tabs
             type='card'

@@ -1,3 +1,20 @@
+.moveable-control {
+  width: 10px!important;
+  height: 10px!important;
+  border: 1px solid var(--semi-color-primary)!important;
+  box-sizing: border-box;
+  border-radius: 0;
+  background: #fff!important;
+  margin-top: -5px!important;
+  margin-left: -5px!important;
+  z-index: 10;
+}
+
+.moveable-line {
+  background: var(--semi-color-primary)!important;
+}
+
+
 .workspace-movable .moveable-control {
   opacity: 0;
 }

@@ -31,18 +31,8 @@ export default class DataPanel extends React.Component {
     })
   }
 
-  componentDidMount () {
-    document.getElementById('dataPanel').setShow = this.setShow.bind(this)
-  }
-
-  setShow (show) {
-    this.setState({
-      show
-    })
-  }
-
   render () {
-    const { show } = this.state
+    const { panelClose, title, visible } = this.props
     const columns = [
       {
         title: '变量名',
@@ -159,22 +149,20 @@ export default class DataPanel extends React.Component {
       })
     }
     return (
-      <MoveablePanel right='10px' bottom='10px' width='420px' height='420px'>
-        <div className={'data-panel ' + (show ? 'is-show' : '')} id='dataPanel'>
-          <Tabs
-            type='card'
-          >
-            <TabPane tab='页面变量' itemKey='var'>
-              <Button
-                size='small' type='primary' style={{ marginBottom: 8 }} onClick={addVariable}
-              >增加变量
-              </Button>
-              <Table bordered scroll={{ y: 220 }} columns={columns} pagination={false} dataSource={this.state.variables} />
-            </TabPane>
-            <TabPane tab='数据' itemKey='data' />
-            <TabPane tab='资源' itemKey='asset' />
-          </Tabs>
-        </div>
+      <MoveablePanel right='10px' bottom='10px' width='420px' height='420px' {...this.props}>
+        <Tabs
+          type='card'
+        >
+          <TabPane tab='页面变量' itemKey='var'>
+            <Button
+              size='small' type='primary' style={{ marginBottom: 8 }} onClick={addVariable}
+            >增加变量
+            </Button>
+            <Table bordered scroll={{ y: 220 }} columns={columns} pagination={false} dataSource={this.state.variables} />
+          </TabPane>
+          <TabPane tab='数据' itemKey='data' />
+          <TabPane tab='资源' itemKey='asset' />
+        </Tabs>
       </MoveablePanel>
     )
   }

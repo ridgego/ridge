@@ -67,6 +67,7 @@ export default class MoveablePanel extends React.Component {
   }
 
   render () {
+    const { onClose, visible } = this.props
     const { state } = this.state
     const { Title } = Typography
     const style = {
@@ -84,6 +85,10 @@ export default class MoveablePanel extends React.Component {
     } else {
       style.height = this.props.height
     }
+
+    if (!visible) {
+      style.display = 'none'
+    }
     return (
       ReactDOM.createPortal(
         <div ref={this.ref} className='movable-panel' style={style} id={this.props.id}>
@@ -98,7 +103,7 @@ export default class MoveablePanel extends React.Component {
             }}
           >
             <IconHandle />
-            <Title heading={6} style={{ marginLeft: '4px' }}>{this.props.title || '面板'}</Title>
+            <Title heading={6} style={{ marginLeft: '4px', fontSize: '14px' }}>{this.props.title || '面板'}</Title>
           </div>
           <div
             className='panel-btns' style={{
@@ -124,7 +129,7 @@ export default class MoveablePanel extends React.Component {
                   })
                 }} theme='borderless' size='small' type='tertiary'
               />}
-            <Button icon={<IconClose />} theme='borderless' size='small' type='tertiary' />
+            <Button icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
           </div>
           {this.props.children}
         </div>, document.body)
