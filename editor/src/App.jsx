@@ -37,11 +37,9 @@ class App extends React.Component {
 
   render () {
     return (
-      <div className='app'>
-        <Editor
-          ref={this.editorRef}
-        />
-      </div>
+      <Editor
+        ref={this.editorRef}
+      />
     )
   }
 

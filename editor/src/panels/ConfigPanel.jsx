@@ -1,7 +1,8 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from './ObjectForm.jsx'
+
+import MoveablePanel from './MoveablePanel.jsx'
 import './config-panel.less'
 
 const basicStyleSections = [{
@@ -56,15 +57,6 @@ const basicStyleSections = [{
       }]
     }
   ]
-}]
-
-const pageVariableSection = [{
-  rows: [{
-    cols: [{
-      control: 'variable',
-      field: 'variables'
-    }]
-  }]
 }]
 
 const pageConfigSection = [{
@@ -230,8 +222,7 @@ export default class ComponentPanel extends React.Component {
       pageConfigSection
     } = this.state
     const {
-      pagePropChange,
-      pageVariableChange
+      pagePropChange
     } = this.props
 
     // 回写styleApi句柄以便直接操作基础form
@@ -245,10 +236,6 @@ export default class ComponentPanel extends React.Component {
       this.pagePropFormApi = formApi
     }
 
-    const cbPageVariableFormApi = formApi => {
-      this.pageVariableFormApi = formApi
-    }
-
     // 组件属性表单项修改
     const componentPropValueChange = (values, field) => {
       this.currentElement.elementWrapper.propConfigUpdate(values, field)
@@ -258,12 +245,8 @@ export default class ComponentPanel extends React.Component {
       pagePropChange && pagePropChange(values)
     }
 
-    const pageVariableValueChange = (values, field) => {
-      pageVariableChange && pageVariableChange(values)
-    }
-
     return (
-      ReactDOM.createPortal(
+      <MoveablePanel right='10px' bottom='430px' width='420px' top='10px'>
         <div ref={this.ref} className={'component-props-panel ' + (show ? 'is-show' : '')} id='componentPropPanel'>
           <Tabs
             type='card'
@@ -288,20 +271,9 @@ export default class ComponentPanel extends React.Component {
                 }} sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
               />
             </TabPane>
-            <TabPane
-              tab='页面变量' itemKey='variables' style={{
-                height: '100%',
-                overflow: 'auto'
-              }}
-            >
-              <ObjectForm
-                style={{
-                }} sections={pageVariableSection} getFormApi={cbPageVariableFormApi} onValueChange={pageVariableValueChange}
-              />
-            </TabPane>
           </Tabs>
-
-        </div>, document.body)
+        </div>
+      </MoveablePanel>
     )
   }
 }

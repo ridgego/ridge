@@ -1,8 +1,6 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import MoveablePanel from './MoveablePanel.jsx'
 import { Table, Input, Select, TextArea, Tabs, TabPane, Button, InputNumber, Checkbox } from '@douyinfe/semi-ui'
-
-import './data-panel.less'
 
 export default class DataPanel extends React.Component {
   constructor () {
@@ -161,7 +159,7 @@ export default class DataPanel extends React.Component {
       })
     }
     return (
-      ReactDOM.createPortal(
+      <MoveablePanel right='10px' bottom='10px' width='420px' height='420px'>
         <div className={'data-panel ' + (show ? 'is-show' : '')} id='dataPanel'>
           <Tabs
             type='card'
@@ -176,7 +174,8 @@ export default class DataPanel extends React.Component {
             <TabPane tab='数据' itemKey='data' />
             <TabPane tab='资源' itemKey='asset' />
           </Tabs>
-        </div>, document.body)
+        </div>
+      </MoveablePanel>
     )
   }
 }

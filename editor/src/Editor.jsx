@@ -1,16 +1,13 @@
 import React from 'react'
 
-import Toolbar from './Toolbar.jsx'
 import ConfigPanel from './panels/ConfigPanel.jsx'
 import DataPanel from './panels/DataPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
-import FileManager from './panels/FileManager.jsx'
-import SelectableMoveable from './workspace/SelectableMoveable.js'
-import EdtiorViewPort from './workspace/EdtiorViewPort.js'
-import { fitRectIntoBounds } from './utils/rectUtils'
-import MouseStrap from 'mousetrap'
+import MenuBar from './panels/MenuBar.jsx'
 
-import './editor.less'
+import WorkSpaceControl from './WorkspaceControl.js'
+
+import './css/editor.less'
 
 export default class Editor extends React.Component {
   constructor (props) {
@@ -30,81 +27,46 @@ export default class Editor extends React.Component {
     this.viewPortRef.current.innerHTML = pageConfig
 
     this.pageElementManager = Ridge.initialize(this.viewPortRef.current, 'editor-page')
-
     this.dataPanelRef.current.loadVariables(this.pageElementManager.getVariableConfig())
 
-
     const pageProperties = this.pageElementManager.getPageProperties()
-    this.editorViewPort.layout({
-      width: pageProperties.width,
-      height: pageProperties.height
-    })
+    this.workspaceControl.setViewPort(pageProperties.width, pageProperties.height)
   }
 
   componentDidMount () {
-    this.initWorkspace()
-  }
-
-
-  initWorkspace () {
-    this.selectMove = new SelectableMoveable({
-      dropableSelectors: '.ridge-element[droppable]',
-      root: this.viewPortRef.current
-    })
-
-    this.editorViewPort =  new EdtiorViewPort({
-      workSpaceEl: this.workspaceRef.current
-      viewPortEl: this.viewPortRef.current
+    this.workspaceControl = new WorkSpaceControl({
+      workspaceEl: this.workspaceRef.current,
+      viewPortEl: this.viewPortRef.current,
       zoomable: true
     })
-    this.selectMove.onNodeSelected(this.onNodeSelected.bind(this))
-  }
+    this.workspaceControl.onNodeSelected(this.onNodeSelected.bind(this))
 
+    this.workspaceControl.enablePanelDragResize('#dataPanel')
+  }
 
   render () {
     const {
       viewPortRef,
-      state,
-      contentRef,
       rightPanelRef,
+      dataPanelRef,
       workspaceRef,
-      onToolbarItemClick,
       workspaceDragOver,
-      workspaceDrop,
-      zoomChange
+      workspaceDrop
     } = this
-    const {
-      zoom,
-      viewX,
-      pageProps,
-      viewY,
-      modalFileShow
-    } = state
-
     return (
-      <div className='ridge-editor'>
-        <Toolbar zoom={zoom} zoomChange={zoomChange.bind(this)} itemClick={onToolbarItemClick.bind(this)} {...state} />
+      <>
+        <MenuBar />
         <ComponentAddPanel />
-        <DataPanel ref={this.dataPanelRef} />
+        <DataPanel ref={dataPanelRef} />
         <ConfigPanel ref={rightPanelRef} />
 
-        <div
-          ref={contentRef} className='content'
-        >
-          <div className='workspace' ref={workspaceRef} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
-            <div
-              ref={viewPortRef}
-              className='viewport-container'
-              style={{
-                transform: `translate(${viewX}px, ${viewY}px) scale(${zoom})`,
-                transformOrigin: 'center',
-                width: `${pageProps.width}px`,
-                height: `${pageProps.height}px`
-              }}
-            />
-          </div>
+        <div className='workspace' ref={workspaceRef} onDrop={workspaceDrop.bind(this)} onDragOver={workspaceDragOver.bind(this)}>
+          <div
+            ref={viewPortRef}
+            className='viewport-container'
+          />
         </div>
-      </div>
+      </>
     )
   }
 
@@ -205,18 +167,7 @@ export default class Editor extends React.Component {
     }
   }
 
-  initSpaceDragEvents () {
-    this.selectMove = new SelectableMoveable({
-      selectorSelectable: ['.viewport-container .ridge-element'],
-      selectorDropContainer: '.workspace',
-      selectorDropableTarget: '.ridge-element[droppable]',
-      root: this.viewPortRef.current
-    })
-    this.selectMove.init()
-
   initKeyEvents () {
     MouseStrap.bind('del', this.removeNode.bind(this))
   }
-
- 
 }

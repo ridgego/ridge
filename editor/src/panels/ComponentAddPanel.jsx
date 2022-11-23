@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Tabs, TabPane, Spin, Button, List } from '@douyinfe/semi-ui'
+import MoveablePanel from './MoveablePanel.jsx'
 import PackageManager from '../service/PackageManager'
 import './component-add.less'
 
@@ -26,7 +27,7 @@ class ComponentAddPanel extends React.Component {
     const currentPackageObject = this.state.packages.filter(p => p.name === this.state.currentPackage)[0]
     currentPackageObject.components.forEach(({
       path
-    }) => {      
+    }) => {
     })
   }
 
@@ -77,7 +78,7 @@ class ComponentAddPanel extends React.Component {
 
     const tabChange = this.tabChange.bind(this)
     return (
-      ReactDOM.createPortal(
+      <MoveablePanel title='组件' left='45px' width='360px' height='760px' top='10px'>
         <div className={'component-add-panel ' + (show ? 'is-show' : '')} id='componentAddPanel'>
           {!packageListingLoaded && <Spin size='large' />}
           <Tabs
@@ -137,9 +138,8 @@ class ComponentAddPanel extends React.Component {
             })}
 
           </Tabs>
-        </div>,
-        document.body
-      )
+        </div>
+      </MoveablePanel>
 
     )
   }
