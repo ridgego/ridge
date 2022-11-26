@@ -88,7 +88,7 @@ export default class WorkSpaceControl {
         // 放置好后，设置容器containerId标识 （是否有必要）
         el.setAttribute('containerId', target.elementWrapper.id)
       }
-      target.elementWrapper.removeStatus('drappable')
+      target.elementWrapper.removeStatus('droppable')
     } else {
       // 到ViewPort上
       if (el.getAttribute('containerId') || // 从另一个容器拖出

@@ -35,8 +35,10 @@ export default class Editor extends React.Component {
     this.dataPanelRef.current.loadVariables(this.pageElementManager.getVariableConfig())
 
     const pageProperties = this.pageElementManager.getPageProperties()
+
     this.workspaceControl.setViewPort(pageProperties.width, pageProperties.height)
     this.workspaceControl.setPageManager(this.pageElementManager)
+    this.rightPanelRef.current.setPageManager(this.pageElementManager)
   }
 
   componentDidMount () {

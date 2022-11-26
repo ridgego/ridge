@@ -90,8 +90,8 @@ class ComponentAddPanel extends React.Component {
               >
                 <List
                   grid={{
-                    gutter: 12,
-                    span: 12
+                    gutter: 6,
+                    span: 8
                   }}
                   dataSource={pkg.components}
                   renderItem={item => (

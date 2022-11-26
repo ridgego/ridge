@@ -17,13 +17,13 @@
   "icon": "antd.svg",
   "components": [{
     "title": "按钮",
-    "path": "build/button-button.def.js",
+    "path": "build/button-button.d.js",
     "width": 80,
     "height": 35
   }, {
     "title": "输入框",
     "icon": "img/Input.svg",
-    "path": "build/input-input.def.js",
+    "path": "build/input-input.d.js",
     "width": 120,
     "height": 35
   }],

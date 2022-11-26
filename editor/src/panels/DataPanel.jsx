@@ -149,7 +149,7 @@ export default class DataPanel extends React.Component {
       })
     }
     return (
-      <MoveablePanel right='10px' bottom='10px' width='420px' height='420px' {...this.props}>
+      <MoveablePanel right='10px' bottom='10px' width='420px' height='360px' {...this.props}>
         <Tabs
           type='card'
         >

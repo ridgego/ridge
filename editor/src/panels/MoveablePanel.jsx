@@ -75,8 +75,7 @@ export default class MoveablePanel extends React.Component {
       background: 'var(--semi-color-bg-0)',
       border: '1px solid var(--semi-color-border)',
       padding: '4px',
-      borderRadius: '5px',
-      overflow: 'hidden'
+      borderRadius: '5px'
     }
     Object.assign(style, this.props)
 
@@ -131,7 +130,14 @@ export default class MoveablePanel extends React.Component {
               />}
             <Button icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
           </div>
-          {this.props.children}
+          <div
+            className='panel-content' style={{
+              height: 'calc(100% - 26px)',
+              overflow: 'overlay'
+            }}
+          >
+            {this.props.children}
+          </div>
         </div>, document.body)
     )
   }

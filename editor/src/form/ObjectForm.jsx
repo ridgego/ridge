@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
-import { HexColorPicker } from 'react-colorful'
-import { IconCode } from '@douyinfe/semi-icons'
-import { Form, Select, Row, Col, Space, withField, ArrayField, Button, useFieldState, InputNumber, Popover, TextArea } from '@douyinfe/semi-ui'
+import React from 'react'
+import { Form, Row, Col, Space, withField, ArrayField, Button, useFieldState } from '@douyinfe/semi-ui'
+
+import BorderEdit from './with-fields/BorderEdit.jsx'
+import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
+import EventEdit from './with-fields/EventEdit.jsx'
 
 const VariableListEdit = withField((props) => {
   const value = props.value
@@ -48,79 +50,6 @@ const VariableListEdit = withField((props) => {
     </ArrayField>
   )
 }, { })
-
-const BorderEdit = withField((props) => {
-  let sp = [0, 'solid', '#fff']
-  if (props.value) {
-    sp = props.value.split(' ')
-    sp[0] = parseInt(sp[0])
-  }
-  return (
-    <Space>
-      <InputNumber
-        style={{
-          width: '64px'
-        }}
-        defaultValue={sp[0]}
-        value={sp[0]} onChange={value => {
-          props.onChange(value + 'px ' + sp[1] + ' ' + sp[2])
-        }}
-      /> <Select
-        value={sp[1]} optionList={[{
-          label: '实线',
-          value: 'solid'
-        }, {
-          label: '点划线',
-          value: 'dashed'
-        }]}
-        onChange={value => {
-          props.onChange(sp[0] + 'px ' + value + ' ' + sp[2])
-        }}
-         />
-      <Popover content={
-        <HexColorPicker
-          color={sp[2]} onChange={value => {
-            props.onChange(sp[0] + 'px ' + sp[1] + ' ' + value)
-          }}
-        />
-      }
-      >
-        <Button style={{
-          backgroundColor: sp[2]
-        }}
-        />
-      </Popover>
-    </Space>
-  )
-})
-
-const CodeExprEdit = withField(props => {
-  const [open, setOpen] = useState(false)
-  const popVisibleChange = visible => {
-    setOpen(visible)
-  }
-  const exprChange = value => {
-    props && props.onChange(value)
-  }
-  return (
-    <Popover
-      position='leftTop'
-      onVisibleChange={popVisibleChange}
-      showArrow
-      trigger='click'
-      content={
-        <article style={{ padding: 8, width: 360 }}>
-          <span> 请输入表达式 </span>
-          <TextArea value={props.value} onChange={exprChange} />
-        </article>
-    }
-    >
-      {props.value && <Button type='primary' size='small' theme='borderless' icon={<IconCode />} />}
-      {!props.value && <Button className={open ? 'is-open' : ''} type='tertiary' size='small' theme='borderless' icon={<IconCode />} />}
-    </Popover>
-  )
-})
-
 export default class ObjectForm extends React.Component {
   constructor (props) {
     super(props)
@@ -165,8 +94,8 @@ export default class ObjectForm extends React.Component {
       case 'css-style':
         RenderField = <TextArea label={col.label} field={col.field} />
         break
-      case 'variable':
-        RenderField = <VariableListEdit noLabel field={col.field} />
+      case 'event':
+        RenderField = <EventEdit />
         break
       default:
         break
@@ -179,7 +108,7 @@ export default class ObjectForm extends React.Component {
       return (
         <Space spacing={1} className='with-code-expr'>
           {RenderField}
-          <CodeExprEdit noLabel fieldStyle={{ width: '36px' }} field={col.fieldEx} />
+          <PopCodeEdit noLabel fieldStyle={{ width: '36px' }} field={col.fieldEx} />
         </Space>
       )
     }

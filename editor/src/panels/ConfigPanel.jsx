@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
-import ObjectForm from './ObjectForm.jsx'
+import ObjectForm from '../form/ObjectForm.jsx'
 
 import MoveablePanel from './MoveablePanel.jsx'
 import './config-panel.less'
@@ -17,7 +17,7 @@ const basicStyleSections = [{
     },
     {
       cols: [{
-        label: '坐标X',
+        label: 'X',
         control: 'number',
         readonly: (values) => {
           return !(values && values.style && values.style.position === 'absolute')
@@ -25,7 +25,7 @@ const basicStyleSections = [{
         field: 'style.x',
         fieldEx: 'ex.style.x'
       }, {
-        label: '坐标Y',
+        label: 'Y',
         control: 'number',
         readonly: (values) => {
           return !(values && values.style && values.style.position === 'absolute')
@@ -36,12 +36,12 @@ const basicStyleSections = [{
     },
     {
       cols: [{
-        label: '宽度',
+        label: 'W',
         control: 'number',
         field: 'style.width',
         fieldEx: 'ex.style.width'
       }, {
-        label: '高度',
+        label: 'H',
         control: 'number',
         field: 'style.height',
         fieldEx: 'ex.style.height'
@@ -73,26 +73,26 @@ const pageConfigSection = [{
       control: 'select',
       field: 'type',
       bindable: false,
-      options: [{
+      optionList: [{
         label: '固定宽高',
         value: 'fixed'
       }, {
-        label: '宽高自适应',
-        value: 'fit-wh'
-      }, {
         label: '宽度自适应',
         value: 'fit-w'
+      }, {
+        label: '宽高自适应',
+        value: 'fit-wh'
       }]
     }]
   }, {
     cols: [{
-      label: '宽度',
+      label: 'W',
       when: 'type === "fixed"',
       bindable: false,
       control: 'number',
       field: 'width'
     }, {
-      label: '高度',
+      label: 'H',
       when: 'type === "fixed"',
       bindable: false,
       control: 'number',
@@ -111,22 +111,15 @@ export default class ComponentPanel extends React.Component {
     this.state = {
       show: true,
       nodePropsSection: [],
-      pageConfigSection
+      nodeEventsSection: []
     }
   }
 
-  loadPage ({
-    properties,
-    variables
-  }) {
-    this.pageProperties = properties
-    this.pageVariables = variables
+  setPageManager (pageManager) {
+    this.pageManager = pageManager
+    this.pageProperties = pageManager.getPageProperties()
 
     this.pagePropFormApi.setValues(this.pageProperties, {
-      notNotify: true
-    })
-
-    this.pagePropFormApi.setValue('variables', variables, {
       notNotify: true
     })
   }
@@ -137,6 +130,10 @@ export default class ComponentPanel extends React.Component {
     })
   }
 
+  /**
+   * 节点元素被选中事件
+   * @param {DOM} el
+   */
   elementSelected (el) {
     if (el) {
       const elementWrapper = el.elementWrapper
@@ -144,7 +141,6 @@ export default class ComponentPanel extends React.Component {
       if (elementWrapper.componentDefinition) {
         const componentDefiProps = elementWrapper.componentDefinition.props
         const styledProps = []
-        // let nodePropsSection = Object.assign()JSON.parse(JSON.stringify(basicStyleSections))
         for (const prop of componentDefiProps) {
           const control = {
             label: prop.label,
@@ -171,8 +167,24 @@ export default class ComponentPanel extends React.Component {
         const nodePropsSection = basicStyleSections.concat({
           rows: styledProps
         })
+
+        const eventRows = []
+        for (const event of elementWrapper.componentDefinition.events || []) {
+          const control = {
+            label: event.label,
+            type: 'function',
+            control: 'event',
+            field: 'event.' + event.name
+          }
+          eventRows.push({
+            cols: control
+          })
+        }
         this.setState({
-          nodePropsSection
+          nodePropsSection,
+          nodeEventsSection: [{
+            rows: eventRows
+          }]
         }, () => {
           this.componentPropFormApi.setValue('name', elementWrapper.getName(), {
             notNotify: true
@@ -191,12 +203,14 @@ export default class ComponentPanel extends React.Component {
           })
         })
       }
+
       this.currentElement = el
       this.elementMove(el)
     } else {
       this.currentElement = null
       this.setState({
-        nodePropsSection: []
+        nodePropsSection: [],
+        nodeEventsSection: []
       })
     }
   }
@@ -205,21 +219,10 @@ export default class ComponentPanel extends React.Component {
     this.styleChange(el)
   }
 
-  componentDidMount () {
-    document.getElementById('componentPropPanel').setShow = this.setShow.bind(this)
-  }
-
-  setShow (show) {
-    this.setState({
-      show
-    })
-  }
-
   render () {
     const {
-      show,
       nodePropsSection,
-      pageConfigSection
+      nodeEventsSection
     } = this.state
     const {
       pagePropChange
@@ -236,18 +239,27 @@ export default class ComponentPanel extends React.Component {
       this.pagePropFormApi = formApi
     }
 
+    const eventPropsAPI = (formApi) => {
+      this.componentEventFormApi = formApi
+    }
+
     // 组件属性表单项修改
     const componentPropValueChange = (values, field) => {
       this.currentElement.elementWrapper.propConfigUpdate(values, field)
+    }
+
+    const componentEventValueChange = (values, field) => {
+      this.currentElement.elementWrapper.eventConfigUpdate(values, field)
     }
 
     const pagePropValueChange = (values, field) => {
       pagePropChange && pagePropChange(values)
     }
 
+    console.log('render section', nodePropsSection, nodeEventsSection, pageConfigSection)
     return (
-      <MoveablePanel right='10px' bottom='430px' width='420px' top='10px' {...this.props}>
-        <div ref={this.ref} className={'component-props-panel ' + (show ? 'is-show' : '')} id='componentPropPanel'>
+      <MoveablePanel right='10px' bottom='370px' width='420px' top='10px' {...this.props}>
+        <div ref={this.ref}>
           <Tabs
             type='card'
             style={{
@@ -257,21 +269,16 @@ export default class ComponentPanel extends React.Component {
             <TabPane tab='属性' itemKey='style'>
               <ObjectForm sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} />
             </TabPane>
-            <TabPane tab='交互' itemKey='interact' />
+            <TabPane tab='交互' itemKey='interact'>
+              <ObjectForm sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} />
+            </TabPane>
           </Tabs>
-          <Tabs
-            type='card'
+          <ObjectForm
             style={{
               display: nodePropsSection.length === 0 ? 'initial' : 'none'
             }}
-          >
-            <TabPane tab='页面属性' itemKey='page-prop'>
-              <ObjectForm
-                style={{
-                }} sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
-              />
-            </TabPane>
-          </Tabs>
+            sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
+          />
         </div>
       </MoveablePanel>
     )

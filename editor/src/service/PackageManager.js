@@ -15,10 +15,14 @@ export default class PackageManager {
 
   async loadPackages () {
     const packagesLoading = []
+
+    // Check & Load Debug Pacakge.json
     const debugPkg = await window.Ridge.loader.getDebugPackage()
     if (debugPkg) {
       packagesLoading.push(await window.Ridge.loader.getPackageJSON(debugPkg.name))
     }
+
+    // Load Package
     for (const pkname of this.packageNames) {
       packagesLoading.push(await window.Ridge.loader.getPackageJSON(pkname))
     }

@@ -18,10 +18,10 @@ class App extends React.Component {
         <option value="Ridge" type="string" key="name" />
       </datalist>
       <body>
-        <div ridge-id="dkjerk" component-path="ridge-antd/build/button-button.fcp.js" data-name="按钮1" 
+        <div ridge-id="dkjerk" component-path="ridge-antd/build/button-button.d.js" data-name="按钮1" 
           style="position: absolute; transform: translate(20px, 55px); width: 80px; height: 35px;">
         </div>
-        <div ridge-id="dkjerk" component-path="ridge-antd/build/button-button.fcp.js" data-name="按钮2" data-props-text="请点击" data-event-click=""
+        <div ridge-id="dkjerk" component-path="ridge-antd/build/button-button.d.js" data-name="按钮2" data-props-text="请点击" data-event-click=""
           style="position: absolute; transform: translate(420px, 100px); width: 80px; height: 35px;">
         </div>
       </body>

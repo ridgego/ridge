@@ -429,6 +429,10 @@ class ElementWrapper {
     this.forceUpdate()
   }
 
+  eventsConfigUpdate (values, field) {
+    this.el.dataset.events = JSON.stringify(values)
+  }
+
   getPropConfigValues () {
     return {
       name: this.el.dataset.name,
