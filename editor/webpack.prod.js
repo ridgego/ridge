@@ -1,5 +1,17 @@
+const { merge } = require('webpack-merge')
 const config = require('./webpack.config.js')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
-config.mode = 'production'
-delete config.devtool
-module.exports = config
+module.exports = merge(config, {
+  mode: 'production',
+  optimization: {
+    minimize: true
+  },
+  externals: {
+    '@douyinfe/semi-ui': 'SemiUI',
+    moveable: 'Moveable'
+  },
+  plugins: [
+    new BundleAnalyzerPlugin()
+  ]
+})

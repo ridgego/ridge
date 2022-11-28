@@ -1,6 +1,5 @@
 import ElementWrapper from './ElementWrapper'
 import { nanoid, trim } from '../utils/string'
-import template from '../template'
 
 class PageElementManager {
   constructor (ridge, el) {
