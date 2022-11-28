@@ -269,32 +269,46 @@ export default class ComponentPanel extends React.Component {
     }
 
     return (
-      <MoveablePanel right='10px' bottom='370px' width='340px' top='10px' {...this.props}>
-        <div ref={this.ref}>
-          <Tabs
-            type='card'
-            style={{
-              display: nodePropsSection.length === 0 ? 'none' : 'initial'
-            }}
-          >
-            <TabPane tab='属性' itemKey='style'>
-              <ObjectForm sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} />
-            </TabPane>
-            <TabPane tab='交互' itemKey='interact'>
-              <ObjectForm
-                sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
-                  pageVariables
-                }}
-              />
-            </TabPane>
-          </Tabs>
-          <ObjectForm
-            style={{
-              display: nodePropsSection.length === 0 ? 'initial' : 'none'
-            }}
-            sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
-          />
-        </div>
+      <MoveablePanel right='10px' bottom='250px' width='300px' top='10px' {...this.props}>
+        <Tabs
+          type='card'
+          style={{
+            display: nodePropsSection.length === 0 ? 'none' : 'initial'
+          }}
+        >
+          <TabPane tab='属性' itemKey='style'>
+            <ObjectForm sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} />
+          </TabPane>
+          <TabPane tab='交互' itemKey='interact'>
+            <ObjectForm
+              sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
+                pageVariables
+              }}
+            />
+          </TabPane>
+        </Tabs>
+        <Tabs
+          type='card'
+          style={{
+            display: nodePropsSection.length === 0 ? 'initial' : 'none'
+          }}
+        >
+          <TabPane tab='属性' itemKey='style'>
+            <ObjectForm
+              style={{
+                display: nodePropsSection.length === 0 ? 'initial' : 'none'
+              }}
+              sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
+            />
+          </TabPane>
+          <TabPane tab='交互' itemKey='interact'>
+            <ObjectForm
+              sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
+                pageVariables
+              }}
+            />
+          </TabPane>
+        </Tabs>
       </MoveablePanel>
     )
   }

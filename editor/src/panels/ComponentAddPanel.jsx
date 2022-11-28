@@ -68,8 +68,8 @@ class ComponentAddPanel extends React.Component {
       <MoveablePanel title='组件' left='45px' width='320px' height='640px' top='10px' {...this.props}>
         {!packageListingLoaded && <Spin size='large' />}
         <Tabs
-          type='button'
-          collapsible
+          type='card'
+          size='small'
           onChange={key => tabChange(key)}
         >
           {packages && packages.map(pkg => {
@@ -78,7 +78,6 @@ class ComponentAddPanel extends React.Component {
                 style={{
                   padding: '4px'
                 }}
-                closable
                 className='tab-title'
                 tab={
                   <div className='package-tab'>
@@ -112,7 +111,6 @@ class ComponentAddPanel extends React.Component {
               </TabPane>
             )
           })}
-
         </Tabs>
       </MoveablePanel>
     )

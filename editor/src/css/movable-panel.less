@@ -1,6 +1,41 @@
 .movable-panel {
+    position: absolute;
     background: var(--semi-color-bg-0);
     border: 1px solid var(--semi-color-border);
     padding: 4px;
     border-radius: 5px;
+
+    .semi-icon-handle {
+        position: absolute;
+        top: 8px;
+    }
+    .panel-btns {
+        position: absolute;
+        right: 10px;
+        top: 0;
+        display: none;
+    }
+    .semi-tabs {
+        .semi-tabs-bar {
+            padding-left: 16px;
+            .semi-tabs-tab {
+                padding: 3px 5px;
+                &.semi-tabs-tab-active {
+                    padding: 3px 5px;
+                }
+            }
+        }
+    }
+
+    .semi-table-container {
+        .semi-table-thead {
+            th.semi-table-row-head {
+                padding:2px 5px;
+            }
+        }
+        td.semi-table-row-cell {
+            padding:2px 5px;
+        }
+    }
+
 }

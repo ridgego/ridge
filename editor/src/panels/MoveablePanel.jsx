@@ -5,6 +5,8 @@ import { IconMinus, IconClose, IconExpand, IconHandle } from '@douyinfe/semi-ico
 
 import Moveable, { } from 'moveable'
 
+import '../css/movable-panel.less'
+
 export default class MoveablePanel extends React.Component {
   constructor () {
     super()
@@ -24,7 +26,7 @@ export default class MoveablePanel extends React.Component {
       target: this.ref.current,
       dimensionViewable: true,
       deleteButtonViewable: false,
-      dragTarget: this.ref.current.querySelector('.panel-title'),
+      dragTarget: this.ref.current.querySelector('.semi-tabs-bar'),
       // If the container is null, the position is fixed. (default: parentElement(document.body))
       container: document.body,
       snappable: false,
@@ -71,11 +73,6 @@ export default class MoveablePanel extends React.Component {
     const { state } = this.state
     const { Title } = Typography
     const style = {
-      position: 'absolute',
-      background: 'var(--semi-color-bg-0)',
-      border: '1px solid var(--semi-color-border)',
-      padding: '4px',
-      borderRadius: '5px'
     }
     Object.assign(style, this.props)
 
@@ -91,7 +88,8 @@ export default class MoveablePanel extends React.Component {
     return (
       ReactDOM.createPortal(
         <div ref={this.ref} className='movable-panel' style={style} id={this.props.id}>
-          <div
+          <IconHandle />
+          {/* <div
             className='panel-title' style={{
               height: '26px',
               padding: '4px',
@@ -101,17 +99,9 @@ export default class MoveablePanel extends React.Component {
               alignItems: 'center'
             }}
           >
-            <IconHandle />
             <Title heading={6} style={{ marginLeft: '4px', fontSize: '14px' }}>{this.props.title || '面板'}</Title>
-          </div>
-          <div
-            className='panel-btns' style={{
-              position: 'absolute',
-              right: '10px',
-              zIndex: 10,
-              top: '5px'
-            }}
-          >
+          </div> */}
+          <div className='panel-btns'>
             {state === 'normal' &&
               <Button
                 icon={<IconMinus />} onClick={() => {

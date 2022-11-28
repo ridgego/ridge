@@ -1,5 +1,6 @@
 import React from 'react'
 import MoveablePanel from './MoveablePanel.jsx'
+import { IconDelete, IconMaximize } from '@douyinfe/semi-icons'
 import { Table, Input, Select, TextArea, Tabs, TabPane, Button, InputNumber, Checkbox } from '@douyinfe/semi-ui'
 
 export default class DataPanel extends React.Component {
@@ -32,10 +33,9 @@ export default class DataPanel extends React.Component {
   }
 
   render () {
-    const { panelClose, title, visible } = this.props
     const columns = [
       {
-        title: '变量名',
+        title: '名称',
         dataIndex: 'name',
         fixed: true,
         width: 120,
@@ -43,7 +43,8 @@ export default class DataPanel extends React.Component {
           return (
             <div>
               <Input
-                noLabel defaultValue={text} onChange={value => {
+                size='small'
+                defaultValue={text} onChange={value => {
                   this.variableChange(index, 'name', value)
                 }}
               />
@@ -51,30 +52,30 @@ export default class DataPanel extends React.Component {
           )
         }
       },
-      {
-        title: '类型',
-        dataIndex: 'type',
-        width: 96,
-        render: (text, record, index) => {
-          return (
-            <div>
-              <Select
-                noLabel
-                onChange={value => {
-                  this.variableChange(index, 'type', value)
-                }}
-                value={text}
-              >
-                <Select.Option value='number'>数字</Select.Option>
-                <Select.Option value='string'>字符</Select.Option>
-                <Select.Option value='boolean'>布尔</Select.Option>
-                <Select.Option value='object'>对象</Select.Option>
-                <Select.Option value='array'>列表</Select.Option>
-              </Select>
-            </div>
-          )
-        }
-      },
+      // {
+      //   title: '类型',
+      //   dataIndex: 'type',
+      //   width: 96,
+      //   render: (text, record, index) => {
+      //     return (
+      //       <div>
+      //         <Select
+      //           noLabel
+      //           onChange={value => {
+      //             this.variableChange(index, 'type', value)
+      //           }}
+      //           value={text}
+      //         >
+      //           <Select.Option value='number'>数字</Select.Option>
+      //           <Select.Option value='string'>字符</Select.Option>
+      //           <Select.Option value='boolean'>布尔</Select.Option>
+      //           <Select.Option value='object'>对象</Select.Option>
+      //           <Select.Option value='array'>列表</Select.Option>
+      //         </Select>
+      //       </div>
+      //     )
+      //   }
+      // },
       {
         title: '取值',
         dataIndex: 'value',
@@ -89,12 +90,10 @@ export default class DataPanel extends React.Component {
       {
         title: '操作',
         dataIndex: 'operate',
-        width: 96,
+        width: 40,
         render: (text, record, index) => {
           return (
-            <div>
-              删除
-            </div>
+            <IconDelete />
           )
         }
       }
@@ -113,6 +112,8 @@ export default class DataPanel extends React.Component {
         case 'string':
           return (
             <Input
+              size='small'
+              addonAfter={<IconMaximize style={{ cursor: 'pointer' }} onClick={() => alert(0)} />}
               defaultValue={record.value} onChange={value => {
                 this.variableChange(index, 'value', value)
               }}
@@ -149,16 +150,17 @@ export default class DataPanel extends React.Component {
       })
     }
     return (
-      <MoveablePanel right='10px' bottom='10px' width='420px' height='360px' {...this.props}>
+      <MoveablePanel right='10px' bottom='10px' width='300px' height='240px' {...this.props}>
         <Tabs
           type='card'
+          size='small'
         >
-          <TabPane tab='页面变量' itemKey='var'>
+          <TabPane size='small' tab='页面变量' itemKey='var'>
+            <Table bordered columns={columns} pagination={false} dataSource={this.state.variables} />
             <Button
               size='small' type='primary' style={{ marginBottom: 8 }} onClick={addVariable}
             >增加变量
             </Button>
-            <Table bordered columns={columns} pagination={false} dataSource={this.state.variables} />
           </TabPane>
           <TabPane tab='数据' itemKey='data' />
           <TabPane tab='资源' itemKey='asset' />
