@@ -5,8 +5,9 @@ import BorderEdit from './with-fields/BorderEdit.jsx'
 import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
 import EventEdit from './with-fields/EventEdit.jsx'
 
-const VariableListEdit = withField((props) => {
-  const value = props.value
+import './form.less'
+
+const variableOptionList = withField((props) => {
   const fieldState = useFieldState(props.id)
   const onValueChange = (values, changed) => {
     props.onChange(values)
@@ -64,6 +65,9 @@ export default class ObjectForm extends React.Component {
       Checkbox,
       Input
     } = Form
+    const {
+      options
+    } = this.props
     if (col.type === 'string' && !col.control) {
       col.control = 'text'
     }
@@ -77,16 +81,16 @@ export default class ObjectForm extends React.Component {
     let RenderField = null
     switch (col.control) {
       case 'number':
-        RenderField = <InputNumber label={col.label} disabled={readonly} field={col.field} />
+        RenderField = <InputNumber size='small' style={{ width: 85 }} label={col.label} disabled={readonly} field={col.field} />
         break
       case 'text':
-        RenderField = <Input label={col.label} field={col.field} />
+        RenderField = <Input size='small' label={col.label} field={col.field} />
         break
       case 'checkbox':
-        RenderField = <Checkbox label={col.label} field={col.field} />
+        RenderField = <Checkbox size='small' label={col.label} field={col.field} />
         break
       case 'select':
-        RenderField = <Select label={col.label} field={col.field} optionList={col.optionList} />
+        RenderField = <Select size='small' label={col.label} field={col.field} optionList={col.optionList} />
         break
       case 'border':
         RenderField = <BorderEdit label={col.label} field={col.field} />
@@ -95,7 +99,7 @@ export default class ObjectForm extends React.Component {
         RenderField = <TextArea label={col.label} field={col.field} />
         break
       case 'event':
-        RenderField = <EventEdit />
+        RenderField = <EventEdit labelPosition='top' label={col.label} field={col.field} options={options} />
         break
       default:
         break
@@ -108,7 +112,7 @@ export default class ObjectForm extends React.Component {
       return (
         <Space spacing={1} className='with-code-expr'>
           {RenderField}
-          <PopCodeEdit noLabel fieldStyle={{ width: '36px' }} field={col.fieldEx} />
+          <PopCodeEdit noLabel fieldStyle={{ width: '36px' }} field={col.fieldEx} options={options} />
         </Space>
       )
     }
@@ -158,10 +162,10 @@ export default class ObjectForm extends React.Component {
     return (
       <div className='object-form' style={style}>
         <Form
+          size='small'
           labelPosition='left'
           getFormApi={callback}
           onValueChange={onValueChange}
-          style={{ padding: 10, width: '100%' }}
         >
           {sections.map(renderSection)}
         </Form>

@@ -1,5 +1,6 @@
 import ElementWrapper from './ElementWrapper'
 import { nanoid, trim } from '../utils/string'
+import template from '../template'
 
 class PageElementManager {
   constructor (ridge, el) {
@@ -90,6 +91,11 @@ class PageElementManager {
     }
 
     await Promise.allSettled(initializeRootElements)
+  }
+
+  updatePageVariableValue (name, value) {
+    this.pageVariableValues[name] = value
+    this.forceUpdate()
   }
 
   updateVariableConfig (variablesConfig) {

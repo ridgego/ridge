@@ -109,9 +109,10 @@ export default class ComponentPanel extends React.Component {
     this.currentNode = null
     this.currentStyle = {}
     this.state = {
-      show: true,
-      nodePropsSection: [],
-      nodeEventsSection: []
+      nodePropsSection: [], // 当前节点属性
+      nodeEventsSection: [], // 当前节点事件
+      pageVariables: [], // 页面变量列表
+      globalVariables: [] // 全局变量列表
     }
   }
 
@@ -174,10 +175,13 @@ export default class ComponentPanel extends React.Component {
             label: event.label,
             type: 'function',
             control: 'event',
+            bindable: false,
             field: 'event.' + event.name
           }
           eventRows.push({
-            cols: control
+            cols: [
+              control
+            ]
           })
         }
         this.setState({
@@ -201,6 +205,9 @@ export default class ComponentPanel extends React.Component {
           this.componentPropFormApi.setValue('ex.style', elementWrapper.getStyleBinding(), {
             notNotify: true
           })
+          this.componentEventFormApi.setValue('event', elementWrapper.getEventActionsConfig(), {
+            notNotify: true
+          })
         })
       }
 
@@ -213,6 +220,10 @@ export default class ComponentPanel extends React.Component {
         nodeEventsSection: []
       })
     }
+    this.setState({
+      pageVariables: this.pageManager.getVariableConfig(),
+      globalVariables: []
+    })
   }
 
   nodeRectChange (el) {
@@ -222,7 +233,8 @@ export default class ComponentPanel extends React.Component {
   render () {
     const {
       nodePropsSection,
-      nodeEventsSection
+      nodeEventsSection,
+      pageVariables
     } = this.state
     const {
       pagePropChange
@@ -256,9 +268,8 @@ export default class ComponentPanel extends React.Component {
       pagePropChange && pagePropChange(values)
     }
 
-    console.log('render section', nodePropsSection, nodeEventsSection, pageConfigSection)
     return (
-      <MoveablePanel right='10px' bottom='370px' width='420px' top='10px' {...this.props}>
+      <MoveablePanel right='10px' bottom='370px' width='340px' top='10px' {...this.props}>
         <div ref={this.ref}>
           <Tabs
             type='card'
@@ -270,7 +281,11 @@ export default class ComponentPanel extends React.Component {
               <ObjectForm sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} />
             </TabPane>
             <TabPane tab='交互' itemKey='interact'>
-              <ObjectForm sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} />
+              <ObjectForm
+                sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
+                  pageVariables
+                }}
+              />
             </TabPane>
           </Tabs>
           <ObjectForm

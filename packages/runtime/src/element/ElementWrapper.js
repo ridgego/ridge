@@ -22,9 +22,11 @@ class ElementWrapper {
 
     // 组件配置的属性静态值
     this.instancePropConfig = {}
-
     // 组件配置的属性动态值
     this.instancePropBinding = {}
+
+    // 事件处理
+    this.eventActionsConfig = {}
 
     // Wrapper元素的样式数据
     this.stylePropValue = {}
@@ -36,10 +38,6 @@ class ElementWrapper {
 
     this.page = page
     this.el.elementWrapper = this
-  }
-
-  setScopeVariableValues (scopeVariableValues) {
-    this.scopeVariableValues = scopeVariableValues
   }
 
   async initialize () {
@@ -136,9 +134,6 @@ class ElementWrapper {
    * 初始化组件属性、事件
    */
   initPropsAndEvents () {
-    // 设置回写属性值的事件
-    this.propertyWriteBackEvents = {}
-
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
       // 默认值次序：  控件实例化给的默认值 -> 组态化定义的默认值 -> 前端组件的默认值 (这个不给就用默认值了)
@@ -151,7 +146,6 @@ class ElementWrapper {
         this.instancePropConfig.input = val => {
           this.emit('input', val)
         }
-        this.propertyWriteBackEvents.input = 'value'
       }
 
       if (prop.input === true) {
@@ -162,7 +156,6 @@ class ElementWrapper {
         this.instancePropConfig[eventName] = val => {
           this.emit(eventName, val)
         }
-        this.propertyWriteBackEvents[eventName] = prop.name
       }
       // 属性进行动态绑定的情况 （动态属性） 这里只进行一次计算， 动态属性更新时会调用update进行更新
       // eslint-disable-next-line max-len
@@ -179,11 +172,12 @@ class ElementWrapper {
       // }
     }
 
-    // 处理组件双向绑定
-    // if (this.interactHandler) {
-    //   this.interactHandler.attachInteractTo(this)
-    // }
-
+    // 事件类属性写入，DOM初始化后事件才能挂到源头
+    for (const event of this.componentDefinition.events || []) {
+      this.instancePropConfig[event.name] = (...args) => {
+        this.emit(event.name, ...args)
+      }
+    }
     // 子节点的fcView也同时放入
     if (this.childrenFcViews && this.childrenFcViews.length) {
       this.instancePropConfig.childrenViews = this.childrenFcViews
@@ -191,13 +185,6 @@ class ElementWrapper {
       this.childrenFcViews.forEach(fcView => {
         fcView.setScopeVariables(this.scopeVariables)
       })
-    }
-
-    // 事件类属性写入，DOM初始化后事件才能挂到源头
-    for (const event of this.componentDefinition.events || []) {
-      this.instancePropConfig[event.name] = (...args) => {
-        this.emit(event.name, ...args)
-      }
     }
 
     // 检查未在组件定义但是动态绑定上的交互列表
@@ -277,16 +264,31 @@ class ElementWrapper {
     }
   }
 
+  setScopeVariableValues (scopeVariableValues) {
+    this.scopeVariableValues = scopeVariableValues
+  }
+
+  getScopeVariableValues () {
+    if (this.parent) {
+      return Object.assign(this.parent.getScopeVariableValues(), this.scopeVariableValues)
+    } else {
+      return this.scopeVariableValues
+    }
+  }
+
   /**
      * 获取当前组件可见的上下文变量信息
      */
   getVariableContext () {
     return Object.assign({},
       this.page.getVariableValues(),
-      this.scopeVariableValues
+      this.getScopeVariableValues()
     )
   }
 
+  /**
+   * 强制重新计算属性并更新组件显示
+   */
   forceUpdate () {
     const updated = {}
     Object.assign(updated, this.instancePropConfig)
@@ -309,6 +311,23 @@ class ElementWrapper {
 
   invoke (method, args) {
     this.renderer.invoke(method, args)
+  }
+
+  emit (eventName, payload) {
+    console.log('emit', eventName, payload)
+
+    if (this.eventActionsConfig[eventName]) {
+      for (const action of this.eventActionsConfig[eventName]) {
+        if (action.name === 'setvar') {
+          try {
+            const newVariableValue = template(action.value, this.getVariableContext())
+            this.page.updatePageVariableValue(action.target, newVariableValue)
+          } catch (e) {
+            log('Event Action[setvar] Error', e)
+          }
+        }
+      }
+    }
   }
 
   getCreateChildElement (name) {}
@@ -350,6 +369,10 @@ class ElementWrapper {
 
   getStyleBinding () {
     return this.stylePropBind
+  }
+
+  getEventActionsConfig () {
+    return this.eventActionsConfig
   }
 
   setStatus (status) {
@@ -445,8 +468,8 @@ class ElementWrapper {
     }
   }
 
-  eventConfigUpdate () {
-
+  eventConfigUpdate (values, update) {
+    this.eventActionsConfig = Object.assign({}, values.event)
   }
 }
 

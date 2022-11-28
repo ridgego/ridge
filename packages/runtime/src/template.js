@@ -5,13 +5,15 @@ import lodashAt from 'lodash/at'
 const log = debug('rg:template')
 const compiledTemplates = new Map()
 
-export default function template (tplString, variables) {
+export default function template (tplString, variables, utils) {
   if (log.enabled) {
     log('模板计算', tplString, variables)
   }
 
   // 增加lodash对象到变量，使所有_的方法都能被表达式使用
-  Object.assign(variables, {})
+  if (utils) {
+    Object.assign(variables, utils)
+  }
   // eslint-disable-next-line no-new-func
   if (typeof tplString === 'string') {
     if (tplString.startsWith('${')) {
@@ -49,12 +51,8 @@ export default function template (tplString, variables) {
           // 按路径获取
           return lodashAt(variables, tplString)[0]
         } catch (err1) {
-          try {
-            // 按JSON格式
-            return JSON.parse(tplString)
-          } catch (err2) {
-            return tplString
-          }
+          // 按JSON格式
+          return JSON.parse(tplString)
         }
       }
     }

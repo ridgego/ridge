@@ -158,7 +158,7 @@ export default class DataPanel extends React.Component {
               size='small' type='primary' style={{ marginBottom: 8 }} onClick={addVariable}
             >增加变量
             </Button>
-            <Table bordered scroll={{ y: 220 }} columns={columns} pagination={false} dataSource={this.state.variables} />
+            <Table bordered columns={columns} pagination={false} dataSource={this.state.variables} />
           </TabPane>
           <TabPane tab='数据' itemKey='data' />
           <TabPane tab='资源' itemKey='asset' />
