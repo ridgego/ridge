@@ -3,7 +3,6 @@ import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../form/ObjectForm.jsx'
 
 import MoveablePanel from './MoveablePanel.jsx'
-import './config-panel.less'
 
 const basicStyleSections = [{
   rows: [

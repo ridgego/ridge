@@ -4,13 +4,14 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 
 module.exports = merge(config, {
   mode: 'production',
+  devtool: false,
   optimization: {
     minimize: true
   },
-  externals: {
-    '@douyinfe/semi-ui': 'SemiUI',
-    moveable: 'Moveable'
-  },
+  // externals: {
+  //   '@douyinfe/semi-ui': 'SemiUI',
+  //   moveable: 'Moveable'
+  // },
   plugins: [
     new BundleAnalyzerPlugin()
   ]

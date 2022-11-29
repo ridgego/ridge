@@ -32,6 +32,10 @@
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.10.1"
   },
+  "browserslist": [
+    "last 1 chrome version",
+    "last 1 firefox version"
+  ],
   "author": "",
   "license": "ISC"
 }

@@ -125,7 +125,7 @@ export default class ObjectForm extends React.Component {
       return (
         <Row key={j}>
           {row.cols.length > 1 &&
-            <Space spacing={4}>
+            <Space spacing={0}>
               {row.cols.map((col, k) => {
                 return (
                   <Col key={k} span={24 / row.cols.length}>

@@ -10,13 +10,39 @@
             margin-bottom: 0;
             margin-right: 0;
             padding-top: 0px;
-            line-height: 22px;
+            line-height: 24px;
             padding-bottom: 0px;
+            font-weight: normal;
+            color: var( --semi-color-text-2);
         }
 
+        .semi-col-12 {
+            .semi-form-field-label {
+                width: 24px;   
+            }
+        }
         .semi-input {
             padding-left: 6px;
             padding-right: 6px;
         }
+
+        .semi-space.with-code-expr {
+            .semi-button-tertiary {
+            visibility: hidden;
+            }
+            .semi-button-tertiary.is-open {
+            visibility: initial;
+            } 
+            &:hover {
+            .semi-button-tertiary {
+                visibility: initial;
+            } 
+            }
+        }
+        .semi-form-field-main>.semi-checkbox {
+            padding: 0;
+        }
     }
+
+    
 }
