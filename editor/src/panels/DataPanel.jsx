@@ -1,7 +1,9 @@
 import React from 'react'
 import MoveablePanel from './MoveablePanel.jsx'
-import { IconDelete, IconMaximize } from '@douyinfe/semi-icons'
+import { IconDelete, IconEdit } from '@douyinfe/semi-icons'
 import { Table, Input, Select, TextArea, Tabs, TabPane, Button, InputNumber, Checkbox } from '@douyinfe/semi-ui'
+
+import '../css/data-panel.less'
 
 export default class DataPanel extends React.Component {
   constructor () {
@@ -32,6 +34,28 @@ export default class DataPanel extends React.Component {
     })
   }
 
+  variableDelete (index) {
+    this.state.variables.splice(index - 1, 1)
+    this.setState({
+      variables: this.state.variables
+    }, () => {
+      window.Ridge.getPageElementManager('editor-page').updateVariableConfig(this.state.variables)
+    })
+  }
+
+  openEditCode (value, index) {
+    const { Ridge } = window
+
+    Ridge && Ridge.openCodeEditor &&
+    Ridge.openCodeEditor({
+      lang: 'js',
+      code: value,
+      completed: (newCode) => {
+        this.variableChange(index, 'value', newCode)
+      }
+    })
+  }
+
   render () {
     const columns = [
       {
@@ -52,48 +76,21 @@ export default class DataPanel extends React.Component {
           )
         }
       },
-      // {
-      //   title: '类型',
-      //   dataIndex: 'type',
-      //   width: 96,
-      //   render: (text, record, index) => {
-      //     return (
-      //       <div>
-      //         <Select
-      //           noLabel
-      //           onChange={value => {
-      //             this.variableChange(index, 'type', value)
-      //           }}
-      //           value={text}
-      //         >
-      //           <Select.Option value='number'>数字</Select.Option>
-      //           <Select.Option value='string'>字符</Select.Option>
-      //           <Select.Option value='boolean'>布尔</Select.Option>
-      //           <Select.Option value='object'>对象</Select.Option>
-      //           <Select.Option value='array'>列表</Select.Option>
-      //         </Select>
-      //       </div>
-      //     )
-      //   }
-      // },
       {
         title: '取值',
         dataIndex: 'value',
         render: (text, record, index) => {
           return (
-            <div>
-              {renderEdit(record, index)}
+            <div className='variable-value'>
+              <Input
+                size='small'
+                value={record.value} onChange={value => {
+                  this.variableChange(index, 'value', value)
+                }}
+              />
+              <IconEdit className='action-edit' style={{ cursor: 'pointer' }} onClick={() => this.openEditCode(record.value, index)} />
+              <IconDelete className='action-delete' onClick={() => this.variableDelete(index)} />
             </div>
-          )
-        }
-      },
-      {
-        title: '操作',
-        dataIndex: 'operate',
-        width: 40,
-        render: (text, record, index) => {
-          return (
-            <IconDelete />
           )
         }
       }
@@ -143,7 +140,7 @@ export default class DataPanel extends React.Component {
     const addVariable = () => {
       this.setState({
         variables: this.state.variables.concat([{
-          name: 'var',
+          name: '变量' + (this.state.variables.length + 1),
           type: 'string',
           value: ''
         }])

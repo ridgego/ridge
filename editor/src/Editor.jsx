@@ -3,6 +3,7 @@ import ConfigPanel from './panels/ConfigPanel.jsx'
 import DataPanel from './panels/DataPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 import MenuBar from './panels/MenuBar.jsx'
+import CodeEditor from './code-editor/CodeEditor.jsx'
 
 import WorkSpaceControl from './WorkspaceControl.js'
 
@@ -22,12 +23,17 @@ export default class Editor extends React.Component {
       propPanelVisible: true,
       outlinePanelVisible: true,
       pagesPanelVisible: true,
-      dataPanelVisible: true
+      dataPanelVisible: true,
+      editorLang: null,
+      editorVisible: false,
+      editorCode: ''
     }
   }
 
   loadPage (pageConfig) {
     const { Ridge } = window
+
+    Ridge.openCodeEditor = this.openCodeEditor.bind(this)
 
     this.viewPortRef.current.innerHTML = pageConfig
 
@@ -66,7 +72,10 @@ export default class Editor extends React.Component {
       dataPanelVisible,
       propPanelVisible,
       outlinePanelVisible,
-      pagesPanelVisible
+      pagesPanelVisible,
+      editorLang,
+      editorVisible,
+      editorCode
     } = state
     return (
       <>
@@ -99,6 +108,14 @@ export default class Editor extends React.Component {
           }}
         />
 
+        <CodeEditor
+          visible={editorVisible} onCancel={() => {
+            this.setState({
+              editorVisible: false
+            })
+          }} value={editorCode} lang={editorLang} output={this.onCodeEditorCompleted.bind(this)}
+        />
+
         <div className='workspace' ref={workspaceRef}>
           <div
             ref={viewPortRef}
@@ -107,6 +124,27 @@ export default class Editor extends React.Component {
         </div>
       </>
     )
+  }
+
+  openCodeEditor ({
+    lang,
+    code,
+    completed
+  }) {
+    this.setState({
+      editorVisible: true,
+      editorCode: code,
+      editorLang: lang
+    })
+    this.codeEditComplete = completed
+  }
+
+  onCodeEditorCompleted (value) {
+    this.setState({
+      editorVisible: false
+    })
+
+    this.codeEditComplete && this.codeEditComplete(value)
   }
 
   removeNode () {

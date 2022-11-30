@@ -9,7 +9,10 @@
     "start": "webpack serve --open"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "^6.1.1",
+    "@codemirror/lang-json": "^6.0.1",
     "@douyinfe/semi-ui": "^2.20.4",
+    "codemirror": "^6.0.1",
     "localforage": "^1.10.0",
     "mousetrap": "^1.6.5",
     "moveable": "^0.37.1",

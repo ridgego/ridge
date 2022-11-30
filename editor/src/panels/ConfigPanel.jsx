@@ -204,6 +204,7 @@ export default class ComponentPanel extends React.Component {
           this.componentPropFormApi.setValue('ex.style', elementWrapper.getStyleBinding(), {
             notNotify: true
           })
+
           this.componentEventFormApi.setValue('event', elementWrapper.getEventActionsConfig(), {
             notNotify: true
           })
@@ -241,17 +242,19 @@ export default class ComponentPanel extends React.Component {
 
     // 回写styleApi句柄以便直接操作基础form
     const basicPropsAPI = (formApi) => {
-      window.Ridge.componentPropFormApi = formApi
       this.componentPropFormApi = formApi
-    }
-    // 回写styleApi句柄以便直接操作基础form
-    const cbPagePropFormApi = (formApi) => {
-      window.Ridge.pagePropFormApi = formApi
-      this.pagePropFormApi = formApi
     }
 
     const eventPropsAPI = (formApi) => {
       this.componentEventFormApi = formApi
+    }
+    // 回写styleApi句柄以便直接操作基础form
+    const cbPagePropFormApi = (formApi) => {
+      this.pagePropFormApi = formApi
+    }
+
+    const pageEventPropsAPI = formApi => {
+
     }
 
     // 组件属性表单项修改
@@ -302,7 +305,7 @@ export default class ComponentPanel extends React.Component {
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
-              sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
+              sections={nodeEventsSection} getFormApi={pageEventPropsAPI} onValueChange={componentEventValueChange} options={{
                 pageVariables
               }}
             />

@@ -1,62 +1,14 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List } from '@douyinfe/semi-ui'
 import MoveablePanel from './MoveablePanel.jsx'
-import PackageManager from '../service/PackageManager'
 import './component-add.less'
 
-class ComponentAddPanel extends React.Component {
+class AppPageListPanel extends React.Component {
   constructor () {
     super()
-    this.el = document.createElement('div')
     this.ref = React.createRef()
-    this.packageManager = new PackageManager()
     this.state = {
-      packages: [],
-      currentPackage: 'ridge-basic',
-      packageListingLoaded: false
     }
-  }
-
-  showPanel () {
-
-  }
-
-  renderPackageComponents () {
-    const currentPackageObject = this.state.packages.filter(p => p.name === this.state.currentPackage)[0]
-    currentPackageObject.components.forEach(({
-      path
-    }) => {
-    })
-  }
-
-  tabChange (key) {
-    this.setState({
-      currentPackage: key
-    }, () => {
-      this.renderPackageComponents()
-    })
-  }
-
-  componentDidMount () {
-    if (!this.state.packageListingLoaded) {
-      this.packageManager.getBuildInPackages().then(result => {
-        this.setState({
-          currentPackage: this.packageManager.packageNames[0],
-          packages: result,
-          packageListingLoaded: true
-        }, () => {
-          this.renderPackageComponents()
-        })
-      })
-    }
-  }
-
-  dragStart (ev, info) {
-    ev.dataTransfer.setData('text/plain', JSON.stringify(info))
-
-    const img = new window.Image()
-    img.src = info.icon
-    ev.dataTransfer.setDragImage(img, 60, 60)
   }
 
   render () {
@@ -65,7 +17,7 @@ class ComponentAddPanel extends React.Component {
 
     const tabChange = this.tabChange.bind(this)
     return (
-      <MoveablePanel title='组件' left='45px' width='320px' height='640px' top='10px' {...this.props}>
+      <MoveablePanel title='应用页面管理' left='45px' width='320px' height='640px' top='10px' {...this.props}>
         {!packageListingLoaded && <Spin size='large' />}
         <Tabs
           type='card'
@@ -117,4 +69,4 @@ class ComponentAddPanel extends React.Component {
   }
 }
 
-export default ComponentAddPanel
+export default AppPageListPanel

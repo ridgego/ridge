@@ -17,7 +17,7 @@
   "icon": "antd.svg",
   "components": [{
     "title": "按钮",
-    "icon": "img/Input.svg",
+    "icon": "img/Button.svg",
     "path": "build/button-button.d.js",
     "width": 80,
     "height": 35

@@ -1,0 +1,25 @@
+.variable-value {
+    position: relative;
+    display: flex;
+
+    .action-edit {
+        display: none;
+        position: absolute;
+        right: 20px;
+        top: 4px;
+    }
+    .action-delete {
+        margin-top: 4px;
+        margin-left: 2px;
+        visibility: hidden;
+    }
+
+    &:hover {
+        .action-edit {
+            display: inherit;
+        }
+        .action-delete {
+            visibility:visible
+        }
+    }
+}

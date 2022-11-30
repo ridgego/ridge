@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { IconDelete } from '@douyinfe/semi-icons'
-import { withField, Button, Select, TextArea, Space } from '@douyinfe/semi-ui'
+import { IconDelete, IconEdit } from '@douyinfe/semi-icons'
+import { withField, Button, Select, TextArea, Space, Input } from '@douyinfe/semi-ui'
 
 const EventEdit = withField(({
   value,
@@ -32,7 +32,21 @@ const EventEdit = withField(({
   }
 
   const removeAction = (index) => {
-    onChange(actions.splice(index, 1))
+    actions.splice(index - 1, 1)
+    onChange(actions)
+  }
+
+  const openEditCode = (value, index) => {
+    const { Ridge } = window
+
+    Ridge && Ridge.openCodeEditor &&
+    Ridge.openCodeEditor({
+      lang: 'js',
+      code: value,
+      completed: (newCode) => {
+        actionChange('value', newCode, index)
+      }
+    })
   }
 
   const variableOptionList = options.pageVariables.map(v => {
@@ -41,12 +55,15 @@ const EventEdit = withField(({
       value: v.name
     }
   })
+
+  console.log('actions', actions)
   return (
     <div>
       {actions.map((action, index) => {
         return (
-          <div key={index}>
+          <div key={index} className='event-action-config'>
             <Space style={{ marginTop: '4px', marginBottom: '4px' }}>
+              <span>{index + 1}.</span>
               <Select value={action.name} size='small' onChange={(value) => actionChange('name', value, index)}>
                 <Option value='setvar'>设置页面变量</Option>
                 <Option value='setglobal'>设置全局变量</Option>
@@ -61,18 +78,27 @@ const EventEdit = withField(({
                   onChange={(value) => actionChange('target', value, index)}
                 />}
               {action.name === 'setglobal' && <Select />}
+            </Space>
+            <Space>
+              <Input
+                size='small'
+                value={action.value} onChange={value => {
+                  actionChange('value', value, index)
+                }}
+              />
               <Button
                 size='small'
+                type='tertiary'
                 icon={<IconDelete />} onClick={() => {
                   removeAction(index)
                 }}
               />
+              <Button
+                size='small'
+                type='tertiary'
+                icon={<IconEdit />} onClick={() => openEditCode(action.value, index)}
+              />
             </Space>
-            <TextArea
-              cols={3}
-              value={action.value}
-              onChange={(value) => actionChange('value', value, index)}
-            />
           </div>
         )
       })}

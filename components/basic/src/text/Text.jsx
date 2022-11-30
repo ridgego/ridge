@@ -9,9 +9,8 @@ export default ({
   return (
     <div
       style={stl}
-      contentEditable
     >
-      文本内容
+      {text}
     </div>
   )
 }
