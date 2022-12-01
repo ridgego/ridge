@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Button, Banner } from '@douyinfe/semi-ui'
-
+import { Modal, Banner } from '@douyinfe/semi-ui'
 import '../css/code-editor.less'
-import { basicSetup } from 'codemirror'
 
 let editorView = null
 export default ({
@@ -36,7 +34,7 @@ export default ({
       }
       setTimeout(async () => {
         const CodeMirror = await import('codemirror')
-        const { EditorView } = CodeMirror
+        const { EditorView, basicSetup } = CodeMirror
         if (lang === 'js') {
           const { javascript } = await import('@codemirror/lang-javascript')
           editorView = new EditorView({

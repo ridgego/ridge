@@ -3,6 +3,7 @@ import Moveable from 'moveable'
 import { fitRectIntoBounds } from './utils/rectUtils.js'
 
 import './css/moveable.css'
+import Mousetrap from 'mousetrap'
 
 export default class WorkSpaceControl {
   constructor ({
@@ -23,6 +24,7 @@ export default class WorkSpaceControl {
     this.initMoveable()
 
     this.initComponentDrop()
+    this.initKeyBind()
   }
 
   setPageManager (manager) {
@@ -317,6 +319,22 @@ export default class WorkSpaceControl {
     this.workspaceEl.addEventListener('drop', ev => {
       this.workspaceDrop(ev)
     })
+  }
+
+  initKeyBind () {
+    Mousetrap.bind('del', () => {
+      if (this.selected) {
+        for (const el of this.selected) {
+          el.parentElement.removeChild(el)
+        }
+        this.setSelected([])
+      }
+    })
+  }
+
+  setSelected (selected) {
+    this.selected = selected
+    this.moveable.target = selected
   }
 
   /**
