@@ -39,6 +39,22 @@ class Ridge {
     return this.pageElementManagers[id]
   }
 
+  getElementConfig (el, dataKey) {
+    if (el.dataset[dataKey]) {
+      try {
+        return JSON.parse(el.dataset[dataKey])
+      } catch (e) {
+        return null
+      }
+    } else {
+      return null
+    }
+  }
+
+  setElementConfig (el, dataKey, value) {
+    el.dataset[dataKey] = JSON.stringify(value)
+  }
+
   registerMethod (name, method) {
     this[name] = method
   }

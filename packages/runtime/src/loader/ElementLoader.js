@@ -26,6 +26,8 @@ class ElementLoader {
   }) {
     this.baseUrl = baseUrl ?? ''
     this.unpkgUrl = unpkgUrl ?? 'http://unpkg.com'
+    // 调试服务的地址
+    this.debugUrl = debugUrl
 
     important('RidgeLoader baseUrl: ' + this.baseUrl)
 
@@ -41,8 +43,6 @@ class ElementLoader {
     // 已经加载的前端组件的第三方依赖库
     window.fcExternalLoaded = []
 
-    // 调试服务的地址
-    this.debugUrl = debugUrl
     // 调试组件包名称
     this.debugPackageName = null
 

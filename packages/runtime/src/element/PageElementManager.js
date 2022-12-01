@@ -65,22 +65,18 @@ class PageElementManager {
    * @param {Element} el DOM 根元素
    */
   async initialize () {
-    const pageConfig = this.pageRootEl.querySelector('[id="ridge-page-config"]')
+    const pageConfigEl = this.pageRootEl.querySelector('#ridge-page-properties')
 
-    for (const opt of pageConfig.children) {
-      this.properties[opt.getAttribute('key')] = opt.getAttribute('value')
+    this.properties = this.ridge.getElementConfig(pageConfigEl, 'properties') || {
+      title: '页面',
+      type: 'fixed',
+      width: 800,
+      height: 600
     }
-
-    const pageVariable = this.pageRootEl.querySelector('[id="ridge-page-variables"]')
-
-    for (const opt of pageVariable.children) {
-      const v = {
-        name: opt.getAttribute('key'),
-        type: opt.getAttribute('type'),
-        value: opt.getAttribute('value')
-      }
-      this.pageVariableConfig.push(v)
-    }
+    this.pageVariableConfig = this.ridge.getElementConfig(pageConfigEl, 'variables') || [{
+      name: '变量',
+      value: ''
+    }]
 
     const rootNodes = this.pageRootEl.querySelectorAll('div')
 
@@ -90,6 +86,12 @@ class PageElementManager {
     }
 
     await Promise.allSettled(initializeRootElements)
+  }
+
+  initEditorEvents () {
+    this.ridge.on('variableChange', (variables) => {
+      this.updateVariableConfig(variables)
+    })
   }
 
   updatePageVariableValue (name, value) {
@@ -108,6 +110,12 @@ class PageElementManager {
       }
     }
     this.forceUpdate()
+  }
+
+  persistance () {
+    for (const pv of this.pageVariableConfig) {
+      this.pageVariableValues[trim(pv.name)] = pv.value
+    }
   }
 
   /**

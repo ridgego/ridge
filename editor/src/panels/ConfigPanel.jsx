@@ -64,7 +64,7 @@ const pageConfigSection = [{
       label: '页面名称',
       control: 'text',
       bindable: false,
-      field: 'name'
+      field: 'title'
     }]
   }, {
     cols: [{
@@ -108,19 +108,28 @@ export default class ComponentPanel extends React.Component {
     this.currentNode = null
     this.currentStyle = {}
     this.state = {
+      pageVariables: [],
       nodePropsSection: [], // 当前节点属性
-      nodeEventsSection: [], // 当前节点事件
-      pageVariables: [], // 页面变量列表
-      globalVariables: [] // 全局变量列表
+      nodeEventsSection: [] // 当前节点事件
     }
+    this.initEvents()
   }
 
-  setPageManager (pageManager) {
-    this.pageManager = pageManager
-    this.pageProperties = pageManager.getPageProperties()
+  initEvents () {
+    const { Ridge } = window
 
-    this.pagePropFormApi.setValues(this.pageProperties, {
-      notNotify: true
+    Ridge.on('pageLoaded', ({ pageProperties, pageVariables }) => {
+      this.pagePropFormApi.setValues(pageProperties, {
+        notNotify: true
+      })
+      this.setState({
+        pageVariables
+      })
+    })
+    Ridge.on('pageVariableChange', pageVariables => {
+      this.setState({
+        pageVariables
+      })
     })
   }
 
@@ -220,10 +229,6 @@ export default class ComponentPanel extends React.Component {
         nodeEventsSection: []
       })
     }
-    this.setState({
-      pageVariables: this.pageManager.getVariableConfig(),
-      globalVariables: []
-    })
   }
 
   nodeRectChange (el) {

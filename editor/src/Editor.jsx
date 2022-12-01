@@ -6,8 +6,11 @@ import MenuBar from './panels/MenuBar.jsx'
 import CodeEditor from './code-editor/CodeEditor.jsx'
 
 import WorkSpaceControl from './WorkspaceControl.js'
+import ApplicationService from './service/ApplicationService.js'
 
 import './css/editor.less'
+import { Ridge } from 'ridge-runtime'
+import Nanobus from 'nanobus'
 
 export default class Editor extends React.Component {
   constructor (props) {
@@ -28,23 +31,57 @@ export default class Editor extends React.Component {
       editorVisible: false,
       editorCode: ''
     }
+
+    this.initialize()
   }
 
-  loadPage (pageConfig) {
-    const { Ridge } = window
+  /**
+   * 编辑工具模式下初始化： 从本地存储获取相关页面及配置
+   */
+  initialize () {
+    const ridgeInstance = new Ridge({
+      debugUrl: 'https://localhost:8700'
+    })
+    window.Ridge = ridgeInstance
 
-    Ridge.openCodeEditor = this.openCodeEditor.bind(this)
+    ridgeInstance.nanobus = new Nanobus()
+    ridgeInstance.registerMethod('emit', ridgeInstance.nanobus.emit.bind(ridgeInstance.nanobus))
+    ridgeInstance.registerMethod('on', ridgeInstance.nanobus.on.bind(ridgeInstance.nanobus))
+    ridgeInstance.openCodeEditor = this.openCodeEditor.bind(this)
+
+    ridgeInstance.appService = new ApplicationService()
+
+    ridgeInstance.appService.getRecentPage().then(({
+      id,
+      content
+    }) => {
+      this.loadPage(content, id)
+    })
+  }
+
+  /**
+   * 加载并初始化当前工作区
+   * @param {*} pageConfig
+   * @param {*} id
+   */
+  loadPage (pageConfig, id) {
+    const { Ridge } = window
 
     this.viewPortRef.current.innerHTML = pageConfig
 
-    this.pageElementManager = Ridge.initialize(this.viewPortRef.current, 'editor-page')
-    this.dataPanelRef.current.loadVariables(this.pageElementManager.getVariableConfig())
+    // 从HTML初始化页面管理器
+    this.pageElementManager = Ridge.initialize(this.viewPortRef.current, id)
 
     const pageProperties = this.pageElementManager.getPageProperties()
 
+    Ridge.emit('pageLoaded', {
+      pageProperties,
+      pageVariables: this.pageElementManager.getVariableConfig()
+    })
+
+    // 设置页面特征，宽、高
     this.workspaceControl.setViewPort(pageProperties.width, pageProperties.height)
     this.workspaceControl.setPageManager(this.pageElementManager)
-    this.rightPanelRef.current.setPageManager(this.pageElementManager)
   }
 
   componentDidMount () {

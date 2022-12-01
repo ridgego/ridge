@@ -1,15 +1,10 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.less'
-import { Ridge } from 'ridge-runtime'
-import App from './App.jsx'
-
-window.Ridge = new Ridge({
-  debugUrl: 'https://localhost:8700'
-})
+import Editor from './Editor.jsx'
+import './reset.less'
 
 const container = document.getElementById('root')
 if (container) {
   const root = createRoot(container)
-  root.render(<App />)
+  root.render(<Editor />)
 }

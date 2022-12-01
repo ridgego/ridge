@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "webpack --config webpack.prod.js",
-    "stats": "webpack --config webpack.prod.js --profile --json > stats.json",
-    "start": "webpack serve --open"
   },
   "workspaces": [
     "editor",

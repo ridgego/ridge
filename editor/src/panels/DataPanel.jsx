@@ -30,6 +30,7 @@ export default class DataPanel extends React.Component {
         }
       })
     }, () => {
+      window.Ridge.emit('variableChange', this.state.variables)
       window.Ridge.getPageElementManager('editor-page').updateVariableConfig(this.state.variables)
     })
   }
