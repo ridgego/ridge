@@ -4,6 +4,7 @@ import DataPanel from './panels/DataPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 import MenuBar from './panels/MenuBar.jsx'
 import CodeEditor from './code-editor/CodeEditor.jsx'
+import { debounce } from 'lodash'
 
 import WorkSpaceControl from './WorkspaceControl.js'
 import ApplicationService from './service/ApplicationService.js'
@@ -11,6 +12,8 @@ import ApplicationService from './service/ApplicationService.js'
 import './css/editor.less'
 import { Ridge } from 'ridge-runtime'
 import Nanobus from 'nanobus'
+
+import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE } from './constant'
 
 export default class Editor extends React.Component {
   constructor (props) {
@@ -32,6 +35,9 @@ export default class Editor extends React.Component {
       editorCode: ''
     }
 
+    this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 5000)
+
+    this.currentId = null
     this.initialize()
   }
 
@@ -39,23 +45,34 @@ export default class Editor extends React.Component {
    * 编辑工具模式下初始化： 从本地存储获取相关页面及配置
    */
   initialize () {
-    const ridgeInstance = new Ridge({
+    this.ridge = new Ridge({
       debugUrl: 'https://localhost:8700'
     })
-    window.Ridge = ridgeInstance
+    window.Ridge = this.ridge
 
-    ridgeInstance.nanobus = new Nanobus()
-    ridgeInstance.registerMethod('emit', ridgeInstance.nanobus.emit.bind(ridgeInstance.nanobus))
-    ridgeInstance.registerMethod('on', ridgeInstance.nanobus.on.bind(ridgeInstance.nanobus))
-    ridgeInstance.openCodeEditor = this.openCodeEditor.bind(this)
+    this.ridge.nanobus = new Nanobus()
+    this.ridge.registerMethod('emit', this.ridge.nanobus.emit.bind(this.ridge.nanobus))
+    this.ridge.registerMethod('on', this.ridge.nanobus.on.bind(this.ridge.nanobus))
+    this.ridge.registerMethod('openCodeEditor', this.openCodeEditor.bind(this))
+    this.ridge.registerMethod('saveCurrentPage', this.saveCurrentPage.bind(this))
+    this.ridge.registerMethod('debouncedSaveUpdatePage', this.debouncedSaveUpdatePage.bind(this))
 
-    ridgeInstance.appService = new ApplicationService()
+    this.ridge.appService = new ApplicationService()
 
-    ridgeInstance.appService.getRecentPage().then(({
+    this.ridge.appService.getRecentPage().then(({
       id,
       content
     }) => {
+      this.currentId = id
       this.loadPage(content, id)
+    })
+  }
+
+  saveCurrentPage () {
+    this.ridge.appService.saveUpdatePage({
+      id: this.currentId,
+      title: this.pageElementManager.properties.title,
+      content: this.viewPortRef.current.innerHTML
     })
   }
 
@@ -65,18 +82,27 @@ export default class Editor extends React.Component {
    * @param {*} id
    */
   loadPage (pageConfig, id) {
-    const { Ridge } = window
-
     this.viewPortRef.current.innerHTML = pageConfig
 
     // 从HTML初始化页面管理器
-    this.pageElementManager = Ridge.initialize(this.viewPortRef.current, id)
+    this.pageElementManager = this.ridge.initialize(this.viewPortRef.current, id)
 
     const pageProperties = this.pageElementManager.getPageProperties()
 
-    Ridge.emit('pageLoaded', {
+    this.ridge.emit(EVENT_PAGE_LOADED, {
       pageProperties,
       pageVariables: this.pageElementManager.getVariableConfig()
+    })
+
+    this.ridge.on(EVENT_PAGE_VAR_CHANGE, (variables) => {
+      this.pageElementManager.updateVariableConfig(variables)
+      this.pageElementManager.persistance()
+      this.debouncedSaveUpdatePage()
+    })
+    this.ridge.on(EVENT_PAGE_PROP_CHANGE, (properties) => {
+      this.pageElementManager.properties = properties
+      this.pageElementManager.persistance()
+      this.debouncedSaveUpdatePage()
     })
 
     // 设置页面特征，宽、高
@@ -88,11 +114,9 @@ export default class Editor extends React.Component {
     this.workspaceControl = new WorkSpaceControl({
       workspaceEl: this.workspaceRef.current,
       viewPortEl: this.viewPortRef.current,
+      ridge: this.ridge,
       zoomable: true
     })
-    this.workspaceControl.onNodeSelected(this.onNodeSelected.bind(this))
-
-    this.workspaceControl.enablePanelDragResize('#dataPanel')
   }
 
   render () {
@@ -184,48 +208,10 @@ export default class Editor extends React.Component {
     this.codeEditComplete && this.codeEditComplete(value)
   }
 
-  removeNode () {
-    this.pageElementManager.removeElements(this.selectMove.selected)
-  }
-
   togglePanel (panel) {
     this.setState({
       [panel]: !this.state[panel]
     })
-  }
-
-  onToolbarItemClick (cmd, opts) {
-    switch (cmd) {
-      case 'file-manager':
-        this.setState({
-          modalFileShow: true
-        })
-        break
-      default:
-        break
-    }
-  }
-
-  onNodeResizeEnd (el) {
-    this.rightPanelRef.current?.styleChange(el)
-  }
-
-  onPagePropChange (values) {
-    this.setState({
-      pageProps: values
-    })
-  }
-
-  /**
-   * Update To Canvas Style
-   */
-  onNodeCanvasChange (values, field) {
-    const { selectedTargets } = this.state
-    document.getElementById(selectedTargets[0]).style.width = values.width + 'px'
-    document.getElementById(selectedTargets[0]).style.height = values.height + 'px'
-    document.getElementById(selectedTargets[0]).style.transform = `translate(${values.x}px, ${values.y}px)`
-    const moveable = this.movableManager.current?.getMoveable()
-    moveable.updateTarget()
   }
 
   onNodeSelected (el) {
@@ -234,10 +220,6 @@ export default class Editor extends React.Component {
     } else {
       this.rightPanelRef.current?.elementSelected(null)
     }
-  }
-
-  onNodeMove (el) {
-    // this.rightPanelRef.current?.elementMove(el)
   }
 
   zoomChange (zoom) {
@@ -249,9 +231,5 @@ export default class Editor extends React.Component {
     } else {
       this.fitToCenter()
     }
-  }
-
-  initKeyEvents () {
-    MouseStrap.bind('del', this.removeNode.bind(this))
   }
 }

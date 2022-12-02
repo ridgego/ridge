@@ -27,7 +27,7 @@ class Ridge {
   }
 
   initialize (el, id) {
-    const pageElementManager = new PageElementManager(this, el)
+    const pageElementManager = new PageElementManager(this, el, id)
     pageElementManager.initialize()
 
     this.pageElementManagers[id ?? 'default'] = pageElementManager

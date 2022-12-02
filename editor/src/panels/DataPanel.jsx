@@ -4,6 +4,7 @@ import { IconDelete, IconEdit } from '@douyinfe/semi-icons'
 import { Table, Input, Select, TextArea, Tabs, TabPane, Button, InputNumber, Checkbox } from '@douyinfe/semi-ui'
 
 import '../css/data-panel.less'
+import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE } from '../constant.js'
 
 export default class DataPanel extends React.Component {
   constructor () {
@@ -12,6 +13,14 @@ export default class DataPanel extends React.Component {
       show: true,
       variables: []
     }
+
+    window.Ridge.on(EVENT_PAGE_LOADED, ({
+      pageVariables
+    }) => {
+      this.setState({
+        variables: pageVariables
+      })
+    })
   }
 
   loadVariables (variables) {
@@ -30,8 +39,7 @@ export default class DataPanel extends React.Component {
         }
       })
     }, () => {
-      window.Ridge.emit('variableChange', this.state.variables)
-      window.Ridge.getPageElementManager('editor-page').updateVariableConfig(this.state.variables)
+      window.Ridge.emit(EVENT_PAGE_VAR_CHANGE, this.state.variables)
     })
   }
 
@@ -40,7 +48,7 @@ export default class DataPanel extends React.Component {
     this.setState({
       variables: this.state.variables
     }, () => {
-      window.Ridge.getPageElementManager('editor-page').updateVariableConfig(this.state.variables)
+      window.Ridge.emit(EVENT_PAGE_VAR_CHANGE, this.state.variables)
     })
   }
 
@@ -97,54 +105,15 @@ export default class DataPanel extends React.Component {
       }
     ]
 
-    const renderEdit = (record, index) => {
-      switch (record.type) {
-        case 'number':
-          return (
-            <InputNumber
-              defaultValue={record.value} onChange={value => {
-                this.variableChange(index, 'value', value)
-              }}
-            />
-          )
-        case 'string':
-          return (
-            <Input
-              size='small'
-              addonAfter={<IconMaximize style={{ cursor: 'pointer' }} onClick={() => alert(0)} />}
-              defaultValue={record.value} onChange={value => {
-                this.variableChange(index, 'value', value)
-              }}
-            />
-          )
-        case 'boolean':
-          return (
-            <Checkbox
-              defaultValue={record.value} onChange={value => {
-                this.variableChange(index, 'value', value)
-              }}
-            />
-          )
-        case 'object':
-          return (
-            <TextArea
-              defaultValue={record.value} onChange={value => {
-                this.variableChange(index, 'value', value)
-              }}
-            />
-          )
-        default:
-          break
-      }
-    }
-
     const addVariable = () => {
       this.setState({
         variables: this.state.variables.concat([{
           name: '变量' + (this.state.variables.length + 1),
           type: 'string',
           value: ''
-        }])
+        }], () => {
+          window.Ridge.emit(EVENT_PAGE_VAR_CHANGE, this.state.variables)
+        })
       })
     }
     return (

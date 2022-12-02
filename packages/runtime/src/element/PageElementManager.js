@@ -2,7 +2,8 @@ import ElementWrapper from './ElementWrapper'
 import { nanoid, trim } from '../utils/string'
 
 class PageElementManager {
-  constructor (ridge, el) {
+  constructor (ridge, el, id) {
+    this.id = id
     this.ridge = ridge
     this.pageRootEl = el
     this.properties = {}
@@ -88,10 +89,11 @@ class PageElementManager {
     await Promise.allSettled(initializeRootElements)
   }
 
-  initEditorEvents () {
-    this.ridge.on('variableChange', (variables) => {
-      this.updateVariableConfig(variables)
-    })
+  persistance () {
+    const pageConfigEl = this.pageRootEl.querySelector('#ridge-page-properties')
+
+    this.ridge.setElementConfig(pageConfigEl, 'properties', this.properties)
+    this.ridge.setElementConfig(pageConfigEl, 'variables', this.pageVariableConfig)
   }
 
   updatePageVariableValue (name, value) {
@@ -110,12 +112,6 @@ class PageElementManager {
       }
     }
     this.forceUpdate()
-  }
-
-  persistance () {
-    for (const pv of this.pageVariableConfig) {
-      this.pageVariableValues[trim(pv.name)] = pv.value
-    }
   }
 
   /**

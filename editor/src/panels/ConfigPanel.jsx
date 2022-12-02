@@ -3,6 +3,7 @@ import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../form/ObjectForm.jsx'
 
 import MoveablePanel from './MoveablePanel.jsx'
+import { EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE } from '../constant.js'
 
 const basicStyleSections = [{
   rows: [
@@ -118,7 +119,7 @@ export default class ComponentPanel extends React.Component {
   initEvents () {
     const { Ridge } = window
 
-    Ridge.on('pageLoaded', ({ pageProperties, pageVariables }) => {
+    Ridge.on(EVENT_PAGE_LOADED, ({ pageProperties, pageVariables }) => {
       this.pagePropFormApi.setValues(pageProperties, {
         notNotify: true
       })
@@ -126,10 +127,13 @@ export default class ComponentPanel extends React.Component {
         pageVariables
       })
     })
-    Ridge.on('pageVariableChange', pageVariables => {
+    Ridge.on(EVENT_PAGE_VAR_CHANGE, pageVariables => {
       this.setState({
         pageVariables
       })
+    })
+    Ridge.on(EVENT_ELEMENT_SELECTED, el => {
+      this.elementSelected(el)
     })
   }
 
@@ -241,9 +245,6 @@ export default class ComponentPanel extends React.Component {
       nodeEventsSection,
       pageVariables
     } = this.state
-    const {
-      pagePropChange
-    } = this.props
 
     // 回写styleApi句柄以便直接操作基础form
     const basicPropsAPI = (formApi) => {
@@ -272,7 +273,7 @@ export default class ComponentPanel extends React.Component {
     }
 
     const pagePropValueChange = (values, field) => {
-      pagePropChange && pagePropChange(values)
+      window.Ridge && window.Ridge.emit('pagePropChange', values)
     }
 
     return (

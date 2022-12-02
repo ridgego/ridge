@@ -4,9 +4,15 @@ import { fitRectIntoBounds } from './utils/rectUtils.js'
 
 import './css/moveable.css'
 import Mousetrap from 'mousetrap'
+import { EVENT_ELEMENT_SELECTED } from './constant.js'
 
+/**
+ * 控制工作区组件的Drag/Resize/New等动作
+ * 控制编辑器的工作区缩放/平移
+ */
 export default class WorkSpaceControl {
   constructor ({
+    ridge,
     workspaceEl,
     viewPortEl,
     zoomable
@@ -15,6 +21,7 @@ export default class WorkSpaceControl {
     this.viewPortEl = viewPortEl
     this.zoomable = zoomable
 
+    this.ridge = ridge
     this.selectorDropableTarget = '.viewport-container.active [droppable="1"]'
     this.init()
   }
@@ -53,9 +60,6 @@ export default class WorkSpaceControl {
   setZoom (zoom) {
     // this.moveable.zoom = zoom
     // this.selecto.zoom = zoom
-  }
-
-  enablePanelDragResize (panelDiv) {
   }
 
   checkDropTargetStatus (el, x, y) {
@@ -186,19 +190,21 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragStart', ev => {
-      this.moveable.elementGuidelines = this.guidelines
+      sm.moveable.elementGuidelines = this.guidelines
     })
 
     this.moveable.on('drag', ev => {
       ev.target.style.transform = ev.transform
 
-      this.checkDropTargetStatus(ev.target, ev.clientX, ev.clientY)
+      sm.checkDropTargetStatus(ev.target, ev.clientX, ev.clientY)
 
+      sm.ridge.debouncedSaveUpdatePage()
       sm.onm && sm.onm(ev.target)
     })
 
     this.moveable.on('dragEnd', ev => {
-      this.onElementDragEnd(ev.target, ev.clientX, ev.clientY)
+      sm.onElementDragEnd(ev.target, ev.clientX, ev.clientY)
+      sm.ridge.debouncedSaveUpdatePage()
     })
 
     this.moveable.on('resize', ({
@@ -223,6 +229,7 @@ export default class WorkSpaceControl {
       }) => {
         if (!target.getAttribute('containerId')) {
           target.style.transform = transform
+          sm.ridge.debouncedSaveUpdatePage()
         }
       })
     })
@@ -284,7 +291,7 @@ export default class WorkSpaceControl {
         this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => el !== closestRidgeNode)]
         this.moveable.elementGuidelines = this.guidelines
         this.moveable.dragStart(inputEvent)
-        this.ons && this.ons(closestRidgeNode)
+        this.onNodeSelected(closestRidgeNode)
         this.selected = [closestRidgeNode]
         e.stop()
       }
@@ -303,7 +310,7 @@ export default class WorkSpaceControl {
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
       this.moveable.target = selected
       if (selected.length <= 1) {
-        this.ons && this.ons(selected[0])
+        this.onNodeSelected(selected[0])
       }
       this.selected = selected
       // this.setSelectedTargets(selected)
@@ -329,6 +336,10 @@ export default class WorkSpaceControl {
         }
         this.setSelected([])
       }
+    })
+    Mousetrap.bind('ctrl+s', () => {
+      this.ridge.saveCurrentPage()
+      return false
     })
   }
 
@@ -360,10 +371,12 @@ export default class WorkSpaceControl {
     this.onElementDragEnd(newElement.el, ev.pageX, ev.pageY)
 
     newElement.initialize()
+
+    this.ridge.saveCurrentPage()
   }
 
-  onNodeSelected (ons) {
-    this.ons = ons
+  onNodeSelected (el) {
+    this.ridge.emit(EVENT_ELEMENT_SELECTED, el)
   }
 
   onNodeResize (onr) {
