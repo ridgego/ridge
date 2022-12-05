@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { IconDelete, IconEdit } from '@douyinfe/semi-icons'
-import { withField, Button, Select, TextArea, Space, Input } from '@douyinfe/semi-ui'
+import { IconDelete, IconEdit, IconPlus } from '@douyinfe/semi-icons'
+import { withField, Button, Select, Form, Space, Input, TextArea } from '@douyinfe/semi-ui'
 
 const EventEdit = withField(({
   value,
@@ -27,13 +27,12 @@ const EventEdit = withField(({
       }
       return action
     })
-    // setActions(newActions)
     onChange(newActions)
   }
 
   const removeAction = (index) => {
-    actions.splice(index - 1, 1)
-    onChange(actions)
+    actions.splice(index, 1)
+    onChange(JSON.parse(JSON.stringify(actions)))
   }
 
   const openEditCode = (value, index) => {
@@ -56,36 +55,40 @@ const EventEdit = withField(({
     }
   })
 
-  console.log('actions', actions)
   return (
-    <div>
+    <div className='event-edit'>
       {actions.map((action, index) => {
         return (
           <div key={index} className='event-action-config'>
-            <Space style={{ marginTop: '4px', marginBottom: '4px' }}>
-              <span>{index + 1}.</span>
-              <Select value={action.name} size='small' onChange={(value) => actionChange('name', value, index)}>
+            <div className='action-field'>
+              <div className='action-label'>
+                动作
+              </div>
+              <Select label='动作' value={action.name} size='small' onChange={(value) => actionChange('name', value, index)}>
                 <Option value='setvar'>设置页面变量</Option>
                 <Option value='setglobal'>设置全局变量</Option>
               </Select>
-              {action.name === 'setvar' &&
-                <Select
-                  allowCreate size='small'
-                  style={{ width: 120 }}
-                  filter
-                  optionList={variableOptionList}
-                  value={action.target}
-                  onChange={(value) => actionChange('target', value, index)}
-                />}
-              {action.name === 'setglobal' && <Select />}
-            </Space>
+            </div>
+            {action.name === 'setvar' &&
+              <>
+                <div className='action-field'>
+                  <div className='action-label'>目标</div>
+                  <Select
+                    size='small'
+                    style={{ width: 120 }}
+                    filter
+                    optionList={variableOptionList}
+                    value={action.target}
+                    onChange={(value) => actionChange('target', value, index)}
+                  />
+                </div>
+                <div className='action-field'>
+                  <div className='action-label'>取值</div>
+                  <TextArea addonAfter={<IconEdit />} />
+                </div>
+              </>}
+            {action.name === 'setglobal' && <Select />}
             <Space>
-              <Input
-                size='small'
-                value={action.value} onChange={value => {
-                  actionChange('value', value, index)
-                }}
-              />
               <Button
                 size='small'
                 type='tertiary'
@@ -102,7 +105,7 @@ const EventEdit = withField(({
           </div>
         )
       })}
-      <Button size='small' onClick={addEventHandler}>增加</Button>
+      <Button size='small' className='action-add' icon={<IconPlus />} onClick={addEventHandler} />
     </div>
   )
 })

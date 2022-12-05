@@ -3,111 +3,18 @@ import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../form/ObjectForm.jsx'
 
 import MoveablePanel from './MoveablePanel.jsx'
-import { EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE } from '../constant.js'
+import { FORM_COMPONENT_BASIC, FORM_PAGE_PROPS, EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
 
-const basicStyleSections = [{
-  rows: [
-    {
-      cols: [{
-        label: '名称',
-        control: 'text',
-        bindable: false,
-        field: 'name'
-      }]
-    },
-    {
-      cols: [{
-        label: 'X',
-        control: 'number',
-        readonly: (values) => {
-          return !(values && values.style && values.style.position === 'absolute')
-        },
-        field: 'style.x',
-        fieldEx: 'ex.style.x'
-      }, {
-        label: 'Y',
-        control: 'number',
-        readonly: (values) => {
-          return !(values && values.style && values.style.position === 'absolute')
-        },
-        field: 'style.y',
-        fieldEx: 'ex.style.Y'
-      }]
-    },
-    {
-      cols: [{
-        label: 'W',
-        control: 'number',
-        field: 'style.width',
-        fieldEx: 'ex.style.width'
-      }, {
-        label: 'H',
-        control: 'number',
-        field: 'style.height',
-        fieldEx: 'ex.style.height'
-      }]
-    },
-    {
-      cols: [{
-        label: '显示',
-        type: 'boolean',
-        control: 'checkbox',
-        field: 'style.visible',
-        fieldEx: 'ex.style.visible'
-      }]
-    }
-  ]
-}]
-
-const pageConfigSection = [{
-  rows: [{
-    cols: [{
-      label: '页面名称',
-      control: 'text',
-      bindable: false,
-      field: 'title'
-    }]
-  }, {
-    cols: [{
-      label: '页面布局',
-      control: 'select',
-      field: 'type',
-      bindable: false,
-      optionList: [{
-        label: '固定宽高',
-        value: 'fixed'
-      }, {
-        label: '宽度自适应',
-        value: 'fit-w'
-      }, {
-        label: '宽高自适应',
-        value: 'fit-wh'
-      }]
-    }]
-  }, {
-    cols: [{
-      label: 'W',
-      when: 'type === "fixed"',
-      bindable: false,
-      control: 'number',
-      field: 'width'
-    }, {
-      label: 'H',
-      when: 'type === "fixed"',
-      bindable: false,
-      control: 'number',
-      field: 'height'
-    }]
-  }]
-}]
+const basicStyleSections = FORM_COMPONENT_BASIC
 
 export default class ComponentPanel extends React.Component {
   constructor (props) {
     super(props)
     this.ref = React.createRef()
     this.componentPropFormApi = null
-    this.currentNode = null
-    this.currentStyle = {}
+    this.componentEventFormApi = null
+    this.pagePropFormApi = null
+
     this.state = {
       pageVariables: [],
       nodePropsSection: [], // 当前节点属性
@@ -162,7 +69,7 @@ export default class ComponentPanel extends React.Component {
             control: prop.control,
             field: 'props.' + prop.name
           }
-          control.fieldEx = 'ex.props.' + prop.name
+          control.fieldEx = 'propsEx.' + prop.name
           if (!control.control) {
             if (control.type === 'string') {
               control.control = 'text'
@@ -211,10 +118,10 @@ export default class ComponentPanel extends React.Component {
           this.componentPropFormApi.setValue('style', el.elementWrapper.getStyle(), {
             notNotify: true
           })
-          this.componentPropFormApi.setValue('ex.props', elementWrapper.getPropsBinding(), {
+          this.componentPropFormApi.setValue('propsEx', elementWrapper.getPropsBinding(), {
             notNotify: true
           })
-          this.componentPropFormApi.setValue('ex.style', elementWrapper.getStyleBinding(), {
+          this.componentPropFormApi.setValue('styleEx', elementWrapper.getStyleBinding(), {
             notNotify: true
           })
 
@@ -265,15 +172,15 @@ export default class ComponentPanel extends React.Component {
 
     // 组件属性表单项修改
     const componentPropValueChange = (values, field) => {
-      this.currentElement.elementWrapper.propConfigUpdate(values, field)
+      window.Ridge && window.Ridge.emit(EVENT_ELEMENT_PROP_CHANGE, { el: this.currentElement, values, field })
     }
 
     const componentEventValueChange = (values, field) => {
-      this.currentElement.elementWrapper.eventConfigUpdate(values, field)
+      window.Ridge && window.Ridge.emit(EVENT_ELEMENT_EVENT_CHANGE, { el: this.currentElement, values, field })
     }
 
     const pagePropValueChange = (values, field) => {
-      window.Ridge && window.Ridge.emit('pagePropChange', values)
+      window.Ridge && window.Ridge.emit(EVENT_PAGE_PROP_CHANGE, values)
     }
 
     return (
@@ -306,7 +213,7 @@ export default class ComponentPanel extends React.Component {
               style={{
                 display: nodePropsSection.length === 0 ? 'initial' : 'none'
               }}
-              sections={pageConfigSection} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
+              sections={FORM_PAGE_PROPS} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
             />
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>

@@ -1,10 +1,6 @@
 .object-form {
     .semi-form {
-        .semi-form-field {
-            padding-top: 3px;
-            padding: 3px;
-            padding-bottom: 3px;
-        }
+        
 
         .semi-form-field-label {
             margin-bottom: 0;
@@ -15,28 +11,72 @@
             font-weight: normal;
             color: var( --semi-color-text-2);
         }
+       
+        .row {
+            .semi-form-field {
+                padding-top: 3px;
+                padding: 5px;
+                padding-bottom: 3px;
+                width: 100%;
 
-        .semi-col-12 {
-            .semi-form-field-label {
-                width: 24px;   
+                .event-edit {
+                    position: relative;
+                    .action-add {
+                        position: absolute;
+                        right: 5px;
+                        top: -30px;
+                    }
+
+                    .event-action-config {
+                        background-color: var( --semi-color-tertiary-light-default);
+                        border-radius: 5px;
+                        padding: 8px;
+                        margin-top: 5px;
+                    }
+                    .action-field {
+                        display: flex;
+                        padding: 3px 0;
+                        .action-label {
+                            width: 48px;
+                        }
+                        .semi-input-textarea-wrapper {
+                            width: auto;
+                            flex:1;
+                            textarea {
+                                height: 48px;
+                            }
+                        }
+                    }
+                }
+            }
+            display: flex;
+            .col-12 {
+                display: flex;
+                .semi-form-field {
+                    width: 100px;
+                }
+                .semi-form-field-label {
+                    width: 24px;   
+                }
             }
         }
-       
-        .semi-space.with-code-expr {
+        
+        .with-code-expr {
+            display: flex;
             .semi-button-tertiary {
-            visibility: hidden;
+                visibility: hidden;
             }
             .semi-button-tertiary.is-open {
-            visibility: initial;
-            } 
-            &:hover {
-            .semi-button-tertiary {
                 visibility: initial;
             } 
+            &:hover {
+                .semi-button-tertiary {
+                    visibility: initial;
+                } 
             }
         }
         .semi-form-field-main>.semi-checkbox {
-            padding: 0;
+            padding: 2px;
         }
     }
 

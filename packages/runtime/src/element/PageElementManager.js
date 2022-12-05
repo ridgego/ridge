@@ -27,7 +27,10 @@ class PageElementManager {
       const div = document.createElement('div')
       div.setAttribute('ridge-id', nanoid(10))
       div.setAttribute('component-path', fraction.componentPath)
-      div.dataset.name = fraction.name
+
+      div.dataset.name = fraction.title
+      div.dataset.config = JSON.stringify({
+      })
       div.style.width = (fraction.width ?? 100) + 'px'
       div.style.height = (fraction.height ?? 100) + 'px'
 
@@ -79,6 +82,7 @@ class PageElementManager {
       value: ''
     }]
 
+    this.pageVariableConfig = this.pageVariableConfig.filter(n => n != null)
     const rootNodes = this.pageRootEl.querySelectorAll('div')
 
     const initializeRootElements = []

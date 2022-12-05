@@ -1,13 +1,16 @@
 .moveable-control {
-  width: 10px!important;
-  height: 10px!important;
+  width: 8px!important;
+  height: 8px!important;
   border: 1px solid var(--semi-color-primary)!important;
   box-sizing: border-box;
-  border-radius: 0;
+  border-radius: 0!important;
   background: #fff!important;
-  margin-top: -5px!important;
-  margin-left: -5px!important;
+  margin-top: -4px!important;
+  margin-left: -4px!important;
   z-index: 10;
+}
+.moveable-control-box {
+  z-index: 100!important;
 }
 
 .moveable-line {

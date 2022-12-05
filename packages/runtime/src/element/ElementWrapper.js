@@ -23,16 +23,14 @@ class ElementWrapper {
     // 组件配置的属性静态值
     this.instancePropConfig = {}
     // 组件配置的属性动态值
-    this.instancePropBinding = {}
+    this.instancePropConfigEx = {}
+    // Wrapper元素的样式数据
+    this.instanceStyle = {}
+    // Wrapper元素的绑定样式数据
+    this.instanceStyleEx = {}
 
     // 事件处理
     this.eventActionsConfig = {}
-
-    // Wrapper元素的样式数据
-    this.stylePropValue = {}
-    // Wrapper元素的绑定样式数据
-    this.stylePropBind = {}
-
     // 组件的scope值数据
     this.scopeVariableValues = {}
 
@@ -44,16 +42,13 @@ class ElementWrapper {
     this.el.className = 'ridge-element'
     this.el.setAttribute('snappable', 'true')
 
-    if (this.el.dataset.props) {
-      this.instancePropConfig = JSON.parse(this.el.dataset.props)
-    }
-    if (this.el.dataset.propsEx) {
-      this.instancePropBinding = JSON.parse(this.el.dataset.propsEx)
-    }
+    const config = JSON.parse(this.el.dataset.config || '{}')
 
-    if (this.el.dataset.styleEx) {
-      this.instancePropConfig = JSON.parse(this.el.dataset.styleEx)
-    }
+    this.instancePropConfig = config.props || {}
+    this.instancePropConfigEx = config.propsEx || {}
+    this.instanceStyle = config.style || {}
+    this.instanceStyleEx = config.styleEx || {}
+    this.eventActionsConfig = config.events || {}
 
     this.componentPath = this.el.getAttribute('component-path')
 
@@ -181,25 +176,11 @@ class ElementWrapper {
     // 子节点的fcView也同时放入
     if (this.childrenFcViews && this.childrenFcViews.length) {
       this.instancePropConfig.childrenViews = this.childrenFcViews
-      this.instancePropConfig.$$childrenViews = this.childrenFcViews
       this.childrenFcViews.forEach(fcView => {
         fcView.setScopeVariables(this.scopeVariables)
       })
     }
 
-    // 检查未在组件定义但是动态绑定上的交互列表
-    // for (const interaction of (this.fcInstanceConfig.in || [])) {
-    //   if (!this.instancePropConfig[interaction.event.name]) {
-    //     this.instancePropConfig[interaction.event.name] = (...args) => {
-    //       this.emit(interaction.event.name, ...args)
-    //     }
-    //   }
-    // }
-
-    // 写入插槽信息
-    // for (const slotProp in this.slotFcViews) {
-    //   this.instancePropConfig[slotProp] = this.slotFcViews[slotProp]
-    // }
     this.editorFeatures = this.componentDefinition.editorFeatures ?? {}
 
     // try {
@@ -230,37 +211,37 @@ class ElementWrapper {
     }
   }
 
-  updateStyle (style) {
-    // 合并更新值
-    Object.assign(this.stylePropValue, style)
-
-    this.el.style.width = this.stylePropValue.width ? (this.stylePropValue.width + 'px') : ''
-    this.el.style.height = this.stylePropValue.height ? (this.stylePropValue.height + 'px') : ''
-    this.el.style.position = this.stylePropValue.position
-    if (this.stylePropValue.position === 'absolute') {
-      this.el.style.transform = `translate(${this.stylePropValue.x}px, ${this.stylePropValue.y}px)`
+  forceUpdateStyle () {
+    this.el.style.width = this.instanceStyle.width ? (this.instanceStyle.width + 'px') : ''
+    this.el.style.height = this.instanceStyle.height ? (this.instanceStyle.height + 'px') : ''
+    this.el.style.position = this.instanceStyle.position
+    if (this.instanceStyle.position === 'absolute') {
+      this.el.style.transform = `translate(${this.instanceStyle.x}px, ${this.instanceStyle.y}px)`
     } else {
       this.el.style.transform = ''
     }
 
-    this.el.dataset.style = JSON.stringify(this.stylePropValue)
+    if (Object.keys(this.instanceStyleEx).length) {
+      if (this.instanceStyleEx.width) {
+        this.el.style.width = template(this.instanceStyleEx.width, this.getVariableContext()) + 'px'
+      }
+    }
   }
 
   updateProperties (props) {
-    // 合并更新值
-    const newProps = Object.assign({
-      elementWrapper: this
-    }, this.instancePropConfig, props)
-
+    Object.assign(this.instancePropConfig, props)
     if (this.renderer) {
       try {
-        log('updateProps', this.id, newProps)
-        this.renderer.updateProps(newProps)
+        log('updateProps', this.id, this.instancePropConfig)
+
+        this.renderer.updateProps(Object.assign({
+          elementWrapper: this
+        }, this.instancePropConfig))
       } catch (e) {
-        log('用属性渲染组件出错', this.id, newProps, this)
+        log('用属性渲染组件出错', this.id, this.instancePropConfig, this)
       }
     } else {
-      log('updateProps umounted', this.id, newProps)
+      log('updateProps umounted', this.id, this.instancePropConfig)
     }
   }
 
@@ -293,8 +274,8 @@ class ElementWrapper {
     const updated = {}
     Object.assign(updated, this.instancePropConfig)
 
-    for (const propBindKey of Object.keys(this.instancePropBinding)) {
-      updated[propBindKey] = template(this.instancePropBinding[propBindKey], this.getVariableContext())
+    for (const propBindKey of Object.keys(this.instancePropConfigEx)) {
+      updated[propBindKey] = template(this.instancePropConfigEx[propBindKey], this.getVariableContext())
     }
     this.updateProperties(updated)
   }
@@ -351,8 +332,8 @@ class ElementWrapper {
     style.width = parseInt(this.el.style.width)
     style.height = parseInt(this.el.style.height)
 
-    Object.assign(this.stylePropValue, style)
-    return this.stylePropValue
+    Object.assign(this.instanceStyle, style)
+    return this.instanceStyle
   }
 
   getName () {
@@ -364,11 +345,11 @@ class ElementWrapper {
   }
 
   getPropsBinding () {
-    return this.instancePropBinding
+    return this.instancePropConfigEx
   }
 
   getStyleBinding () {
-    return this.stylePropBind
+    return this.instanceStyleEx
   }
 
   getEventActionsConfig () {
@@ -414,41 +395,39 @@ class ElementWrapper {
    * @param {*} field
    */
   propConfigUpdate (values, field) {
-    for (const key of Object.keys(field)) {
-      if (key === 'name') {
-        this.el.dataset.name = field[key]
-        continue
-      }
-      const keySplited = key.split('.')
+    for (const keyPath of Object.keys(field)) {
+      const [type, key] = keyPath.split('.')
 
-      if (keySplited[0] === 'props') {
-        this.updateProperties({
-          [keySplited[1]]: field[key]
-        })
-        this.el.dataset.props = JSON.stringify(this.instancePropConfig)
-      }
-
-      if (keySplited[0] === 'style') {
-        this.updateStyle({
-          [keySplited[1]]: field[key]
+      if (type === 'props') {
+        Object.assign(this.instancePropConfig, {
+          [key]: field[keyPath]
         })
       }
-
-      if (keySplited[0] === 'ex') {
-        if (keySplited[1] === 'props') {
-          this.updatePropertiesExpression({
-            [keySplited[2]]: field[key]
-          })
-          this.el.dataset.propsEx = JSON.stringify(this.instancePropBinding)
-        }
-        if (keySplited[1] === 'style') {
-          this.updateStyleExpression({
-            [keySplited[2]]: field[key]
-          })
-          this.el.dataset.styleEx = JSON.stringify(this.stylePropBind)
-        }
+      if (type === 'style') {
+        Object.assign(this.instanceStyle, {
+          [key]: field[keyPath]
+        })
+      }
+      if (type === 'propsEx') {
+        Object.assign(this.instancePropConfigEx, {
+          [key]: field[keyPath]
+        })
+      }
+      if (type === 'styleEx') {
+        Object.assign(this.instanceStyleEx, {
+          [key]: field[keyPath]
+        })
       }
     }
+
+    this.el.dataset.config = JSON.stringify({
+      props: this.instancePropConfig,
+      style: this.instanceStyle,
+      events: this.eventActionsConfig,
+      styleEx: this.instanceStyleEx,
+      propsEx: this.instancePropConfigEx
+    })
+    this.forceUpdateStyle()
     this.forceUpdate()
   }
 
@@ -469,7 +448,14 @@ class ElementWrapper {
   }
 
   eventConfigUpdate (values, update) {
-    this.eventActionsConfig = Object.assign({}, values.event)
+    Object.assign(this.eventActionsConfig, values.event)
+    this.el.dataset.config = JSON.stringify({
+      props: this.instancePropConfig,
+      style: this.instanceStyle,
+      events: this.eventActionsConfig,
+      styleEx: this.instanceStyleEx,
+      propsEx: this.instancePropConfigEx
+    })
   }
 }
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Toast } from '@douyinfe/semi-ui'
 import ConfigPanel from './panels/ConfigPanel.jsx'
 import DataPanel from './panels/DataPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
@@ -13,7 +14,7 @@ import './css/editor.less'
 import { Ridge } from 'ridge-runtime'
 import Nanobus from 'nanobus'
 
-import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE } from './constant'
+import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE } from './constant'
 
 export default class Editor extends React.Component {
   constructor (props) {
@@ -25,6 +26,8 @@ export default class Editor extends React.Component {
     this.addComponentRef = React.createRef()
 
     this.state = {
+      variables: [],
+      properties: {},
       componentPanelVisible: true,
       propPanelVisible: true,
       outlinePanelVisible: true,
@@ -74,6 +77,10 @@ export default class Editor extends React.Component {
       title: this.pageElementManager.properties.title,
       content: this.viewPortRef.current.innerHTML
     })
+    Toast.success({
+      content: '所有工作已经保存',
+      showClose: false
+    })
   }
 
   /**
@@ -87,10 +94,16 @@ export default class Editor extends React.Component {
     // 从HTML初始化页面管理器
     this.pageElementManager = this.ridge.initialize(this.viewPortRef.current, id)
 
-    const pageProperties = this.pageElementManager.getPageProperties()
-
+    this.setState({
+      variables: this.pageElementManager.getVariableConfig(),
+      properties: this.pageElementManager.getPageProperties()
+    }, () => {
+      // 设置页面特征，宽、高
+      this.workspaceControl.setViewPort(this.state.properties.width, this.state.properties.height)
+      this.workspaceControl.setPageManager(this.pageElementManager)
+    })
     this.ridge.emit(EVENT_PAGE_LOADED, {
-      pageProperties,
+      pageProperties: this.pageElementManager.getPageProperties(),
       pageVariables: this.pageElementManager.getVariableConfig()
     })
 
@@ -104,10 +117,23 @@ export default class Editor extends React.Component {
       this.pageElementManager.persistance()
       this.debouncedSaveUpdatePage()
     })
+    this.ridge.on(EVENT_ELEMENT_PROP_CHANGE, ({
+      el,
+      values,
+      field
+    }) => {
+      el.elementWrapper.propConfigUpdate(values, field)
+    })
+    this.ridge.on(EVENT_ELEMENT_EVENT_CHANGE, ({
+      el,
+      values
+    }) => {
+      el.elementWrapper.eventConfigUpdate(values)
+    })
 
-    // 设置页面特征，宽、高
-    this.workspaceControl.setViewPort(pageProperties.width, pageProperties.height)
-    this.workspaceControl.setPageManager(this.pageElementManager)
+    this.ridge.on('*', () => {
+      this.debouncedSaveUpdatePage()
+    })
   }
 
   componentDidMount () {
@@ -125,6 +151,7 @@ export default class Editor extends React.Component {
       rightPanelRef,
       dataPanelRef,
       workspaceRef,
+      pageVariableConfigChange,
       state
     } = this
 
@@ -134,6 +161,7 @@ export default class Editor extends React.Component {
       propPanelVisible,
       outlinePanelVisible,
       pagesPanelVisible,
+      variables,
       editorLang,
       editorVisible,
       editorCode
@@ -155,7 +183,10 @@ export default class Editor extends React.Component {
           }}
         />
         <DataPanel
-          title='数据' ref={dataPanelRef} visible={dataPanelVisible} onClose={() => {
+          title='数据'
+          variableChange={pageVariableConfigChange}
+          variables={variables}
+          ref={dataPanelRef} visible={dataPanelVisible} onClose={() => {
             this.setState({
               dataPanelVisible: false
             })
@@ -220,6 +251,24 @@ export default class Editor extends React.Component {
     } else {
       this.rightPanelRef.current?.elementSelected(null)
     }
+  }
+
+  pagePropertiesConfigChange (properties) {
+    this.setState({
+      properties
+    })
+    this.pageElementManager.properties = properties
+    this.pageElementManager.persistance()
+    this.debouncedSaveUpdatePage()
+  }
+
+  pageVariableConfigChange (variables) {
+    this.setState({
+      variables
+    })
+    this.pageElementManager.updateVariableConfig(variables)
+    this.pageElementManager.persistance()
+    this.debouncedSaveUpdatePage()
   }
 
   zoomChange (zoom) {
