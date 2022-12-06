@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Button, Typography } from '@douyinfe/semi-ui'
+import { Button } from '@douyinfe/semi-ui'
 import { IconMinus, IconClose, IconExpand, IconHandle } from '@douyinfe/semi-icons'
 
 import Moveable, { } from 'moveable'
@@ -71,7 +71,6 @@ export default class MoveablePanel extends React.Component {
   render () {
     const { onClose, visible } = this.props
     const { state } = this.state
-    const { Title } = Typography
     const style = {
     }
     Object.assign(style, this.props)
@@ -120,12 +119,7 @@ export default class MoveablePanel extends React.Component {
               />}
             <Button icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
           </div>
-          <div
-            className='panel-content' style={{
-              height: 'calc(100% - 26px)',
-              overflow: 'overlay'
-            }}
-          >
+          <div className='panel-content'>
             {this.props.children}
           </div>
         </div>, document.body)

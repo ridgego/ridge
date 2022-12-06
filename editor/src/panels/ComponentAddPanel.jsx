@@ -2,7 +2,7 @@ import React from 'react'
 import { Tabs, TabPane, Spin, List } from '@douyinfe/semi-ui'
 import MoveablePanel from './MoveablePanel.jsx'
 import PackageManager from '../service/PackageManager'
-import './component-add.less'
+import '../css/component-add.less'
 
 class ComponentAddPanel extends React.Component {
   constructor () {

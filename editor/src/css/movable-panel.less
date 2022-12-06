@@ -16,13 +16,26 @@
         top: 0;
         display: none;
     }
+    .panel-content {
+        height: 100%;
+    }
     .semi-tabs {
+        height: 100%;
         .semi-tabs-bar {
             padding-left: 16px;
             .semi-tabs-tab {
                 padding: 3px 5px;
                 &.semi-tabs-tab-active {
                     padding: 3px 5px;
+                }
+            }
+        }
+        .semi-tabs-content {
+            height: calc(100% - 24px);
+            .semi-tabs-pane {
+                height: 100%;
+                .semi-tabs-pane-motion-overlay {
+                    height: 100%;
                 }
             }
         }

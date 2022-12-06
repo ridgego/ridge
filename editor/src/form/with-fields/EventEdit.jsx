@@ -43,7 +43,7 @@ const EventEdit = withField(({
       lang: 'js',
       code: value,
       completed: (newCode) => {
-        actionChange('value', newCode, index)
+        actionChange('expr', newCode, index)
       }
     })
   }
@@ -60,6 +60,11 @@ const EventEdit = withField(({
       {actions.map((action, index) => {
         return (
           <div key={index} className='event-action-config'>
+            <IconDelete
+              className='action-delete' onClick={() => {
+                removeAction(index)
+              }}
+            />
             <div className='action-field'>
               <div className='action-label'>
                 动作
@@ -84,24 +89,15 @@ const EventEdit = withField(({
                 </div>
                 <div className='action-field'>
                   <div className='action-label'>取值</div>
-                  <TextArea addonAfter={<IconEdit />} />
+                  <Input
+                    size='small'
+                    value={action.expr}
+                    addonAfter={<IconEdit onClick={() => openEditCode(action.value, index)} />}
+                    onChange={value => actionChange('expr', value, index)}
+                  />
                 </div>
               </>}
             {action.name === 'setglobal' && <Select />}
-            <Space>
-              <Button
-                size='small'
-                type='tertiary'
-                icon={<IconDelete />} onClick={() => {
-                  removeAction(index)
-                }}
-              />
-              <Button
-                size='small'
-                type='tertiary'
-                icon={<IconEdit />} onClick={() => openEditCode(action.value, index)}
-              />
-            </Space>
           </div>
         )
       })}

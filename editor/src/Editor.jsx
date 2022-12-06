@@ -184,7 +184,7 @@ export default class Editor extends React.Component {
         />
         <DataPanel
           title='数据'
-          variableChange={pageVariableConfigChange}
+          variableChange={pageVariableConfigChange.bind(this)}
           variables={variables}
           ref={dataPanelRef} visible={dataPanelVisible} onClose={() => {
             this.setState({
