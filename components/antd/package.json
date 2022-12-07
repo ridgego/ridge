@@ -25,7 +25,7 @@
     "title": "输入框",
     "icon": "img/Input.svg",
     "path": "build/input-input.d.js",
-    "width": 120,
+    "width": 160,
     "height": 35
   }],
   "author": "",

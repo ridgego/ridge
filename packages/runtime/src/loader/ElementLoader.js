@@ -532,6 +532,11 @@ class ElementLoader {
     }
   }
 
+  /**
+   * 获取package.json定义对象
+   * @param {*} packageName
+   * @returns
+   */
   async getPackageJSON (packageName) {
     if (this.packageJSONCache[packageName]) {
       return this.packageJSONCache[packageName]
@@ -571,61 +576,14 @@ class ElementLoader {
     }
   }
 
-  async confirmPackageDependencies (packageName) {
-    if (this.packageJSONCache[packageName]) {
-      if (this.packageJSONCache[packageName].dependencies) {
-        log('加载库依赖', packageName, Object.keys(this.packageJSONCache[packageName].dependencies))
-        await this.loadExternals(Object.keys(this.packageJSONCache[packageName].dependencies))
-      }
-    } else {
-      try {
-        const packageJSONUrl = this.getPackageJSONUrl(packageName)
-
-        const packageJSONObject = await await ky.get(packageJSONUrl).json()
-
-        this.packageJSONCache[packageJSONObject.name] = packageJSONObject
-        await this.loadExternals(Object.keys(this.packageJSONCache[packageName].dependencies))
-        return packageJSONObject
-      } catch (e) {
-        console.log(e)
-        throw new Error('组件包未安装:' + packageName, e)
-      }
-    }
-  }
-
   /**
-     * 加载前端组件包的package.json中的dependencies
-     * @param pel
-     * @returns {Promise<void>}
-     */
-  async confirmPackageDependenciesIndividual (packageName) {
-    // 直接使用unpkg方式获取package.json
-    if (this.packageNotInstalled.indexOf(packageName) > -1) {
-      // 包无法加载，说明未安装，后续组件也就无法加载了
-      throw new Error('组件包未安装:' + packageName)
-    } else if (!this.packageJSONCache[packageName]) {
-      if (this.packageLoadingPromises[packageName]) {
-        await this.packageLoadingPromises[packageName]
-      } else {
-        this.packageLoadingPromises[packageName] = (async () => {
-          const packageJSONUrl = this.getPackageJSONUrl(packageName)
-          const jsonLoaded = await ky.get(packageJSONUrl).json()
-
-          if (jsonLoaded.name === packageName) {
-            // 可以加载到包
-            if (jsonLoaded.dependencies) {
-              log('加载库依赖', jsonLoaded.name, Object.keys(jsonLoaded.dependencies))
-              await this.loadExternals(Object.keys(jsonLoaded.dependencies))
-            }
-            this.packageJSONCache[packageName] = jsonLoaded
-          } else {
-            this.packageNotInstalled.push(packageName)
-            // 包无法加载，说明未安装，后续组件也就无法加载了
-            throw new Error('组件包未安装:' + packageName)
-          }
-        })()
-      }
-      await this.packageLoadingPromises[packageName]
+   * 加载组件包的依赖资源
+   * @param {String} packageName 组件包名称
+   */
+  async confirmPackageDependencies (packageName) {
+    const packageObject = await this.getPackageJSON(packageName)
+    if (packageObject && packageObject.dependencies) {
+      await this.loadExternals(Object.keys(packageObject.dependencies))
     }
   }
 }
