@@ -26,7 +26,7 @@ export default {
     }]
   }, {
     label: '校验状态',
-    name: 'status ',
+    name: 'status',
     type: 'string',
     value: '',
     control: 'select',
@@ -44,7 +44,7 @@ export default {
     value: '请输入内容'
   }, {
     label: '字数提示',
-    name: 'showCount ',
+    name: 'showCount',
     type: 'boolean',
     value: false
   }],

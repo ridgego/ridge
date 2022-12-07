@@ -27,6 +27,12 @@
     "path": "build/input-input.d.js",
     "width": 160,
     "height": 35
+  }, {
+    "title": "选择器",
+    "icon": "img/Select.svg",
+    "path": "build/select-select.d.js",
+    "width": 160,
+    "height": 35
   }],
   "author": "",
   "license": "ISC",

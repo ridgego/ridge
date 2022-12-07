@@ -22,7 +22,8 @@ export default class WorkSpaceControl {
     this.zoomable = zoomable
 
     this.ridge = ridge
-    this.selectorDropableTarget = '.viewport-container.active [droppable="1"]'
+    // this.selectorDropableTarget = '.viewport-container.active [droppable="1"]'
+    this.selectorDropableTarget = 'slot'
     this.init()
   }
 
@@ -32,6 +33,11 @@ export default class WorkSpaceControl {
 
     this.initComponentDrop()
     this.initKeyBind()
+  }
+
+  disable () {
+    this.selecto.destroy()
+    this.moveable.destroy()
   }
 
   setPageManager (manager) {
@@ -62,14 +68,11 @@ export default class WorkSpaceControl {
     // this.selecto.zoom = zoom
   }
 
-  checkDropTargetStatus (el, x, y) {
-    const target = this.getDroppableTarget(el, {
-      x,
-      y
+  checkDropTargetStatus ({ target, clientX, clientY }) {
+    this.getDroppableTarget(target, {
+      x: clientX,
+      y: clientY
     })
-    if (target) {
-      target.elementWrapper.setStatus('droppable')
-    }
   }
 
   /**
@@ -196,7 +199,7 @@ export default class WorkSpaceControl {
     this.moveable.on('drag', ev => {
       ev.target.style.transform = ev.transform
 
-      sm.checkDropTargetStatus(ev.target, ev.clientX, ev.clientY)
+      sm.checkDropTargetStatus(ev)
 
       sm.ridge.debouncedSaveUpdatePage()
       sm.onm && sm.onm(ev.target)
@@ -293,6 +296,8 @@ export default class WorkSpaceControl {
         this.moveable.dragStart(inputEvent)
         this.onNodeSelected(closestRidgeNode)
         this.selected = [closestRidgeNode]
+        e.inputEvent && e.inputEvent.stopPropagation()
+        e.inputEvent && e.inputEvent.preventDefault()
         e.stop()
       }
       if (inputEvent.ctrlKey) {
@@ -398,7 +403,7 @@ export default class WorkSpaceControl {
 
     const filtered = Array.from(droppableElements).filter(el => {
       const { x, y, width, height } = el.getBoundingClientRect()
-      return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height) && el !== dragEl
+      return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height) && el !== dragEl && el.closest('[ridge-id]') !== dragEl
     })
 
     let target = null
@@ -418,7 +423,9 @@ export default class WorkSpaceControl {
     }
     droppableElements.forEach(el => {
       if (el !== target) {
-        el.elementWrapper.removeStatus('droppable')
+        el.classList.remove('drag-over')
+      } else {
+        el.classList.add('drag-over')
       }
     })
     return target

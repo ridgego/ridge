@@ -1,32 +1,36 @@
 import ListContainer from './index.jsx'
-import bordered from '../bordered.d'
 export default {
-  name: 'repeat-container',
+  name: 'list-container',
   component: ListContainer,
   props: [{
-    name: 'listData',
-    label: '列表数据',
+    name: 'dataSource',
+    label: '数据',
     type: 'array',
-    control: 'textarea',
-    format: ['json'],
+    control: 'json-editor',
     value: []
-  },
-  {
-    name: 'itemHeihgt',
-    label: '单项高度',
-    type: 'boolean',
-    control: 'switch',
-    checkedText: ['自动', '固定'],
-    value: true
   }, {
-    name: 'itemWidth',
-    label: '单项宽度',
-    type: 'boolean',
-    control: 'switch',
-    checkedText: ['自动', '固定'],
-    value: true
-  }, ...bordered.props],
-  editorFeatures: {
+    name: 'itemLayout',
+    label: '布局',
+    type: 'string',
+    control: 'select',
+    optionList: [{
+      label: '纵向',
+      value: 'vertical'
+    }, {
+      label: '横向',
+      value: 'horizontal'
+    }],
+    value: 'vertical'
+  }, {
+    name: 'grid',
+    label: '网格',
+    type: 'object',
+    control: 'grid',
+    value: {
+      enabled: false
+    }
+  }],
+  feature: {
     droppable: true
   }
 }

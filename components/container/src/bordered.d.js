@@ -22,7 +22,7 @@ export default {
     name: 'shadow',
     label: '阴影',
     type: 'string',
-    control: 'border',
+    control: 'shadow',
     value: 'none'
   }]
 }

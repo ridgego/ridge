@@ -35,6 +35,7 @@ export default class Editor extends React.Component {
       dataPanelVisible: true,
       editorLang: null,
       editorVisible: false,
+      modeRun: false,
       editorCode: ''
     }
 
@@ -161,6 +162,7 @@ export default class Editor extends React.Component {
       propPanelVisible,
       outlinePanelVisible,
       pagesPanelVisible,
+      modeRun,
       variables,
       editorLang,
       editorVisible,
@@ -174,9 +176,10 @@ export default class Editor extends React.Component {
               [name]: !this.state[name]
             })
           }}
+          toggoleRunMode={this.toggoleRunMode.bind(this)}
         />
         <ComponentAddPanel
-          visible={componentPanelVisible} onClose={() => {
+          visible={!modeRun && componentPanelVisible} onClose={() => {
             this.setState({
               componentPanelVisible: false
             })
@@ -186,14 +189,14 @@ export default class Editor extends React.Component {
           title='数据'
           variableChange={pageVariableConfigChange.bind(this)}
           variables={variables}
-          ref={dataPanelRef} visible={dataPanelVisible} onClose={() => {
+          ref={dataPanelRef} visible={!modeRun && dataPanelVisible} onClose={() => {
             this.setState({
               dataPanelVisible: false
             })
           }}
         />
         <ConfigPanel
-          ref={rightPanelRef} visible={propPanelVisible} onClose={() => {
+          ref={rightPanelRef} visible={!modeRun && propPanelVisible} onClose={() => {
             this.setState({
               propPanelVisible: false
             })
@@ -269,6 +272,19 @@ export default class Editor extends React.Component {
     this.pageElementManager.updateVariableConfig(variables)
     this.pageElementManager.persistance()
     this.debouncedSaveUpdatePage()
+  }
+
+  // 切换运行模式
+  toggoleRunMode () {
+    this.setState({
+      modeRun: !this.state.modeRun
+    }, () => {
+      if (this.state.modeRun) {
+        this.workspaceControl.disable()
+      } else {
+        this.workspaceControl.init()
+      }
+    })
   }
 
   zoomChange (zoom) {

@@ -19,12 +19,23 @@ export default class RepeatContainer extends React.Component {
   async updateProps (newProps) {
   }
 
-  getContainerStyle (props) {
+  getContainerStyle () {
     const style = {
       width: '100%',
-      height: '100%'
+      height: '100%',
+      border: '1px solid #ccc'
     }
-    Object.assign(style, props)
+    if (this.props.grid.enabled === false) {
+      style.display = 'flex'
+      if (this.props.itemLayout === 'vertical') {
+        style.flexDirection = 'column'
+      } else if (this.props.itemLayout === 'horizontal') {
+        style.flexDirection = 'row'
+      }
+      style.flexWrap = 'wrap'
+      style.gap = '10px'
+    }
+
     return style
   }
 
@@ -52,15 +63,38 @@ export default class RepeatContainer extends React.Component {
     return true
   }
 
+  componentDidUpdate () {
+
+  }
+
+  getSlotStyle () {
+    if (this.props.itemLayout === 'vertical') {
+      return {
+        display: 'block',
+        width: '100%',
+        minHeight: '120px'
+      }
+    } else {
+      return {
+        display: 'block',
+        height: '100%',
+        minWidth: '120px'
+      }
+    }
+  }
+
   render () {
     const containerStyle = this.getContainerStyle(this.props)
 
+    const slotStyle = this.getSlotStyle()
     return (
       <div
         ref={this.$el}
         style={containerStyle}
         className='list-container'
-      />
+      >
+        <slot style={slotStyle} />
+      </div>
     )
   }
 }

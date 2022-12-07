@@ -1,5 +1,6 @@
 import ElementWrapper from './ElementWrapper'
 import { nanoid, trim } from '../utils/string'
+import { pe } from '../utils/expr'
 
 class PageElementManager {
   constructor (ridge, el, id) {
@@ -91,6 +92,14 @@ class PageElementManager {
     }
 
     await Promise.allSettled(initializeRootElements)
+
+    for (const variablesConfig of this.pageVariableConfig) {
+      if (trim(variablesConfig.name)) {
+        this.pageVariableValues[trim(variablesConfig.name)] = pe(variablesConfig.value)
+      }
+    }
+
+    this.forceUpdate()
   }
 
   persistance () {
@@ -112,7 +121,7 @@ class PageElementManager {
 
     for (const pv of this.pageVariableConfig) {
       if (trim(pv.name)) {
-        this.pageVariableValues[trim(pv.name)] = pv.value
+        this.pageVariableValues[trim(pv.name)] = pe(pv.value)
       }
     }
     this.forceUpdate()

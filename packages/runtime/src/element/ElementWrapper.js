@@ -62,7 +62,7 @@ class ElementWrapper {
       }
       this.initPropsAndEvents()
       this.mount(this.el)
-      this.removeStatus('loading')
+      this.removeStatus('Loading')
     }
   }
 
@@ -92,13 +92,13 @@ class ElementWrapper {
     }
     this.initPropsAndEvents()
     this.mount(el ?? this.el)
-    this.removeStatus('loading')
+    this.removeStatus('Loading')
   }
 
   async loadComponentDefinition () {
     // 加载组件定义信息
     if (this.componentPath) {
-      this.setStatus('loading')
+      this.setStatus('Loading')
       const componentDefinition = await this.page.ridge.loadComponent(this.componentPath)
 
       if (!componentDefinition || !componentDefinition.component) {
@@ -193,7 +193,7 @@ class ElementWrapper {
   /**
      * 执行组件初次加载 mount到具体DOM元素
      */
-  mount (el) {
+  mount () {
     // 检测到需要为DOM绑定事件，则在此处绑定
     // !!!! 事件的回调已经统一注册到 this.eventCallbacks 之中了， 当emit时按名称会调用事件
     // if (this.domEvents.length) {
@@ -201,6 +201,10 @@ class ElementWrapper {
     //     this.attachElEvent(el, eventName)
     //   }
     // }
+    this.addMaskLayer({
+      name: 'mask',
+      zIndex: 4
+    })
 
     try {
       // 更新所有动态属性
@@ -383,6 +387,32 @@ class ElementWrapper {
       }
       return false
     }
+  }
+
+  addMaskLayer ({
+    name,
+    zIndex,
+    className,
+    text,
+    content
+  }) {
+    if (this.el.querySelector('[name="' + name + '"]')) {
+      return
+    }
+    const layer = document.createElement('div')
+
+    layer.setAttribute('name', name)
+
+    layer.classList.add('layer')
+
+    if (className) {
+      layer.classList.add(className)
+    }
+    if (zIndex) {
+      layer.style.zIndex = zIndex
+    }
+    layer.innerHTML = content || text || ''
+    this.el.appendChild(layer)
   }
 
   /** --------------------------------------
