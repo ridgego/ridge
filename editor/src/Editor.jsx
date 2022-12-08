@@ -61,61 +61,21 @@ export default class Editor extends React.Component {
     this.ridge.registerMethod('saveCurrentPage', this.saveCurrentPage.bind(this))
     this.ridge.registerMethod('debouncedSaveUpdatePage', this.debouncedSaveUpdatePage.bind(this))
 
+    // 应用管理器初始化
     this.ridge.appService = new ApplicationService()
 
     this.ridge.appService.getRecentPage().then(({
-      id,
       content
     }) => {
-      this.currentId = id
-      this.loadPage(content, id)
-    })
-  }
-
-  saveCurrentPage () {
-    this.ridge.appService.saveUpdatePage({
-      id: this.currentId,
-      title: this.pageElementManager.properties.title,
-      content: this.viewPortRef.current.innerHTML
-    })
-    Toast.success({
-      content: '所有工作已经保存',
-      showClose: false
-    })
-  }
-
-  /**
-   * 加载并初始化当前工作区
-   * @param {*} pageConfig
-   * @param {*} id
-   */
-  loadPage (pageConfig, id) {
-    this.viewPortRef.current.innerHTML = pageConfig
-
-    // 从HTML初始化页面管理器
-    this.pageElementManager = this.ridge.initialize(this.viewPortRef.current, id)
-
-    this.setState({
-      variables: this.pageElementManager.getVariableConfig(),
-      properties: this.pageElementManager.getPageProperties()
-    }, () => {
-      // 设置页面特征，宽、高
-      this.workspaceControl.setViewPort(this.state.properties.width, this.state.properties.height)
-      this.workspaceControl.setPageManager(this.pageElementManager)
-    })
-    this.ridge.emit(EVENT_PAGE_LOADED, {
-      pageProperties: this.pageElementManager.getPageProperties(),
-      pageVariables: this.pageElementManager.getVariableConfig()
+      this.loadPage(content)
     })
 
     this.ridge.on(EVENT_PAGE_VAR_CHANGE, (variables) => {
       this.pageElementManager.updateVariableConfig(variables)
-      this.pageElementManager.persistance()
       this.debouncedSaveUpdatePage()
     })
     this.ridge.on(EVENT_PAGE_PROP_CHANGE, (properties) => {
       this.pageElementManager.properties = properties
-      this.pageElementManager.persistance()
       this.debouncedSaveUpdatePage()
     })
     this.ridge.on(EVENT_ELEMENT_PROP_CHANGE, ({
@@ -137,6 +97,40 @@ export default class Editor extends React.Component {
     })
   }
 
+  saveCurrentPage () {
+    this.ridge.appService.saveUpdatePage({
+      id: this.currentId,
+      title: this.pageElementManager.properties.title,
+      content: this.pageElementManager.getPageJSON()
+    })
+    Toast.success({
+      content: '所有工作已经保存',
+      showClose: false
+    })
+  }
+
+  /**
+   * 加载并初始化当前工作区
+   * @param {*} pageConfig
+   * @param {*} id
+   */
+  loadPage (pageConfig) {
+    // 从HTML初始化页面管理器
+    this.pageElementManager = this.ridge.createPageManager(pageConfig)
+    this.workspaceControl.setPageManager(this.pageElementManager)
+
+    this.pageElementManager.mount(this.viewPortRef.current)
+    this.setState({
+      variables: this.pageElementManager.getVariableConfig(),
+      properties: this.pageElementManager.getPageProperties()
+    })
+    this.ridge.emit(EVENT_PAGE_LOADED, {
+      pageProperties: this.pageElementManager.getPageProperties(),
+      pageVariables: this.pageElementManager.getVariableConfig()
+    })
+    this.workspaceControl.fitToCenter()
+  }
+
   componentDidMount () {
     this.workspaceControl = new WorkSpaceControl({
       workspaceEl: this.workspaceRef.current,
@@ -144,6 +138,7 @@ export default class Editor extends React.Component {
       ridge: this.ridge,
       zoomable: true
     })
+    this.workspaceControl.setWorkSpaceMovable()
   }
 
   render () {

@@ -26,33 +26,14 @@ class Ridge {
     return this.loader.loadComponent(componentPath)
   }
 
-  initialize (el, id) {
-    const pageElementManager = new PageElementManager(this, el, id)
-    pageElementManager.initialize()
+  createPageManager (pageConfig) {
+    const pageManager = new PageElementManager(pageConfig)
 
-    this.pageElementManagers[id ?? 'default'] = pageElementManager
-
-    return pageElementManager
+    return pageManager
   }
 
   getPageElementManager (id) {
     return this.pageElementManagers[id]
-  }
-
-  getElementConfig (el, dataKey) {
-    if (el.dataset[dataKey]) {
-      try {
-        return JSON.parse(el.dataset[dataKey])
-      } catch (e) {
-        return null
-      }
-    } else {
-      return null
-    }
-  }
-
-  setElementConfig (el, dataKey, value) {
-    el.dataset[dataKey] = JSON.stringify(value)
   }
 
   registerMethod (name, method) {

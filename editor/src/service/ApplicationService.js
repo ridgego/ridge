@@ -37,14 +37,21 @@ export default class ApplicationService {
     // 首先更新页面目录数据
     let itemIndex = await this.baseStore.getItem('pages')
     if (!itemIndex) {
+      const id = nanoid(10)
       await this.saveUpdatePage({
-        id: nanoid(10),
+        id,
         title: '页面',
         parent: null,
-        content: `<object id="ridge-page-properties" data-variables="[]" data-properties="{&quot;title&quot;:&quot;页面&quot;,&quot;type&quot;:&quot;fixed&quot;,&quot;width&quot;:800,&quot;height&quot;:600}" title":"新增页面","type":"fixed","width":800,"height":600}"="">
-        </object>
-        <main>
-        </main>`
+        content: {
+          id,
+          properties: {
+            type: 'fixed',
+            width: 400,
+            height: 300
+          },
+          variables: [],
+          elements: []
+        }
       })
     }
     itemIndex = await this.baseStore.getItem('pages')

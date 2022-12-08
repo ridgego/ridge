@@ -3,13 +3,9 @@ import { nanoid, trim } from '../utils/string'
 import { pe } from '../utils/expr'
 
 class PageElementManager {
-  constructor (ridge, el, id) {
-    this.id = id
-    this.ridge = ridge
-    this.pageRootEl = el
-    this.properties = {}
-    this.pageVariableConfig = []
-    this.pageVariableValues = {}
+  constructor (pageConfig) {
+    this.pageConfig = pageConfig
+    this.initialize()
   }
 
   getPageProperties () {
@@ -69,29 +65,11 @@ class PageElementManager {
    * 根据页面配置(HTML DOM)初始化页面
    * @param {Element} el DOM 根元素
    */
-  async initialize () {
-    const pageConfigEl = this.pageRootEl.querySelector('#ridge-page-properties')
-
-    this.properties = this.ridge.getElementConfig(pageConfigEl, 'properties') || {
-      title: '页面',
-      type: 'fixed',
-      width: 800,
-      height: 600
-    }
-    this.pageVariableConfig = this.ridge.getElementConfig(pageConfigEl, 'variables') || [{
-      name: '变量',
-      value: ''
-    }]
-
-    this.pageVariableConfig = this.pageVariableConfig.filter(n => n != null)
-    const rootNodes = this.pageRootEl.querySelectorAll('div')
-
-    const initializeRootElements = []
-    for (const node of rootNodes) {
-      initializeRootElements.push(await this.initializeElement(node))
-    }
-
-    await Promise.allSettled(initializeRootElements)
+  initialize () {
+    this.id = this.pageConfig.id
+    this.properties = this.pageConfig.properties
+    this.pageVariableConfig = this.pageConfig.variables
+    this.pageVariableValues = {}
 
     for (const variablesConfig of this.pageVariableConfig) {
       if (trim(variablesConfig.name)) {
@@ -99,14 +77,50 @@ class PageElementManager {
       }
     }
 
-    this.forceUpdate()
+    this.rootElements = []
+    for (const element of this.pageConfig.elements) {
+      const elementWrapper = new ElementWrapper({
+        pageManager: this,
+        elementConfig: element
+      })
+      this.rootElements.push(elementWrapper)
+    }
   }
 
-  persistance () {
-    const pageConfigEl = this.pageRootEl.querySelector('#ridge-page-properties')
+  async mount (el) {
+    for (const wrapper of this.rootElements) {
+      const div = document.createElement('div')
+      wrapper.mount(div)
+      el.appendChild(div)
+    }
+    el.style.width = this.properties.width + 'px'
+    el.style.height = this.properties.height + 'px'
+  }
 
-    this.ridge.setElementConfig(pageConfigEl, 'properties', this.properties)
-    this.ridge.setElementConfig(pageConfigEl, 'variables', this.pageVariableConfig)
+  async preload () {
+    const awaitings = []
+    for (const wrapper of this.rootElements) {
+      awaitings.push(await wrapper.preload())
+    }
+    await Promise.allSettled(awaitings)
+  }
+
+  /**
+   * 获取页面的定义信息
+   * @returns JSON
+   */
+  getPageJSON () {
+    const result = {
+      id: this.id,
+      properties: this.properties,
+      variables: this.variablesConfig,
+      elements: []
+    }
+
+    for (const element of this.rootElements) {
+      result.elements.push(element.toJSON())
+    }
+    return result
   }
 
   updatePageVariableValue (name, value) {

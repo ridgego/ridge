@@ -66,6 +66,25 @@ class ElementWrapper {
     }
   }
 
+  fromJSON () {
+  }
+
+  toJSON () {
+    return {
+      id: this.id,
+      path: this.componentPath,
+      config: {
+        props: this.instancePropConfig,
+        propsEx: this.instancePropConfigEx,
+        style: this.instanceStyle,
+        styleEx: this.instanceStyleEx,
+        events: this.eventActionsConfig
+      },
+      children: [],
+      slot: []
+    }
+  }
+
   setWrapperStyle (style) {
     Object.assign(this.el.style, style)
   }
@@ -152,19 +171,6 @@ class ElementWrapper {
           this.emit(eventName, val)
         }
       }
-      // 属性进行动态绑定的情况 （动态属性） 这里只进行一次计算， 动态属性更新时会调用update进行更新
-      // eslint-disable-next-line max-len
-      // if (this.fcInstanceConfig.reactiveProps && this.fcInstanceConfig.reactiveProps[prop.name]) {
-      //   const context = Object.assign({}, this.contextVariables, {
-      //     $scope: this.scopeVariables
-      //   })
-
-      //   try {
-      //     this.instancePropConfig[prop.name] = template(this.fcInstanceConfig.reactiveProps[prop.name], context)
-      //   } catch (e) {
-      //     this.instancePropConfig[prop.name] = null
-      //   }
-      // }
     }
 
     // 事件类属性写入，DOM初始化后事件才能挂到源头
@@ -194,18 +200,6 @@ class ElementWrapper {
      * 执行组件初次加载 mount到具体DOM元素
      */
   mount () {
-    // 检测到需要为DOM绑定事件，则在此处绑定
-    // !!!! 事件的回调已经统一注册到 this.eventCallbacks 之中了， 当emit时按名称会调用事件
-    // if (this.domEvents.length) {
-    //   for (const eventName of this.domEvents) {
-    //     this.attachElEvent(el, eventName)
-    //   }
-    // }
-    this.addMaskLayer({
-      name: 'mask',
-      zIndex: 4
-    })
-
     try {
       // 更新所有动态属性
       this.renderer = new ReactRenderer(this.componentDefinition.component, this.el, this.instancePropConfig)
@@ -289,11 +283,6 @@ class ElementWrapper {
     Object.assign(this.instancePropBinding, propsEx)
   }
 
-  updateStyleExpression (styleEx) {
-    // 合并更新值
-    Object.assign(this.stylePropBind, styleEx)
-  }
-
   invoke (method, args) {
     this.renderer.invoke(method, args)
   }
@@ -313,6 +302,11 @@ class ElementWrapper {
         }
       }
     }
+  }
+
+  appendChild (wrapper) {
+    this.children.push(wrapper)
+    this.instancePropConfig.children.push(wrapper)
   }
 
   getCreateChildElement (name) {}
@@ -404,6 +398,12 @@ class ElementWrapper {
     layer.setAttribute('name', name)
 
     layer.classList.add('layer')
+
+    layer.style.position = 'absolute'
+    layer.style.left = 0
+    layer.style.right = 0
+    layer.style.top = 0
+    layer.style.bottom = 0
 
     if (className) {
       layer.classList.add(className)
