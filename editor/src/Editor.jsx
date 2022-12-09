@@ -117,6 +117,8 @@ export default class Editor extends React.Component {
   loadPage (pageConfig) {
     // 从HTML初始化页面管理器
     this.pageElementManager = this.ridge.createPageManager(pageConfig)
+    this.pageElementManager.isEdit = true
+
     this.workspaceControl.setPageManager(this.pageElementManager)
 
     this.pageElementManager.mount(this.viewPortRef.current)

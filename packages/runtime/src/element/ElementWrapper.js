@@ -13,56 +13,46 @@ export const ATTR_DROPPABLE = 'droppable'
  */
 class ElementWrapper {
   constructor ({
-    el,
+    config,
     page
   }) {
-    this.el = el
-
-    this.id = el.getAttribute('ridge-id')
-
-    // 组件配置的属性静态值
-    this.instancePropConfig = {}
-    // 组件配置的属性动态值
-    this.instancePropConfigEx = {}
-    // Wrapper元素的样式数据
-    this.instanceStyle = {}
-    // Wrapper元素的绑定样式数据
-    this.instanceStyleEx = {}
-
-    // 事件处理
-    this.eventActionsConfig = {}
-    // 组件的scope值数据
-    this.scopeVariableValues = {}
-
+    this.config = config
+    this.id = config.id
     this.page = page
-    this.el.elementWrapper = this
+    this.isEdit = page.isEdit
+    this.initialize()
   }
 
-  async initialize () {
-    this.el.className = 'ridge-element'
-    this.el.setAttribute('snappable', 'true')
-
-    const config = JSON.parse(this.el.dataset.config || '{}')
-
+  initialize () {
+    const { config } = this
+    // 组件配置的属性静态值
     this.instancePropConfig = config.props || {}
+    // 组件配置的属性动态值
     this.instancePropConfigEx = config.propsEx || {}
+    // Wrapper元素的样式数据
     this.instanceStyle = config.style || {}
+    // Wrapper元素的绑定样式数据
     this.instanceStyleEx = config.styleEx || {}
+    // 事件处理配置
     this.eventActionsConfig = config.events || {}
 
-    this.componentPath = this.el.getAttribute('component-path')
+    // 组件的scope值数据
+    this.scopeVariableValues = {}
+    this.componentPath = config.path
+  }
 
+  /**
+   * 加载组件代码、按代码初始化属性
+   */
+  async preload () {
+    this.setStatus('Loading')
     this.componentDefinition = await this.loadComponentDefinition()
-
     if (this.componentDefinition) {
-      if (this.componentDefinition.editorFeatures) {
-        if (this.componentDefinition.editorFeatures.droppable) {
-          this.el.setAttribute(ATTR_DROPPABLE, '1')
-        }
-      }
       this.initPropsAndEvents()
-      this.mount(this.el)
       this.removeStatus('Loading')
+      this.preloaded = true
+    } else {
+      this.setStatus('Error')
     }
   }
 
@@ -85,63 +75,22 @@ class ElementWrapper {
     }
   }
 
-  setWrapperStyle (style) {
-    Object.assign(this.el.style, style)
-  }
-
-  async loadAndInitialize (el) {
-    this.el.className = 'ridge-element'
-    this.el.setAttribute('id', 'el-' + this.id)
-
-    if (this.componentConfig.position) {
-      this.el.style.position = 'absolute'
-      this.el.style.width = this.componentConfig.position.width + 'px'
-      this.el.style.height = this.componentConfig.position.height + 'px'
-      this.el.style.transform = `translate(${this.componentConfig.position.x}px, ${this.componentConfig.position.y}px)`
-    }
-
-    await this.loadComponentDefinition()
-
-    if (this.componentDefinition) {
-      if (this.componentDefinition.editorFeatures) {
-        if (this.componentDefinition.editorFeatures.droppable) {
-          this.el.setAttribute(ATTR_DROPPABLE, '1')
-        }
-      }
-    }
-    this.initPropsAndEvents()
-    this.mount(el ?? this.el)
-    this.removeStatus('Loading')
-  }
-
   async loadComponentDefinition () {
     // 加载组件定义信息
     if (this.componentPath) {
-      this.setStatus('Loading')
       const componentDefinition = await this.page.ridge.loadComponent(this.componentPath)
 
       if (!componentDefinition || !componentDefinition.component) {
         log('加载图元失败: 未获取组件', this.componentPath)
+        this.setStatus('加载失败')
         return null
-      }
-
-      // 枚举组件定义属性，加载相关的字体资源
-      for (const prop of componentDefinition.props || []) {
-        // 字体类型属性，并且指定了值
-        if (prop.control === 'font-dropdown' && this.instancePropConfig[prop.name]) {
-          log('加载字体', this.instancePropConfig[prop.name])
-          await this.loader.loadFont(null, this.instancePropConfig[prop.name])
-        }
-      }
-      this.setStatus('Preparing')
-
-      try {
-        this.context && this.context.emit('component-loaded', this)
-      } catch (e) {
-        //
       }
       return componentDefinition
     }
+  }
+
+  setWrapperStyle (style) {
+    Object.assign(this.el.style, style)
   }
 
   /**
@@ -188,18 +137,20 @@ class ElementWrapper {
     }
 
     this.editorFeatures = this.componentDefinition.editorFeatures ?? {}
-
-    // try {
-    //   Object.values(this.decorators).forEach(decorator => decorator.initPropEvents(this))
-    // } catch (e) {
-    //   console.error('Decorator initPropEvents Error', e)
-    // }
   }
 
   /**
      * 执行组件初次加载 mount到具体DOM元素
      */
-  mount () {
+  async mount (el) {
+    this.el = el
+    this.el.className = 'ridge-element'
+
+    if (!this.preloaded) {
+      await this.preload()
+    }
+    this.forceUpdateStyle()
+
     try {
       // 更新所有动态属性
       this.renderer = new ReactRenderer(this.componentDefinition.component, this.el, this.instancePropConfig)

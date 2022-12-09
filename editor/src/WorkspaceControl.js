@@ -359,24 +359,16 @@ export default class WorkSpaceControl {
    */
   workspaceDrop (ev) {
     ev.preventDefault()
-    // const { viewPortRef } = this
-    // const { zoom } = this.state
-    // const workspaceRect = viewPortRef.current.getBoundingClientRect()
-    // Get the id of the target and add the moved element to the target's DOM
+
     const data = ev.dataTransfer.getData('text/plain')
+
     const fraction = JSON.parse(data)
 
-    const newElement = this.pageManager.createElement(fraction)
+    const div = document.createElement('div')
+    const wrapper = this.pageManager.createElement(fraction)
+    wrapper.mount(div)
 
-    // const width = fraction.width ?? 100
-    // const height = fraction.height ?? 100
-    // const posX = parseInt((ev.pageX - workspaceRect.left - width / 2) / zoom)
-    // const posY = parseInt((ev.pageY - workspaceRect.top - height / 2) / zoom)
-
-    this.onElementDragEnd(newElement.el, ev.pageX, ev.pageY)
-
-    newElement.initialize()
-
+    this.onElementDragEnd(div, ev.pageX, ev.pageY)
     this.ridge.saveCurrentPage()
   }
 

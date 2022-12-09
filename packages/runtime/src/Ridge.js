@@ -27,7 +27,7 @@ class Ridge {
   }
 
   createPageManager (pageConfig) {
-    const pageManager = new PageElementManager(pageConfig)
+    const pageManager = new PageElementManager(pageConfig, this)
 
     return pageManager
   }

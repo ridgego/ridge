@@ -3,8 +3,9 @@ import { nanoid, trim } from '../utils/string'
 import { pe } from '../utils/expr'
 
 class PageElementManager {
-  constructor (pageConfig) {
+  constructor (pageConfig, ridge) {
     this.pageConfig = pageConfig
+    this.ridge = ridge
     this.initialize()
   }
 
@@ -13,33 +14,31 @@ class PageElementManager {
   }
 
   /**
-   * 从组件定义片段创建一个页面元素实例
-   * @param {Object} fraction 来自
-   * @param {String} 组件ID/Path
-   * @param {*} viewConfig 默认配置顺序
-   * @returns
-   */
+ * 从组件定义片段创建一个页面元素实例
+ * @param {Object} fraction 来自
+ * @returns
+ */
   createElement (fraction) {
-    try {
-      const div = document.createElement('div')
-      div.setAttribute('ridge-id', nanoid(10))
-      div.setAttribute('component-path', fraction.componentPath)
-
-      div.dataset.name = fraction.title
-      div.dataset.config = JSON.stringify({
-      })
-      div.style.width = (fraction.width ?? 100) + 'px'
-      div.style.height = (fraction.height ?? 100) + 'px'
-
-      const elementWrapper = new ElementWrapper({
-        el: div,
-        page: this
-      })
-      return elementWrapper
-    } catch (e) {
-      console.error('Error Create Element', e)
-      return null
+  // 生成组件定义
+    const elementConfig = {
+      id: nanoid(5),
+      path: fraction.componentPath,
+      style: {
+        position: 'absolute',
+        width: fraction.width ?? 100,
+        height: fraction.height ?? 100
+      },
+      styleEx: {},
+      props: {},
+      propEx: {}
     }
+
+    const wrapper = new ElementWrapper({
+      config: elementConfig,
+      page: this
+    })
+
+    return wrapper
   }
 
   removeElements (elements) {
@@ -50,15 +49,6 @@ class PageElementManager {
       }
       target.parentElement.removeChild(target)
     }
-  }
-
-  async initializeElement (el) {
-    const elementWrapper = new ElementWrapper({
-      el,
-      page: this
-    })
-    await elementWrapper.initialize()
-    return elementWrapper
   }
 
   /**
@@ -81,12 +71,16 @@ class PageElementManager {
     for (const element of this.pageConfig.elements) {
       const elementWrapper = new ElementWrapper({
         pageManager: this,
-        elementConfig: element
+        config: element
       })
       this.rootElements.push(elementWrapper)
     }
   }
 
+  /**
+   * 挂载整个页面到body或者根元素
+   * @param {Element} el 根元素
+   */
   async mount (el) {
     for (const wrapper of this.rootElements) {
       const div = document.createElement('div')
