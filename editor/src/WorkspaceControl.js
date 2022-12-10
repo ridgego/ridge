@@ -107,19 +107,39 @@ export default class WorkSpaceControl {
         this.putElementToRoot(el, x, y)
       }
     }
+    this.selectElements([el])
   }
 
+  // 首次放置或者从其他容器挪出
   putElementToRoot (el, x, y) {
+    // 修改父子关系
     this.viewPortEl.appendChild(el)
+    // 计算位置
     const rbcr = this.viewPortEl.getBoundingClientRect()
     const bcr = el.getBoundingClientRect()
-    const transform = `translate(${x - rbcr.x - bcr.width / 2}px, ${y - rbcr.y - bcr.height / 2}px)`
-    el.style.position = 'absolute'
-    el.setAttribute('snappable', true)
-    el.style.width = bcr.width + 'px'
-    el.style.height = bcr.height + 'px'
-    el.style.transform = transform
+
+    console.log('put element', x, y, rbcr, bcr)
+    el.elementWrapper.setStyle({
+      position: 'absolute',
+      x: x - rbcr.x - bcr.width / 2,
+      y: y - rbcr.y - bcr.height / 2
+    })
+
+    // const transform = `translate(${x - rbcr.x - bcr.width / 2}px, ${y - rbcr.y - bcr.height / 2}px)`
+    // el.style.position = 'absolute'
+    // el.setAttribute('snappable', true)
+    // el.style.width = bcr.width + 'px'
+    // el.style.height = bcr.height + 'px'
+    // el.style.transform = transform
     this.moveable.updateTarget()
+  }
+
+  selectElements (elements) {
+    this.moveable.target = elements
+    if (elements.length <= 1) {
+      this.onNodeSelected(elements[0])
+    }
+    this.selected = elements
   }
 
   setWorkSpaceMovable () {
@@ -313,11 +333,7 @@ export default class WorkSpaceControl {
       this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
 
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
-      this.moveable.target = selected
-      if (selected.length <= 1) {
-        this.onNodeSelected(selected[0])
-      }
-      this.selected = selected
+      this.selectElements(selected)
       // this.setSelectedTargets(selected)
     })
   }
@@ -361,11 +377,11 @@ export default class WorkSpaceControl {
     ev.preventDefault()
 
     const data = ev.dataTransfer.getData('text/plain')
-
     const fraction = JSON.parse(data)
 
     const div = document.createElement('div')
     const wrapper = this.pageManager.createElement(fraction)
+
     wrapper.mount(div)
 
     this.onElementDragEnd(div, ev.pageX, ev.pageY)

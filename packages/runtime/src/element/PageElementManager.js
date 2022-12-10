@@ -21,6 +21,7 @@ class PageElementManager {
   createElement (fraction) {
   // 生成组件定义
     const elementConfig = {
+      title: fraction.title,
       id: nanoid(5),
       path: fraction.componentPath,
       style: {
@@ -35,9 +36,9 @@ class PageElementManager {
 
     const wrapper = new ElementWrapper({
       config: elementConfig,
-      page: this
+      pageManager: this
     })
-
+    this.pageElements[wrapper.id] = wrapper
     return wrapper
   }
 
@@ -67,13 +68,13 @@ class PageElementManager {
       }
     }
 
-    this.rootElements = []
+    this.pageElements = {}
     for (const element of this.pageConfig.elements) {
       const elementWrapper = new ElementWrapper({
         pageManager: this,
         config: element
       })
-      this.rootElements.push(elementWrapper)
+      this.pageElements[elementWrapper.id] = elementWrapper
     }
   }
 
@@ -82,7 +83,7 @@ class PageElementManager {
    * @param {Element} el 根元素
    */
   async mount (el) {
-    for (const wrapper of this.rootElements) {
+    for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
       const div = document.createElement('div')
       wrapper.mount(div)
       el.appendChild(div)
@@ -107,11 +108,11 @@ class PageElementManager {
     const result = {
       id: this.id,
       properties: this.properties,
-      variables: this.variablesConfig,
+      variables: this.pageVariableConfig,
       elements: []
     }
 
-    for (const element of this.rootElements) {
+    for (const element of Object.values(this.pageElements)) {
       result.elements.push(element.toJSON())
     }
     return result

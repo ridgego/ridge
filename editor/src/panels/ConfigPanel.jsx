@@ -44,10 +44,88 @@ export default class ComponentPanel extends React.Component {
     })
   }
 
-  elementMove (el) {
+  elementMoved (el) {
     this.componentPropFormApi.setValue('style', el.elementWrapper.getStyle(), {
       notNotify: true
     })
+  }
+
+  updatePanelConfig () {
+    const elementWrapper = this.currentElement.elementWrapper
+    this.componentPropFormApi.setValue('style', elementWrapper.getStyle(), {
+      notNotify: true
+    })
+    if (elementWrapper.componentDefinition) {
+      const componentDefiProps = elementWrapper.componentDefinition.props
+      const styledProps = []
+      for (const prop of componentDefiProps) {
+        const control = {
+          label: prop.label,
+          type: prop.type,
+          bindable: prop.bindable,
+          control: prop.control,
+          field: 'props.' + prop.name
+        }
+        control.fieldEx = 'propsEx.' + prop.name
+        if (!control.control) {
+          if (control.type === 'string') {
+            control.control = 'text'
+          }
+        }
+        if (prop.optionList) {
+          control.optionList = prop.optionList
+        }
+        styledProps.push({
+          cols: [
+            control
+          ]
+        })
+      }
+      const nodePropsSection = basicStyleSections.concat({
+        rows: styledProps
+      })
+
+      const eventRows = []
+      for (const event of elementWrapper.componentDefinition.events || []) {
+        const control = {
+          label: event.label,
+          type: 'function',
+          control: 'event',
+          bindable: false,
+          field: 'event.' + event.name
+        }
+        eventRows.push({
+          cols: [
+            control
+          ]
+        })
+      }
+      this.setState({
+        nodePropsSection,
+        nodeEventsSection: [{
+          rows: eventRows
+        }]
+      }, () => {
+        this.componentPropFormApi.setValue('name', elementWrapper.getName(), {
+          notNotify: true
+        })
+        this.componentPropFormApi.setValue('props', elementWrapper.getPropsValue(), {
+          notNotify: true
+        })
+        this.componentPropFormApi.setValue('style', elementWrapper.getStyle(), {
+          notNotify: true
+        })
+        this.componentPropFormApi.setValue('propsEx', elementWrapper.getPropsBinding(), {
+          notNotify: true
+        })
+        this.componentPropFormApi.setValue('styleEx', elementWrapper.getStyleBinding(), {
+          notNotify: true
+        })
+        this.componentEventFormApi.setValue('event', elementWrapper.getEventActionsConfig(), {
+          notNotify: true
+        })
+      })
+    }
   }
 
   /**
@@ -55,84 +133,24 @@ export default class ComponentPanel extends React.Component {
    * @param {DOM} el
    */
   elementSelected (el) {
+    this.currentElement = el
+    if (this.interval) {
+      window.clearInterval(this.interval)
+      this.interval = null
+    }
     if (el) {
-      const elementWrapper = el.elementWrapper
-
-      if (elementWrapper.componentDefinition) {
-        const componentDefiProps = elementWrapper.componentDefinition.props
-        const styledProps = []
-        for (const prop of componentDefiProps) {
-          const control = {
-            label: prop.label,
-            type: prop.type,
-            bindable: prop.bindable,
-            control: prop.control,
-            field: 'props.' + prop.name
+      const elementWrapper = this.currentElement.elementWrapper
+      if (elementWrapper && elementWrapper.componentDefinition) {
+        this.updatePanelConfig()
+      } else {
+        this.interval = setInterval(() => {
+          if (elementWrapper && elementWrapper.componentDefinition) {
+            this.updatePanelConfig()
+            window.clearInterval(this.interval)
+            this.interval = null
           }
-          control.fieldEx = 'propsEx.' + prop.name
-          if (!control.control) {
-            if (control.type === 'string') {
-              control.control = 'text'
-            }
-          }
-          if (prop.optionList) {
-            control.optionList = prop.optionList
-          }
-          styledProps.push({
-            cols: [
-              control
-            ]
-          })
-        }
-        const nodePropsSection = basicStyleSections.concat({
-          rows: styledProps
-        })
-
-        const eventRows = []
-        for (const event of elementWrapper.componentDefinition.events || []) {
-          const control = {
-            label: event.label,
-            type: 'function',
-            control: 'event',
-            bindable: false,
-            field: 'event.' + event.name
-          }
-          eventRows.push({
-            cols: [
-              control
-            ]
-          })
-        }
-        this.setState({
-          nodePropsSection,
-          nodeEventsSection: [{
-            rows: eventRows
-          }]
-        }, () => {
-          this.componentPropFormApi.setValue('name', elementWrapper.getName(), {
-            notNotify: true
-          })
-          this.componentPropFormApi.setValue('props', elementWrapper.getPropsValue(), {
-            notNotify: true
-          })
-          this.componentPropFormApi.setValue('style', el.elementWrapper.getStyle(), {
-            notNotify: true
-          })
-          this.componentPropFormApi.setValue('propsEx', elementWrapper.getPropsBinding(), {
-            notNotify: true
-          })
-          this.componentPropFormApi.setValue('styleEx', elementWrapper.getStyleBinding(), {
-            notNotify: true
-          })
-
-          this.componentEventFormApi.setValue('event', elementWrapper.getEventActionsConfig(), {
-            notNotify: true
-          })
-        })
+        }, 200)
       }
-
-      this.currentElement = el
-      this.elementMove(el)
     } else {
       this.currentElement = null
       this.setState({

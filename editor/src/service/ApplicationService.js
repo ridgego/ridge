@@ -45,6 +45,7 @@ export default class ApplicationService {
         content: {
           id,
           properties: {
+            title: '页面',
             type: 'fixed',
             width: 400,
             height: 300

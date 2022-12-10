@@ -1,4 +1,5 @@
 import debug from 'debug'
+import { times } from 'lodash'
 import ReactRenderer from '../render/ReactRenderer'
 import template from '../template'
 const log = debug('ridge:el-wrapper')
@@ -14,13 +15,23 @@ export const ATTR_DROPPABLE = 'droppable'
 class ElementWrapper {
   constructor ({
     config,
-    page
+    pageManager
   }) {
     this.config = config
     this.id = config.id
-    this.page = page
-    this.isEdit = page.isEdit
+    this.pageManager = pageManager
+    this.slot = config.slot
+    this.parent = config.parent
+    this.order = config.order
+
+    // 给组件注入的属性值
+    this.properties = {}
+    this.isEdit = pageManager.isEdit
     this.initialize()
+  }
+
+  isRoot () {
+    return this.slot == null && this.parent == null
   }
 
   initialize () {
@@ -39,6 +50,8 @@ class ElementWrapper {
     // 组件的scope值数据
     this.scopeVariableValues = {}
     this.componentPath = config.path
+
+    Object.assign(this.properties, this.instancePropConfig)
   }
 
   /**
@@ -71,14 +84,13 @@ class ElementWrapper {
         events: this.eventActionsConfig
       },
       children: [],
-      slot: []
     }
   }
 
   async loadComponentDefinition () {
     // 加载组件定义信息
     if (this.componentPath) {
-      const componentDefinition = await this.page.ridge.loadComponent(this.componentPath)
+      const componentDefinition = await this.pageManager.ridge.loadComponent(this.componentPath)
 
       if (!componentDefinition || !componentDefinition.component) {
         log('加载图元失败: 未获取组件', this.componentPath)
@@ -89,8 +101,15 @@ class ElementWrapper {
     }
   }
 
-  setWrapperStyle (style) {
-    Object.assign(this.el.style, style)
+  setStyle (style) {
+    Object.assign(this.instanceStyle, style)
+    if (style.position === 'absolute') {
+      this.el.style.position = 'absolute'
+      this.el.style.left = 0
+      this.el.style.top = 0
+
+      this.el.style.transform = `translate(${style.x}px, ${style.y}px)`
+    }
   }
 
   /**
@@ -101,12 +120,12 @@ class ElementWrapper {
     for (const prop of this.componentDefinition.props || []) {
       // 默认值次序：  控件实例化给的默认值 -> 组态化定义的默认值 -> 前端组件的默认值 (这个不给就用默认值了)
       if (this.instancePropConfig[prop.name] == null && prop.value != null) {
-        this.instancePropConfig[prop.name] = prop.value
+        this.properties[prop.name] = prop.value
       }
 
       // 处理属性的input情况 类似 vue的 v-model
       if (prop.name === 'value') {
-        this.instancePropConfig.input = val => {
+        this.properties.input = val => {
           this.emit('input', val)
         }
       }
@@ -116,7 +135,7 @@ class ElementWrapper {
         const eventName = 'set' + prop.name.substr(0, 1).toUpperCase() + prop.name.substr(1)
 
         // 当双向绑定时， 获取动态绑定部分配置的属性值
-        this.instancePropConfig[eventName] = val => {
+        this.properties[eventName] = val => {
           this.emit(eventName, val)
         }
       }
@@ -124,13 +143,13 @@ class ElementWrapper {
 
     // 事件类属性写入，DOM初始化后事件才能挂到源头
     for (const event of this.componentDefinition.events || []) {
-      this.instancePropConfig[event.name] = (...args) => {
+      this.properties[event.name] = (...args) => {
         this.emit(event.name, ...args)
       }
     }
     // 子节点的fcView也同时放入
     if (this.childrenFcViews && this.childrenFcViews.length) {
-      this.instancePropConfig.childrenViews = this.childrenFcViews
+      this.properties.children = this.childrenFcViews
       this.childrenFcViews.forEach(fcView => {
         fcView.setScopeVariables(this.scopeVariables)
       })
@@ -142,21 +161,18 @@ class ElementWrapper {
   /**
      * 执行组件初次加载 mount到具体DOM元素
      */
-  async mount (el) {
+  mount (el) {
     this.el = el
     this.el.className = 'ridge-element'
-
-    if (!this.preloaded) {
-      await this.preload()
-    }
+    this.el.elementWrapper = this
     this.forceUpdateStyle()
 
-    try {
-      // 更新所有动态属性
-      this.renderer = new ReactRenderer(this.componentDefinition.component, this.el, this.instancePropConfig)
-      // this.context.emit('mouted', this)
-    } catch (e) {
-      console.error(e)
+    if (!this.preloaded) {
+      this.preload().then(() => {
+        this.renderer = new ReactRenderer(this.componentDefinition.component, this.el, this.properties)
+      })
+    } else {
+      this.renderer = new ReactRenderer(this.componentDefinition.component, this.el, this.properties)
     }
   }
 
@@ -178,14 +194,14 @@ class ElementWrapper {
   }
 
   updateProperties (props) {
-    Object.assign(this.instancePropConfig, props)
+    Object.assign(this.properties, props)
     if (this.renderer) {
       try {
-        log('updateProps', this.id, this.instancePropConfig)
+        log('updateProps', this.id, this.properties)
 
         this.renderer.updateProps(Object.assign({
-          elementWrapper: this
-        }, this.instancePropConfig))
+          _elementWrapper: this
+        }, this.properties))
       } catch (e) {
         log('用属性渲染组件出错', this.id, this.instancePropConfig, this)
       }
@@ -211,7 +227,7 @@ class ElementWrapper {
      */
   getVariableContext () {
     return Object.assign({},
-      this.page.getVariableValues(),
+      this.pageManager.getVariableValues(),
       this.getScopeVariableValues()
     )
   }
@@ -221,7 +237,6 @@ class ElementWrapper {
    */
   forceUpdate () {
     const updated = {}
-    Object.assign(updated, this.instancePropConfig)
 
     for (const propBindKey of Object.keys(this.instancePropConfigEx)) {
       updated[propBindKey] = template(this.instancePropConfigEx[propBindKey], this.getVariableContext())
@@ -239,14 +254,12 @@ class ElementWrapper {
   }
 
   emit (eventName, payload) {
-    console.log('emit', eventName, payload)
-
     if (this.eventActionsConfig[eventName]) {
       for (const action of this.eventActionsConfig[eventName]) {
         if (action.name === 'setvar') {
           try {
             const newVariableValue = template(action.value, this.getVariableContext())
-            this.page.updatePageVariableValue(action.target, newVariableValue)
+            this.pageManager.updatePageVariableValue(action.target, newVariableValue)
           } catch (e) {
             log('Event Action[setvar] Error', e)
           }
@@ -257,7 +270,8 @@ class ElementWrapper {
 
   appendChild (wrapper) {
     this.children.push(wrapper)
-    this.instancePropConfig.children.push(wrapper)
+    this.properties.children.push(wrapper)
+    this.updateProperties()
   }
 
   getCreateChildElement (name) {}

@@ -98,15 +98,18 @@ export default class Editor extends React.Component {
   }
 
   saveCurrentPage () {
-    this.ridge.appService.saveUpdatePage({
-      id: this.currentId,
-      title: this.pageElementManager.properties.title,
-      content: this.pageElementManager.getPageJSON()
-    })
-    Toast.success({
-      content: '所有工作已经保存',
-      showClose: false
-    })
+    if (this.pageElementManager) {
+      const pageJSONObject = this.pageElementManager.getPageJSON()
+      this.ridge.appService.saveUpdatePage({
+        id: pageJSONObject.id,
+        title: pageJSONObject.properties.title,
+        content: pageJSONObject
+      })
+      Toast.success({
+        content: '所有工作已经保存',
+        showClose: false
+      })
+    }
   }
 
   /**
