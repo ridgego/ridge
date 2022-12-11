@@ -7,7 +7,8 @@ import MenuBar from './panels/MenuBar.jsx'
 import CodeEditor from './code-editor/CodeEditor.jsx'
 import { debounce } from 'lodash'
 
-import WorkSpaceControl from './WorkspaceControl.js'
+import WorkSpaceControl from './workspace/WorkspaceControl.js'
+import WorkSpacePageManager from './workspace/WorkSpacePageManager.js'
 import ApplicationService from './service/ApplicationService.js'
 
 import './css/editor.less'
@@ -38,7 +39,6 @@ export default class Editor extends React.Component {
       modeRun: false,
       editorCode: ''
     }
-
     this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 5000)
 
     this.currentId = null
@@ -83,13 +83,14 @@ export default class Editor extends React.Component {
       values,
       field
     }) => {
-      el.elementWrapper.propConfigUpdate(values, field)
+      el.elementWrapper.setPropsConfig(values, field)
+      this.workspaceControl.updateMovable()
     })
     this.ridge.on(EVENT_ELEMENT_EVENT_CHANGE, ({
       el,
       values
     }) => {
-      el.elementWrapper.eventConfigUpdate(values)
+      el.elementWrapper.setEventsConfig(values)
     })
 
     this.ridge.on('*', () => {
@@ -119,8 +120,7 @@ export default class Editor extends React.Component {
    */
   loadPage (pageConfig) {
     // 从HTML初始化页面管理器
-    this.pageElementManager = this.ridge.createPageManager(pageConfig)
-    this.pageElementManager.isEdit = true
+    this.pageElementManager = new WorkSpacePageManager(pageConfig, this.ridge)
 
     this.workspaceControl.setPageManager(this.pageElementManager)
 
@@ -261,7 +261,6 @@ export default class Editor extends React.Component {
       properties
     })
     this.pageElementManager.properties = properties
-    this.pageElementManager.persistance()
     this.debouncedSaveUpdatePage()
   }
 
@@ -270,7 +269,6 @@ export default class Editor extends React.Component {
       variables
     })
     this.pageElementManager.updateVariableConfig(variables)
-    this.pageElementManager.persistance()
     this.debouncedSaveUpdatePage()
   }
 

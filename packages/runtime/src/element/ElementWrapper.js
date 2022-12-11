@@ -1,5 +1,4 @@
 import debug from 'debug'
-import { times } from 'lodash'
 import ReactRenderer from '../render/ReactRenderer'
 import template from '../template'
 const log = debug('ridge:el-wrapper')
@@ -19,39 +18,26 @@ class ElementWrapper {
   }) {
     this.config = config
     this.id = config.id
-    this.pageManager = pageManager
-    this.slot = config.slot
+    this.componentPath = config.path
     this.parent = config.parent
-    this.order = config.order
 
-    // 给组件注入的属性值
+    this.pageManager = pageManager
+    // Runtime 给组件注入的属性值
     this.properties = {}
-    this.isEdit = pageManager.isEdit
     this.initialize()
   }
 
   isRoot () {
-    return this.slot == null && this.parent == null
+    return this.parent == null
   }
 
   initialize () {
     const { config } = this
-    // 组件配置的属性静态值
-    this.instancePropConfig = config.props || {}
-    // 组件配置的属性动态值
-    this.instancePropConfigEx = config.propsEx || {}
-    // Wrapper元素的样式数据
-    this.instanceStyle = config.style || {}
-    // Wrapper元素的绑定样式数据
-    this.instanceStyleEx = config.styleEx || {}
-    // 事件处理配置
-    this.eventActionsConfig = config.events || {}
-
     // 组件的scope值数据
     this.scopeVariableValues = {}
     this.componentPath = config.path
 
-    Object.assign(this.properties, this.instancePropConfig)
+    Object.assign(this.properties, config.props)
   }
 
   /**
@@ -69,24 +55,6 @@ class ElementWrapper {
     }
   }
 
-  fromJSON () {
-  }
-
-  toJSON () {
-    return {
-      id: this.id,
-      path: this.componentPath,
-      config: {
-        props: this.instancePropConfig,
-        propsEx: this.instancePropConfigEx,
-        style: this.instanceStyle,
-        styleEx: this.instanceStyleEx,
-        events: this.eventActionsConfig
-      },
-      children: [],
-    }
-  }
-
   async loadComponentDefinition () {
     // 加载组件定义信息
     if (this.componentPath) {
@@ -101,17 +69,6 @@ class ElementWrapper {
     }
   }
 
-  setStyle (style) {
-    Object.assign(this.instanceStyle, style)
-    if (style.position === 'absolute') {
-      this.el.style.position = 'absolute'
-      this.el.style.left = 0
-      this.el.style.top = 0
-
-      this.el.style.transform = `translate(${style.x}px, ${style.y}px)`
-    }
-  }
-
   /**
    * 初始化组件属性、事件
    */
@@ -119,8 +76,11 @@ class ElementWrapper {
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
       // 默认值次序：  控件实例化给的默认值 -> 组态化定义的默认值 -> 前端组件的默认值 (这个不给就用默认值了)
-      if (this.instancePropConfig[prop.name] == null && prop.value != null) {
+      if (this.properties[prop.name] == null && prop.value != null) {
         this.properties[prop.name] = prop.value
+        if (this.config.props[prop.name] == null) {
+          this.config.props[prop.name] = prop.value
+        }
       }
 
       // 处理属性的input情况 类似 vue的 v-model
@@ -177,18 +137,18 @@ class ElementWrapper {
   }
 
   forceUpdateStyle () {
-    this.el.style.width = this.instanceStyle.width ? (this.instanceStyle.width + 'px') : ''
-    this.el.style.height = this.instanceStyle.height ? (this.instanceStyle.height + 'px') : ''
-    this.el.style.position = this.instanceStyle.position
-    if (this.instanceStyle.position === 'absolute') {
-      this.el.style.transform = `translate(${this.instanceStyle.x}px, ${this.instanceStyle.y}px)`
+    this.el.style.width = this.config.style.width ? (this.config.style.width + 'px') : ''
+    this.el.style.height = this.config.style.height ? (this.config.style.height + 'px') : ''
+    this.el.style.position = this.config.style.position
+    if (this.config.style.position === 'absolute') {
+      this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
     } else {
       this.el.style.transform = ''
     }
 
-    if (Object.keys(this.instanceStyleEx).length) {
+    if (Object.keys(this.config.styleEx).length) {
       if (this.instanceStyleEx.width) {
-        this.el.style.width = template(this.instanceStyleEx.width, this.getVariableContext()) + 'px'
+        this.el.style.width = template(this.config.styleEx.width, this.getVariableContext()) + 'px'
       }
     }
   }
@@ -236,17 +196,12 @@ class ElementWrapper {
    * 强制重新计算属性并更新组件显示
    */
   forceUpdate () {
-    const updated = {}
+    const updated = Object.assign({}, this.config.props)
 
-    for (const propBindKey of Object.keys(this.instancePropConfigEx)) {
-      updated[propBindKey] = template(this.instancePropConfigEx[propBindKey], this.getVariableContext())
+    for (const propBindKey of Object.keys(this.config.propEx)) {
+      updated[propBindKey] = template(this.config.propEx[propBindKey], this.getVariableContext())
     }
     this.updateProperties(updated)
-  }
-
-  updatePropertiesExpression (propsEx) {
-    // 合并更新值
-    Object.assign(this.instancePropBinding, propsEx)
   }
 
   invoke (method, args) {
@@ -254,8 +209,8 @@ class ElementWrapper {
   }
 
   emit (eventName, payload) {
-    if (this.eventActionsConfig[eventName]) {
-      for (const action of this.eventActionsConfig[eventName]) {
+    if (this.config.events[eventName]) {
+      for (const action of this.config.events[eventName]) {
         if (action.name === 'setvar') {
           try {
             const newVariableValue = template(action.value, this.getVariableContext())
@@ -275,29 +230,6 @@ class ElementWrapper {
   }
 
   getCreateChildElement (name) {}
-
-  /**
-   * 获取封装层样式，包括  x/y/width/height/visible/rotate
-   * @returns
-   */
-  getStyle () {
-    const style = {
-    }
-    if (this.el.style.transform) {
-      const matched = this.el.style.transform.match(/[0-9.]+/g)
-      style.x = parseInt(matched[0])
-      style.y = parseInt(matched[1])
-      style.position = 'absolute'
-    } else {
-      style.x = 0
-      style.y = 0
-    }
-    style.width = parseInt(this.el.style.width)
-    style.height = parseInt(this.el.style.height)
-
-    Object.assign(this.instanceStyle, style)
-    return this.instanceStyle
-  }
 
   getName () {
     return this.el.dataset.name
@@ -378,79 +310,6 @@ class ElementWrapper {
     }
     layer.innerHTML = content || text || ''
     this.el.appendChild(layer)
-  }
-
-  /** --------------------------------------
-   * Config Only
-   **/
-
-  /**
-   * 组件配置信息发生改变，通过编辑器配置面板传入
-   * @param {*} values
-   * @param {*} field
-   */
-  propConfigUpdate (values, field) {
-    for (const keyPath of Object.keys(field)) {
-      const [type, key] = keyPath.split('.')
-
-      if (type === 'props') {
-        Object.assign(this.instancePropConfig, {
-          [key]: field[keyPath]
-        })
-      }
-      if (type === 'style') {
-        Object.assign(this.instanceStyle, {
-          [key]: field[keyPath]
-        })
-      }
-      if (type === 'propsEx') {
-        Object.assign(this.instancePropConfigEx, {
-          [key]: field[keyPath]
-        })
-      }
-      if (type === 'styleEx') {
-        Object.assign(this.instanceStyleEx, {
-          [key]: field[keyPath]
-        })
-      }
-    }
-
-    this.el.dataset.config = JSON.stringify({
-      props: this.instancePropConfig,
-      style: this.instanceStyle,
-      events: this.eventActionsConfig,
-      styleEx: this.instanceStyleEx,
-      propsEx: this.instancePropConfigEx
-    })
-    this.forceUpdateStyle()
-    this.forceUpdate()
-  }
-
-  eventsConfigUpdate (values, field) {
-    this.el.dataset.events = JSON.stringify(values)
-  }
-
-  getPropConfigValues () {
-    return {
-      name: this.el.dataset.name,
-      props: this.getPropsValue(),
-      style: this.getStyle(),
-      ex: {
-        props: this.getPropsBinding(),
-        style: this.getStyleBinding()
-      }
-    }
-  }
-
-  eventConfigUpdate (values, update) {
-    Object.assign(this.eventActionsConfig, values.event)
-    this.el.dataset.config = JSON.stringify({
-      props: this.instancePropConfig,
-      style: this.instanceStyle,
-      events: this.eventActionsConfig,
-      styleEx: this.instanceStyleEx,
-      propsEx: this.instancePropConfigEx
-    })
   }
 }
 

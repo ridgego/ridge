@@ -1,45 +1,17 @@
 import ElementWrapper from './ElementWrapper'
-import { nanoid, trim } from '../utils/string'
+import { trim } from '../utils/string'
 import { pe } from '../utils/expr'
 
 class PageElementManager {
-  constructor (pageConfig, ridge) {
+  constructor (pageConfig, ridge, wrapperClass) {
     this.pageConfig = pageConfig
     this.ridge = ridge
+    this.ElementWrapper = wrapperClass || ElementWrapper
     this.initialize()
   }
 
   getPageProperties () {
     return this.properties
-  }
-
-  /**
- * 从组件定义片段创建一个页面元素实例
- * @param {Object} fraction 来自
- * @returns
- */
-  createElement (fraction) {
-  // 生成组件定义
-    const elementConfig = {
-      title: fraction.title,
-      id: nanoid(5),
-      path: fraction.componentPath,
-      style: {
-        position: 'absolute',
-        width: fraction.width ?? 100,
-        height: fraction.height ?? 100
-      },
-      styleEx: {},
-      props: {},
-      propEx: {}
-    }
-
-    const wrapper = new ElementWrapper({
-      config: elementConfig,
-      pageManager: this
-    })
-    this.pageElements[wrapper.id] = wrapper
-    return wrapper
   }
 
   removeElements (elements) {
@@ -53,16 +25,15 @@ class PageElementManager {
   }
 
   /**
-   * 根据页面配置(HTML DOM)初始化页面
+   * 根据页面配置读取页面控制对象结构
    * @param {Element} el DOM 根元素
    */
   initialize () {
     this.id = this.pageConfig.id
     this.properties = this.pageConfig.properties
-    this.pageVariableConfig = this.pageConfig.variables
     this.pageVariableValues = {}
 
-    for (const variablesConfig of this.pageVariableConfig) {
+    for (const variablesConfig of this.pageConfig.variables || []) {
       if (trim(variablesConfig.name)) {
         this.pageVariableValues[trim(variablesConfig.name)] = pe(variablesConfig.value)
       }
@@ -70,7 +41,7 @@ class PageElementManager {
 
     this.pageElements = {}
     for (const element of this.pageConfig.elements) {
-      const elementWrapper = new ElementWrapper({
+      const elementWrapper = new this.ElementWrapper({
         pageManager: this,
         config: element
       })
@@ -94,28 +65,10 @@ class PageElementManager {
 
   async preload () {
     const awaitings = []
-    for (const wrapper of this.rootElements) {
+    for (const wrapper of this.pageElements) {
       awaitings.push(await wrapper.preload())
     }
     await Promise.allSettled(awaitings)
-  }
-
-  /**
-   * 获取页面的定义信息
-   * @returns JSON
-   */
-  getPageJSON () {
-    const result = {
-      id: this.id,
-      properties: this.properties,
-      variables: this.pageVariableConfig,
-      elements: []
-    }
-
-    for (const element of Object.values(this.pageElements)) {
-      result.elements.push(element.toJSON())
-    }
-    return result
   }
 
   updatePageVariableValue (name, value) {
@@ -123,36 +76,18 @@ class PageElementManager {
     this.forceUpdate()
   }
 
-  updateVariableConfig (variablesConfig) {
-    this.pageVariableConfig = variablesConfig
-
-    this.pageVariableValues = {}
-
-    for (const pv of this.pageVariableConfig) {
-      if (trim(pv.name)) {
-        this.pageVariableValues[trim(pv.name)] = pe(pv.value)
-      }
-    }
-    this.forceUpdate()
-  }
-
   /**
    * 整页按照变量和动态数据完全更新
    */
   forceUpdate () {
-    const elements = this.pageRootEl.querySelectorAll('div[ridge-id]')
-
-    for (const el of elements) {
-      el.elementWrapper.forceUpdate()
+    for (const element of Object.values(this.pageElements)) {
+      element.forceUpdateStyle()
+      element.forceUpdate()
     }
   }
 
   getVariableValues () {
     return this.pageVariableValues
-  }
-
-  getVariableConfig () {
-    return this.pageVariableConfig
   }
 }
 

@@ -1,10 +1,10 @@
 import Selecto from 'selecto'
 import Moveable from 'moveable'
-import { fitRectIntoBounds } from './utils/rectUtils.js'
+import { fitRectIntoBounds } from '../utils/rectUtils.js'
 
-import './css/moveable.css'
+import '../css/moveable.css'
 import Mousetrap from 'mousetrap'
-import { EVENT_ELEMENT_SELECTED } from './constant.js'
+import { EVENT_ELEMENT_SELECTED } from '../constant.js'
 
 /**
  * 控制工作区组件的Drag/Resize/New等动作
@@ -100,17 +100,18 @@ export default class WorkSpaceControl {
       target.elementWrapper.removeStatus('droppable')
     } else {
       // 到ViewPort上
-      if (el.getAttribute('containerId') || // 从另一个容器拖出
-          el.parentElement == null // 新建
-      ) {
-        el.removeAttribute('containerId')
-        this.putElementToRoot(el, x, y)
-      }
+      el.elementWrapper.parent = null
+      this.putElementToRoot(el, x, y)
     }
     this.selectElements([el])
   }
 
-  // 首次放置或者从其他容器挪出
+  /**
+   * 将元素放置到根页面上某个位置
+   * @param {*} el HTML元素
+   * @param {*} x
+   * @param {*} y
+   */
   putElementToRoot (el, x, y) {
     // 修改父子关系
     this.viewPortEl.appendChild(el)
@@ -226,7 +227,8 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragEnd', ev => {
-      sm.onElementDragEnd(ev.target, ev.clientX, ev.clientY)
+      const bcr = ev.target.getBoundingClientRect()
+      sm.onElementDragEnd(ev.target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
       sm.ridge.debouncedSaveUpdatePage()
     })
 
@@ -336,6 +338,10 @@ export default class WorkSpaceControl {
       this.selectElements(selected)
       // this.setSelectedTargets(selected)
     })
+  }
+
+  updateMovable () {
+    this.moveable.updateTarget()
   }
 
   initComponentDrop () {

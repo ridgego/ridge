@@ -52,7 +52,7 @@ export default class ComponentPanel extends React.Component {
 
   updatePanelConfig () {
     const elementWrapper = this.currentElement.elementWrapper
-    this.componentPropFormApi.setValue('style', elementWrapper.getStyle(), {
+    this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
       notNotify: true
     })
     if (elementWrapper.componentDefinition) {
@@ -106,22 +106,19 @@ export default class ComponentPanel extends React.Component {
           rows: eventRows
         }]
       }, () => {
-        this.componentPropFormApi.setValue('name', elementWrapper.getName(), {
+        this.componentPropFormApi.setValue('name', elementWrapper.config.title, {
           notNotify: true
         })
-        this.componentPropFormApi.setValue('props', elementWrapper.getPropsValue(), {
+        this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
           notNotify: true
         })
-        this.componentPropFormApi.setValue('style', elementWrapper.getStyle(), {
+        this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
           notNotify: true
         })
-        this.componentPropFormApi.setValue('propsEx', elementWrapper.getPropsBinding(), {
+        this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
           notNotify: true
         })
-        this.componentPropFormApi.setValue('styleEx', elementWrapper.getStyleBinding(), {
-          notNotify: true
-        })
-        this.componentEventFormApi.setValue('event', elementWrapper.getEventActionsConfig(), {
+        this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
           notNotify: true
         })
       })
@@ -188,7 +185,7 @@ export default class ComponentPanel extends React.Component {
 
     }
 
-    // 组件属性表单项修改
+    // 组件属性表单项修改  组件样式和属性变动
     const componentPropValueChange = (values, field) => {
       window.Ridge && window.Ridge.emit(EVENT_ELEMENT_PROP_CHANGE, { el: this.currentElement, values, field })
     }
