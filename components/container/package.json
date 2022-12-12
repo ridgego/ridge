@@ -41,5 +41,7 @@
     "height": 240
   }],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+  }
 }

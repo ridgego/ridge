@@ -37,6 +37,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "react-dom": "^18.2.0",
+    "react": "^18.2.0",
     "antd": "^4.23.2"
   }
 }

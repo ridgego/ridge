@@ -32,7 +32,7 @@ export default class FlexContainer extends React.Component {
 
     // Object.assign(this.$el.current.style, this.getContainerStyle(this.props))
     // this.initFlexContent(childrenViews, currentFcView, direction, alignItems, containerAutoStrech)
-
+    // if (this.props.children) {}
     if (this.props.flexContainerOverflow === 'overlay') {
       this.$el.current.style.overflow = 'hidden'
 
@@ -48,10 +48,7 @@ export default class FlexContainer extends React.Component {
     const el = this.$el.current
   }
 
-  dropElement (el, targetEl) {
-    if (el === this.$el.current.closest('[ridge-componet-id]')) {
-      return
-    }
+  appendChild (el) {
     const {
       // 相关系统变量
       direction = 'row',
@@ -59,8 +56,8 @@ export default class FlexContainer extends React.Component {
       justify = 'flex-start'
     } = this.props
 
+    // 获取当前放置的次序
     const afterNode = this.getAfterNode(el, this.$el.current.childNodes, direction)
-
     const style = {
       position: 'static'
     }
@@ -71,7 +68,6 @@ export default class FlexContainer extends React.Component {
       style.width = ''
     }
     el.elementWrapper.updateStyle(style)
-    el.setAttribute('snappable', 'false')
     if (afterNode) {
       this.$el.current.insertBefore(el, afterNode)
     } else {

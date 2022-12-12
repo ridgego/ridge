@@ -1,9 +1,10 @@
-import FlexBoxContainer from './index.jsx'
+import FlexBoxContainer from './FlexContainer'
 import bordered from '../bordered.d'
 
 export default {
   name: 'flex-container',
   component: FlexBoxContainer,
+  type: 'vanilla',
   props: [{
     name: 'direction',
     label: '排列方向',
@@ -58,8 +59,8 @@ export default {
       value: 'stretch'
     }],
     value: 'flex-start'
-  }, ...bordered.props],
-  editorFeatures: {
-    droppable: true
-  }
+  }, {
+    name: 'children',
+    type: 'children'
+  }, ...bordered.props]
 }

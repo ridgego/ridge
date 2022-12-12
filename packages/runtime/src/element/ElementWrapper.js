@@ -1,12 +1,8 @@
 import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
+import VanillaRender from '../render/VanillaRenderer'
 import template from '../template'
 const log = debug('ridge:el-wrapper')
-
-export const STATUS_DROPPABLE = 'droppable'
-export const STATUS_LOADING = 'loading'
-
-export const ATTR_DROPPABLE = 'droppable'
 
 /**
  * 组件封装类
@@ -24,7 +20,7 @@ class ElementWrapper {
     this.pageManager = pageManager
     // Runtime 给组件注入的属性值
     this.properties = {}
-    this.initialize()
+    this.initialize(navigator)
   }
 
   isRoot () {
@@ -123,16 +119,24 @@ class ElementWrapper {
      */
   mount (el) {
     this.el = el
-    this.el.className = 'ridge-element'
+    this.el.classList.add('ridge-element')
     this.el.elementWrapper = this
     this.forceUpdateStyle()
 
     if (!this.preloaded) {
       this.preload().then(() => {
-        this.renderer = new ReactRenderer(this.componentDefinition.component, this.el, this.properties)
+        this.renderer = this.createRenderer()
       })
     } else {
-      this.renderer = new ReactRenderer(this.componentDefinition.component, this.el, this.properties)
+      this.renderer = this.createRenderer()
+    }
+  }
+
+  createRenderer () {
+    if (this.componentDefinition.type === 'vanilla') {
+      return new VanillaRender(this.componentDefinition.component, this.el, this.properties)
+    } else {
+      return new ReactRenderer(this.componentDefinition.component, this.el, this.properties)
     }
   }
 
@@ -251,18 +255,6 @@ class ElementWrapper {
     return this.eventActionsConfig
   }
 
-  setStatus (status) {
-    if (status === STATUS_DROPPABLE) {
-      this.el.style.border = '2px solid #12e'
-    }
-  }
-
-  removeStatus (status) {
-    if (status === STATUS_DROPPABLE) {
-      this.el.style.border = ''
-    }
-  }
-
   /**
      * 为DOM元素绑定基础的交互事件
      * @param {*} el
@@ -278,38 +270,6 @@ class ElementWrapper {
       }
       return false
     }
-  }
-
-  addMaskLayer ({
-    name,
-    zIndex,
-    className,
-    text,
-    content
-  }) {
-    if (this.el.querySelector('[name="' + name + '"]')) {
-      return
-    }
-    const layer = document.createElement('div')
-
-    layer.setAttribute('name', name)
-
-    layer.classList.add('layer')
-
-    layer.style.position = 'absolute'
-    layer.style.left = 0
-    layer.style.right = 0
-    layer.style.top = 0
-    layer.style.bottom = 0
-
-    if (className) {
-      layer.classList.add(className)
-    }
-    if (zIndex) {
-      layer.style.zIndex = zIndex
-    }
-    layer.innerHTML = content || text || ''
-    this.el.appendChild(layer)
   }
 }
 

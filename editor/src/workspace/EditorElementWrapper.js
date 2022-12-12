@@ -1,5 +1,10 @@
 import { ElementWrapper } from 'ridge-runtime'
 
+export const STATUS_DROPPABLE = 'droppable'
+export const STATUS_LOADING = 'loading'
+
+export const ATTR_DROPPABLE = 'droppable'
+
 export default class EditorElementWrapper extends ElementWrapper {
   constructor ({
     config,
@@ -10,6 +15,26 @@ export default class EditorElementWrapper extends ElementWrapper {
       pageManager
     })
     this.isEditor = true
+    this.isContainer = false
+  }
+
+  initPropsAndEvents () {
+    super.initPropsAndEvents()
+    for (const prop of this.componentDefinition.props || []) {
+      if (prop.type === 'children') {
+        this.isContainer = true
+        if (this.el) {
+          this.el.classList.add('container')
+        }
+      }
+    }
+  }
+
+  mount (el) {
+    super.mount(el)
+    if (this.isContainer) {
+      el.classList.add('container')
+    }
   }
 
   /**
@@ -25,14 +50,14 @@ export default class EditorElementWrapper extends ElementWrapper {
     if (style.height) {
       this.el.style.height = style.height + 'px'
     }
-    if (style.position === 'absolute') {
+    if (this.config.style.position === 'absolute') {
       if (this.el.style.position !== 'absolute') {
         this.el.style.position = 'absolute'
         this.el.style.left = 0
         this.el.style.top = 0
       }
 
-      this.el.style.transform = `translate(${style.x}px, ${style.y}px)`
+      this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
     } else {
       this.el.style.transform = ''
       this.el.style.position = ''
@@ -99,6 +124,47 @@ export default class EditorElementWrapper extends ElementWrapper {
 
     // Object.assign(this.instanceStyle, style)
     // return this.instanceStyle
+  }
+  setStatus (status) {
+    //
+  }
+
+  removeStatus (status) {
+    if (status === STATUS_DROPPABLE) {
+      this.el.style.border = ''
+    }
+  }
+
+  addMaskLayer ({
+    name,
+    zIndex,
+    className,
+    text,
+    content
+  }) {
+    if (this.el.querySelector('[name="' + name + '"]')) {
+      return
+    }
+    const layer = document.createElement('div')
+
+    layer.setAttribute('name', name)
+
+    layer.classList.add('layer')
+
+    layer.style.position = 'absolute'
+    layer.style.left = 0
+    layer.style.right = 0
+    layer.style.top = 0
+    layer.style.bottom = 0
+
+    if (className) {
+      layer.classList.add(className)
+    }
+    if (zIndex) {
+      layer.style.zIndex = zIndex
+    }
+    layer.innerHTML = content || text || ''
+    this.el.appendChild(layer)
   }
 
   toJSON () {

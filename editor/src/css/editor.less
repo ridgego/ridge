@@ -1,5 +1,6 @@
 html, body {
   overflow: hidden;
+  user-select: none;
 }
 
 // 对semi样式的重写
@@ -24,8 +25,9 @@ html, body {
 }
 
 
-slot.drag-over {
-  background-color: var(--semi-color-success-light-active)
+.drag-over {
+  background-color: var(--semi-color-primary-light-default);
+  border: 2px dashed var(--semi-color-primary);
 }
 
 

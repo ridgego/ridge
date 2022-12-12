@@ -481,34 +481,6 @@ class ElementLoader {
     await this.scriptLoadingPromises[url]
   }
 
-  /**
-     * 一次性加载多个组件
-     * @param {Array} pelList 组件列表
-     */
-  async loadPels (pelList) {
-    const pels = pelList.filter(each => each.packageName).map(each => {
-      return {
-        packageName: each.packageName,
-        path: each.path
-      }
-    })
-    const packagesToLoad = Array.from(new Set(pels.map(each => each.packageName))).filter(name => name)
-
-    for (const packageName of packagesToLoad) {
-      await this.confirmPackageDependencies(packageName)
-    }
-    const pelsPath = Array.from(new Set(pels.map(each => {
-      if (this.appName) {
-        return `${this.appName}/npm_packages/${each.packageName}/${each.path}`
-      } else {
-        return `/npm_packages/${each.packageName}/${each.path}`
-      }
-    }))).filter(name => name)
-    const concatPath = await getConcatPath(pelsPath)
-
-    await this.loadScript(concatPath)
-  }
-
   setPackageCache (packageName, packageObject) {
     this.packageJSONCache[packageName] = packageObject
   }

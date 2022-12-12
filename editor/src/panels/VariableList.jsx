@@ -76,6 +76,11 @@ export default ({
   const variableItemClick = (index) => {
     // 已经点击后再次点击就是编辑
     if (variableSelectedIndex === index) {
+      // 连续点击空白
+      if (variableSelectedEdit === -1) {
+        return
+      }
+      // 点击的正在编辑
       if (variableSelectedEdit) {
         return
       }

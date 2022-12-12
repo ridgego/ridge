@@ -23,7 +23,7 @@ export default class WorkSpaceControl {
 
     this.ridge = ridge
     // this.selectorDropableTarget = '.viewport-container.active [droppable="1"]'
-    this.selectorDropableTarget = 'slot'
+    this.selectorDropableTarget = ['.ridge-element.container', 'slot']
     this.init()
   }
 
@@ -88,14 +88,13 @@ export default class WorkSpaceControl {
       y
     })
     if (target) { // 放置到容器中
-      const result = target.elementWrapper.invoke('dropElement', [el])
+      const result = target.elementWrapper.invoke('appendChild', [el])
       // 这里容器会提供 dropElement 方法，并未wrapper提供放置位置
       if (result === false) {
         // 容器反馈不能放置，则还是放置到页面根部
         this.putElementToRoot(el, x, y)
       } else {
-        // 放置好后，设置容器containerId标识 （是否有必要）
-        el.setAttribute('containerId', target.elementWrapper.id)
+        el.elementWrapper.parent = target.elementWrapper.id
       }
       target.elementWrapper.removeStatus('droppable')
     } else {
@@ -119,7 +118,6 @@ export default class WorkSpaceControl {
     const rbcr = this.viewPortEl.getBoundingClientRect()
     const bcr = el.getBoundingClientRect()
 
-    console.log('put element', x, y, rbcr, bcr)
     el.elementWrapper.setStyle({
       position: 'absolute',
       x: x - rbcr.x - bcr.width / 2,
@@ -239,10 +237,32 @@ export default class WorkSpaceControl {
       delta,
       transform
     }) => {
-      target.style.transform = transform
-      delta[0] && (target.style.width = `${width}px`)
-      delta[1] && (target.style.height = `${height}px`)
-      sm.onr && sm.onr(target)
+      const style = {}
+      const matched = transform.match(/[0-9.]+/g)
+      style.x = parseInt(matched[0])
+      style.y = parseInt(matched[1])
+      // target.style.transform = transform
+      if (delta[0]) {
+        style.width = width
+      }
+      if (delta[1]) {
+        style.height = height
+      }
+      target.elementWrapper.setStyle(style)
+      // delta[0] && (target.style.width = `${width}px`)
+      // delta[1] && (target.style.height = `${height}px`)
+      // sm.onr && sm.onr(target)
+    })
+
+    this.moveable.on('resizeEnd', ({
+      target,
+      width,
+      height,
+      delta,
+      transform
+    }) => {
+      this.selectElements([target])
+      sm.ridge.debouncedSaveUpdatePage()
     })
 
     this.moveable.on('dragGroup', ({
@@ -361,7 +381,7 @@ export default class WorkSpaceControl {
         for (const el of this.selected) {
           el.parentElement.removeChild(el)
         }
-        this.setSelected([])
+        this.selectElements([])
       }
     })
     Mousetrap.bind('ctrl+s', () => {
@@ -413,7 +433,10 @@ export default class WorkSpaceControl {
    * @returns {Element} 可放置的容器DOM Element
    */
   getDroppableTarget (dragEl, pointPos) {
-    const droppableElements = document.querySelectorAll(this.selectorDropableTarget)
+    let droppableElements = []
+    for (const selector of this.selectorDropableTarget) {
+      droppableElements = droppableElements.concat(Array.from(document.querySelectorAll(selector)))
+    }
 
     const filtered = Array.from(droppableElements).filter(el => {
       const { x, y, width, height } = el.getBoundingClientRect()
@@ -437,8 +460,11 @@ export default class WorkSpaceControl {
     }
     droppableElements.forEach(el => {
       if (el !== target) {
-        el.classList.remove('drag-over')
+        if (el.classList.contains('drag-over')) {
+          el.classList.remove('drag-over')
+        }
       } else {
+        el.elementWrapper.setStatus('droppable')
         el.classList.add('drag-over')
       }
     })

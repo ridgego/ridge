@@ -58,7 +58,7 @@ export default class WorkSpacePageManager extends PageElementManager {
   }
 
   updatePageProperties (properties) {
-    
+    this.properties = properties
   }
 
   updateVariableConfig (variablesConfig) {
