@@ -16,6 +16,9 @@ export default class EditorElementWrapper extends ElementWrapper {
     })
     this.isEditor = true
     this.isContainer = false
+    Object.assign(this.properties, {
+      __editor: true
+    })
   }
 
   initPropsAndEvents () {
@@ -64,7 +67,6 @@ export default class EditorElementWrapper extends ElementWrapper {
         this.el.style.left = 0
         this.el.style.top = 0
       }
-
       this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
     } else {
       this.el.style.transform = ''
@@ -155,7 +157,7 @@ export default class EditorElementWrapper extends ElementWrapper {
 
   removeMaskLayer (name, el) {
     if (el && el.querySelector('[name="' + name + '"]')) {
-      el.removeChild(this.el.querySelector('[name="' + name + '"]'))
+      el.removeChild(el.querySelector('[name="' + name + '"]'))
     }
   }
 
@@ -167,6 +169,9 @@ export default class EditorElementWrapper extends ElementWrapper {
     text,
     content
   }) {
+    if (!el) {
+      return
+    }
     if (el.querySelector('[name="' + name + '"]')) {
       return
     }

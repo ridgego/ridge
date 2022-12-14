@@ -1,4 +1,5 @@
 import React from 'react'
+import debug from 'debug'
 import { Toast } from '@douyinfe/semi-ui'
 import ConfigPanel from './panels/ConfigPanel.jsx'
 import DataPanel from './panels/DataPanel.jsx'
@@ -16,6 +17,8 @@ import { Ridge } from 'ridge-runtime'
 import Nanobus from 'nanobus'
 
 import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE } from './constant'
+
+const trace = debug('ridge:editor')
 
 export default class Editor extends React.Component {
   constructor (props) {
@@ -119,6 +122,7 @@ export default class Editor extends React.Component {
    * @param {*} id
    */
   loadPage (pageConfig) {
+    trace('loadPage', pageConfig)
     // 从HTML初始化页面管理器
     this.pageElementManager = new WorkSpacePageManager(pageConfig, this.ridge)
 

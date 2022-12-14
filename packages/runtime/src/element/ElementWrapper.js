@@ -20,6 +20,7 @@ class ElementWrapper {
     this.pageManager = pageManager
     // Runtime 给组件注入的属性值
     this.properties = {
+      __pageManager: pageManager,
       __elementWrapper: this
     }
     this.initialize(navigator)
@@ -34,8 +35,6 @@ class ElementWrapper {
     // 组件的scope值数据
     this.scopeVariableValues = {}
     this.componentPath = config.path
-
-    Object.assign(this.properties, config.props)
   }
 
   /**
@@ -73,10 +72,9 @@ class ElementWrapper {
   initPropsAndEvents () {
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
-      // 默认值次序：  控件实例化给的默认值 -> 组态化定义的默认值 -> 前端组件的默认值 (这个不给就用默认值了)
-      if (this.properties[prop.name] == null && prop.value != null) {
-        this.properties[prop.name] = prop.value
-        if (this.config.props[prop.name] == null) {
+      // 初始化时给一次默认值
+      if (this.config.isNew) {
+        if (this.config.props[prop.name] == null && prop.value != null) {
           this.config.props[prop.name] = prop.value
         }
       }
@@ -113,6 +111,7 @@ class ElementWrapper {
       })
     }
 
+    delete this.config.isNew
     this.editorFeatures = this.componentDefinition.editorFeatures ?? {}
   }
 
@@ -137,10 +136,14 @@ class ElementWrapper {
 
   createRenderer () {
     if (this.componentDefinition.type === 'vanilla') {
-      return new VanillaRender(this.componentDefinition.component, this.el, this.properties)
+      return new VanillaRender(this.componentDefinition.component, this.el, this.getProperties())
     } else {
-      return new ReactRenderer(this.componentDefinition.component, this.el, this.properties)
+      return new ReactRenderer(this.componentDefinition.component, this.el, this.getProperties())
     }
+  }
+
+  getProperties () {
+    return Object.assign({}, this.config.props, this.properties)
   }
 
   forceUpdateStyle () {
@@ -168,7 +171,7 @@ class ElementWrapper {
       try {
         log('updateProps', this.id, this.properties)
 
-        this.renderer.updateProps(this.properties)
+        this.renderer.updateProps(Object.assign({}, this.properties))
       } catch (e) {
         log('用属性渲染组件出错', e)
       }

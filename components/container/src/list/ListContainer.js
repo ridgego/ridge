@@ -3,7 +3,7 @@ export default class ListContainer {
     this.props = props
   }
 
-  mount (el) {
+  async mount (el) {
     this.el = el
     this.containerEl = document.createElement('div')
 
@@ -13,7 +13,11 @@ export default class ListContainer {
 
     if (this.props.renderItem) {
       this.templateItemWrapper = this.props.__elementWrapper.pageManager.getElement(this.props.renderItem)
-      this.templateItemWrapper.preload()
+      if (this.props.__editor) {
+        const slotEl = document.createElement('div')
+        this.templateItemWrapper.mount(slotEl)
+        this.containerEl.appendChild(slotEl)
+      }
     } else {
       this.showSlotElement()
     }
@@ -63,15 +67,21 @@ export default class ListContainer {
   }
 
   update (props) {
-    if (props.renderItem && this.props.renderItem == null) {
+    if (props.renderItem) {
       // 放入项模板
-      const targetWrapper = this.props.__elementWrapper.pageManager.getElement(props.renderItem)
+      const targetWrapper = this.props.__pageManager.getElement(props.renderItem)
       if (targetWrapper) {
         targetWrapper.setStyle({
-          position: 'static'
+          position: 'static',
+          x: 0,
+          y: 0
         })
         this.containerEl.appendChild(targetWrapper.el)
+        this.containerEl.removeChild(this.containerEl.querySelector('SLOT'))
       }
+    } else {
+      // 移出项模板
+      this.showSlotElement()
     }
   }
 

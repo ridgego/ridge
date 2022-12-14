@@ -19,6 +19,7 @@ export default class WorkSpacePageManager extends PageElementManager {
     const elementConfig = {
       title: fraction.title,
       id: nanoid(5),
+      isNew: true,
       path: fraction.componentPath,
       style: {
         position: 'absolute',

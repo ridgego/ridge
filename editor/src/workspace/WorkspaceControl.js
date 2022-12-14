@@ -342,13 +342,15 @@ export default class WorkSpaceControl {
       y
     })
     if (target) { // 放置到容器中
-      if (target.tagName === 'SLOT') {
+      if (target.tagName === 'SLOT') { // 放置到slot中
+        // 设置slot属性值为组件id
         target.elementWrapper.setPropsConfig(null, {
           ['props.' + (target.getAttribute('name') || 'slot')]: el.getAttribute('ridge-id')
         })
+        // 设置使用slot节点为父节点
         el.elementWrapper.config.parent = target.elementWrapper.id
+        el.elementWrapper.config.slotProp = target.getAttribute('name')
         target.elementWrapper.removeStatus('drag-over', target)
-        target.elementWrapper.updateConfig()
       } else {
         // 这里容器会提供 appendChild 方法，并提供放置位置
         target.elementWrapper.invoke('appendChild', [el])
@@ -357,14 +359,23 @@ export default class WorkSpaceControl {
         target.elementWrapper.updateConfig()
       }
     } else {
-      // 到ViewPort上
+      // DOM操作，放置到ViewPort上
       this.putElementToRoot(el, x, y)
-      if (el.elementWrapper.config.parent) {
+
+      // 更新配置
+      if (el.elementWrapper.config.slotProp && el.elementWrapper.config.parent) {
+        this.pageManager.getElement(el.elementWrapper.config.parent).setPropsConfig(null, {
+          ['props.' + el.elementWrapper.config.slotProp]: null
+        })
+        el.elementWrapper.config.slotProp = null
+        el.elementWrapper.config.parent = null
+      } else if (el.elementWrapper.config.parent) {
         this.pageManager.getElement(el.elementWrapper.config.parent).updateConfig()
         el.elementWrapper.config.parent = null
       }
     }
     this.selectElements([el])
+    this.moveable.updateTarget()
   }
 
   /**
