@@ -19,7 +19,9 @@ class ElementWrapper {
 
     this.pageManager = pageManager
     // Runtime 给组件注入的属性值
-    this.properties = {}
+    this.properties = {
+      __elementWrapper: this
+    }
     this.initialize(navigator)
   }
 
@@ -120,6 +122,7 @@ class ElementWrapper {
   mount (el) {
     this.el = el
     this.el.classList.add('ridge-element')
+    this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
     this.forceUpdateStyle()
 
@@ -158,19 +161,19 @@ class ElementWrapper {
   }
 
   updateProperties (props) {
-    Object.assign(this.properties, props)
+    if (props) {
+      Object.assign(this.properties, props)
+    }
     if (this.renderer) {
       try {
         log('updateProps', this.id, this.properties)
 
-        this.renderer.updateProps(Object.assign({
-          _elementWrapper: this
-        }, this.properties))
+        this.renderer.updateProps(this.properties)
       } catch (e) {
-        log('用属性渲染组件出错', this.id, this.instancePropConfig, this)
+        log('用属性渲染组件出错', e)
       }
     } else {
-      log('updateProps umounted', this.id, this.instancePropConfig)
+      log('updateProps umounted', this.id)
     }
   }
 
@@ -200,16 +203,15 @@ class ElementWrapper {
    * 强制重新计算属性并更新组件显示
    */
   forceUpdate () {
-    const updated = Object.assign({}, this.config.props)
-
+    Object.assign(this.properties, this.config.props)
     for (const propBindKey of Object.keys(this.config.propEx)) {
-      updated[propBindKey] = template(this.config.propEx[propBindKey], this.getVariableContext())
+      this.properties[propBindKey] = template(this.config.propEx[propBindKey], this.getVariableContext())
     }
-    this.updateProperties(updated)
+    this.updateProperties()
   }
 
   invoke (method, args) {
-    this.renderer.invoke(method, args)
+    return this.renderer.invoke(method, args)
   }
 
   emit (eventName, payload) {

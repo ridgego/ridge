@@ -39,7 +39,7 @@ export default class VanillaRender extends Renderer {
    */
   invoke (method, args) {
     if (this.getRenderInstance()[method]) {
-      this.getRenderInstance()[method].apply(this.getRenderInstance(), args)
+      return this.getRenderInstance()[method].apply(this.getRenderInstance(), args)
     }
   }
 

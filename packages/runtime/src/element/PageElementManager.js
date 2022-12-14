@@ -14,6 +14,10 @@ class PageElementManager {
     return this.properties
   }
 
+  getElement (id) {
+    return this.pageElements[id]
+  }
+
   removeElements (elements) {
     for (const el of elements) {
       let target = el

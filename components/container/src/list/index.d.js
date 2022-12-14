@@ -1,7 +1,8 @@
-import ListContainer from './index.jsx'
+import ListContainer from './ListContainer'
 export default {
   name: 'list-container',
   component: ListContainer,
+  type: 'vanilla',
   props: [{
     name: 'dataSource',
     label: '数据',
@@ -29,8 +30,5 @@ export default {
     value: {
       enabled: false
     }
-  }],
-  feature: {
-    droppable: true
-  }
+  }]
 }

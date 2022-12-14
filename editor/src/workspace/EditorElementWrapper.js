@@ -37,6 +37,14 @@ export default class EditorElementWrapper extends ElementWrapper {
     }
   }
 
+  updateConfig () {
+    for (const prop of this.componentDefinition.props || []) {
+      if (prop.type === 'children') {
+        this.config.props[prop.name] = this.invoke('getChildren')
+      }
+    }
+  }
+
   /**
    * 修改组件配置的样式信息
    * @param {*} style
@@ -125,24 +133,41 @@ export default class EditorElementWrapper extends ElementWrapper {
     // Object.assign(this.instanceStyle, style)
     // return this.instanceStyle
   }
-  setStatus (status) {
-    //
+
+  setStatus (status, el) {
+    if (this.status !== status) {
+      this.status = status
+      this.addMaskLayer({
+        el: el || this.el,
+        name: status,
+        className: 'status-' + status,
+        zIndex: -1
+      })
+    }
   }
 
-  removeStatus (status) {
-    if (status === STATUS_DROPPABLE) {
-      this.el.style.border = ''
+  removeStatus (status, el) {
+    if (this.status === status) {
+      this.status = null
+      this.removeMaskLayer(status, el || this.el)
+    }
+  }
+
+  removeMaskLayer (name, el) {
+    if (el && el.querySelector('[name="' + name + '"]')) {
+      el.removeChild(this.el.querySelector('[name="' + name + '"]'))
     }
   }
 
   addMaskLayer ({
+    el,
     name,
     zIndex,
     className,
     text,
     content
   }) {
-    if (this.el.querySelector('[name="' + name + '"]')) {
+    if (el.querySelector('[name="' + name + '"]')) {
       return
     }
     const layer = document.createElement('div')
@@ -164,7 +189,7 @@ export default class EditorElementWrapper extends ElementWrapper {
       layer.style.zIndex = zIndex
     }
     layer.innerHTML = content || text || ''
-    this.el.appendChild(layer)
+    el.appendChild(layer)
   }
 
   toJSON () {

@@ -68,79 +68,6 @@ export default class WorkSpaceControl {
     // this.selecto.zoom = zoom
   }
 
-  checkDropTargetStatus ({ target, clientX, clientY }) {
-    this.getDroppableTarget(target, {
-      x: clientX,
-      y: clientY
-    })
-  }
-
-  /**
-   * 鼠标拖拽元素（新增/既有）到页面区域
-   * @param {Element} el 元素DOM对象
-   * @param {number} x 鼠标当前位置X
-   * @param {number} y 鼠标位置Y
-   */
-  onElementDragEnd (el, x, y) {
-    // 获取可放置的容器
-    const target = this.getDroppableTarget(el, {
-      x,
-      y
-    })
-    if (target) { // 放置到容器中
-      const result = target.elementWrapper.invoke('appendChild', [el])
-      // 这里容器会提供 dropElement 方法，并未wrapper提供放置位置
-      if (result === false) {
-        // 容器反馈不能放置，则还是放置到页面根部
-        this.putElementToRoot(el, x, y)
-      } else {
-        el.elementWrapper.parent = target.elementWrapper.id
-      }
-      target.elementWrapper.removeStatus('droppable')
-    } else {
-      // 到ViewPort上
-      el.elementWrapper.parent = null
-      this.putElementToRoot(el, x, y)
-    }
-    this.selectElements([el])
-  }
-
-  /**
-   * 将元素放置到根页面上某个位置
-   * @param {*} el HTML元素
-   * @param {*} x
-   * @param {*} y
-   */
-  putElementToRoot (el, x, y) {
-    // 修改父子关系
-    this.viewPortEl.appendChild(el)
-    // 计算位置
-    const rbcr = this.viewPortEl.getBoundingClientRect()
-    const bcr = el.getBoundingClientRect()
-
-    el.elementWrapper.setStyle({
-      position: 'absolute',
-      x: x - rbcr.x - bcr.width / 2,
-      y: y - rbcr.y - bcr.height / 2
-    })
-
-    // const transform = `translate(${x - rbcr.x - bcr.width / 2}px, ${y - rbcr.y - bcr.height / 2}px)`
-    // el.style.position = 'absolute'
-    // el.setAttribute('snappable', true)
-    // el.style.width = bcr.width + 'px'
-    // el.style.height = bcr.height + 'px'
-    // el.style.transform = transform
-    this.moveable.updateTarget()
-  }
-
-  selectElements (elements) {
-    this.moveable.target = elements
-    if (elements.length <= 1) {
-      this.onNodeSelected(elements[0])
-    }
-    this.selected = elements
-  }
-
   setWorkSpaceMovable () {
     this.workspaceMovable = new Moveable(document.body, {
       className: 'workspace-movable',
@@ -220,7 +147,6 @@ export default class WorkSpaceControl {
 
       sm.checkDropTargetStatus(ev)
 
-      sm.ridge.debouncedSaveUpdatePage()
       sm.onm && sm.onm(ev.target)
     })
 
@@ -234,13 +160,14 @@ export default class WorkSpaceControl {
       target,
       width,
       height,
+      drag,
       delta,
       transform
     }) => {
       const style = {}
       const matched = transform.match(/[0-9.]+/g)
-      style.x = parseInt(matched[0])
-      style.y = parseInt(matched[1])
+      style.x = drag.translate[0]
+      style.y = drag.translate[1]
       // target.style.transform = transform
       if (delta[0]) {
         style.width = width
@@ -395,6 +322,80 @@ export default class WorkSpaceControl {
     this.moveable.target = selected
   }
 
+  checkDropTargetStatus ({ target, clientX, clientY }) {
+    this.getDroppableTarget(target, {
+      x: clientX,
+      y: clientY
+    })
+  }
+
+  /**
+   * 鼠标拖拽元素（新增/既有）到页面区域
+   * @param {Element} el 元素DOM对象
+   * @param {number} x 鼠标当前位置X
+   * @param {number} y 鼠标位置Y
+   */
+  onElementDragEnd (el, x, y) {
+    // 获取可放置的容器
+    const target = this.getDroppableTarget(el, {
+      x,
+      y
+    })
+    if (target) { // 放置到容器中
+      if (target.tagName === 'SLOT') {
+        target.elementWrapper.setPropsConfig(null, {
+          ['props.' + (target.getAttribute('name') || 'slot')]: el.getAttribute('ridge-id')
+        })
+        el.elementWrapper.config.parent = target.elementWrapper.id
+        target.elementWrapper.removeStatus('drag-over', target)
+        target.elementWrapper.updateConfig()
+      } else {
+        // 这里容器会提供 appendChild 方法，并提供放置位置
+        target.elementWrapper.invoke('appendChild', [el])
+        el.elementWrapper.config.parent = target.elementWrapper.id
+        target.elementWrapper.removeStatus('drag-over')
+        target.elementWrapper.updateConfig()
+      }
+    } else {
+      // 到ViewPort上
+      this.putElementToRoot(el, x, y)
+      if (el.elementWrapper.config.parent) {
+        this.pageManager.getElement(el.elementWrapper.config.parent).updateConfig()
+        el.elementWrapper.config.parent = null
+      }
+    }
+    this.selectElements([el])
+  }
+
+  /**
+   * 将元素放置到根页面上某个位置
+   * @param {*} el HTML元素
+   * @param {*} x
+   * @param {*} y
+   */
+  putElementToRoot (el, x, y) {
+    // 修改父子关系
+    this.viewPortEl.appendChild(el)
+    // 计算位置
+    const rbcr = this.viewPortEl.getBoundingClientRect()
+    const bcr = el.getBoundingClientRect()
+
+    el.elementWrapper.setStyle({
+      position: 'absolute',
+      x: x - rbcr.x - bcr.width / 2,
+      y: y - rbcr.y - bcr.height / 2
+    })
+    this.moveable.updateTarget()
+  }
+
+  selectElements (elements) {
+    this.moveable.target = elements
+    if (elements.length <= 1) {
+      this.onNodeSelected(elements[0])
+    }
+    this.selected = elements
+  }
+
   /**
    * 放置组件事件
    * @param {*} ev
@@ -439,6 +440,10 @@ export default class WorkSpaceControl {
     }
 
     const filtered = Array.from(droppableElements).filter(el => {
+      // 排除掉目标的子节点
+      if (dragEl.contains(el)) {
+        return false
+      }
       const { x, y, width, height } = el.getBoundingClientRect()
       return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height) && el !== dragEl && el.closest('[ridge-id]') !== dragEl
     })
@@ -460,12 +465,13 @@ export default class WorkSpaceControl {
     }
     droppableElements.forEach(el => {
       if (el !== target) {
-        if (el.classList.contains('drag-over')) {
-          el.classList.remove('drag-over')
-        }
+        el.elementWrapper.removeStatus('drag-over', el)
+        // if (el.classList.contains('drag-over')) {
+        //   el.classList.remove('drag-over')
+        // }
       } else {
-        el.elementWrapper.setStatus('droppable')
-        el.classList.add('drag-over')
+        el.elementWrapper.setStatus('drag-over', el)
+        // el.classList.add('drag-over')
       }
     })
     return target

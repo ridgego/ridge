@@ -29,12 +29,17 @@ export default class FlexBoxContainer {
     const containerDiv = document.createElement('div')
     containerDiv.classList.add('flex-container')
     Object.assign(containerDiv.style, this.getContainerStyle(this.props))
-    this.containerEl = containerDiv
     el.appendChild(containerDiv)
-  }
 
-  getChildren () {
-
+    this.containerEl = containerDiv
+    if (this.props.children) {
+      for (const childId of this.props.children) {
+        const childWrapper = this.props.__elementWrapper.pageManager.getElement(childId)
+        const childDiv = document.createElement('div')
+        containerDiv.appendChild(childDiv)
+        childWrapper.mount(childDiv)
+      }
+    }
   }
 
   appendChild (el) {
@@ -77,5 +82,16 @@ export default class FlexBoxContainer {
       }
     }
     return result
+  }
+
+  update (properties) {
+    this.props = properties
+    Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
+  }
+
+  getChildren () {
+    return Array.from(this.containerEl.childNodes).map(el => {
+      return el.getAttribute('ridge-id')
+    })
   }
 }
