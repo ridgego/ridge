@@ -40,14 +40,6 @@ export default class EditorElementWrapper extends ElementWrapper {
     }
   }
 
-  updateConfig () {
-    for (const prop of this.componentDefinition.props || []) {
-      if (prop.type === 'children') {
-        this.config.props[prop.name] = this.invoke('getChildren')
-      }
-    }
-  }
-
   /**
    * 修改组件配置的样式信息
    * @param {*} style

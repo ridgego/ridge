@@ -18,6 +18,10 @@ class PageElementManager {
     return this.pageElements[id]
   }
 
+  getPageElements () {
+    return this.pageElements
+  }
+
   removeElements (elements) {
     for (const el of elements) {
       let target = el

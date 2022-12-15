@@ -1,9 +1,9 @@
 import React from 'react'
 import debug from 'debug'
-import { Toast } from '@douyinfe/semi-ui'
 import ConfigPanel from './panels/ConfigPanel.jsx'
 import DataPanel from './panels/DataPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
+import OutLinePanel from './panels/OutLinePanel.jsx'
 import MenuBar from './panels/MenuBar.jsx'
 import CodeEditor from './code-editor/CodeEditor.jsx'
 import { debounce } from 'lodash'
@@ -104,14 +104,11 @@ export default class Editor extends React.Component {
   saveCurrentPage () {
     if (this.pageElementManager) {
       const pageJSONObject = this.pageElementManager.getPageJSON()
+      trace('Save Page', pageJSONObject)
       this.ridge.appService.saveUpdatePage({
         id: pageJSONObject.id,
         title: pageJSONObject.properties.title,
         content: pageJSONObject
-      })
-      Toast.success({
-        content: '所有工作已经保存',
-        showClose: false
       })
     }
   }
@@ -135,7 +132,8 @@ export default class Editor extends React.Component {
     })
     this.ridge.emit(EVENT_PAGE_LOADED, {
       pageProperties: this.pageElementManager.getPageProperties(),
-      pageVariables: this.pageElementManager.getVariableConfig()
+      pageVariables: this.pageElementManager.getVariableConfig(),
+      elements: this.pageElementManager.getPageElements()
     })
     this.workspaceControl.fitToCenter()
   }
@@ -189,6 +187,7 @@ export default class Editor extends React.Component {
             })
           }}
         />
+        <OutLinePanel visible={!modeRun && outlinePanelVisible} />
         <DataPanel
           title='数据'
           variableChange={pageVariableConfigChange.bind(this)}

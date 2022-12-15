@@ -30,5 +30,8 @@ export default {
     value: {
       enabled: false
     }
+  }, {
+    name: 'renderItem',
+    type: 'slot'
   }]
 }

@@ -6,6 +6,9 @@ export const EVENT_PAGE_EVENT_CHANGE = 'pageEventChange'
 export const EVENT_ELEMENT_SELECTED = 'elementSelected'
 export const EVENT_ELEMENT_PROP_CHANGE = 'componentPropChange'
 export const EVENT_ELEMENT_EVENT_CHANGE = 'componentEventChange'
+export const EVENT_ELEMENT_CREATED = 'elementCreated'
+export const EVENT_ELEMENT_REMOVED = 'elementRemoved'
+export const EVENT_ELEMENT_PARENT_CHANGE = 'elementParentChanged'
 
 export const FORM_PAGE_PROPS = [{
   rows: [{

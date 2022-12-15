@@ -15,7 +15,6 @@ class ElementWrapper {
     this.config = config
     this.id = config.id
     this.componentPath = config.path
-    this.parent = config.parent
 
     this.pageManager = pageManager
     // Runtime 给组件注入的属性值
@@ -27,7 +26,7 @@ class ElementWrapper {
   }
 
   isRoot () {
-    return this.parent == null
+    return this.config.parent == null
   }
 
   initialize () {
@@ -35,6 +34,9 @@ class ElementWrapper {
     // 组件的scope值数据
     this.scopeVariableValues = {}
     this.componentPath = config.path
+    if (this.config.parent) {
+      this.parentWrapper = this.pageManager.getElement(this.config.parent)
+    }
   }
 
   /**
@@ -185,8 +187,8 @@ class ElementWrapper {
   }
 
   getScopeVariableValues () {
-    if (this.parent) {
-      return Object.assign(this.parent.getScopeVariableValues(), this.scopeVariableValues)
+    if (this.parentWrapper) {
+      return Object.assign(this.parentWrapper.getScopeVariableValues(), this.scopeVariableValues)
     } else {
       return this.scopeVariableValues
     }

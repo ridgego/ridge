@@ -4,7 +4,7 @@ import { fitRectIntoBounds } from '../utils/rectUtils.js'
 
 import '../css/moveable.css'
 import Mousetrap from 'mousetrap'
-import { EVENT_ELEMENT_SELECTED } from '../constant.js'
+import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_PARENT_CHANGE, EVENT_ELEMENT_SELECTED } from '../constant.js'
 
 /**
  * 控制工作区组件的Drag/Resize/New等动作
@@ -330,52 +330,85 @@ export default class WorkSpaceControl {
   }
 
   /**
-   * 鼠标拖拽元素（新增/既有）到页面区域
+   * 鼠标拖拽元素（新增/既有）到页面区域， 存在以下三种情况：
+   * 1. 在同一个父容器内移动
+   * 2. 从父容器到根
+   * 3. 从根到父容器
+   * 4. 一个父容器到另一个父容器
    * @param {Element} el 元素DOM对象
    * @param {number} x 鼠标当前位置X
    * @param {number} y 鼠标位置Y
    */
   onElementDragEnd (el, x, y) {
     // 获取可放置的容器
-    const target = this.getDroppableTarget(el, {
+    const targetEl = this.getDroppableTarget(el, {
       x,
       y
     })
-    if (target) { // 放置到容器中
-      if (target.tagName === 'SLOT') { // 放置到slot中
-        // 设置slot属性值为组件id
-        target.elementWrapper.setPropsConfig(null, {
-          ['props.' + (target.getAttribute('name') || 'slot')]: el.getAttribute('ridge-id')
-        })
-        // 设置使用slot节点为父节点
-        el.elementWrapper.config.parent = target.elementWrapper.id
-        el.elementWrapper.config.slotProp = target.getAttribute('name')
-        target.elementWrapper.removeStatus('drag-over', target)
-      } else {
-        // 这里容器会提供 appendChild 方法，并提供放置位置
-        target.elementWrapper.invoke('appendChild', [el])
-        el.elementWrapper.config.parent = target.elementWrapper.id
-        target.elementWrapper.removeStatus('drag-over')
-        target.elementWrapper.updateConfig()
-      }
-    } else {
+    const sourceElement = el.elementWrapper
+    const sourceParentElement = sourceElement.config.parent ? this.pageManager.getElement(sourceElement.config.parent) : null
+    const targetParentElement = targetEl ? targetEl.elementWrapper : null
+
+    if (sourceParentElement === targetParentElement && targetParentElement != null) {
+      // 1.在同一个父容器内移动
+      targetParentElement.invoke('updateChild', [el])
+
+      // 有的容器会包含次序，因此重新更新children属性
+      targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
+    } else if (sourceParentElement && targetParentElement == null) {
+      // 2. 从父容器到根
       // DOM操作，放置到ViewPort上
       this.putElementToRoot(el, x, y)
 
-      // 更新配置
-      if (el.elementWrapper.config.slotProp && el.elementWrapper.config.parent) {
-        this.pageManager.getElement(el.elementWrapper.config.parent).setPropsConfig(null, {
-          ['props.' + el.elementWrapper.config.slotProp]: null
-        })
-        el.elementWrapper.config.slotProp = null
-        el.elementWrapper.config.parent = null
-      } else if (el.elementWrapper.config.parent) {
-        this.pageManager.getElement(el.elementWrapper.config.parent).updateConfig()
-        el.elementWrapper.config.parent = null
-      }
+      this.configSourceParent(sourceParentElement, sourceElement)
+    } else if (sourceParentElement == null && targetParentElement) {
+      // 3. 从根到父容器
+      this.configTargetParent(targetParentElement, sourceElement, targetEl)
+    } else if (sourceParentElement !== targetParentElement) {
+      // 4. 一个父容器到另一个父容器
+      this.configTargetParent(targetParentElement, sourceElement, targetEl)
+      this.configSourceParent(sourceParentElement, sourceElement)
     }
+
+    sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
+    targetParentElement && targetParentElement.removeStatus('drag-over', targetEl)
+
+    this.ridge.emit(EVENT_ELEMENT_PARENT_CHANGE, {
+      sourceElement,
+      sourceParentElement,
+      targetParentElement,
+      elements: this.pageManager.getPageElements()
+    })
     this.selectElements([el])
     this.moveable.updateTarget()
+  }
+
+  configSourceParent (sourceParentElement, sourceElement) {
+    let isSlot = false
+    for (const slotProp of sourceParentElement.componentDefinition.props.filter(prop => prop.type === 'slot')) {
+      if (sourceParentElement.config.props[slotProp.name] === sourceElement.id) {
+        sourceParentElement.setPropsConfig(null, {
+          ['props.' + slotProp.name]: null
+        })
+        isSlot = true
+      }
+    }
+    if (!isSlot) {
+      sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
+    }
+  }
+
+  configTargetParent (targetParentElement, sourceElement, targetEl) {
+    if (targetEl.tagName === 'SLOT') { // 放置到slot中
+      // 设置slot属性值为组件id
+      targetParentElement.setPropsConfig(null, {
+        ['props.' + (targetEl.getAttribute('name') || 'slot')]: sourceElement.id
+      })
+    } else {
+      // 这里容器会提供 appendChild 方法，并提供放置位置
+      targetParentElement.invoke('appendChild', [sourceElement.el])
+      targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
+    }
   }
 
   /**
@@ -418,11 +451,13 @@ export default class WorkSpaceControl {
     const fraction = JSON.parse(data)
 
     const div = document.createElement('div')
-    const wrapper = this.pageManager.createElement(fraction)
 
+    const wrapper = this.pageManager.createElement(fraction)
     wrapper.mount(div)
 
     this.onElementDragEnd(div, ev.pageX, ev.pageY)
+
+    this.ridge.emit(EVENT_ELEMENT_CREATED, [wrapper])
     this.ridge.saveCurrentPage()
   }
 
