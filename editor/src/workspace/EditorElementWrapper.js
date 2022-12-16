@@ -21,14 +21,22 @@ export default class EditorElementWrapper extends ElementWrapper {
     })
   }
 
+  /**
+   * 对于布局性质的配置进行读取配置
+   */
   initPropsAndEvents () {
     super.initPropsAndEvents()
+    this.slotProps = []
     for (const prop of this.componentDefinition.props || []) {
       if (prop.type === 'children') {
         this.isContainer = true
         if (this.el) {
           this.el.classList.add('container')
         }
+      }
+      if (prop.type === 'slot') {
+        this.isContainer = true
+        this.slotProps.push(prop)
       }
     }
   }
@@ -110,22 +118,25 @@ export default class EditorElementWrapper extends ElementWrapper {
    */
   getStyle () {
     return this.config.style
-    // const style = {
-    // }
-    // if (this.el.style.transform) {
-    //   const matched = this.el.style.transform.match(/[0-9.]+/g)
-    //   style.x = parseInt(matched[0])
-    //   style.y = parseInt(matched[1])
-    //   style.position = 'absolute'
-    // } else {
-    //   style.x = 0
-    //   style.y = 0
-    // }
-    // style.width = parseInt(this.el.style.width)
-    // style.height = parseInt(this.el.style.height)
+  }
 
-    // Object.assign(this.instanceStyle, style)
-    // return this.instanceStyle
+  /**
+   * 计算获取插槽子元素
+   * @returns Array 元素列表
+   */
+  getSlotChildren () {
+    const slotChildren = []
+    if (this.slotProps) {
+      for (const prop of this.slotProps) {
+        if (this.config.props[prop.name]) {
+          slotChildren.push({
+            propDef: prop,
+            wrapper: this.pageManager.getElement(this.config.props[prop.name])
+          })
+        }
+      }
+    }
+    return slotChildren
   }
 
   setStatus (status, el) {

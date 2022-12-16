@@ -11,15 +11,14 @@ export default class ListContainer {
     Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
     el.appendChild(this.containerEl)
 
+    this.createSlotElement()
     if (this.props.renderItem) {
       this.templateItemWrapper = this.props.__elementWrapper.pageManager.getElement(this.props.renderItem)
       if (this.props.__editor) {
         const slotEl = document.createElement('div')
         this.templateItemWrapper.mount(slotEl)
-        this.containerEl.appendChild(slotEl)
+        this.slotEl.appendChild(slotEl)
       }
-    } else {
-      this.showSlotElement()
     }
   }
 
@@ -42,12 +41,13 @@ export default class ListContainer {
     return style
   }
 
-  showSlotElement () {
+  createSlotElement () {
     const slotEl = document.createElement('slot')
     slotEl.setAttribute('name', 'renderItem')
     slotEl.elementWrapper = this.props.__elementWrapper
     Object.assign(slotEl.style, this.getSlotStyle())
     this.containerEl.appendChild(slotEl)
+    this.slotEl = slotEl
   }
 
   getSlotStyle () {
@@ -66,6 +66,13 @@ export default class ListContainer {
     }
   }
 
+  updateChild (el) {
+    el.elementWrapper.setStyle({
+      x: 0,
+      y: 0
+    })
+  }
+
   update (props) {
     if (props.renderItem) {
       // 放入项模板
@@ -76,8 +83,7 @@ export default class ListContainer {
           x: 0,
           y: 0
         })
-        this.containerEl.appendChild(targetWrapper.el)
-        this.containerEl.removeChild(this.containerEl.querySelector('SLOT'))
+        this.containerEl.querySelector('SLOT').appendChild(targetWrapper.el)
       }
     } else {
       // 移出项模板

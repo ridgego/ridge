@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tree, Input } from '@douyinfe/semi-ui'
 import MoveablePanel from './MoveablePanel.jsx'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_PARENT_CHANGE } from '../constant.js'
+import { EVENT_PAGE_LOADED, EVENT_ELEMENT_PARENT_CHANGE, EVENT_ELEMENT_SELECTED } from '../constant.js'
 
 class OutLinePanel extends React.Component {
   constructor () {
@@ -30,6 +30,22 @@ class OutLinePanel extends React.Component {
         elements
       })
     })
+
+    Ridge.on(EVENT_ELEMENT_SELECTED, payload => {
+      if (payload.from === 'workspace') {
+        this.setState({
+          selected: payload.element ? payload.element.elementWrapper.id : null
+        })
+      }
+    })
+  }
+
+  onNodeSelected (val) {
+    const { Ridge } = window
+    Ridge.emit(EVENT_ELEMENT_SELECTED, {
+      from: 'outline',
+      element: this.state.elements[val].el
+    })
   }
 
   buildElementTree (elements) {
@@ -41,11 +57,13 @@ class OutLinePanel extends React.Component {
     return treeData
   }
 
-  getElementTree (element, elementsDic) {
+  getElementTree (element, elementsDic, tags) {
     const treeNodeObject = {
       key: element.id,
       label: element.config.title,
       value: element.id,
+      tags,
+      element,
       children: []
     }
     if (element.config.props.children && element.config.props.children.length) {
@@ -53,6 +71,15 @@ class OutLinePanel extends React.Component {
         treeNodeObject.children.push(this.getElementTree(elementsDic[childId], elementsDic))
       }
     }
+
+    const slotChildrenWrappers = element.getSlotChildren()
+
+    for (const slotChild of slotChildrenWrappers) {
+      treeNodeObject.children.push(this.getElementTree(slotChild.wrapper, elementsDic, {
+        tag: slotChild.propDef.label
+      }))
+    }
+
     return treeNodeObject
   }
 
@@ -63,12 +90,16 @@ class OutLinePanel extends React.Component {
       <MoveablePanel title='大纲' left='45px' width='320px' bottom='10px' top='400px' {...this.props}>
         <Tree
           filterTreeNode
+          value={selected}
           searchRender={({ prefix, ...restProps }) => (
             <Input
               prefix='Search'
               {...restProps}
             />
           )}
+          onChange={(value) => {
+            this.onNodeSelected(value)
+          }}
           treeData={treeData}
         />
       </MoveablePanel>

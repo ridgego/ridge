@@ -32,6 +32,7 @@ export default {
     }
   }, {
     name: 'renderItem',
+    label: '单项模板',
     type: 'slot'
   }]
 }

@@ -39,8 +39,10 @@ export default class ComponentPanel extends React.Component {
         pageVariables
       })
     })
-    Ridge.on(EVENT_ELEMENT_SELECTED, el => {
-      this.elementSelected(el)
+    Ridge.on(EVENT_ELEMENT_SELECTED, payload => {
+      if (payload.from === 'workspace') {
+        this.elementSelected(payload.element)
+      }
     })
   }
 

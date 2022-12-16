@@ -33,6 +33,12 @@ export default class WorkSpaceControl {
 
     this.initComponentDrop()
     this.initKeyBind()
+
+    this.ridge.on(EVENT_ELEMENT_SELECTED, payload => {
+      if (payload.from === 'outline') {
+        this.selectElements([payload.element])
+      }
+    })
   }
 
   disable () {
@@ -199,7 +205,7 @@ export default class WorkSpaceControl {
         target,
         transform
       }) => {
-        if (!target.getAttribute('containerId')) {
+        if (!target.elementWrapper.config.parent) {
           target.style.transform = transform
           sm.ridge.debouncedSaveUpdatePage()
         }
@@ -263,8 +269,8 @@ export default class WorkSpaceControl {
         this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => el !== closestRidgeNode)]
         this.moveable.elementGuidelines = this.guidelines
         this.moveable.dragStart(inputEvent)
-        this.onNodeSelected(closestRidgeNode)
-        this.selected = [closestRidgeNode]
+
+        this.selectElements([closestRidgeNode])
         e.inputEvent && e.inputEvent.stopPropagation()
         e.inputEvent && e.inputEvent.preventDefault()
         e.stop()
@@ -283,7 +289,6 @@ export default class WorkSpaceControl {
 
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
       this.selectElements(selected)
-      // this.setSelectedTargets(selected)
     })
   }
 
@@ -317,11 +322,6 @@ export default class WorkSpaceControl {
     })
   }
 
-  setSelected (selected) {
-    this.selected = selected
-    this.moveable.target = selected
-  }
-
   checkDropTargetStatus ({ target, clientX, clientY }) {
     this.getDroppableTarget(target, {
       x: clientX,
@@ -349,6 +349,10 @@ export default class WorkSpaceControl {
     const sourceParentElement = sourceElement.config.parent ? this.pageManager.getElement(sourceElement.config.parent) : null
     const targetParentElement = targetEl ? targetEl.elementWrapper : null
 
+    if (sourceParentElement == null && targetParentElement == null) {
+      this.putElementToRoot(el, x, y)
+      return
+    }
     if (sourceParentElement === targetParentElement && targetParentElement != null) {
       // 1.在同一个父容器内移动
       targetParentElement.invoke('updateChild', [el])
@@ -432,10 +436,19 @@ export default class WorkSpaceControl {
     this.moveable.updateTarget()
   }
 
-  selectElements (elements) {
+  /**
+   * 设置选择元素，包含选择“空”的情况
+   * @param {*} elements
+   * @param {*} notNotify
+   */
+  selectElements (elements, notNotify) {
     this.moveable.target = elements
-    if (elements.length <= 1) {
-      this.onNodeSelected(elements[0])
+
+    if (!notNotify && elements.length <= 1) {
+      this.ridge.emit(EVENT_ELEMENT_SELECTED, {
+        from: 'workspace',
+        element: elements[0]
+      })
     }
     this.selected = elements
   }
@@ -459,10 +472,6 @@ export default class WorkSpaceControl {
 
     this.ridge.emit(EVENT_ELEMENT_CREATED, [wrapper])
     this.ridge.saveCurrentPage()
-  }
-
-  onNodeSelected (el) {
-    this.ridge.emit(EVENT_ELEMENT_SELECTED, el)
   }
 
   onNodeResize (onr) {

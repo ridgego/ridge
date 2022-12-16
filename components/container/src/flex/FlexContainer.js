@@ -42,6 +42,10 @@ export default class FlexBoxContainer {
     }
   }
 
+  updateChild (el) {
+    this.appendChild(el)
+  }
+
   appendChild (el) {
     const {
       // 相关系统变量
