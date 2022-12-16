@@ -1,0 +1,47 @@
+{
+  "name": "ridge-container",
+  "version": "1.0.0",
+  "description": "容器",
+  "main": "index.js",
+  "icon": "icons/icon.svg",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w",
+    "help": "build-fc --help",
+    "debug": "build-fc -w -s -p 8700",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "components": [{
+    "path": "build/flex-index.d.js",
+    "title": "弹性容器",
+    "icon": "icons/flexbox.svg",
+    "width": 360,
+    "height": 120
+  }, {
+    "path": "build/list-index.d.js",
+    "title": "列表容器",
+    "icon": "icons/list.svg",
+    "width": 360,
+    "height": 240
+  }, {
+    "path": "build/tab-index.d.js",
+    "title": "切换容器",
+    "icon": "icons/tab-container.svg",
+    "width": 360,
+    "height": 240
+  }, {
+    "path": "build/tab-index.d.js",
+    "title": "相对容器",
+    "icon": "icons/relative.svg",
+    "width": 360,
+    "height": 240
+  }],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  }
+}

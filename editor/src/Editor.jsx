@@ -53,7 +53,7 @@ export default class Editor extends React.Component {
    */
   initialize () {
     this.ridge = new Ridge({
-      debugUrl: 'https://localhost:8700'
+      // debugUrl: 'https://localhost:8700'
     })
     window.Ridge = this.ridge
 
