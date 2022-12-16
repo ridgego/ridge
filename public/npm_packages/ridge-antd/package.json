@@ -16,6 +16,12 @@
   ],
   "icon": "antd.svg",
   "components": [{
+    "title": "单行文本",
+    "icon": "img/Text.svg",
+    "path": "build/typography-text.d.js",
+    "width": 100,
+    "height": 24
+  }, {
     "title": "按钮",
     "icon": "img/Button.svg",
     "path": "build/button-button.d.js",
@@ -37,6 +43,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "antd": "^4.23.2"
   }
 }

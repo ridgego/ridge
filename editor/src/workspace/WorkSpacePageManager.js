@@ -40,6 +40,64 @@ export default class WorkSpacePageManager extends PageElementManager {
     return wrapper
   }
 
+  removeElement (id) {
+    const element = this.pageElements[id]
+
+    if (element) {
+      for (const childId of element.getChildrenIds()) {
+        this.removeElement(childId)
+      }
+      for (const slotChild of element.getSlotChildren()) {
+        this.removeElement(slotChild.element.id)
+      }
+      if (element.config.parent) {
+        this.detachChildElement(this.pageElements[element.config.parent], id)
+      }
+      element.unmount()
+      delete this.pageElements[id]
+    }
+  }
+
+  /**
+   * 当子节点从父节点移出后，（包括SLOT）重新更新父节点配置
+   * @param {*} sourceParentElement 父节点
+   * @param {*} childElementId 子节点id
+   */
+  detachChildElement (sourceParentElement, childElementId) {
+    let isSlot = false
+    for (const slotProp of sourceParentElement.componentDefinition.props.filter(prop => prop.type === 'slot')) {
+      if (sourceParentElement.config.props[slotProp.name] === childElementId) {
+        sourceParentElement.setPropsConfig(null, {
+          ['props.' + slotProp.name]: null
+        })
+        isSlot = true
+      }
+    }
+    if (!isSlot) {
+      sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
+    }
+  }
+
+  /**
+   * 节点设置新的父节点
+   * @param {*} targetParentElement
+   * @param {*} sourceElement
+   * @param {*} targetEl
+   */
+  attachToParent (targetParentElement, sourceElement, slotName) {
+    if (slotName) { // 放置到slot中
+      // 设置slot属性值为组件id
+      // 父组件需要执行DOM操作
+      targetParentElement.setPropsConfig(null, {
+        ['props.' + slotName]: sourceElement.id
+      })
+    } else {
+      // 这里容器会提供 appendChild 方法，并提供放置位置
+      targetParentElement.invoke('appendChild', [sourceElement.el])
+      targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
+    }
+  }
+
   /**
    * 获取页面的定义信息
    * @returns JSON

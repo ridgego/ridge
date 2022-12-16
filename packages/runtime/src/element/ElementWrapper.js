@@ -136,6 +136,17 @@ class ElementWrapper {
     }
   }
 
+  unmount () {
+    if (this.renderer) {
+      this.renderer.destroy()
+      this.renderer = null
+    }
+    if (this.el) {
+      this.el.parentElement.removeChild(this.el)
+      this.el = null
+    }
+  }
+
   createRenderer () {
     if (this.componentDefinition.type === 'vanilla') {
       return new VanillaRender(this.componentDefinition.component, this.el, this.getProperties())
@@ -173,7 +184,7 @@ class ElementWrapper {
       try {
         log('updateProps', this.id, this.properties)
 
-        this.renderer.updateProps(Object.assign({}, this.properties))
+        this.renderer.updateProps(this.getProperties())
       } catch (e) {
         log('用属性渲染组件出错', e)
       }
@@ -208,7 +219,6 @@ class ElementWrapper {
    * 强制重新计算属性并更新组件显示
    */
   forceUpdate () {
-    Object.assign(this.properties, this.config.props)
     for (const propBindKey of Object.keys(this.config.propEx)) {
       this.properties[propBindKey] = template(this.config.propEx[propBindKey], this.getVariableContext())
     }
@@ -232,12 +242,6 @@ class ElementWrapper {
         }
       }
     }
-  }
-
-  appendChild (wrapper) {
-    this.children.push(wrapper)
-    this.properties.children.push(wrapper)
-    this.updateProperties()
   }
 
   getCreateChildElement (name) {}

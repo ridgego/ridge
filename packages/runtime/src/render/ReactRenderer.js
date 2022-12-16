@@ -44,7 +44,9 @@ export default class ReactRenderer extends Renderer {
       this.props.ref = React.createRef()
     }
     this.renderRef = this.props.ref
-    ReactDOM.render(this.getRenderInstance(), el)
+    this.root = ReactDOM.createRoot(el)
+
+    this.root.render(this.getRenderInstance())
   }
 
   getRenderInstance () {
@@ -57,7 +59,7 @@ export default class ReactRenderer extends Renderer {
   }
 
   /**
-   * 捕获组件向外触发的时间
+   * 捕获组件向外触发的事件
    * @param {Event} event 事件
    * @param {Function} callback 回调函数
    * @override

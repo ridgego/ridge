@@ -22,16 +22,6 @@ class PageElementManager {
     return this.pageElements
   }
 
-  removeElements (elements) {
-    for (const el of elements) {
-      let target = el
-      if (typeof target === 'string') {
-        target = this.pageElements[target]
-      }
-      target.parentElement.removeChild(target)
-    }
-  }
-
   /**
    * 根据页面配置读取页面控制对象结构
    * @param {Element} el DOM 根元素

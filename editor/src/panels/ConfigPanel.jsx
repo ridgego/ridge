@@ -60,28 +60,29 @@ export default class ComponentPanel extends React.Component {
     if (elementWrapper.componentDefinition) {
       const componentDefiProps = elementWrapper.componentDefinition.props
       const styledProps = []
+      let partied = null
       for (const prop of componentDefiProps) {
         const control = {
           label: prop.label,
           type: prop.type,
           bindable: prop.bindable,
           control: prop.control,
-          field: 'props.' + prop.name
+          optionList: prop.optionList,
+          field: 'props.' + prop.name,
+          fieldEx: 'propsEx.' + prop.name
         }
-        control.fieldEx = 'propsEx.' + prop.name
-        if (!control.control) {
-          if (control.type === 'string') {
-            control.control = 'text'
-          }
+        if (prop.party) {
+          partied = control
+        } else {
+          styledProps.push({
+            cols: partied
+              ? [partied, control]
+              : [
+                  control
+                ]
+          })
+          partied = null
         }
-        if (prop.optionList) {
-          control.optionList = prop.optionList
-        }
-        styledProps.push({
-          cols: [
-            control
-          ]
-        })
       }
       const nodePropsSection = basicStyleSections.concat({
         rows: styledProps

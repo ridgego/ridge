@@ -72,11 +72,11 @@ class OutLinePanel extends React.Component {
       }
     }
 
-    const slotChildrenWrappers = element.getSlotChildren()
+    const slotChildrenElements = element.getSlotChildren()
 
-    for (const slotChild of slotChildrenWrappers) {
-      treeNodeObject.children.push(this.getElementTree(slotChild.wrapper, elementsDic, {
-        tag: slotChild.propDef.label
+    for (const slotChild of slotChildrenElements) {
+      treeNodeObject.children.push(this.getElementTree(slotChild.element, elementsDic, {
+        tag: slotChild.prop.label
       }))
     }
 

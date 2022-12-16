@@ -120,6 +120,10 @@ export default class EditorElementWrapper extends ElementWrapper {
     return this.config.style
   }
 
+  getChildrenIds () {
+    return this.config.props.children || []
+  }
+
   /**
    * 计算获取插槽子元素
    * @returns Array 元素列表
@@ -130,8 +134,8 @@ export default class EditorElementWrapper extends ElementWrapper {
       for (const prop of this.slotProps) {
         if (this.config.props[prop.name]) {
           slotChildren.push({
-            propDef: prop,
-            wrapper: this.pageManager.getElement(this.config.props[prop.name])
+            prop,
+            element: this.pageManager.getElement(this.config.props[prop.name])
           })
         }
       }

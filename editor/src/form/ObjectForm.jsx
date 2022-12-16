@@ -30,6 +30,9 @@ export default class ObjectForm extends React.Component {
     if (hidden) {
       return
     }
+    if (col.control == null) {
+      col.control = col.type
+    }
     let RenderField = null
     switch (col.control) {
       case 'number':
@@ -38,11 +41,16 @@ export default class ObjectForm extends React.Component {
       case 'text':
         RenderField = <Input size='small' label={col.label} field={col.field} />
         break
+      case 'boolean':
       case 'checkbox':
         RenderField = <Checkbox size='small' label={col.label} field={col.field} />
         break
       case 'select':
-        RenderField = <Select size='small' label={col.label} field={col.field} optionList={col.optionList} />
+        if (col.required) {
+          RenderField = <Select size='small' label={col.label} field={col.field} optionList={col.optionList} />
+        } else {
+          RenderField = <Select placeholder='请选择' showClear size='small' label={col.label} field={col.field} optionList={col.optionList} />
+        }
         break
       case 'border':
         RenderField = <BorderEdit label={col.label} field={col.field} />

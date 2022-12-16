@@ -311,7 +311,7 @@ export default class WorkSpaceControl {
     Mousetrap.bind('del', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          el.parentElement.removeChild(el)
+          this.pageManager.removeElement(el.elementWrapper.id)
         }
         this.selectElements([])
       }
@@ -350,6 +350,7 @@ export default class WorkSpaceControl {
     const targetParentElement = targetEl ? targetEl.elementWrapper : null
 
     if (sourceParentElement == null && targetParentElement == null) {
+      // 根上移动： 只更新配置
       this.putElementToRoot(el, x, y)
       return
     }
@@ -364,14 +365,16 @@ export default class WorkSpaceControl {
       // DOM操作，放置到ViewPort上
       this.putElementToRoot(el, x, y)
 
-      this.configSourceParent(sourceParentElement, sourceElement)
+      this.pageManager.detachChildElement(sourceParentElement, sourceElement.id)
     } else if (sourceParentElement == null && targetParentElement) {
       // 3. 从根到父容器
-      this.configTargetParent(targetParentElement, sourceElement, targetEl)
+      const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
+      this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
     } else if (sourceParentElement !== targetParentElement) {
       // 4. 一个父容器到另一个父容器
-      this.configTargetParent(targetParentElement, sourceElement, targetEl)
-      this.configSourceParent(sourceParentElement, sourceElement)
+      const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
+      this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
+      this.pageManager.detachChildElement(sourceParentElement, sourceElement.id)
     }
 
     sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
@@ -385,34 +388,6 @@ export default class WorkSpaceControl {
     })
     this.selectElements([el])
     this.moveable.updateTarget()
-  }
-
-  configSourceParent (sourceParentElement, sourceElement) {
-    let isSlot = false
-    for (const slotProp of sourceParentElement.componentDefinition.props.filter(prop => prop.type === 'slot')) {
-      if (sourceParentElement.config.props[slotProp.name] === sourceElement.id) {
-        sourceParentElement.setPropsConfig(null, {
-          ['props.' + slotProp.name]: null
-        })
-        isSlot = true
-      }
-    }
-    if (!isSlot) {
-      sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
-    }
-  }
-
-  configTargetParent (targetParentElement, sourceElement, targetEl) {
-    if (targetEl.tagName === 'SLOT') { // 放置到slot中
-      // 设置slot属性值为组件id
-      targetParentElement.setPropsConfig(null, {
-        ['props.' + (targetEl.getAttribute('name') || 'slot')]: sourceElement.id
-      })
-    } else {
-      // 这里容器会提供 appendChild 方法，并提供放置位置
-      targetParentElement.invoke('appendChild', [sourceElement.el])
-      targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
-    }
   }
 
   /**

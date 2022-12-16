@@ -7,6 +7,7 @@ module.exports = {
     },
     {
       module: 'react-dom',
+      dependencies: ['react'],
       root: 'ReactDOM',
       dist: 'react-dom/umd/react-dom.production.min.js'
     },

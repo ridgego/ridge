@@ -3,6 +3,28 @@ html, body {
   user-select: none;
 }
 
+::-webkit-scrollbar,
+::-webkit-scrollbar-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 20px;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    color: var(--semi-color-bg-0);
+}
+::-webkit-scrollbar-thumb:hover {
+    color:var(--semi-color-fill-0);
+}
+::-webkit-scrollbar-thumb:active {
+    color: var(--semi-color-fill-0);
+}
+::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 0 10px;
+}
+::-webkit-scrollbar-corner {
+    display: none;
+}
+
 // 对semi样式的重写
 .semi-input-wrapper {
   .semi-input {
