@@ -13,8 +13,7 @@ export default ({
   return (
     <Input
       style={{
-        width: '100%',
-        height: '100%'
+        width: '100%'
       }}
       placeholder={placeholder || ''}
       size={size}
@@ -25,7 +24,6 @@ export default ({
         input(val)
         onChange(val)
       }}
-      onPressEnter={onPressEnter}
     />
   )
 }

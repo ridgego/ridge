@@ -39,6 +39,7 @@ export default class ObjectForm extends React.Component {
         RenderField = <InputNumber size='small' label={col.label} disabled={readonly} field={col.field} />
         break
       case 'text':
+      case 'string':
         RenderField = <Input size='small' label={col.label} field={col.field} />
         break
       case 'boolean':

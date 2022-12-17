@@ -22,7 +22,6 @@ export default class WorkSpaceControl {
     this.zoomable = zoomable
 
     this.ridge = ridge
-    // this.selectorDropableTarget = '.viewport-container.active [droppable="1"]'
     this.selectorDropableTarget = ['.ridge-element.container', 'slot']
     this.init()
   }
@@ -33,7 +32,7 @@ export default class WorkSpaceControl {
 
     this.initComponentDrop()
     this.initKeyBind()
-
+    // this.setWorkSpaceMovable()
     this.ridge.on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'outline') {
         this.selectElements([payload.element])
@@ -44,6 +43,9 @@ export default class WorkSpaceControl {
   disable () {
     this.selecto.destroy()
     this.moveable.destroy()
+    if (this.workspaceMovable) {
+      this.workspaceMovable.destroy()
+    }
   }
 
   setPageManager (manager) {
@@ -55,7 +57,6 @@ export default class WorkSpaceControl {
     this.viewPortEl.style.height = height + 'px'
 
     this.fitToCenter()
-    this.setWorkSpaceMovable()
   }
 
   fitToCenter () {
