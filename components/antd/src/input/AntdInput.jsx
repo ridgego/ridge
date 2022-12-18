@@ -13,16 +13,17 @@ export default ({
   return (
     <Input
       style={{
-        width: '100%'
+        width: '100%',
+        height: '100%'
       }}
       placeholder={placeholder || ''}
       size={size}
       showCount={showCount}
       status={status}
       value={value}
-      onChange={(val) => {
-        input(val)
-        onChange(val)
+      onChange={e => {
+        input(e.target.value)
+        onChange(e.target.value)
       }}
     />
   )

@@ -129,6 +129,13 @@ module.exports = {
       module: 'html2canvas',
       root: 'html2canvas',
       dist: 'html2canvas/dist/html2canvas.min.js'
+    },
+    {
+      module: '@douyinfe/semi-ui',
+      root: 'SemiUI',
+      dependencies: ['react', 'react-dom'],
+      style: '@douyinfe/semi-ui/dist/css/semi.min.css',
+      dist: '@douyinfe/semi-ui/dist/umd/semi-ui.min.js'
     }
   ]
 }

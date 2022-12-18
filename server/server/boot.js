@@ -28,8 +28,7 @@ const bootApp = new Boostrap(Object.assign({
   }],
   cache: {
     persistanceKeys: ''
-  },
-  isRepo: false
+  }
 }, {
   // 组件包请按次序放置，一些依赖是要求次序的
   packages: [require('ridge-http'), require('../npm-service/src')]

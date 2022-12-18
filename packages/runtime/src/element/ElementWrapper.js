@@ -230,7 +230,14 @@ class ElementWrapper {
   }
 
   emit (eventName, payload) {
+    if (eventName === 'input' && !this.config.events[eventName]) {
+      if (this.config.propEx.value && Object.keys(this.getVariableContext()).indexOf(this.config.propEx.value) > -1) {
+        this.pageManager.updatePageVariableValue(this.config.propEx.value, payload)
+      }
+      return
+    }
     if (this.config.events[eventName]) {
+      // 处理input/value事件
       for (const action of this.config.events[eventName]) {
         if (action.name === 'setvar') {
           try {

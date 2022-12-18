@@ -6,12 +6,9 @@ module.exports = merge(config, {
   mode: 'production',
   devtool: false,
   optimization: {
-    minimize: true
+    minimize: true,
+    usedExports: true
   },
-  // externals: {
-  //   '@douyinfe/semi-ui': 'SemiUI',
-  //   moveable: 'Moveable'
-  // },
   plugins: [
     new BundleAnalyzerPlugin()
   ]

@@ -71,5 +71,11 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     clean: true,
     publicPath: '/'
+  },
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+    '@douyinfe/semi-ui': 'SemiUI'
+    // moveable: 'Moveable'
   }
 }
