@@ -97,7 +97,7 @@ export default class Editor extends React.Component {
     })
 
     this.ridge.on('*', () => {
-      this.debouncedSaveUpdatePage()
+      // this.debouncedSaveUpdatePage()
     })
   }
 
@@ -263,7 +263,8 @@ export default class Editor extends React.Component {
     this.setState({
       properties
     })
-    this.pageElementManager.properties = properties
+    this.pageElementManager.updatePageProperties(properties)
+    // this.pageElementManager.properties = properties
     this.debouncedSaveUpdatePage()
   }
 

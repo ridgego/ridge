@@ -18,14 +18,6 @@ export default ({
 
   const onOk = () => {
     if (editorView) {
-      // const dias = editorView.linter(editorView)
-      // if (dias.length) {
-      //   setError('行' + dias[0].from + ',错误:' + dias[0].message)
-      //   console.log(dias)
-      //   return false
-      // } else {
-      //   setError('')
-      // }
       output(editorView.state.doc.toString())
     }
   }
