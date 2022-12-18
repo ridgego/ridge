@@ -1,15 +1,28 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IconCode } from '@douyinfe/semi-icons'
-import { withField, Button, Popover, TextArea } from '@douyinfe/semi-ui'
+import { withField, Button, Popover } from '@douyinfe/semi-ui'
+import { EditorView, basicSetup } from 'codemirror'
+import { javascript } from '@codemirror/lang-javascript'
 
 const CodeExprEdit = withField(props => {
+  const ref = React.createRef()
   const [open, setOpen] = useState(false)
   const popVisibleChange = visible => {
     setOpen(visible)
+    if (visible) {
+      const editorView = new EditorView({
+        doc: props.value,
+        extensions: [basicSetup, javascript()],
+        parent: ref.current
+      })
+    }
   }
   const exprChange = value => {
     props && props.onChange(value)
   }
+  useEffect(() => {
+
+  })
   return (
     <Popover
       position='leftTop'
@@ -19,7 +32,7 @@ const CodeExprEdit = withField(props => {
       content={
         <article style={{ padding: 8, width: 360 }}>
           <span> 请输入表达式 </span>
-          <TextArea value={props.value} onChange={exprChange} />
+          <textarea ref={ref} value={props.value} onChange={exprChange} />
         </article>
       }
     >

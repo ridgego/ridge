@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { IconDelete, IconEdit, IconPlus } from '@douyinfe/semi-icons'
-import { withField, Button, Select, Form, Space, Input, TextArea } from '@douyinfe/semi-ui'
+import { withField, Button, Select, Input } from '@douyinfe/semi-ui'
 
 const EventEdit = withField(({
   value,

@@ -4,6 +4,7 @@ import { Form } from '@douyinfe/semi-ui'
 import BorderEdit from './with-fields/BorderEdit.jsx'
 import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
 import EventEdit from './with-fields/EventEdit.jsx'
+import JSONEdit from './with-fields/JSONEdit.jsx'
 
 import './form.less'
 
@@ -61,6 +62,9 @@ export default class ObjectForm extends React.Component {
         break
       case 'event':
         RenderField = <EventEdit labelPosition='top' label={col.label} field={col.field} options={options} />
+        break
+      case 'json-editor':
+        RenderField = <JSONEdit label={col.label} field={col.field} />
         break
       default:
         break

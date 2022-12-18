@@ -228,9 +228,6 @@ export default class ComponentPanel extends React.Component {
         >
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
-              style={{
-                display: nodePropsSection.length === 0 ? 'initial' : 'none'
-              }}
               sections={FORM_PAGE_PROPS} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
             />
           </TabPane>

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Banner } from '@douyinfe/semi-ui'
 import '../css/code-editor.less'
+import { EditorView, basicSetup } from 'codemirror'
+import { javascript } from '@codemirror/lang-javascript'
+import { json, jsonParseLinter } from '@codemirror/lang-json'
 
 let editorView = null
 export default ({
@@ -32,27 +35,21 @@ export default ({
         editorView.destroy()
         editorView = null
       }
-      setTimeout(async () => {
-        const CodeMirror = await import('codemirror')
-        const { EditorView, basicSetup } = CodeMirror
-        if (lang === 'js') {
-          const { javascript } = await import('@codemirror/lang-javascript')
-          editorView = new EditorView({
-            doc: value,
-            extensions: [basicSetup, javascript()],
-            root: ref.current.parent,
-            parent: ref.current
-          })
-        } else if (lang === 'json') {
-          const { json, jsonParseLinter } = await import('@codemirror/lang-json')
-          editorView = new EditorView({
-            doc: value,
-            extensions: [basicSetup, json()],
-            parent: ref.current
-          })
-          editorView.jsonParseLinter = jsonParseLinter
-        }
-      }, 300)
+      if (lang === 'js') {
+        editorView = new EditorView({
+          doc: value,
+          extensions: [basicSetup, javascript()],
+          root: ref.current.parent,
+          parent: ref.current
+        })
+      } else if (lang === 'json') {
+        editorView = new EditorView({
+          doc: value,
+          extensions: [basicSetup, json()],
+          parent: ref.current
+        })
+        editorView.jsonParseLinter = jsonParseLinter
+      }
     }
   }, [visible])
   return (
