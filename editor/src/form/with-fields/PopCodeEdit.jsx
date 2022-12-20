@@ -30,15 +30,15 @@ const CodeExprEdit = withField(({
     }
   })
   variableCompletions.push({
-    label: 'Math',
-    type: 'contant'
+    label: '$scope',
+    type: 'variable'
   })
   variableCompletions.push({
     label: 'Math.floor',
     type: 'method'
   })
   const myCompletions = (context) => {
-    const before = context.matchBefore(/[\w.]+/)
+    const before = context.matchBefore(/[\w.\\$]+/)
     // If completion wasn't explicitly started and there
     // is no word before the cursor, don't open completions.
     if (!context.explicit && !before) return null

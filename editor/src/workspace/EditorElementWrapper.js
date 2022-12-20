@@ -143,67 +143,6 @@ export default class EditorElementWrapper extends ElementWrapper {
     return slotChildren
   }
 
-  setStatus (status, el) {
-    if (this.status !== status) {
-      this.status = status
-      this.addMaskLayer({
-        el: el || this.el,
-        name: status,
-        className: 'status-' + status,
-        zIndex: -1
-      })
-    }
-  }
-
-  removeStatus (status, el) {
-    if (this.status === status) {
-      this.status = null
-      this.removeMaskLayer(status, el || this.el)
-    }
-  }
-
-  removeMaskLayer (name, el) {
-    if (el && el.querySelector('[name="' + name + '"]')) {
-      el.removeChild(el.querySelector('[name="' + name + '"]'))
-    }
-  }
-
-  addMaskLayer ({
-    el,
-    name,
-    zIndex,
-    className,
-    text,
-    content
-  }) {
-    if (!el) {
-      return
-    }
-    if (el.querySelector('[name="' + name + '"]')) {
-      return
-    }
-    const layer = document.createElement('div')
-
-    layer.setAttribute('name', name)
-
-    layer.classList.add('layer')
-
-    layer.style.position = 'absolute'
-    layer.style.left = 0
-    layer.style.right = 0
-    layer.style.top = 0
-    layer.style.bottom = 0
-
-    if (className) {
-      layer.classList.add(className)
-    }
-    if (zIndex) {
-      layer.style.zIndex = zIndex
-    }
-    layer.innerHTML = content || text || ''
-    el.appendChild(layer)
-  }
-
   toJSON () {
     return this.config
   }

@@ -26,6 +26,7 @@ export default class FlexBoxContainer {
   }
 
   mount (el) {
+    const { __elementWrapper: wrapper, __pageManager: pageManager } = this.props
     const containerDiv = document.createElement('div')
     containerDiv.classList.add('flex-container')
     Object.assign(containerDiv.style, this.getContainerStyle(this.props))
@@ -34,10 +35,11 @@ export default class FlexBoxContainer {
     this.containerEl = containerDiv
     if (this.props.children) {
       for (const childId of this.props.children) {
-        const childWrapper = this.props.__elementWrapper.pageManager.getElement(childId)
+        const childWrapper = pageManager.getElement(childId)
         const childDiv = document.createElement('div')
         containerDiv.appendChild(childDiv)
         childWrapper.mount(childDiv)
+        wrapper.appendChild(childWrapper)
       }
     }
   }

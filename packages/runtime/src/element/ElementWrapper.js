@@ -30,13 +30,32 @@ class ElementWrapper {
   }
 
   initialize () {
-    const { config } = this
     // 组件的scope值数据
     this.scopeVariableValues = {}
-    this.componentPath = config.path
     if (this.config.parent) {
       this.parentWrapper = this.pageManager.getElement(this.config.parent)
     }
+  }
+
+  /**
+   * 复制组件实例
+   * @returns
+   */
+  clone () {
+    const cloned = new ElementWrapper({
+      config: JSON.parse(JSON.stringify(this.config)),
+      pageManager: this.pageManager
+    })
+
+    cloned.initialize()
+
+    cloned.componentDefinition = this.componentDefinition
+
+    if (cloned.componentDefinition) {
+      cloned.initPropsAndEvents()
+      cloned.preloaded = true
+    }
+    return cloned
   }
 
   /**
@@ -68,6 +87,10 @@ class ElementWrapper {
     }
   }
 
+  appendChild (wrapper) {
+    this.children.push(wrapper)
+  }
+
   /**
    * 初始化组件属性、事件
    */
@@ -97,6 +120,10 @@ class ElementWrapper {
           this.emit(eventName, val)
         }
       }
+
+      if (prop.type === 'children') {
+        this.children = []
+      }
     }
 
     // 事件类属性写入，DOM初始化后事件才能挂到源头
@@ -105,16 +132,7 @@ class ElementWrapper {
         this.emit(event.name, ...args)
       }
     }
-    // 子节点的fcView也同时放入
-    if (this.childrenFcViews && this.childrenFcViews.length) {
-      this.properties.children = this.childrenFcViews
-      this.childrenFcViews.forEach(fcView => {
-        fcView.setScopeVariables(this.scopeVariables)
-      })
-    }
-
     delete this.config.isNew
-    this.editorFeatures = this.componentDefinition.editorFeatures ?? {}
   }
 
   /**
@@ -137,6 +155,11 @@ class ElementWrapper {
   }
 
   unmount () {
+    if (this.children && this.children.length) {
+      for (const childWrapper of this.children) {
+        childWrapper.unmount()
+      }
+    }
     if (this.renderer) {
       this.renderer.destroy()
       this.renderer = null
@@ -220,10 +243,23 @@ class ElementWrapper {
    * 强制重新计算属性并更新组件显示
    */
   forceUpdate () {
-    for (const propBindKey of Object.keys(this.config.propEx)) {
-      this.properties[propBindKey] = template(this.config.propEx[propBindKey], this.getVariableContext())
-    }
+    this.getExpressionedProperties()
     this.updateProperties()
+  }
+
+  /**
+   * 计算所有表达式值
+   */
+  getExpressionedProperties () {
+    for (const propBindKey of Object.keys(this.config.propEx)) {
+      if (this.hasExpression(propBindKey)) {
+        this.properties[propBindKey] = template(this.config.propEx[propBindKey], this.getVariableContext())
+      }
+    }
+  }
+
+  hasExpression (propBindKey) {
+    return this.config.propEx[propBindKey] !== '' && this.config.propEx[propBindKey] != null
   }
 
   invoke (method, args) {
@@ -289,6 +325,67 @@ class ElementWrapper {
       }
       return false
     }
+  }
+
+  setStatus (status, el) {
+    if (this.status !== status) {
+      this.status = status
+      this.addMaskLayer({
+        el: el || this.el,
+        name: status,
+        className: 'status-' + status,
+        zIndex: -1
+      })
+    }
+  }
+
+  removeStatus (status, el) {
+    if (this.status === status) {
+      this.status = null
+      this.removeMaskLayer(status, el || this.el)
+    }
+  }
+
+  removeMaskLayer (name, el) {
+    if (el && el.querySelector('[name="' + name + '"]')) {
+      el.removeChild(el.querySelector('[name="' + name + '"]'))
+    }
+  }
+
+  addMaskLayer ({
+    el,
+    name,
+    zIndex,
+    className,
+    text,
+    content
+  }) {
+    if (!el) {
+      return
+    }
+    if (el.querySelector('[name="' + name + '"]')) {
+      return
+    }
+    const layer = document.createElement('div')
+
+    layer.setAttribute('name', name)
+
+    layer.classList.add('layer')
+
+    layer.style.position = 'absolute'
+    layer.style.left = 0
+    layer.style.right = 0
+    layer.style.top = 0
+    layer.style.bottom = 0
+
+    if (className) {
+      layer.classList.add(className)
+    }
+    if (zIndex) {
+      layer.style.zIndex = zIndex
+    }
+    layer.innerHTML = content || text || ''
+    el.appendChild(layer)
   }
 }
 

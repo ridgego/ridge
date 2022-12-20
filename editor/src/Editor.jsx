@@ -13,7 +13,7 @@ import WorkSpacePageManager from './workspace/WorkSpacePageManager.js'
 import ApplicationService from './service/ApplicationService.js'
 
 import './css/editor.less'
-import { Ridge } from 'ridge-runtime'
+import { Ridge, PageElementManager } from 'ridge-runtime'
 import Nanobus from 'nanobus'
 
 import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE } from './constant'
@@ -105,6 +105,7 @@ export default class Editor extends React.Component {
     if (this.pageElementManager) {
       const pageJSONObject = this.pageElementManager.getPageJSON()
       trace('Save Page', pageJSONObject)
+      this.pageConfig = pageJSONObject
       this.ridge.appService.saveUpdatePage({
         id: pageJSONObject.id,
         title: pageJSONObject.properties.title,
@@ -120,6 +121,7 @@ export default class Editor extends React.Component {
    */
   loadPage (pageConfig) {
     trace('loadPage', pageConfig)
+    this.pageConfig = pageConfig
     // 从HTML初始化页面管理器
     this.pageElementManager = new WorkSpacePageManager(pageConfig, this.ridge)
 
@@ -139,6 +141,16 @@ export default class Editor extends React.Component {
       elements: this.pageElementManager.getPageElements()
     })
     this.workspaceControl.fitToCenter()
+  }
+
+  loadPageRun (pageConfig) {
+    trace('runPage', pageConfig)
+    if (this.pageElementManager) {
+      this.pageElementManager.unmount()
+    }
+    this.pageElementManager = new PageElementManager(pageConfig, this.ridge)
+    this.pageElementManager.mount(this.viewPortRef.current)
+    this.pageElementManager.forceUpdate()
   }
 
   componentDidMount () {
@@ -285,6 +297,8 @@ export default class Editor extends React.Component {
     }, () => {
       if (this.state.modeRun) {
         this.workspaceControl.disable()
+        this.saveCurrentPage()
+        this.loadPageRun(this.pageConfig)
       } else {
         this.pageElementManager.updateVariableConfigFromValue()
         this.workspaceControl.init()

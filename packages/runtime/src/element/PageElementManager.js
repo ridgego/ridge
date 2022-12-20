@@ -65,6 +65,12 @@ class PageElementManager {
     el.style.height = this.properties.height + 'px'
   }
 
+  async unmount () {
+    for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
+      wrapper.unmount()
+    }
+  }
+
   async preload () {
     const awaitings = []
     for (const wrapper of this.pageElements) {

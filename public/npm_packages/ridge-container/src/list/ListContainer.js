@@ -26,8 +26,10 @@ export default class ListContainer {
     const style = {
       width: '100%',
       height: '100%',
+      padding: this.props.padding + 'px',
       border: '1px solid #ccc'
     }
+
     if (this.props.grid.enabled === false) {
       style.display = 'flex'
       if (this.props.itemLayout === 'vertical') {
@@ -53,12 +55,14 @@ export default class ListContainer {
   getSlotStyle () {
     if (this.props.itemLayout === 'vertical') {
       return {
+        border: '1px dashed rgb(164,224,167)',
         display: 'block',
         width: '100%',
         minHeight: '80px'
       }
     } else {
       return {
+        border: '1px dashed rgb(164,224,167)',
         display: 'block',
         height: '100%',
         minWidth: '80px'
@@ -74,6 +78,7 @@ export default class ListContainer {
   }
 
   update (props) {
+    this.props = props
     if (props.renderItem) {
       // 放入项模板
       const targetWrapper = this.props.__pageManager.getElement(props.renderItem)
@@ -89,6 +94,9 @@ export default class ListContainer {
       // 移出项模板
       this.showSlotElement()
     }
+
+    Object.assign(this.slotEl.style, this.getSlotStyle())
+    Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
   }
 
   dropElement (el, targetEl) {

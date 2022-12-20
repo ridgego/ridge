@@ -10,6 +10,11 @@ export default {
     control: 'json-editor',
     value: []
   }, {
+    name: 'padding',
+    label: '内边',
+    type: 'number',
+    value: 5
+  }, {
     name: 'itemLayout',
     label: '布局',
     type: 'string',
