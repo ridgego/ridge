@@ -210,7 +210,11 @@ export default class ComponentPanel extends React.Component {
           }}
         >
           <TabPane tab='属性' itemKey='style'>
-            <ObjectForm sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} />
+            <ObjectForm
+              sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
+                pageVariables
+              }}
+            />
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm

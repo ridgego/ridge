@@ -32,7 +32,7 @@ export default class WorkSpaceControl {
 
     this.initComponentDrop()
     this.initKeyBind()
-    // this.setWorkSpaceMovable()
+    this.setWorkSpaceMovable()
     this.ridge.on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'outline') {
         this.selectElements([payload.element])
@@ -45,6 +45,7 @@ export default class WorkSpaceControl {
     this.moveable.destroy()
     if (this.workspaceMovable) {
       this.workspaceMovable.destroy()
+      this.workspaceMovable = null
     }
   }
 

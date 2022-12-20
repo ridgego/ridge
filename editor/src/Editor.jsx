@@ -78,7 +78,7 @@ export default class Editor extends React.Component {
       this.debouncedSaveUpdatePage()
     })
     this.ridge.on(EVENT_PAGE_PROP_CHANGE, (properties) => {
-      this.pageElementManager.properties = properties
+      this.pageElementManager.updatePageProperties(properties)
       this.debouncedSaveUpdatePage()
     })
     this.ridge.on(EVENT_ELEMENT_PROP_CHANGE, ({
@@ -126,6 +126,9 @@ export default class Editor extends React.Component {
     this.workspaceControl.setPageManager(this.pageElementManager)
 
     this.pageElementManager.mount(this.viewPortRef.current)
+
+    this.pageElementManager.forceUpdate()
+
     this.setState({
       variables: this.pageElementManager.getVariableConfig(),
       properties: this.pageElementManager.getPageProperties()
@@ -145,7 +148,6 @@ export default class Editor extends React.Component {
       ridge: this.ridge,
       zoomable: true
     })
-    this.workspaceControl.setWorkSpaceMovable()
   }
 
   render () {
@@ -284,6 +286,7 @@ export default class Editor extends React.Component {
       if (this.state.modeRun) {
         this.workspaceControl.disable()
       } else {
+        this.pageElementManager.updateVariableConfigFromValue()
         this.workspaceControl.init()
       }
     })

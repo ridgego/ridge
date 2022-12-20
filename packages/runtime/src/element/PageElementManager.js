@@ -11,7 +11,11 @@ class PageElementManager {
   }
 
   getPageProperties () {
-    return this.properties
+    return this.pageConfig.properties
+  }
+
+  updatePageProperties (properties) {
+    this.pageConfig.properties = properties
   }
 
   getElement (id) {

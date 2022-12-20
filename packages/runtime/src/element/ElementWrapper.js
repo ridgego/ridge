@@ -160,18 +160,19 @@ class ElementWrapper {
   }
 
   forceUpdateStyle () {
-    this.el.style.width = this.config.style.width ? (this.config.style.width + 'px') : ''
-    this.el.style.height = this.config.style.height ? (this.config.style.height + 'px') : ''
-    this.el.style.position = this.config.style.position
-    if (this.config.style.position === 'absolute') {
-      this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
-    } else {
-      this.el.style.transform = ''
-    }
-
-    if (Object.keys(this.config.styleEx).length) {
-      if (this.instanceStyleEx.width) {
-        this.el.style.width = template(this.config.styleEx.width, this.getVariableContext()) + 'px'
+    if (this.el) {
+      this.el.style.width = this.config.style.width ? (this.config.style.width + 'px') : ''
+      this.el.style.height = this.config.style.height ? (this.config.style.height + 'px') : ''
+      this.el.style.position = this.config.style.position
+      if (this.config.style.position === 'absolute') {
+        this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
+      } else {
+        this.el.style.transform = ''
+      }
+      if (Object.keys(this.config.styleEx).length) {
+        if (this.instanceStyleEx.width) {
+          this.el.style.width = template(this.config.styleEx.width, this.getVariableContext()) + 'px'
+        }
       }
     }
   }

@@ -1,5 +1,5 @@
 import { PageElementManager } from 'ridge-runtime'
-import { pe } from 'ridge-runtime/src/utils/expr'
+import { pe, st } from 'ridge-runtime/src/utils/expr'
 import { nanoid, trim } from '../utils/string'
 import EditorElementWrapper from './EditorElementWrapper'
 
@@ -105,7 +105,7 @@ export default class WorkSpacePageManager extends PageElementManager {
   getPageJSON () {
     const result = {
       id: this.id,
-      properties: this.properties,
+      properties: this.pageConfig.properties,
       variables: this.pageVariableConfig,
       elements: []
     }
@@ -114,10 +114,6 @@ export default class WorkSpacePageManager extends PageElementManager {
       result.elements.push(element.toJSON())
     }
     return result
-  }
-
-  updatePageProperties (properties) {
-    this.properties = properties
   }
 
   updateVariableConfig (variablesConfig) {
@@ -131,6 +127,17 @@ export default class WorkSpacePageManager extends PageElementManager {
       }
     }
     this.forceUpdate()
+  }
+
+  /**
+   * 从当前页面变量实例值复原
+   */
+  updateVariableConfigFromValue () {
+    for (const pv of this.pageVariableConfig) {
+      if (this.pageVariableValues[trim(pv.name)]) {
+        pv.value = st(this.pageVariableValues[trim(pv.name)])
+      }
+    }
   }
 
   getVariableConfig () {

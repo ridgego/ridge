@@ -5,3 +5,7 @@ export const pe = (val) => {
     return val
   }
 }
+
+export const st = (val) => {
+  return JSON.stringify(val)
+}
