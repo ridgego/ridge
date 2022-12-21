@@ -17,12 +17,22 @@ class ElementWrapper {
     this.componentPath = config.path
 
     this.pageManager = pageManager
-    // Runtime 给组件注入的属性值
-    this.properties = {
+
+    // 系统内置属性
+    this.systemProperties = {
+      __ridge: pageManager.ridge,
       __pageManager: pageManager,
       __elementWrapper: this
     }
-    this.initialize(navigator)
+    // 存放计算值、运行时配置更新值
+    this.properties = {}
+    this.initialize()
+  }
+
+  setMode (mode) {
+    this.mode = mode
+    this.systemProperties.__mode = mode
+    this.forceUpdate()
   }
 
   isRoot () {
@@ -62,10 +72,11 @@ class ElementWrapper {
    * 加载组件代码、按代码初始化属性
    */
   async preload () {
+    if (this.preloaded) return
+
     this.setStatus('Loading')
     this.componentDefinition = await this.loadComponentDefinition()
     if (this.componentDefinition) {
-      this.initPropsAndEvents()
       this.removeStatus('Loading')
       this.preloaded = true
     } else {
@@ -95,6 +106,7 @@ class ElementWrapper {
    * 初始化组件属性、事件
    */
   initPropsAndEvents () {
+    this.slotProps = []
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
       // 初始化时给一次默认值
@@ -123,6 +135,12 @@ class ElementWrapper {
 
       if (prop.type === 'children') {
         this.children = []
+        this.isContainer = true
+        this.el.classList.add('container')
+      }
+      if (prop.type === 'slot') {
+        this.isContainer = true
+        this.slotProps.push(prop)
       }
     }
 
@@ -133,6 +151,10 @@ class ElementWrapper {
       }
     }
     delete this.config.isNew
+  }
+
+  isMounted () {
+    return this.el != null
   }
 
   /**
@@ -147,9 +169,11 @@ class ElementWrapper {
 
     if (!this.preloaded) {
       this.preload().then(() => {
+        this.initPropsAndEvents()
         this.renderer = this.createRenderer()
       })
     } else {
+      this.initPropsAndEvents()
       this.renderer = this.createRenderer()
     }
   }
@@ -179,7 +203,7 @@ class ElementWrapper {
   }
 
   getProperties () {
-    return Object.assign({}, this.config.props, this.properties)
+    return Object.assign({}, this.config.props, this.systemProperties, this.properties)
   }
 
   forceUpdateStyle () {
@@ -243,14 +267,14 @@ class ElementWrapper {
    * 强制重新计算属性并更新组件显示
    */
   forceUpdate () {
-    this.getExpressionedProperties()
+    this.updateExpressionedProperties()
     this.updateProperties()
   }
 
   /**
    * 计算所有表达式值
    */
-  getExpressionedProperties () {
+  updateExpressionedProperties () {
     for (const propBindKey of Object.keys(this.config.propEx)) {
       if (this.hasExpression(propBindKey)) {
         this.properties[propBindKey] = template(this.config.propEx[propBindKey], this.getVariableContext())
@@ -266,10 +290,40 @@ class ElementWrapper {
     return this.renderer.invoke(method, args)
   }
 
+  /**
+   * 组件根据对应变量变化进而进行重新布局或渲染
+   * @param {*} variableNames 变动的变量Key
+   */
+  reactBy (variableNames) {
+    if (this.configUseVariable(this.config.propEx, variableNames)) {
+      this.forceUpdate()
+    }
+    if (this.configUseVariable(this.config.styleEx, variableNames)) {
+      this.forceUpdateStyle()
+    }
+  }
+
+  configUseVariable (config, variableNames) {
+    let used = false
+    for (const expression of Object.values(config)) {
+      if (used) break
+
+      for (const variableName of variableNames) {
+        if (expression.indexOf(variableName) > -1) {
+          used = true
+        }
+      }
+    }
+    return used
+  }
+
   emit (eventName, payload) {
     if (eventName === 'input' && !this.config.events[eventName]) {
+      // 处理双向绑定的情况
       if (this.config.propEx.value && Object.keys(this.getVariableContext()).indexOf(this.config.propEx.value) > -1) {
-        this.pageManager.updatePageVariableValue(this.config.propEx.value, payload)
+        this.pageManager.updatePageVariableValue({
+          [this.config.propEx.value]: payload
+        })
       }
       return
     }
@@ -279,7 +333,9 @@ class ElementWrapper {
         if (action.name === 'setvar') {
           try {
             const newVariableValue = template(action.value, this.getVariableContext())
-            this.pageManager.updatePageVariableValue(action.target, newVariableValue)
+            this.pageManager.updatePageVariableValue({
+              [action.target]: newVariableValue
+            })
           } catch (e) {
             log('Event Action[setvar] Error', e)
           }
@@ -386,6 +442,105 @@ class ElementWrapper {
     }
     layer.innerHTML = content || text || ''
     el.appendChild(layer)
+  }
+
+  /**
+   * 修改组件配置的样式信息
+   * @param {*} style
+   */
+  setStyle (style) {
+    Object.assign(this.config.style, style)
+
+    if (style.width) {
+      this.el.style.width = style.width + 'px'
+    }
+    if (style.height) {
+      this.el.style.height = style.height + 'px'
+    }
+    if (this.config.style.position === 'absolute') {
+      if (this.el.style.position !== 'absolute') {
+        this.el.style.position = 'absolute'
+        this.el.style.left = 0
+        this.el.style.top = 0
+      }
+      this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
+    } else {
+      this.el.style.transform = ''
+      this.el.style.position = ''
+    }
+  }
+
+  /**
+     * 组件配置信息发生改变，通过编辑器配置面板传入
+     * @param {*} values
+     * @param {*} field
+     */
+  setPropsConfig (values, field) {
+    for (const keyPath of Object.keys(field)) {
+      const [type, key] = keyPath.split('.')
+
+      if (type === 'props') {
+        Object.assign(this.config.props, {
+          [key]: field[keyPath]
+        })
+      }
+      if (type === 'style') {
+        this.setStyle({
+          [key]: field[keyPath]
+        })
+      }
+      if (type === 'propsEx') {
+        Object.assign(this.config.propEx, {
+          [key]: field[keyPath]
+        })
+      }
+      if (type === 'styleEx') {
+        Object.assign(this.config.styleEx, {
+          [key]: field[keyPath]
+        })
+      }
+    }
+    this.forceUpdateStyle()
+    this.forceUpdate()
+  }
+
+  setEventsConfig (values, update) {
+    Object.assign(this.config.events, values.event)
+  }
+
+  /**
+     * 获取封装层样式，包括  x/y/width/height/visible/rotate
+     * @returns
+     */
+  getStyle () {
+    return this.config.style
+  }
+
+  getChildrenIds () {
+    return this.config.props.children || []
+  }
+
+  /**
+     * 计算获取插槽子元素
+     * @returns Array 元素列表
+     */
+  getSlotChildren () {
+    const slotChildren = []
+    if (this.slotProps) {
+      for (const prop of this.slotProps) {
+        if (this.config.props[prop.name]) {
+          slotChildren.push({
+            prop,
+            element: this.pageManager.getElement(this.config.props[prop.name])
+          })
+        }
+      }
+    }
+    return slotChildren
+  }
+
+  toJSON () {
+    return this.config
   }
 }
 

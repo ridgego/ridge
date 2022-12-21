@@ -14,7 +14,6 @@ export default class EditorElementWrapper extends ElementWrapper {
       config,
       pageManager
     })
-    this.isEditor = true
     this.isContainer = false
     Object.assign(this.properties, {
       __editor: true

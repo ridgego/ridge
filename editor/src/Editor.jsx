@@ -9,7 +9,6 @@ import CodeEditor from './code-editor/CodeEditor.jsx'
 import { debounce } from 'lodash'
 
 import WorkSpaceControl from './workspace/WorkspaceControl.js'
-import WorkSpacePageManager from './workspace/WorkSpacePageManager.js'
 import ApplicationService from './service/ApplicationService.js'
 
 import './css/editor.less'
@@ -53,7 +52,7 @@ export default class Editor extends React.Component {
    */
   initialize () {
     this.ridge = new Ridge({
-      // debugUrl: 'https://localhost:8700'
+      debugUrl: 'https://localhost:8700'
     })
     window.Ridge = this.ridge
 
@@ -123,13 +122,13 @@ export default class Editor extends React.Component {
     trace('loadPage', pageConfig)
     this.pageConfig = pageConfig
     // 从HTML初始化页面管理器
-    this.pageElementManager = new WorkSpacePageManager(pageConfig, this.ridge)
-
-    this.workspaceControl.setPageManager(this.pageElementManager)
-
+    this.pageElementManager = this.ridge.createPageManager(pageConfig)
+    this.pageElementManager.setMode('edit')
     this.pageElementManager.mount(this.viewPortRef.current)
 
-    this.pageElementManager.forceUpdate()
+    window.pageManager = this.pageElementManager
+    // this.pageElementManager.forceUpdate()
+    this.workspaceControl.setPageManager(this.pageElementManager)
 
     this.setState({
       variables: this.pageElementManager.getVariableConfig(),
@@ -298,9 +297,10 @@ export default class Editor extends React.Component {
       if (this.state.modeRun) {
         this.workspaceControl.disable()
         this.saveCurrentPage()
-        this.loadPageRun(this.pageConfig)
+        this.pageElementManager.setMode('run')
       } else {
         this.pageElementManager.updateVariableConfigFromValue()
+        this.pageElementManager.setMode('edit')
         this.workspaceControl.init()
       }
     })

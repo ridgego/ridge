@@ -369,7 +369,7 @@ export default class WorkSpaceControl {
 
       this.pageManager.detachChildElement(sourceParentElement, sourceElement.id)
     } else if (sourceParentElement == null && targetParentElement) {
-      // 3. 从根到父容器
+      // 3. 放入一个容器
       const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
       this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
     } else if (sourceParentElement !== targetParentElement) {

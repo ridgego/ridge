@@ -14,7 +14,7 @@ const EventEdit = withField(({
     const newActions = actions.concat({
       name: 'setvar',
       target: '',
-      expr: ''
+      value: ''
     })
     // setActions(newActions)
     onChange(newActions)
@@ -43,7 +43,7 @@ const EventEdit = withField(({
       lang: 'js',
       code: value,
       completed: (newCode) => {
-        actionChange('expr', newCode, index)
+        actionChange('value', newCode, index)
       }
     })
   }
@@ -91,9 +91,9 @@ const EventEdit = withField(({
                   <div className='action-label'>取值</div>
                   <Input
                     size='small'
-                    value={action.expr}
+                    value={action.value}
                     addonAfter={<IconEdit onClick={() => openEditCode(action.value, index)} />}
-                    onChange={value => actionChange('expr', value, index)}
+                    onChange={value => actionChange('value', value, index)}
                   />
                 </div>
               </>}

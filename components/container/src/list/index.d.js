@@ -11,7 +11,12 @@ export default {
     value: []
   }, {
     name: 'itemKey',
-    label: '数据Key',
+    label: '数据键',
+    type: 'string',
+    value: ''
+  }, {
+    name: 'slotKey',
+    label: '变量命名',
     type: 'string',
     value: ''
   }, {

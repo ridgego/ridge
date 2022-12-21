@@ -3,42 +3,77 @@ export default class ListContainer {
     this.props = props
   }
 
+  isEditMode () {
+    return this.props.__mode === 'edit'
+  }
+
   async mount (el) {
+    const { renderItem, __pageManager: pageManager } = this.props
+
     this.el = el
     this.containerEl = document.createElement('div')
     this.containerEl.classList.add('list-container')
+    Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
     el.appendChild(this.containerEl)
 
-    Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
-    this.renderContent()
-  }
-
-  renderContent () {
-    if (this.props.__editor) { // 编辑
-      this.ensureSlotItem()
-      if (this.props.renderItem) {
-        this.templateItemWrapper = this.props.__elementWrapper.pageManager.getElement(this.props.renderItem)
-        const slotEl = document.createElement('div')
-        this.templateItemWrapper.mount(slotEl)
-        this.slotEl.appendChild(slotEl)
-      }
+    if (renderItem) {
+      this.templateWrapper = pageManager.getElement(renderItem)
+      await this.templateWrapper.preload()
+    }
+    if (this.isEditMode()) { // 编辑
+      this.renderInEditor()
     } else {
-      // 可能会 editor/preview 切换
-      if (this.slotEl) {
-        this.slotEl.parentElement.removeChild(this.slotEl)
-        this.slotEl = null
-      }
       this.renderUpdateListItems()
     }
+  }
+
+  /**
+   * 创建/更新编辑器下渲染
+   */
+  renderInEditor () {
+    const { renderItem, __pageManager: pageManager } = this.props
+    this.containerEl.textContent = ''
+    if (!this.containerEl.querySelector('SLOT')) {
+      const slotEl = document.createElement('slot')
+      slotEl.setAttribute('name', 'renderItem')
+      slotEl.elementWrapper = this.props.__elementWrapper
+      Object.assign(slotEl.style, this.getSlotStyle())
+      this.containerEl.appendChild(slotEl)
+      this.slotEl = slotEl
+    }
+
+    if (renderItem) {
+      this.templateWrapper = pageManager.getElement(renderItem)
+
+      if (this.templateWrapper) {
+        if (!this.templateWrapper.isMounted()) {
+          const el = document.createElement('div')
+          this.templateWrapper.mount(el)
+        }
+        // 每次放入都要设置到固定位置
+        this.templateWrapper.setStyle({
+          position: 'static',
+          x: 0,
+          y: 0
+        })
+        this.slotEl.appendChild(this.templateWrapper.el)
+      }
+    }
+    Object.assign(this.slotEl.style, this.getSlotStyle())
   }
 
   /**
    * 运行期间更新渲染列表
    */
   renderUpdateListItems () {
-    const { itemKey, dataSource, renderItem, __pageManager: pageManager } = this.props
+    // 可能会 editor/preview 切换
+    if (this.slotEl) {
+      this.slotEl.parentElement.removeChild(this.slotEl)
+      this.slotEl = null
+    }
+    const { itemKey, dataSource, renderItem, __pageManager: pageManager, slotKey } = this.props
     if (dataSource && renderItem) {
-      this.templateItemWrapper = pageManager.getElement(renderItem)
+      this.templateWrapper = pageManager.getElement(renderItem)
 
       for (let index = 0; index < dataSource.length; index++) {
         const data = dataSource[index]
@@ -55,9 +90,11 @@ export default class ListContainer {
 
           // 更新属性后强制更新
           wrapper.setScopeVariableValues({
-            $index: index,
-            $scope: data,
-            $listData: dataSource
+            [slotKey || '$scope']: {
+              index,
+              data,
+              listData: dataSource
+            }
           })
           wrapper.forceUpdate()
         } else {
@@ -67,8 +104,10 @@ export default class ListContainer {
           }
           if (this.containerEl.children[index]) {
             this.containerEl.insertBefore(newEl, this.containerEl.children[index])
+          } else {
+            this.containerEl.appendChild(newEl)
           }
-          const newWrapper = this.templateItemWrapper.clone()
+          const newWrapper = this.templateWrapper.clone()
           newWrapper.setScopeVariableValues({
             $index: index,
             $scope: data,
@@ -82,6 +121,8 @@ export default class ListContainer {
       while (this.containerEl.childElementCount > dataSource.length) {
         this.containerEl.lastChild.elementWrapper.unmount()
       }
+
+      this.itemInstanceWrappers = Array.from(this.containerEl.childNodes).map(el => el.elementWrapper)
     }
   }
 
@@ -106,31 +147,20 @@ export default class ListContainer {
     return style
   }
 
-  ensureSlotItem () {
-    if (!this.containerEl.querySelector('SLOT')) {
-      const slotEl = document.createElement('slot')
-      slotEl.setAttribute('name', 'renderItem')
-      slotEl.elementWrapper = this.props.__elementWrapper
-      Object.assign(slotEl.style, this.getSlotStyle())
-      this.containerEl.appendChild(slotEl)
-      this.slotEl = slotEl
-    }
-  }
-
   getSlotStyle () {
     if (this.props.itemLayout === 'vertical') {
       return {
         border: '1px dashed rgb(164,224,167)',
         display: 'block',
         width: '100%',
-        minHeight: '80px'
+        height: '80px'
       }
     } else {
       return {
         border: '1px dashed rgb(164,224,167)',
         display: 'block',
         height: '100%',
-        minWidth: '80px'
+        width: '80px'
       }
     }
   }
@@ -142,55 +172,17 @@ export default class ListContainer {
     })
   }
 
+  /**
+   * 按属性联动方法
+   * @param {*} props
+   */
   update (props) {
     this.props = props
-    const { __editor } = this.props
-
-    if (__editor) {
-      if (props.renderItem) {
-        // 放入项模板
-        const targetWrapper = this.props.__pageManager.getElement(props.renderItem)
-        if (targetWrapper) {
-          targetWrapper.setStyle({
-            position: 'static',
-            x: 0,
-            y: 0
-          })
-          this.containerEl.querySelector('SLOT').appendChild(targetWrapper.el)
-        }
-      } else {
-        // 移出项模板
-        this.ensureSlotItem()
-      }
-
-      Object.assign(this.slotEl.style, this.getSlotStyle())
-      Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
+    if (this.isEditMode()) {
+      this.renderInEditor()
     } else {
-      this.renderContent()
+      this.renderUpdateListItems()
     }
-  }
-
-  dropElement (el, targetEl) {
-    if (el.parentElement === this.$el.current) {
-      el.setAttribute('snappable', 'false')
-      el.style.position = ''
-      el.style.transform = ''
-      return true
-    }
-    const children = this.$el.current.children
-
-    if (children.length) {
-      const confirm = (window.Ridge && window.Ridge.confirm) || window.confirm
-      if (!confirm('列表已经有列表项模板， 是否确认替换？ （替换后原有模板会被删除）')) {
-        return false
-      }
-      this.$el.current.removeChild(children[0])
-    }
-    console.log('drop element', el)
-    el.setAttribute('snappable', 'false')
-    el.style.position = ''
-    el.style.transform = ''
-    this.$el.current.appendChild(el)
-    return true
+    Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
   }
 }
