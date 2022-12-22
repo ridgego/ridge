@@ -8,7 +8,7 @@ export default class ListContainer {
   }
 
   async mount (el) {
-    const { renderItem, __pageManager: pageManager } = this.props
+    const { renderItem } = this.props
 
     this.el = el
     this.containerEl = document.createElement('div')
@@ -17,8 +17,7 @@ export default class ListContainer {
     el.appendChild(this.containerEl)
 
     if (renderItem) {
-      this.templateWrapper = pageManager.getElement(renderItem)
-      await this.templateWrapper.preload()
+      await renderItem.preload()
     }
     if (this.isEditMode()) { // 编辑
       this.renderInEditor()
@@ -31,7 +30,7 @@ export default class ListContainer {
    * 创建/更新编辑器下渲染
    */
   renderInEditor () {
-    const { renderItem, __pageManager: pageManager } = this.props
+    const { renderItem } = this.props
     this.containerEl.textContent = ''
     if (!this.containerEl.querySelector('SLOT')) {
       const slotEl = document.createElement('slot')
@@ -43,21 +42,17 @@ export default class ListContainer {
     }
 
     if (renderItem) {
-      this.templateWrapper = pageManager.getElement(renderItem)
-
-      if (this.templateWrapper) {
-        if (!this.templateWrapper.isMounted()) {
-          const el = document.createElement('div')
-          this.templateWrapper.mount(el)
-        }
-        // 每次放入都要设置到固定位置
-        this.templateWrapper.setStyle({
-          position: 'static',
-          x: 0,
-          y: 0
-        })
-        this.slotEl.appendChild(this.templateWrapper.el)
+      if (!renderItem.isMounted()) {
+        const el = document.createElement('div')
+        renderItem.mount(el)
       }
+      // 每次放入都要设置到固定位置
+      renderItem.setStyle({
+        position: 'static',
+        x: 0,
+        y: 0
+      })
+      this.slotEl.appendChild(renderItem.el)
     }
     Object.assign(this.slotEl.style, this.getSlotStyle())
   }
@@ -71,10 +66,8 @@ export default class ListContainer {
       this.slotEl.parentElement.removeChild(this.slotEl)
       this.slotEl = null
     }
-    const { itemKey, dataSource, renderItem, __pageManager: pageManager, slotKey } = this.props
+    const { itemKey, dataSource, renderItem, slotKey } = this.props
     if (dataSource && renderItem) {
-      this.templateWrapper = pageManager.getElement(renderItem)
-
       for (let index = 0; index < dataSource.length; index++) {
         const data = dataSource[index]
         // 先找到是否有之前的dom
@@ -107,11 +100,13 @@ export default class ListContainer {
           } else {
             this.containerEl.appendChild(newEl)
           }
-          const newWrapper = this.templateWrapper.clone()
+          const newWrapper = renderItem.clone()
           newWrapper.setScopeVariableValues({
-            $index: index,
-            $scope: data,
-            $listData: dataSource
+            [slotKey || '$scope']: {
+              index,
+              data,
+              listData: dataSource
+            }
           })
           newWrapper.mount(newEl)
         }
@@ -134,7 +129,7 @@ export default class ListContainer {
       border: '1px solid #ccc'
     }
 
-    if (this.props.grid.enabled === false) {
+    if (!this.props.grid) {
       style.display = 'flex'
       if (this.props.itemLayout === 'vertical') {
         style.flexDirection = 'column'
@@ -165,8 +160,8 @@ export default class ListContainer {
     }
   }
 
-  updateChild (el) {
-    el.elementWrapper.setStyle({
+  updateChild (elementWrapper) {
+    elementWrapper.setStyle({
       x: 0,
       y: 0
     })

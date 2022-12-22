@@ -10,6 +10,30 @@ class PageElementManager {
     this.initialize()
   }
 
+  /**
+   * 根据页面配置读取页面控制对象结构
+   * @param {Element} el DOM 根元素
+   */
+  initialize () {
+    this.id = this.pageConfig.id
+    this.pageVariableValues = {}
+
+    for (const variablesConfig of this.pageConfig.variables || []) {
+      if (trim(variablesConfig.name)) {
+        this.pageVariableValues[trim(variablesConfig.name)] = pe(variablesConfig.value)
+      }
+    }
+
+    this.pageElements = {}
+    for (const element of this.pageConfig.elements) {
+      const elementWrapper = new this.ElementWrapper({
+        pageManager: this,
+        config: element
+      })
+      this.pageElements[elementWrapper.id] = elementWrapper
+    }
+  }
+
   getPageProperties () {
     return this.pageConfig.properties
   }
@@ -63,30 +87,6 @@ class PageElementManager {
 
   getPageElements () {
     return this.pageElements
-  }
-
-  /**
-   * 根据页面配置读取页面控制对象结构
-   * @param {Element} el DOM 根元素
-   */
-  initialize () {
-    this.id = this.pageConfig.id
-    this.pageVariableValues = {}
-
-    for (const variablesConfig of this.pageConfig.variables || []) {
-      if (trim(variablesConfig.name)) {
-        this.pageVariableValues[trim(variablesConfig.name)] = pe(variablesConfig.value)
-      }
-    }
-
-    this.pageElements = {}
-    for (const element of this.pageConfig.elements) {
-      const elementWrapper = new this.ElementWrapper({
-        pageManager: this,
-        config: element
-      })
-      this.pageElements[elementWrapper.id] = elementWrapper
-    }
   }
 
   /**
@@ -200,12 +200,12 @@ class PageElementManager {
   /**
      * 当子节点从父节点移出后，（包括SLOT）重新更新父节点配置
      * @param {*} sourceParentElement 父节点
-     * @param {*} childElementId 子节点id
+     * @param {*} childElementId 子节点
      */
-  detachChildElement (sourceParentElement, childElementId) {
+  detachChildElement (sourceParentElement, childElement) {
     let isSlot = false
     for (const slotProp of sourceParentElement.componentDefinition.props.filter(prop => prop.type === 'slot')) {
-      if (sourceParentElement.config.props[slotProp.name] === childElementId) {
+      if (sourceParentElement.config.props[slotProp.name] === childElement) {
         sourceParentElement.setPropsConfig(null, {
           ['props.' + slotProp.name]: null
         })
@@ -228,11 +228,11 @@ class PageElementManager {
       // 设置slot属性值为组件id
       // 父组件需要执行DOM操作
       targetParentElement.setPropsConfig(null, {
-        ['props.' + slotName]: sourceElement.id
+        ['props.' + slotName]: sourceElement
       })
     } else {
       // 这里容器会提供 appendChild 方法，并提供放置位置
-      targetParentElement.invoke('appendChild', [sourceElement.el])
+      targetParentElement.invoke('appendChild', [sourceElement])
       targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
     }
   }

@@ -26,7 +26,6 @@ export default class FlexBoxContainer {
   }
 
   mount (el) {
-    const { __elementWrapper: wrapper, __pageManager: pageManager } = this.props
     const containerDiv = document.createElement('div')
     containerDiv.classList.add('flex-container')
     Object.assign(containerDiv.style, this.getContainerStyle(this.props))
@@ -34,12 +33,10 @@ export default class FlexBoxContainer {
 
     this.containerEl = containerDiv
     if (this.props.children) {
-      for (const childId of this.props.children) {
-        const childWrapper = pageManager.getElement(childId)
+      for (const childWrapper of this.props.children) {
         const childDiv = document.createElement('div')
         containerDiv.appendChild(childDiv)
         childWrapper.mount(childDiv)
-        wrapper.appendChild(childWrapper)
       }
     }
   }
@@ -48,7 +45,8 @@ export default class FlexBoxContainer {
     this.appendChild(el)
   }
 
-  appendChild (el) {
+  appendChild (wrapper) {
+    const el = wrapper.el
     const {
       // 相关系统变量
       direction = 'row',
@@ -66,7 +64,7 @@ export default class FlexBoxContainer {
     if (direction === 'column' && alignItems === 'stretch') {
       style.width = ''
     }
-    el.elementWrapper.setStyle(style)
+    wrapper.setStyle(style)
     if (afterNode) {
       this.containerEl.insertBefore(el, afterNode)
     } else {
@@ -93,11 +91,17 @@ export default class FlexBoxContainer {
   update (properties) {
     this.props = properties
     Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
+
+    if (this.props.children) {
+      for (const childWrapper of this.props.children) {
+        childWrapper.updateProperties()
+      }
+    }
   }
 
   getChildren () {
     return Array.from(this.containerEl.childNodes).map(el => {
-      return el.getAttribute('ridge-id')
+      return el.elementWrapper
     })
   }
 }

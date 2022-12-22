@@ -358,7 +358,7 @@ export default class WorkSpaceControl {
     }
     if (sourceParentElement === targetParentElement && targetParentElement != null) {
       // 1.在同一个父容器内移动
-      targetParentElement.invoke('updateChild', [el])
+      targetParentElement.invoke('updateChild', [sourceElement])
 
       // 有的容器会包含次序，因此重新更新children属性
       targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
@@ -367,7 +367,7 @@ export default class WorkSpaceControl {
       // DOM操作，放置到ViewPort上
       this.putElementToRoot(el, x, y)
 
-      this.pageManager.detachChildElement(sourceParentElement, sourceElement.id)
+      this.pageManager.detachChildElement(sourceParentElement, sourceElement)
     } else if (sourceParentElement == null && targetParentElement) {
       // 3. 放入一个容器
       const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
@@ -376,7 +376,7 @@ export default class WorkSpaceControl {
       // 4. 一个父容器到另一个父容器
       const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
       this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
-      this.pageManager.detachChildElement(sourceParentElement, sourceElement.id)
+      this.pageManager.detachChildElement(sourceParentElement, sourceElement)
     }
 
     sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
@@ -424,7 +424,8 @@ export default class WorkSpaceControl {
     if (!notNotify && elements.length <= 1) {
       this.ridge.emit(EVENT_ELEMENT_SELECTED, {
         from: 'workspace',
-        element: elements[0]
+        element: elements[0],
+        elements: this.pageManager.getPageElements()
       })
     }
     this.selected = elements

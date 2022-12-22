@@ -124,22 +124,24 @@ export default class Editor extends React.Component {
     // 从HTML初始化页面管理器
     this.pageElementManager = this.ridge.createPageManager(pageConfig)
     this.pageElementManager.setMode('edit')
-    this.pageElementManager.mount(this.viewPortRef.current)
 
     window.pageManager = this.pageElementManager
-    // this.pageElementManager.forceUpdate()
     this.workspaceControl.setPageManager(this.pageElementManager)
-
     this.setState({
       variables: this.pageElementManager.getVariableConfig(),
       properties: this.pageElementManager.getPageProperties()
     })
+
+    this.pageElementManager.mount(this.viewPortRef.current)
+
     this.ridge.emit(EVENT_PAGE_LOADED, {
       pageProperties: this.pageElementManager.getPageProperties(),
       pageVariables: this.pageElementManager.getVariableConfig(),
       elements: this.pageElementManager.getPageElements()
     })
+
     this.workspaceControl.fitToCenter()
+    // this.pageElementManager.forceUpdate()
   }
 
   loadPageRun (pageConfig) {

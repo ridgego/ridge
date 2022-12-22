@@ -26,7 +26,8 @@ class ElementWrapper {
     }
     // 存放计算值、运行时配置更新值
     this.properties = {}
-    this.initialize()
+    // 组件的scope值数据
+    this.scopeVariableValues = {}
   }
 
   setMode (mode) {
@@ -39,32 +40,25 @@ class ElementWrapper {
     return this.config.parent == null
   }
 
-  initialize () {
-    // 组件的scope值数据
-    this.scopeVariableValues = {}
-    if (this.config.parent) {
-      this.parentWrapper = this.pageManager.getElement(this.config.parent)
-    }
-  }
-
   /**
    * 复制组件实例
    * @returns
    */
   clone () {
     const cloned = new ElementWrapper({
-      config: JSON.parse(JSON.stringify(this.config)),
+      config: this.toJSON(),
       pageManager: this.pageManager
     })
-
-    cloned.initialize()
-
     cloned.componentDefinition = this.componentDefinition
+    cloned.preload = true
 
-    if (cloned.componentDefinition) {
-      cloned.initPropsAndEvents()
-      cloned.preloaded = true
+    if (cloned.config.props.children) {
+      cloned.config.props.children = cloned.config.props.children.map(wrapperId => {
+        const template = this.pageManager.getElement(wrapperId)
+        return template.clone()
+      })
     }
+    // TODO
     return cloned
   }
 
@@ -107,9 +101,14 @@ class ElementWrapper {
    */
   initPropsAndEvents () {
     this.slotProps = []
+
+    if (this.config.parent) {
+      this.parentWrapper = this.pageManager.getElement(this.config.parent)
+    }
+
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
-      // 初始化时给一次默认值
+      // 编辑器初始化创建时给一次默认值
       if (this.config.isNew) {
         if (this.config.props[prop.name] == null && prop.value != null) {
           this.config.props[prop.name] = prop.value
@@ -133,23 +132,33 @@ class ElementWrapper {
         }
       }
 
-      if (prop.type === 'children') {
+      if (prop.name === 'children') {
         this.children = []
         this.isContainer = true
         this.el.classList.add('container')
-      }
-      if (prop.type === 'slot') {
+
+        // 写入子级的具体包装类
+        if (this.config.props.children && this.config.props.children.length) {
+          for (let i = 0; i < this.config.props.children.length; i++) {
+            this.config.props.children[i] = this.pageManager.getElement(this.config.props.children[i])
+          }
+        }
+      } else if (prop.type === 'slot') {
         this.isContainer = true
-        this.slotProps.push(prop)
+        this.slotProps.push(prop.name)
+        // 写入slot的包装类
+        if (this.config.props[prop.name]) {
+          this.config.props[prop.name] = this.pageManager.getElement(this.config.props[prop.name])
+        }
       }
     }
-
     // 事件类属性写入，DOM初始化后事件才能挂到源头
     for (const event of this.componentDefinition.events || []) {
       this.properties[event.name] = (...args) => {
         this.emit(event.name, ...args)
       }
     }
+    this.updateExpressionedProperties()
     delete this.config.isNew
   }
 
@@ -525,22 +534,38 @@ class ElementWrapper {
      * @returns Array 元素列表
      */
   getSlotChildren () {
-    const slotChildren = []
     if (this.slotProps) {
-      for (const prop of this.slotProps) {
-        if (this.config.props[prop.name]) {
-          slotChildren.push({
-            prop,
-            element: this.pageManager.getElement(this.config.props[prop.name])
-          })
+      return this.slotProps.map(prop => {
+        return {
+          name: prop,
+          element: this.config.props[prop]
         }
-      }
+      })
+    } else {
+      return []
     }
-    return slotChildren
   }
 
   toJSON () {
-    return this.config
+    if (this.isContainer) {
+      const result = Object.assign({}, this.config)
+      result.props = Object.assign({}, this.config.props)
+
+      // 保存时children及slotProp只保存id
+      if (this.config.props.children) {
+        result.props.children = this.config.props.children.map(child => child.id)
+      }
+      if (this.slotProps && this.slotProps.length) {
+        for (const key of this.slotProps) {
+          if (result.props[key]) {
+            result.props[key] = result.props[key].id
+          }
+        }
+      }
+      return result
+    } else {
+      return this.config
+    }
   }
 }
 

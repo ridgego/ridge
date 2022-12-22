@@ -36,6 +36,11 @@ class OutLinePanel extends React.Component {
         this.setState({
           selected: payload.element ? payload.element.elementWrapper.id : null
         })
+        if (payload.elements) {
+          this.setState({
+            elements: payload.elements
+          })
+        }
       }
     })
   }
@@ -52,12 +57,12 @@ class OutLinePanel extends React.Component {
     const treeData = []
     const rootElements = Object.values(elements).filter(el => el.isRoot())
     for (const element of rootElements) {
-      treeData.push(this.getElementTree(element, elements))
+      treeData.push(this.getElementTree(element))
     }
     return treeData
   }
 
-  getElementTree (element, elementsDic, tags) {
+  getElementTree (element, tags) {
     const treeNodeObject = {
       key: element.id,
       label: element.config.title,
@@ -67,17 +72,21 @@ class OutLinePanel extends React.Component {
       children: []
     }
     if (element.config.props.children && element.config.props.children.length) {
-      for (const childId of element.config.props.children) {
-        treeNodeObject.children.push(this.getElementTree(elementsDic[childId], elementsDic))
+      for (const childWrapper of element.config.props.children) {
+        if (childWrapper.id) {
+          treeNodeObject.children.push(this.getElementTree(childWrapper))
+        }
       }
     }
 
     const slotChildrenElements = element.getSlotChildren()
 
     for (const slotChild of slotChildrenElements) {
-      treeNodeObject.children.push(this.getElementTree(slotChild.element, elementsDic, {
-        tag: slotChild.prop.label
-      }))
+      if (slotChild.element && slotChild.element.id) {
+        treeNodeObject.children.push(this.getElementTree(slotChild.element, {
+          tag: slotChild.name
+        }))
+      }
     }
 
     return treeNodeObject
