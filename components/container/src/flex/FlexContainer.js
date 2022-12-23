@@ -94,7 +94,7 @@ export default class FlexBoxContainer {
 
     if (this.props.children) {
       for (const childWrapper of this.props.children) {
-        childWrapper.updateProperties()
+        childWrapper.forceUpdate()
       }
     }
   }

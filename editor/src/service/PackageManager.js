@@ -24,7 +24,9 @@ export default class PackageManager {
 
     // Load Package
     for (const pkname of this.packageNames) {
-      packagesLoading.push(await window.Ridge.loader.getPackageJSON(pkname))
+      if (debugPkg.name !== pkname) {
+        packagesLoading.push(await window.Ridge.loader.getPackageJSON(pkname))
+      }
     }
 
     await Promise.allSettled(packagesLoading)

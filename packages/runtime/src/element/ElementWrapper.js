@@ -3,6 +3,7 @@ import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import template from '../template'
 const log = debug('ridge:el-wrapper')
+const error = debug('ridge:error')
 
 /**
  * 组件封装类
@@ -50,12 +51,14 @@ class ElementWrapper {
       pageManager: this.pageManager
     })
     cloned.componentDefinition = this.componentDefinition
-    cloned.preload = true
+    cloned.preloaded = true
 
     if (cloned.config.props.children) {
       cloned.config.props.children = cloned.config.props.children.map(wrapperId => {
         const template = this.pageManager.getElement(wrapperId)
-        return template.clone()
+        const clonedChild = template.clone()
+        clonedChild.parentWrapper = cloned
+        return clonedChild
       })
     }
     // TODO
@@ -102,7 +105,7 @@ class ElementWrapper {
   initPropsAndEvents () {
     this.slotProps = []
 
-    if (this.config.parent) {
+    if (this.config.parent && !this.parentWrapper) {
       this.parentWrapper = this.pageManager.getElement(this.config.parent)
     }
 
@@ -138,16 +141,20 @@ class ElementWrapper {
         this.el.classList.add('container')
 
         // 写入子级的具体包装类
-        if (this.config.props.children && this.config.props.children.length) {
-          for (let i = 0; i < this.config.props.children.length; i++) {
-            this.config.props.children[i] = this.pageManager.getElement(this.config.props.children[i])
-          }
+        if (Array.isArray(this.config.props.children)) {
+          this.config.props.children = this.config.props.children.map(element => {
+            if (typeof element === 'string') {
+              return this.pageManager.getElement(element)
+            } else {
+              return element
+            }
+          })
         }
       } else if (prop.type === 'slot') {
         this.isContainer = true
         this.slotProps.push(prop.name)
         // 写入slot的包装类
-        if (this.config.props[prop.name]) {
+        if (this.config.props[prop.name] && typeof this.config.props[prop.name] === 'string') {
           this.config.props[prop.name] = this.pageManager.getElement(this.config.props[prop.name])
         }
       }
@@ -203,16 +210,29 @@ class ElementWrapper {
     }
   }
 
+  /**
+   * 调用组件依托的技术框架渲染内容
+   * @returns
+   */
   createRenderer () {
-    if (this.componentDefinition.type === 'vanilla') {
-      return new VanillaRender(this.componentDefinition.component, this.el, this.getProperties())
-    } else {
-      return new ReactRenderer(this.componentDefinition.component, this.el, this.getProperties())
+    try {
+      if (this.componentDefinition.type === 'vanilla') {
+        return new VanillaRender(this.componentDefinition.component, this.el, this.getProperties())
+      } else {
+        return new ReactRenderer(this.componentDefinition.component, this.el, this.getProperties())
+      }
+    } catch (e) {
+      error('create render error', e)
     }
+    return null
   }
 
   getProperties () {
-    return Object.assign({}, this.config.props, this.systemProperties, this.properties)
+    if (this.mode === 'edit') {
+      return Object.assign({}, this.config.props, this.systemProperties)
+    } else {
+      return Object.assign({}, this.config.props, this.systemProperties, this.properties)
+    }
   }
 
   forceUpdateStyle () {
