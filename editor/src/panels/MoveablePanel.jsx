@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { Button } from '@douyinfe/semi-ui'
 import { IconMinus, IconClose, IconExpand, IconHandle } from '@douyinfe/semi-icons'
 
-import Moveable, { } from 'moveable'
+import Moveable from 'moveable'
 
 import '../css/movable-panel.less'
 
@@ -26,7 +26,7 @@ export default class MoveablePanel extends React.Component {
       target: this.ref.current,
       dimensionViewable: true,
       deleteButtonViewable: false,
-      dragTarget: this.ref.current.querySelector('.semi-tabs-bar'),
+      dragTarget: this.ref.current.querySelector('.panel-title'),
       // If the container is null, the position is fixed. (default: parentElement(document.body))
       container: document.body,
       snappable: false,
@@ -87,36 +87,8 @@ export default class MoveablePanel extends React.Component {
     return (
       ReactDOM.createPortal(
         <div ref={this.ref} className='movable-panel' style={style} id={this.props.id}>
-          <IconHandle />
-          {/* <div
-            className='panel-title' style={{
-              height: '26px',
-              padding: '4px',
-              cursor: 'pointer',
-              display: 'flex',
-              marginBottom: '4px',
-              alignItems: 'center'
-            }}
-          >
-            <Title heading={6} style={{ marginLeft: '4px', fontSize: '14px' }}>{this.props.title || '面板'}</Title>
-          </div> */}
-          <div className='panel-btns'>
-            {state === 'normal' &&
-              <Button
-                icon={<IconMinus />} onClick={() => {
-                  this.setState({
-                    state: 'minimize'
-                  })
-                }} theme='borderless' size='small' type='tertiary'
-              />}
-            {state === 'minimize' &&
-              <Button
-                icon={<IconExpand />} onClick={() => {
-                  this.setState({
-                    state: 'normal'
-                  })
-                }} theme='borderless' size='small' type='tertiary'
-              />}
+          <div className='panel-title'>
+            <IconHandle />
             <Button icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
           </div>
           <div className='panel-content'>
