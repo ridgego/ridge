@@ -1,13 +1,10 @@
-import Selecto from 'selecto'
+import '../css/moveable.css'
 import Moveable from 'moveable'
 
-export const createMoveable = () => {
-  return new Moveable(document.body, {
-    className: 'workspace-movable',
-    target: this.viewPortEl,
+export const createMoveable = (opts) => {
+  return new Moveable(document.body, Object.assign({
     dimensionViewable: true,
     deleteButtonViewable: false,
-    // If the container is null, the position is fixed. (default: parentElement(document.body))
     container: document.body,
     snappable: false,
     snapGap: false,
@@ -17,9 +14,8 @@ export const createMoveable = () => {
     scalable: false,
     rotatable: false,
     warpable: false,
-    // Enabling pinchable lets you use events that
     // can be used in draggable, resizable, scalable, and rotateable.
-    pinchable: false, // ["resizable", "scalable", "rotatable"]
+    pinchable: true, // ["resizable", "scalable", "rotatable"]
     origin: true,
     keepRatio: false,
     // Resize, Scale Events at edges.
@@ -29,5 +25,5 @@ export const createMoveable = () => {
     throttleScale: 0,
     throttleRotate: 0,
     clipTargetBounds: true
-  })
+  }, opts))
 }

@@ -18,6 +18,8 @@
 }
 
 .workspace-movable .moveable-control {
+  width: 18px!important;
+  height: 18px!important;
   opacity: 0;
 }
 

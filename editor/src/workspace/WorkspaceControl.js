@@ -1,8 +1,6 @@
 import Selecto from 'selecto'
-import Moveable from 'moveable'
 import { fitRectIntoBounds } from '../utils/rectUtils.js'
-
-import '../css/moveable.css'
+import { createMoveable } from '../utils/moveable'
 import Mousetrap from 'mousetrap'
 import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_PARENT_CHANGE, EVENT_ELEMENT_SELECTED } from '../constant.js'
 
@@ -77,34 +75,36 @@ export default class WorkSpaceControl {
   }
 
   setWorkSpaceMovable () {
-    this.workspaceMovable = new Moveable(document.body, {
-      className: 'workspace-movable',
-      target: this.viewPortEl,
-      dimensionViewable: true,
-      deleteButtonViewable: false,
-      // If the container is null, the position is fixed. (default: parentElement(document.body))
-      container: document.body,
-      snappable: false,
-      snapGap: false,
-      isDisplayInnerSnapDigit: false,
-      draggable: true,
-      resizable: true,
-      scalable: false,
-      rotatable: false,
-      warpable: false,
-      // Enabling pinchable lets you use events that
-      // can be used in draggable, resizable, scalable, and rotateable.
-      pinchable: false, // ["resizable", "scalable", "rotatable"]
-      origin: true,
-      keepRatio: false,
-      // Resize, Scale Events at edges.
-      edge: false,
-      throttleDrag: 0,
-      throttleResize: 1,
-      throttleScale: 0,
-      throttleRotate: 0,
-      clipTargetBounds: true
-    })
+    this.workspaceMovable = createMoveable(this.viewPortEl, false)
+
+    // new Moveable(document.body, {
+    //   className: 'workspace-movable',
+    //   target: this.viewPortEl,
+    //   dimensionViewable: true,
+    //   deleteButtonViewable: false,
+    //   // If the container is null, the position is fixed. (default: parentElement(document.body))
+    //   container: document.body,
+    //   snappable: false,
+    //   snapGap: false,
+    //   isDisplayInnerSnapDigit: false,
+    //   draggable: true,
+    //   resizable: true,
+    //   scalable: false,
+    //   rotatable: false,
+    //   warpable: false,
+    //   // Enabling pinchable lets you use events that
+    //   // can be used in draggable, resizable, scalable, and rotateable.
+    //   pinchable: false, // ["resizable", "scalable", "rotatable"]
+    //   origin: true,
+    //   keepRatio: false,
+    //   // Resize, Scale Events at edges.
+    //   edge: false,
+    //   throttleDrag: 0,
+    //   throttleResize: 1,
+    //   throttleScale: 0,
+    //   throttleRotate: 0,
+    //   clipTargetBounds: true
+    // })
 
     this.workspaceMovable.on('drag', ev => {
       if (ev.inputEvent.ctrlKey) {
@@ -115,36 +115,44 @@ export default class WorkSpaceControl {
 
   initMoveable () {
     const sm = this
-    this.moveable = new Moveable(document.body, {
+
+    this.moveable = createMoveable({
       target: [],
-      dimensionViewable: true,
-      deleteButtonViewable: false,
-      // If the container is null, the position is fixed. (default: parentElement(document.body))
-      container: document.body,
       snappable: true,
-      snapGap: false,
-      isDisplayInnerSnapDigit: false,
-      draggable: true,
-      resizable: true,
-      scalable: true,
-      rotatable: false,
       warpable: true,
-      // Enabling pinchable lets you use events that
-      // can be used in draggable, resizable, scalable, and rotateable.
-      pinchable: true, // ["resizable", "scalable", "rotatable"]
-      origin: true,
-      keepRatio: false,
-      // Resize, Scale Events at edges.
-      edge: false,
-      throttleDrag: 0,
-      throttleResize: 1,
-      throttleScale: 0,
-      throttleRotate: 0,
-      clipArea: true,
-      clipVerticalGuidelines: [0, '50%', '100%'],
-      clipHorizontalGuidelines: [0, '50%', '100%'],
-      clipTargetBounds: true
+      scalable: true
     })
+
+    // new Moveable(document.body, {
+    //   target: [],
+    //   dimensionViewable: true,
+    //   deleteButtonViewable: false,
+    //   // If the container is null, the position is fixed. (default: parentElement(document.body))
+    //   container: document.body,
+    //   snappable: true,
+    //   snapGap: false,
+    //   isDisplayInnerSnapDigit: false,
+    //   draggable: true,
+    //   resizable: true,
+    //   scalable: true,
+    //   rotatable: false,
+    //   warpable: true,
+    //   // Enabling pinchable lets you use events that
+    //   // can be used in draggable, resizable, scalable, and rotateable.
+    //   pinchable: true, // ["resizable", "scalable", "rotatable"]
+    //   origin: true,
+    //   keepRatio: false,
+    //   // Resize, Scale Events at edges.
+    //   edge: false,
+    //   throttleDrag: 0,
+    //   throttleResize: 1,
+    //   throttleScale: 0,
+    //   throttleRotate: 0,
+    //   clipArea: true,
+    //   clipVerticalGuidelines: [0, '50%', '100%'],
+    //   clipHorizontalGuidelines: [0, '50%', '100%'],
+    //   clipTargetBounds: true
+    // })
 
     this.moveable.on('dragStart', ev => {
       sm.moveable.elementGuidelines = this.guidelines

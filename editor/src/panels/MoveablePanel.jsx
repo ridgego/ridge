@@ -1,9 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Button } from '@douyinfe/semi-ui'
-import { IconMinus, IconClose, IconExpand, IconHandle } from '@douyinfe/semi-icons'
-
-import Moveable from 'moveable'
+import { createMoveable } from '../utils/moveable'
+import { IconMinus, IconClose, IconSearchStroked, IconHandle } from '@douyinfe/semi-icons'
 
 import '../css/movable-panel.less'
 
@@ -21,36 +20,11 @@ export default class MoveablePanel extends React.Component {
   }
 
   enablePanelMoveResize () {
-    const mov = new Moveable(document.body, {
+    const mov = createMoveable({
       className: 'workspace-movable',
       target: this.ref.current,
-      dimensionViewable: true,
-      deleteButtonViewable: false,
-      dragTarget: this.ref.current.querySelector('.panel-title'),
-      // If the container is null, the position is fixed. (default: parentElement(document.body))
-      container: document.body,
-      snappable: false,
-      snapGap: false,
-      isDisplayInnerSnapDigit: false,
-      draggable: true,
-      resizable: true,
-      scalable: false,
-      rotatable: false,
-      warpable: false,
-      // Enabling pinchable lets you use events that
-      // can be used in draggable, resizable, scalable, and rotateable.
-      pinchable: false, // ["resizable", "scalable", "rotatable"]
-      origin: false,
-      keepRatio: false,
-      // Resize, Scale Events at edges.
-      edge: true,
-      throttleDrag: 0,
-      throttleResize: 1,
-      throttleScale: 0,
-      throttleRotate: 0,
-      clipTargetBounds: true
+      dragTarget: this.ref.current.querySelector('.panel-title')
     })
-
     mov.on('resize', ({
       target,
       width,
@@ -65,11 +39,15 @@ export default class MoveablePanel extends React.Component {
 
     mov.on('drag', ev => {
       ev.target.style.transform = ev.transform
+      Array.from(document.querySelectorAll('.movable-panel')).forEach(panelEl => {
+        panelEl.style.zIndex = 1000
+      })
+      this.ref.current.style.zIndex = 1001
     })
   }
 
   render () {
-    const { onClose, visible } = this.props
+    const { onClose, visible, title } = this.props
     const { state } = this.state
     const style = {
     }
@@ -87,10 +65,9 @@ export default class MoveablePanel extends React.Component {
     return (
       ReactDOM.createPortal(
         <div ref={this.ref} className='movable-panel' style={style} id={this.props.id}>
-          <div className='panel-title'>
-            <IconHandle />
-            <Button icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
-          </div>
+          <IconHandle />
+          <Button icon={<IconSearchStroked />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
+          <Button icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
           <div className='panel-content'>
             {this.props.children}
           </div>
