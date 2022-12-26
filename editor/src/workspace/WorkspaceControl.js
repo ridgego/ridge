@@ -2,7 +2,9 @@ import Selecto from 'selecto'
 import { fitRectIntoBounds } from '../utils/rectUtils.js'
 import { createMoveable } from '../utils/moveable'
 import Mousetrap from 'mousetrap'
-import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_PARENT_CHANGE, EVENT_ELEMENT_SELECTED } from '../constant.js'
+import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
+
+import { emit, on } from '../utils/events'
 
 /**
  * 控制工作区组件的Drag/Resize/New等动作
@@ -31,7 +33,7 @@ export default class WorkSpaceControl {
     this.initComponentDrop()
     this.initKeyBind()
     this.setWorkSpaceMovable()
-    this.ridge.on(EVENT_ELEMENT_SELECTED, payload => {
+    on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'outline') {
         this.selectElements([payload.element])
       }
@@ -51,13 +53,6 @@ export default class WorkSpaceControl {
     this.pageManager = manager
   }
 
-  setViewPort (width, height) {
-    this.viewPortEl.style.width = width + 'px'
-    this.viewPortEl.style.height = height + 'px'
-
-    this.fitToCenter()
-  }
-
   fitToCenter () {
     if (this.zoomable) {
       const containerRect = this.workspaceEl.getBoundingClientRect()
@@ -75,40 +70,25 @@ export default class WorkSpaceControl {
   }
 
   setWorkSpaceMovable () {
-    this.workspaceMovable = createMoveable(this.viewPortEl, false)
-
-    // new Moveable(document.body, {
-    //   className: 'workspace-movable',
-    //   target: this.viewPortEl,
-    //   dimensionViewable: true,
-    //   deleteButtonViewable: false,
-    //   // If the container is null, the position is fixed. (default: parentElement(document.body))
-    //   container: document.body,
-    //   snappable: false,
-    //   snapGap: false,
-    //   isDisplayInnerSnapDigit: false,
-    //   draggable: true,
-    //   resizable: true,
-    //   scalable: false,
-    //   rotatable: false,
-    //   warpable: false,
-    //   // Enabling pinchable lets you use events that
-    //   // can be used in draggable, resizable, scalable, and rotateable.
-    //   pinchable: false, // ["resizable", "scalable", "rotatable"]
-    //   origin: true,
-    //   keepRatio: false,
-    //   // Resize, Scale Events at edges.
-    //   edge: false,
-    //   throttleDrag: 0,
-    //   throttleResize: 1,
-    //   throttleScale: 0,
-    //   throttleRotate: 0,
-    //   clipTargetBounds: true
-    // })
+    this.workspaceMovable = createMoveable({
+      target: this.viewPortEl,
+      className: 'workspace-movable'
+    })
 
     this.workspaceMovable.on('drag', ev => {
       if (ev.inputEvent.ctrlKey) {
         ev.target.style.transform = ev.transform
+      }
+    })
+    this.workspaceMovable.on('resize', ev => {
+      if (ev.delta && ev.delta[0] && ev.delta[1]) {
+        emit(EVENT_PAGE_PROP_CHANGE, {
+          from: 'workspace',
+          properties: {
+            width: ev.width,
+            height: ev.height
+          }
+        })
       }
     })
   }
@@ -122,37 +102,6 @@ export default class WorkSpaceControl {
       warpable: true,
       scalable: true
     })
-
-    // new Moveable(document.body, {
-    //   target: [],
-    //   dimensionViewable: true,
-    //   deleteButtonViewable: false,
-    //   // If the container is null, the position is fixed. (default: parentElement(document.body))
-    //   container: document.body,
-    //   snappable: true,
-    //   snapGap: false,
-    //   isDisplayInnerSnapDigit: false,
-    //   draggable: true,
-    //   resizable: true,
-    //   scalable: true,
-    //   rotatable: false,
-    //   warpable: true,
-    //   // Enabling pinchable lets you use events that
-    //   // can be used in draggable, resizable, scalable, and rotateable.
-    //   pinchable: true, // ["resizable", "scalable", "rotatable"]
-    //   origin: true,
-    //   keepRatio: false,
-    //   // Resize, Scale Events at edges.
-    //   edge: false,
-    //   throttleDrag: 0,
-    //   throttleResize: 1,
-    //   throttleScale: 0,
-    //   throttleRotate: 0,
-    //   clipArea: true,
-    //   clipVerticalGuidelines: [0, '50%', '100%'],
-    //   clipHorizontalGuidelines: [0, '50%', '100%'],
-    //   clipTargetBounds: true
-    // })
 
     this.moveable.on('dragStart', ev => {
       sm.moveable.elementGuidelines = this.guidelines
@@ -169,7 +118,6 @@ export default class WorkSpaceControl {
     this.moveable.on('dragEnd', ev => {
       const bcr = ev.target.getBoundingClientRect()
       sm.onElementDragEnd(ev.target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
-      sm.ridge.debouncedSaveUpdatePage()
     })
 
     this.moveable.on('resize', ({
@@ -205,7 +153,6 @@ export default class WorkSpaceControl {
       transform
     }) => {
       this.selectElements([target])
-      sm.ridge.debouncedSaveUpdatePage()
     })
 
     this.moveable.on('dragGroup', ({
@@ -217,8 +164,12 @@ export default class WorkSpaceControl {
       }) => {
         if (!target.elementWrapper.config.parent) {
           target.style.transform = transform
-          sm.ridge.debouncedSaveUpdatePage()
         }
+      })
+    })
+    this.moveable.on('dragGroupEnd', () => {
+      emit(EVENT_ELEMENT_DRAG_END, {
+        elements: this.pageManager.getPageElements()
       })
     })
 
@@ -390,7 +341,7 @@ export default class WorkSpaceControl {
     sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
     targetParentElement && targetParentElement.removeStatus('drag-over', targetEl)
 
-    this.ridge.emit(EVENT_ELEMENT_PARENT_CHANGE, {
+    emit(EVENT_ELEMENT_DRAG_END, {
       sourceElement,
       sourceParentElement,
       targetParentElement,
@@ -430,7 +381,7 @@ export default class WorkSpaceControl {
     this.moveable.target = elements
 
     if (!notNotify && elements.length <= 1) {
-      this.ridge.emit(EVENT_ELEMENT_SELECTED, {
+      emit(EVENT_ELEMENT_SELECTED, {
         from: 'workspace',
         element: elements[0],
         elements: this.pageManager.getPageElements()
@@ -481,8 +432,12 @@ export default class WorkSpaceControl {
     }
 
     const filtered = Array.from(droppableElements).filter(el => {
-      // 排除掉目标的子节点
+      // Exclude: droppables in the dragging element
       if (dragEl.contains(el)) {
+        return false
+      }
+      // Exclude: slot el with element dropped
+      if (el.tagName === 'SLOT' && el.getAttribute('tpl') && el.getAttribute('tpl') !== dragEl.getAttribute('ridge-id')) {
         return false
       }
       const { x, y, width, height } = el.getBoundingClientRect()
@@ -493,6 +448,7 @@ export default class WorkSpaceControl {
     if (filtered.length === 1) {
       target = filtered[0]
     } else if (filtered.length > 1) {
+      // find inner'est element
       const sorted = filtered.sort((a, b) => {
         if (a.contains(b)) {
           return 1
@@ -507,12 +463,8 @@ export default class WorkSpaceControl {
     droppableElements.forEach(el => {
       if (el !== target) {
         el.elementWrapper.removeStatus('drag-over', el)
-        // if (el.classList.contains('drag-over')) {
-        //   el.classList.remove('drag-over')
-        // }
       } else {
         el.elementWrapper.setStatus('drag-over', el)
-        // el.classList.add('drag-over')
       }
     })
     return target

@@ -6,16 +6,32 @@
     border-radius: 5px;
     z-index: 1000;
 
-    .panel-title {
-        height: 24px;
-        display: flex;
-        vertical-align: middle;
-        align-items: center;
-        .semi-icon-handle {
+    .title-bar {
+        position: relative;
+        height: 1px;
+        z-index: 1;
+        .toggle-search {
+            z-index: 101;
+            background-color: var(--semi-color-bg-2);
+            .semi-input-suffix {
+                cursor: pointer;
+            }
+        }
+        .icon-handle {
+            position: absolute;
+            top: 5px;
+            left: 5px;
             cursor: move;
         }
-        .title-text {
-            flex: 1;
+        .icon-search {
+            position: absolute;
+            top: 2px;
+            right: 5px;
+        }
+        .icon-close {
+            position: absolute;
+            top: 2px;
+            right: 5px;
         }
     }
 
@@ -25,7 +41,7 @@
     .semi-tabs {
         height: 100%;
         .semi-tabs-bar {
-            padding-left: 16px;
+            padding-left: 22px;
             .semi-tabs-tab {
                 padding: 3px 5px;
                 &.semi-tabs-tab-active {

@@ -53,6 +53,7 @@ export default class ListContainer {
         y: 0
       })
       this.slotEl.appendChild(renderItem.el)
+      this.slotEl.setAttribute('tpl', renderItem.id)
     }
     Object.assign(this.slotEl.style, this.getSlotStyle())
   }

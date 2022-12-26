@@ -13,6 +13,7 @@
     "@codemirror/lang-json": "^6.0.1",
     "@douyinfe/semi-ui": "^2.25.0",
     "codemirror": "^6.0.1",
+    "eventemitter3": "^5.0.0",
     "localforage": "^1.10.0",
     "mousetrap": "^1.6.5",
     "moveable": "^0.37.1",

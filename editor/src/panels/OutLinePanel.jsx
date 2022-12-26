@@ -1,7 +1,8 @@
 import React from 'react'
-import { Tree, Input } from '@douyinfe/semi-ui'
+import { Tree } from '@douyinfe/semi-ui'
 import MoveablePanel from './MoveablePanel.jsx'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_PARENT_CHANGE, EVENT_ELEMENT_SELECTED } from '../constant.js'
+import { EVENT_PAGE_LOADED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED } from '../constant.js'
+import { on, emit } from '../utils/events'
 
 class OutLinePanel extends React.Component {
   constructor () {
@@ -17,13 +18,13 @@ class OutLinePanel extends React.Component {
   componentDidMount () {
     const { Ridge } = window
 
-    Ridge.on(EVENT_PAGE_LOADED, ({ elements }) => {
+    on(EVENT_PAGE_LOADED, ({ elements }) => {
       this.setState({
         elements
       })
     })
 
-    Ridge.on(EVENT_ELEMENT_PARENT_CHANGE, ({
+    on(EVENT_ELEMENT_DRAG_END, ({
       elements
     }) => {
       this.setState({
@@ -31,7 +32,7 @@ class OutLinePanel extends React.Component {
       })
     })
 
-    Ridge.on(EVENT_ELEMENT_SELECTED, payload => {
+    on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'workspace') {
         this.setState({
           selected: payload.element ? payload.element.elementWrapper.id : null
@@ -46,8 +47,7 @@ class OutLinePanel extends React.Component {
   }
 
   onNodeSelected (val) {
-    const { Ridge } = window
-    Ridge.emit(EVENT_ELEMENT_SELECTED, {
+    emit(EVENT_ELEMENT_SELECTED, {
       from: 'outline',
       element: this.state.elements[val].el
     })
@@ -96,16 +96,9 @@ class OutLinePanel extends React.Component {
     const { selected, elements } = this.state
     const treeData = this.buildElementTree(elements)
     return (
-      <MoveablePanel title='大纲' left='45px' width='320px' bottom='10px' top='400px' {...this.props}>
+      <MoveablePanel title='大纲' left='45px' width='320px' bottom='10px' top='400px' padding='20px 0 0 0' {...this.props}>
         <Tree
-          filterTreeNode
           value={selected}
-          searchRender={({ prefix, ...restProps }) => (
-            <Input
-              prefix='Search'
-              {...restProps}
-            />
-          )}
           onChange={(value) => {
             this.onNodeSelected(value)
           }}

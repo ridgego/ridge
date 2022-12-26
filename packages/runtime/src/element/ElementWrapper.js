@@ -495,7 +495,7 @@ class ElementWrapper {
       this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
     } else {
       this.el.style.transform = ''
-      this.el.style.position = ''
+      this.el.style.position = 'relative'
     }
   }
 

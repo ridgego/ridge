@@ -51,7 +51,8 @@ class PageElementManager {
    * @param {} properties
    */
   updatePageProperties (properties) {
-    this.pageConfig.properties = properties
+    Object.assign(this.pageConfig.properties, properties)
+    this.updateRootElStyle()
   }
 
   /**
@@ -99,8 +100,13 @@ class PageElementManager {
       wrapper.mount(div)
       el.appendChild(div)
     }
-    el.style.width = this.pageConfig.properties.width + 'px'
-    el.style.height = this.pageConfig.properties.height + 'px'
+    this.el = el
+    this.updateRootElStyle()
+  }
+
+  updateRootElStyle () {
+    this.el.style.width = this.pageConfig.properties.width + 'px'
+    this.el.style.height = this.pageConfig.properties.height + 'px'
   }
 
   async unmount () {

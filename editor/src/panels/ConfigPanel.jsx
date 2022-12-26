@@ -3,7 +3,12 @@ import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../form/ObjectForm.jsx'
 
 import MoveablePanel from './MoveablePanel.jsx'
-import { FORM_COMPONENT_BASIC, FORM_PAGE_PROPS, EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
+import {
+  FORM_COMPONENT_BASIC, FORM_PAGE_PROPS,
+  EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE
+} from '../constant.js'
+
+import { emit, on } from '../utils/events'
 
 const basicStyleSections = FORM_COMPONENT_BASIC
 
@@ -26,7 +31,7 @@ export default class ComponentPanel extends React.Component {
   initEvents () {
     const { Ridge } = window
 
-    Ridge.on(EVENT_PAGE_LOADED, ({ pageProperties, pageVariables }) => {
+    on(EVENT_PAGE_LOADED, ({ pageProperties, pageVariables }) => {
       this.pagePropFormApi.setValues(pageProperties, {
         notNotify: true
       })
@@ -34,12 +39,19 @@ export default class ComponentPanel extends React.Component {
         pageVariables
       })
     })
+    on(EVENT_PAGE_PROP_CHANGE, payload => {
+      if (payload.from === 'workspace') {
+        this.pagePropFormApi.setValues(payload.properties, {
+          notNotify: true
+        })
+      }
+    })
     Ridge.on(EVENT_PAGE_VAR_CHANGE, pageVariables => {
       this.setState({
         pageVariables
       })
     })
-    Ridge.on(EVENT_ELEMENT_SELECTED, payload => {
+    on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'workspace') {
         this.elementSelected(payload.element)
       }
@@ -198,7 +210,10 @@ export default class ComponentPanel extends React.Component {
     }
 
     const pagePropValueChange = (values, field) => {
-      window.Ridge && window.Ridge.emit(EVENT_PAGE_PROP_CHANGE, values)
+      window.Ridge && window.Ridge.emit(EVENT_PAGE_PROP_CHANGE, {
+        from: 'panel',
+        properties: values
+      })
     }
 
     return (

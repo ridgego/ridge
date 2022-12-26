@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Button } from '@douyinfe/semi-ui'
+import { Button, Input } from '@douyinfe/semi-ui'
 import { createMoveable } from '../utils/moveable'
-import { IconMinus, IconClose, IconSearchStroked, IconHandle } from '@douyinfe/semi-icons'
+import { IconClose, IconSearchStroked, IconHandle } from '@douyinfe/semi-icons'
 
 import '../css/movable-panel.less'
 
@@ -11,7 +11,9 @@ export default class MoveablePanel extends React.Component {
     super()
     this.ref = React.createRef()
     this.state = {
-      state: 'normal'
+      state: 'normal',
+      openSearch: false,
+      search: ''
     }
   }
 
@@ -23,7 +25,7 @@ export default class MoveablePanel extends React.Component {
     const mov = createMoveable({
       className: 'workspace-movable',
       target: this.ref.current,
-      dragTarget: this.ref.current.querySelector('.panel-title')
+      dragTarget: this.ref.current.querySelector('.title-bar .icon-handle')
     })
     mov.on('resize', ({
       target,
@@ -47,16 +49,39 @@ export default class MoveablePanel extends React.Component {
   }
 
   render () {
-    const { onClose, visible, title } = this.props
-    const { state } = this.state
-    const style = {
-    }
-    Object.assign(style, this.props)
+    const { onClose, position, visible, padding = '0' } = this.props
+    const { state, openSearch, search } = this.state
 
-    if (state === 'minimize') {
-      style.height = '36px'
-    } else {
-      style.height = this.props.height
+    const style = {}
+
+    const closeSearch = () => {
+      this.setState({
+        openSearch: false,
+        search: ''
+      })
+    }
+
+    if (Array.isArray(position) && position.length === 6) {
+      const [left, top, right, bottom, width, height] = position
+
+      if (left) {
+        style.left = left + 'px'
+      }
+      if (top) {
+        style.top = top + 'px'
+      }
+      if (right) {
+        style.right = right + 'px'
+      }
+      if (bottom) {
+        style.bottom = bottom + 'px'
+      }
+      if (width) {
+        style.width = width + 'px'
+      }
+      if (height) {
+        style.height = height + 'px'
+      }
     }
 
     if (!visible) {
@@ -65,10 +90,25 @@ export default class MoveablePanel extends React.Component {
     return (
       ReactDOM.createPortal(
         <div ref={this.ref} className='movable-panel' style={style} id={this.props.id}>
-          <IconHandle />
-          <Button icon={<IconSearchStroked />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
-          <Button icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} />
-          <div className='panel-content'>
+          <div className='title-bar'>
+            <IconHandle className='icon-handle' />
+            {openSearch && <Input placeholder='输入查询条件' prefix={<IconSearchStroked />} suffix={<IconClose onClick={closeSearch} />} className='toggle-search' />}
+            <Button
+              className='icon-search' icon={<IconSearchStroked />} theme='borderless' size='small' type='tertiary' onClick={() => {
+                this.setState({
+                  openSearch: true,
+                  search: ''
+                })
+              }}
+            />
+            {/* <Button className='icon-close' icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} /> */}
+          </div>
+          <div
+            className='panel-content'
+            style={{
+              padding
+            }}
+          >
             {this.props.children}
           </div>
         </div>, document.body)

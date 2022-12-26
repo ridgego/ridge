@@ -74,8 +74,8 @@ module.exports = {
   },
   externals: {
     react: 'React',
-    'react-dom': 'ReactDOM',
-    '@douyinfe/semi-ui': 'SemiUI'
+    'react-dom': 'ReactDOM'
+    // '@douyinfe/semi-ui': 'SemiUI'
     // moveable: 'Moveable'
   }
 }

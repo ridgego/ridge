@@ -15,7 +15,12 @@ import './css/editor.less'
 import { Ridge, PageElementManager } from 'ridge-runtime'
 import Nanobus from 'nanobus'
 
-import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE } from './constant'
+import { emit, on } from './utils/events'
+
+import {
+  EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
+  PANEL_SIZE_1920, PANEL_SIZE_1366
+} from './constant'
 
 const trace = debug('ridge:editor')
 
@@ -39,7 +44,11 @@ export default class Editor extends React.Component {
       editorLang: null,
       editorVisible: false,
       modeRun: false,
-      editorCode: ''
+      editorCode: '',
+      panelPosition: PANEL_SIZE_1920
+    }
+    if (window.screen.width <= 1366) {
+      this.state.panelPosition = PANEL_SIZE_1366
     }
     this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 5000)
 
@@ -59,9 +68,9 @@ export default class Editor extends React.Component {
     this.ridge.nanobus = new Nanobus()
     this.ridge.registerMethod('emit', this.ridge.nanobus.emit.bind(this.ridge.nanobus))
     this.ridge.registerMethod('on', this.ridge.nanobus.on.bind(this.ridge.nanobus))
-    this.ridge.registerMethod('openCodeEditor', this.openCodeEditor.bind(this))
-    this.ridge.registerMethod('saveCurrentPage', this.saveCurrentPage.bind(this))
-    this.ridge.registerMethod('debouncedSaveUpdatePage', this.debouncedSaveUpdatePage.bind(this))
+    // this.ridge.registerMethod('openCodeEditor', this.openCodeEditor.bind(this))
+    // this.ridge.registerMethod('saveCurrentPage', this.saveCurrentPage.bind(this))
+    // this.ridge.registerMethod('debouncedSaveUpdatePage', this.debouncedSaveUpdatePage.bind(this))
 
     // 应用管理器初始化
     this.ridge.appService = new ApplicationService()
@@ -76,7 +85,7 @@ export default class Editor extends React.Component {
       this.pageElementManager.updateVariableConfig(variables)
       this.debouncedSaveUpdatePage()
     })
-    this.ridge.on(EVENT_PAGE_PROP_CHANGE, (properties) => {
+    on(EVENT_PAGE_PROP_CHANGE, ({ from, properties }) => {
       this.pageElementManager.updatePageProperties(properties)
       this.debouncedSaveUpdatePage()
     })
@@ -134,7 +143,7 @@ export default class Editor extends React.Component {
 
     this.pageElementManager.mount(this.viewPortRef.current)
 
-    this.ridge.emit(EVENT_PAGE_LOADED, {
+    emit(EVENT_PAGE_LOADED, {
       pageProperties: this.pageElementManager.getPageProperties(),
       pageVariables: this.pageElementManager.getVariableConfig(),
       elements: this.pageElementManager.getPageElements()
@@ -183,6 +192,7 @@ export default class Editor extends React.Component {
       variables,
       editorLang,
       editorVisible,
+      panelPosition,
       editorCode
     } = state
     return (
@@ -196,16 +206,18 @@ export default class Editor extends React.Component {
           toggoleRunMode={this.toggoleRunMode.bind(this)}
         />
         <ComponentAddPanel
+          position={panelPosition.ADD}
           visible={!modeRun && componentPanelVisible} onClose={() => {
             this.setState({
               componentPanelVisible: false
             })
           }}
         />
-        <OutLinePanel visible={!modeRun && outlinePanelVisible} />
+        <OutLinePanel position={panelPosition.OUTLINE} visible={!modeRun && outlinePanelVisible} />
         <DataPanel
           title='数据'
           variableChange={pageVariableConfigChange.bind(this)}
+          position={panelPosition.DATA}
           variables={variables}
           ref={dataPanelRef} visible={!modeRun && dataPanelVisible} onClose={() => {
             this.setState({
@@ -214,7 +226,9 @@ export default class Editor extends React.Component {
           }}
         />
         <ConfigPanel
-          ref={rightPanelRef} visible={!modeRun && propPanelVisible} onClose={() => {
+          position={panelPosition.PROP}
+          ref={rightPanelRef}
+          visible={!modeRun && propPanelVisible} onClose={() => {
             this.setState({
               propPanelVisible: false
             })
@@ -287,8 +301,9 @@ export default class Editor extends React.Component {
     this.setState({
       variables
     })
-    this.pageElementManager.updateVariableConfig(variables)
-    this.debouncedSaveUpdatePage()
+    this.ridge.emit(EVENT_PAGE_VAR_CHANGE, variables)
+    // this.pageElementManager.updateVariableConfig(variables)
+    // this.debouncedSaveUpdatePage()
   }
 
   // 切换运行模式

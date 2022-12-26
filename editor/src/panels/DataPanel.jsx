@@ -1,10 +1,9 @@
 import React from 'react'
 import MoveablePanel from './MoveablePanel.jsx'
 import VariableList from './VariableList.jsx'
-import { Table, Input, Select, TextArea, List, Tabs, TabPane, Button, InputNumber, Checkbox } from '@douyinfe/semi-ui'
+import { Tabs, TabPane } from '@douyinfe/semi-ui'
 
 import '../css/data-panel.less'
-import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE } from '../constant.js'
 
 export default class DataPanel extends React.Component {
   constructor () {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { IconDelete, IconEdit, IconPlus } from '@douyinfe/semi-icons'
-import { Input } from '@douyinfe/semi-ui'
+import { Input, Button } from '@douyinfe/semi-ui'
+import PopUpCodeEdit from '../utils/PopUpCodeEdit.jsx'
 
 import '../css/variable-list.less'
 
@@ -30,6 +31,8 @@ export default ({
   const variableDelete = name => {
     if (variableSelectedIndex > -1) {
       variableChange(variables.filter(variable => variable !== variables[variableSelectedIndex]))
+      setCurrentEditName('')
+      setVariableSelectedEdit(false)
     }
   }
 
@@ -94,17 +97,16 @@ export default ({
     }
   }
 
-  const openEditCode = (value, index) => {
-    const { Ridge } = window
-
-    Ridge && Ridge.openCodeEditor &&
-    Ridge.openCodeEditor({
-      lang: 'js',
-      code: value,
-      completed: (newCode) => {
-        variableChangeValue(index, 'value', newCode)
-      }
-    })
+  const InputAddon = ({ index, value }) => {
+    return (
+      <PopUpCodeEdit
+        type='json' msg='编辑变量初始值' value={value} onChange={val => {
+          variableChangeValue(index, 'value', val)
+        }}
+      >
+        <IconEdit className='action-edit' style={{ cursor: 'pointer' }} />
+      </PopUpCodeEdit>
+    )
   }
 
   return (
@@ -136,7 +138,7 @@ export default ({
                       value={variable.value} onChange={(val) => {
                         variableChangeValue(index, 'value', val)
                       }}
-                      addonAfter={<IconEdit className='action-edit' style={{ cursor: 'pointer' }} onClick={() => openEditCode(variable.value, index)} />}
+                      addonAfter={<InputAddon index={index} value={variable.value} />}
                     />
                   </div>
                 </div>}
@@ -152,8 +154,8 @@ export default ({
         })}
       </div>
       <div className='bottom-bar'>
-        <IconPlus onClick={variableAdd} />
-        <IconDelete onClick={variableDelete} />
+        <Button icon={<IconPlus />} onClick={variableAdd} theme='borderless' size='small' />
+        <Button icon={<IconDelete />} onClick={variableDelete} theme='borderless' size='small' />
       </div>
     </div>
   )
