@@ -1,109 +1,20 @@
 import React from 'react'
-import { Tree } from '@douyinfe/semi-ui'
+import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import MoveablePanel from './MoveablePanel.jsx'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED } from '../constant.js'
-import { on, emit } from '../utils/events'
+import OutLineTree from './OutLineTree.jsx'
 
 class OutLinePanel extends React.Component {
-  constructor () {
-    super()
-    this.el = document.createElement('div')
-    this.ref = React.createRef()
-    this.state = {
-      elements: [],
-      selected: null
-    }
-  }
-
-  componentDidMount () {
-    const { Ridge } = window
-
-    on(EVENT_PAGE_LOADED, ({ elements }) => {
-      this.setState({
-        elements
-      })
-    })
-
-    on(EVENT_ELEMENT_DRAG_END, ({
-      elements
-    }) => {
-      this.setState({
-        elements
-      })
-    })
-
-    on(EVENT_ELEMENT_SELECTED, payload => {
-      if (payload.from === 'workspace') {
-        this.setState({
-          selected: payload.element ? payload.element.elementWrapper.id : null
-        })
-        if (payload.elements) {
-          this.setState({
-            elements: payload.elements
-          })
-        }
-      }
-    })
-  }
-
-  onNodeSelected (val) {
-    emit(EVENT_ELEMENT_SELECTED, {
-      from: 'outline',
-      element: this.state.elements[val].el
-    })
-  }
-
-  buildElementTree (elements) {
-    const treeData = []
-    const rootElements = Object.values(elements).filter(el => el.isRoot())
-    for (const element of rootElements) {
-      treeData.push(this.getElementTree(element))
-    }
-    return treeData
-  }
-
-  getElementTree (element, tags) {
-    const treeNodeObject = {
-      key: element.id,
-      label: element.config.title,
-      value: element.id,
-      tags,
-      element,
-      children: []
-    }
-    if (element.config.props.children && element.config.props.children.length) {
-      for (const childWrapper of element.config.props.children) {
-        if (childWrapper.id) {
-          treeNodeObject.children.push(this.getElementTree(childWrapper))
-        }
-      }
-    }
-
-    const slotChildrenElements = element.getSlotChildren()
-
-    for (const slotChild of slotChildrenElements) {
-      if (slotChild.element && slotChild.element.id) {
-        treeNodeObject.children.push(this.getElementTree(slotChild.element, {
-          tag: slotChild.name
-        }))
-      }
-    }
-
-    return treeNodeObject
-  }
-
   render () {
-    const { selected, elements } = this.state
-    const treeData = this.buildElementTree(elements)
     return (
-      <MoveablePanel title='大纲' left='45px' width='320px' bottom='10px' top='400px' padding='20px 0 0 0' {...this.props}>
-        <Tree
-          value={selected}
-          onChange={(value) => {
-            this.onNodeSelected(value)
-          }}
-          treeData={treeData}
-        />
+      <MoveablePanel {...this.props}>
+        <Tabs
+          type='card'
+        >
+          <TabPane tab='页面列表' itemKey='resource' />
+          <TabPane tab='元素导航' itemKey='outline'>
+            <OutLineTree />
+          </TabPane>
+        </Tabs>
       </MoveablePanel>
     )
   }

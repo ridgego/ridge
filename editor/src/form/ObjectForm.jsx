@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form } from '@douyinfe/semi-ui'
+import { Form, Button } from '@douyinfe/semi-ui'
 
 import BorderEdit from './with-fields/BorderEdit.jsx'
 import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
@@ -20,7 +20,8 @@ export default class ObjectForm extends React.Component {
       TextArea,
       Select,
       Checkbox,
-      Input
+      Input,
+      Upload
     } = Form
     const {
       options
@@ -65,6 +66,12 @@ export default class ObjectForm extends React.Component {
         break
       case 'json-editor':
         RenderField = <JSONEdit label={col.label} field={col.field} />
+        break
+      case 'file':
+        RenderField = <Upload label={col.label} field={col.field} />
+        break
+      case 'button':
+        RenderField = <Button label={col.label} />
         break
       default:
         break
@@ -115,7 +122,7 @@ export default class ObjectForm extends React.Component {
       )
     }
 
-    const { sections, getFormApi, onValueChange, style } = this.props
+    const { sections, getFormApi, onValueChange, style, initValues } = this.props
 
     const callback = (api) => {
       this.api = api
@@ -127,6 +134,7 @@ export default class ObjectForm extends React.Component {
           size='small'
           labelPosition='left'
           getFormApi={callback}
+          initValues={initValues}
           onValueChange={onValueChange}
         >
           {sections.map(renderSection)}

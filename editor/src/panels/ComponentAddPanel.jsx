@@ -66,7 +66,7 @@ class ComponentAddPanel extends React.Component {
 
     const tabChange = this.tabChange.bind(this)
     return (
-      <MoveablePanel title='组件' position={position} {...this.props}>
+      <MoveablePanel position={position} {...this.props}>
         {!packageListingLoaded && <Spin size='large' />}
         <Tabs
           type='card'

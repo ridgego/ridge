@@ -24,7 +24,7 @@ export default class PackageManager {
 
     // Load Package
     for (const pkname of this.packageNames) {
-      if (debugPkg.name !== pkname) {
+      if (debugPkg == null || (debugPkg.name !== pkname)) {
         packagesLoading.push(await window.Ridge.loader.getPackageJSON(pkname))
       }
     }

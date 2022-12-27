@@ -6,19 +6,20 @@ import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 import OutLinePanel from './panels/OutLinePanel.jsx'
 import MenuBar from './panels/MenuBar.jsx'
 import CodeEditor from './code-editor/CodeEditor.jsx'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 
-import WorkSpaceControl from './workspace/WorkspaceControl.js'
 import ApplicationService from './service/ApplicationService.js'
+import ConfigService from './service/ConfigService.js'
+import WorkSpaceControl from './workspace/WorkspaceControl.js'
 
 import './css/editor.less'
 import { Ridge, PageElementManager } from 'ridge-runtime'
-import Nanobus from 'nanobus'
 
 import { emit, on } from './utils/events'
 
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
+  EVENT_ELEMENT_CREATED,
   PANEL_SIZE_1920, PANEL_SIZE_1366
 } from './constant'
 
@@ -39,7 +40,6 @@ export default class Editor extends React.Component {
       componentPanelVisible: true,
       propPanelVisible: true,
       outlinePanelVisible: true,
-      pagesPanelVisible: true,
       dataPanelVisible: true,
       editorLang: null,
       editorVisible: false,
@@ -60,28 +60,23 @@ export default class Editor extends React.Component {
    * 编辑工具模式下初始化： 从本地存储获取相关页面及配置
    */
   initialize () {
+    const configService = new ConfigService()
+    const config = configService.getConfig()
     this.ridge = new Ridge({
-      debugUrl: 'https://localhost:8700'
+      debugUrl: config.debug ? config.debugUrl : null
     })
-    window.Ridge = this.ridge
-
-    this.ridge.nanobus = new Nanobus()
-    this.ridge.registerMethod('emit', this.ridge.nanobus.emit.bind(this.ridge.nanobus))
-    this.ridge.registerMethod('on', this.ridge.nanobus.on.bind(this.ridge.nanobus))
-    // this.ridge.registerMethod('openCodeEditor', this.openCodeEditor.bind(this))
-    // this.ridge.registerMethod('saveCurrentPage', this.saveCurrentPage.bind(this))
-    // this.ridge.registerMethod('debouncedSaveUpdatePage', this.debouncedSaveUpdatePage.bind(this))
-
-    // 应用管理器初始化
+    this.ridge.configService = new ConfigService()
     this.ridge.appService = new ApplicationService()
 
-    this.ridge.appService.getRecentPage().then(({
-      content
-    }) => {
-      this.loadPage(content)
+    window.Ridge = this.ridge
+
+    // 应用管理器初始化
+    this.ridge.appService.getRecentPage().then((pageObject) => {
+      console.log('pageObject', pageObject)
+      this.loadPage(pageObject)
     })
 
-    this.ridge.on(EVENT_PAGE_VAR_CHANGE, (variables) => {
+    on(EVENT_PAGE_VAR_CHANGE, (variables) => {
       this.pageElementManager.updateVariableConfig(variables)
       this.debouncedSaveUpdatePage()
     })
@@ -89,7 +84,7 @@ export default class Editor extends React.Component {
       this.pageElementManager.updatePageProperties(properties)
       this.debouncedSaveUpdatePage()
     })
-    this.ridge.on(EVENT_ELEMENT_PROP_CHANGE, ({
+    on(EVENT_ELEMENT_PROP_CHANGE, ({
       el,
       values,
       field
@@ -97,14 +92,18 @@ export default class Editor extends React.Component {
       el.elementWrapper.setPropsConfig(values, field)
       this.workspaceControl.updateMovable()
     })
-    this.ridge.on(EVENT_ELEMENT_EVENT_CHANGE, ({
+    on(EVENT_ELEMENT_EVENT_CHANGE, ({
       el,
       values
     }) => {
       el.elementWrapper.setEventsConfig(values)
     })
 
-    this.ridge.on('*', () => {
+    on(EVENT_ELEMENT_CREATED, () => {
+      this.saveCurrentPage()
+    })
+
+    on('*', () => {
       // this.debouncedSaveUpdatePage()
     })
   }
@@ -112,13 +111,9 @@ export default class Editor extends React.Component {
   saveCurrentPage () {
     if (this.pageElementManager) {
       const pageJSONObject = this.pageElementManager.getPageJSON()
-      trace('Save Page', pageJSONObject)
-      this.pageConfig = pageJSONObject
-      this.ridge.appService.saveUpdatePage({
-        id: pageJSONObject.id,
-        title: pageJSONObject.properties.title,
-        content: pageJSONObject
-      })
+      Object.assign(this.pageConfig, pageJSONObject)
+      trace('Save Page', this.pageConfig)
+      this.ridge.appService.saveUpdatePage(this.pageConfig)
     }
   }
 
@@ -187,7 +182,6 @@ export default class Editor extends React.Component {
       dataPanelVisible,
       propPanelVisible,
       outlinePanelVisible,
-      pagesPanelVisible,
       modeRun,
       variables,
       editorLang,
@@ -215,7 +209,7 @@ export default class Editor extends React.Component {
         />
         <OutLinePanel position={panelPosition.OUTLINE} visible={!modeRun && outlinePanelVisible} />
         <DataPanel
-          title='数据'
+          title='页面变量'
           variableChange={pageVariableConfigChange.bind(this)}
           position={panelPosition.DATA}
           variables={variables}
@@ -234,7 +228,6 @@ export default class Editor extends React.Component {
             })
           }}
         />
-
         <CodeEditor
           visible={editorVisible} onCancel={() => {
             this.setState({
@@ -301,7 +294,7 @@ export default class Editor extends React.Component {
     this.setState({
       variables
     })
-    this.ridge.emit(EVENT_PAGE_VAR_CHANGE, variables)
+    emit(EVENT_PAGE_VAR_CHANGE, variables)
     // this.pageElementManager.updateVariableConfig(variables)
     // this.debouncedSaveUpdatePage()
   }

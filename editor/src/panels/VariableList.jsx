@@ -68,8 +68,12 @@ export default ({
 
   // 新增变量
   const variableAdd = () => {
+    let index = variables.length + 1
+    while (variables.filter(v => v.name === ('Var' + index)).length) {
+      index++
+    }
     variableChange([...variables, {
-      name: '变量' + (variables.length + 1),
+      name: 'Var' + index,
       save: false,
       value: ''
     }])

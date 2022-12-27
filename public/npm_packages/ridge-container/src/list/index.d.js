@@ -10,6 +10,16 @@ export default {
     control: 'json-editor',
     value: []
   }, {
+    name: 'itemKey',
+    label: '数据键',
+    type: 'string',
+    value: ''
+  }, {
+    name: 'slotKey',
+    label: '变量命名',
+    type: 'string',
+    value: ''
+  }, {
     name: 'padding',
     label: '内边',
     type: 'number',

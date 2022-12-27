@@ -7,7 +7,7 @@ export default {
     label: '内容',
     name: 'text',
     type: 'string',
-    value: ''
+    value: '单行文本'
   }, {
     label: '大小',
     name: 'fontSize',

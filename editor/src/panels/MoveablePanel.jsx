@@ -1,10 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Button, Input } from '@douyinfe/semi-ui'
+import { Button, Input, Typography } from '@douyinfe/semi-ui'
 import { createMoveable } from '../utils/moveable'
 import { IconClose, IconSearchStroked, IconHandle } from '@douyinfe/semi-icons'
 
 import '../css/movable-panel.less'
+
+const { Text } = Typography
 
 export default class MoveablePanel extends React.Component {
   constructor () {
@@ -49,7 +51,7 @@ export default class MoveablePanel extends React.Component {
   }
 
   render () {
-    const { onClose, position, visible, padding = '0' } = this.props
+    const { onClose, position, visible, title, padding = '0' } = this.props
     const { state, openSearch, search } = this.state
 
     const style = {}
@@ -92,6 +94,7 @@ export default class MoveablePanel extends React.Component {
         <div ref={this.ref} className='movable-panel' style={style} id={this.props.id}>
           <div className='title-bar'>
             <IconHandle className='icon-handle' />
+            {title && <Text className='title-text'>{title}</Text>}
             {openSearch && <Input placeholder='输入查询条件' prefix={<IconSearchStroked />} suffix={<IconClose onClick={closeSearch} />} className='toggle-search' />}
             <Button
               className='icon-search' icon={<IconSearchStroked />} theme='borderless' size='small' type='tertiary' onClick={() => {
@@ -106,7 +109,8 @@ export default class MoveablePanel extends React.Component {
           <div
             className='panel-content'
             style={{
-              padding
+              marginTop: title ? '28px' : '0',
+              borderTop: title ? '1px solid var(--semi-color-border)' : 'none'
             }}
           >
             {this.props.children}

@@ -49,8 +49,6 @@ export default ({
     }
   }
 
-  console.log('completion', [...variableCompletions, ...methodCompletions])
-
   const popVisibleChange = visible => {
     toggleOpen && toggleOpen(visible)
     if (visible) {

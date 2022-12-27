@@ -29,8 +29,6 @@ export default class ComponentPanel extends React.Component {
   }
 
   initEvents () {
-    const { Ridge } = window
-
     on(EVENT_PAGE_LOADED, ({ pageProperties, pageVariables }) => {
       this.pagePropFormApi.setValues(pageProperties, {
         notNotify: true
@@ -46,7 +44,7 @@ export default class ComponentPanel extends React.Component {
         })
       }
     })
-    Ridge.on(EVENT_PAGE_VAR_CHANGE, pageVariables => {
+    on(EVENT_PAGE_VAR_CHANGE, pageVariables => {
       this.setState({
         pageVariables
       })
@@ -202,22 +200,22 @@ export default class ComponentPanel extends React.Component {
 
     // 组件属性表单项修改  组件样式和属性变动
     const componentPropValueChange = (values, field) => {
-      window.Ridge && window.Ridge.emit(EVENT_ELEMENT_PROP_CHANGE, { el: this.currentElement, values, field })
+      emit(EVENT_ELEMENT_PROP_CHANGE, { el: this.currentElement, values, field })
     }
 
     const componentEventValueChange = (values, field) => {
-      window.Ridge && window.Ridge.emit(EVENT_ELEMENT_EVENT_CHANGE, { el: this.currentElement, values, field })
+      emit(EVENT_ELEMENT_EVENT_CHANGE, { el: this.currentElement, values, field })
     }
 
     const pagePropValueChange = (values, field) => {
-      window.Ridge && window.Ridge.emit(EVENT_PAGE_PROP_CHANGE, {
+      emit(EVENT_PAGE_PROP_CHANGE, {
         from: 'panel',
         properties: values
       })
     }
 
     return (
-      <MoveablePanel right='10px' bottom='250px' width='300px' top='10px' {...this.props}>
+      <MoveablePanel {...this.props}>
         <Tabs
           type='card'
           style={{

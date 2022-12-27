@@ -407,8 +407,7 @@ export default class WorkSpaceControl {
 
     this.onElementDragEnd(div, ev.pageX, ev.pageY)
 
-    this.ridge.emit(EVENT_ELEMENT_CREATED, [wrapper])
-    this.ridge.saveCurrentPage()
+    emit(EVENT_ELEMENT_CREATED, [wrapper])
   }
 
   onNodeResize (onr) {

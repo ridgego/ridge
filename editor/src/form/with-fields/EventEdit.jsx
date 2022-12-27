@@ -1,6 +1,7 @@
 import React from 'react'
 import { IconDelete, IconEdit, IconPlus } from '@douyinfe/semi-icons'
 import { withField, Button, Select, Input } from '@douyinfe/semi-ui'
+import PopUpCodeEdit from '../../utils/PopUpCodeEdit.jsx'
 
 const EventEdit = withField(({
   value,
@@ -55,6 +56,26 @@ const EventEdit = withField(({
     }
   })
 
+  const InputAddon = ({ index, value }) => {
+    return (
+      <PopUpCodeEdit
+        completion={{
+          variables: options.pageVariables,
+          methods: [{
+            label: 'Math.floor',
+            type: 'method'
+          }]
+        }}
+        msg='请输入取值表达式'
+        type='json' value={value} onChange={val => {
+          actionChange('value', val, index)
+        }}
+      >
+        <IconEdit className='action-edit' style={{ cursor: 'pointer' }} />
+      </PopUpCodeEdit>
+    )
+  }
+
   return (
     <div className='event-edit'>
       {actions.map((action, index) => {
@@ -92,7 +113,7 @@ const EventEdit = withField(({
                   <Input
                     size='small'
                     value={action.value}
-                    addonAfter={<IconEdit onClick={() => openEditCode(action.value, index)} />}
+                    addonAfter={<InputAddon index={index} value={action.value} />}
                     onChange={value => actionChange('value', value, index)}
                   />
                 </div>

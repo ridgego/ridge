@@ -249,7 +249,6 @@ class PageElementManager {
      */
   getPageJSON () {
     const result = {
-      id: this.id,
       properties: this.pageConfig.properties,
       variables: this.pageConfig.variables,
       elements: []

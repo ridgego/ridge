@@ -47,7 +47,6 @@ html, body {
   }
 }
 
-
 .status-drag-over {
   background-color: var(--semi-color-primary-light-default);
   border: 2px dashed var(--semi-color-primary);
@@ -65,4 +64,18 @@ slot {
   position: relative;
   background: var(--semi-color-bg-0);
   border: 1px solid var(--semi-color-border);
+}
+
+.menu-bar {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  background: var(--semi-color-bg-0);
+  border: 1px solid var(--semi-color-border);
+  padding: 8px;
+  border-radius: 8px;
+  z-index: 101;
 }
