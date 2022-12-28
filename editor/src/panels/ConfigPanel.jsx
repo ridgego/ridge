@@ -1,16 +1,110 @@
 import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../form/ObjectForm.jsx'
-
 import MoveablePanel from './MoveablePanel.jsx'
+import { emit, on } from '../utils/events'
+
 import {
-  FORM_COMPONENT_BASIC, FORM_PAGE_PROPS,
   EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE
 } from '../constant.js'
 
-import { emit, on } from '../utils/events'
+const FORM_COMPONENT_BASIC = [{
+  rows: [
+    {
+      cols: [{
+        label: '名称',
+        control: 'text',
+        bindable: false,
+        field: 'name'
+      }]
+    },
+    {
+      cols: [{
+        label: 'X',
+        control: 'number',
+        readonly: (values) => {
+          return !(values && values.style && values.style.position === 'absolute')
+        },
+        field: 'style.x',
+        fieldEx: 'styleEx.x'
+      }, {
+        label: 'Y',
+        control: 'number',
+        readonly: (values) => {
+          return !(values && values.style && values.style.position === 'absolute')
+        },
+        field: 'style.y',
+        fieldEx: 'styleEx.Y'
+      }]
+    },
+    {
+      cols: [{
+        label: 'W',
+        control: 'number',
+        field: 'style.width',
+        fieldEx: 'styleEx.width'
+      }, {
+        label: 'H',
+        control: 'number',
+        field: 'style.height',
+        fieldEx: 'styleEx.height'
+      }]
+    },
+    {
+      cols: [{
+        label: '显示',
+        type: 'boolean',
+        control: 'checkbox',
+        field: 'style.visible',
+        fieldEx: 'styleEx.visible'
+      }]
+    }
+  ]
+}]
 
 const basicStyleSections = FORM_COMPONENT_BASIC
+
+const FORM_PAGE_PROPS = [{
+  rows: [{
+    cols: [{
+      label: '页面名称',
+      control: 'text',
+      bindable: false,
+      field: 'title'
+    }]
+  }, {
+    cols: [{
+      label: '页面布局',
+      control: 'select',
+      field: 'type',
+      bindable: false,
+      optionList: [{
+        label: '固定宽高',
+        value: 'fixed'
+      }, {
+        label: '宽度自适应',
+        value: 'fit-w'
+      }, {
+        label: '宽高自适应',
+        value: 'fit-wh'
+      }]
+    }]
+  }, {
+    cols: [{
+      label: 'W',
+      when: 'type === "fixed"',
+      bindable: false,
+      control: 'number',
+      field: 'width'
+    }, {
+      label: 'H',
+      when: 'type === "fixed"',
+      bindable: false,
+      control: 'number',
+      field: 'height'
+    }]
+  }]
+}]
 
 export default class ComponentPanel extends React.Component {
   constructor (props) {

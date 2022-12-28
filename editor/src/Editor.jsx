@@ -61,12 +61,14 @@ export default class Editor extends React.Component {
    */
   initialize () {
     const configService = new ConfigService()
+    const appService = new ApplicationService()
     const config = configService.getConfig()
+
     this.ridge = new Ridge({
       debugUrl: config.debug ? config.debugUrl : null
     })
-    this.ridge.configService = new ConfigService()
-    this.ridge.appService = new ApplicationService()
+    this.ridge.configService = configService
+    this.ridge.appService = appService
 
     window.Ridge = this.ridge
 
@@ -113,7 +115,7 @@ export default class Editor extends React.Component {
       const pageJSONObject = this.pageElementManager.getPageJSON()
       Object.assign(this.pageConfig, pageJSONObject)
       trace('Save Page', this.pageConfig)
-      this.ridge.appService.saveUpdatePage(this.pageConfig)
+      this.ridge.appService.saveOrUpdate(this.pageConfig)
     }
   }
 
@@ -135,7 +137,6 @@ export default class Editor extends React.Component {
       variables: this.pageElementManager.getVariableConfig(),
       properties: this.pageElementManager.getPageProperties()
     })
-
     this.pageElementManager.mount(this.viewPortRef.current)
 
     emit(EVENT_PAGE_LOADED, {

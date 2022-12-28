@@ -97,7 +97,6 @@ class OutLineTree extends React.Component {
         }}
         treeData={treeData}
       />
-
     )
   }
 }

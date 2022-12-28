@@ -78,9 +78,15 @@ class NeCollection {
      */
   async patch (id, object) {
     debug('patch', id, object)
-    return this.update({ _id: id }, {
-      $set: object
-    })
+    if (typeof id === 'string') {
+      return this.update({ _id: id }, {
+        $set: object
+      })
+    } else {
+      return this.update(id, {
+        $set: object
+      })
+    }
   }
 
   /**
