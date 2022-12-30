@@ -1,0 +1,32 @@
+.file-actions {
+  padding-left: 28px;
+  padding-right: 38px;
+  display: flex;
+  .align-right {
+    gap: 5px;
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.file-tree {
+  height: calc(100% - 30px);
+  overflow: overlay;
+
+  .tree-label {
+    display: flex;
+    .label-content {
+      flex: 1;
+    }
+    .more-button {
+      visibility: hidden;
+      margin-right: 5px;
+    }
+    &:hover {
+      .more-button {
+        visibility: inherit;
+      }
+    }
+  }
+}

@@ -109,8 +109,8 @@ export default class MoveablePanel extends React.Component {
           <div
             className='panel-content'
             style={{
-              marginTop: title ? '28px' : '0',
-              borderTop: title ? '1px solid var(--semi-color-border)' : 'none'
+              // marginTop: title ? '28px' : '0',
+              // borderTop: title ? '1px solid var(--semi-color-border)' : 'none'
             }}
           >
             {this.props.children}

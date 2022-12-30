@@ -4,6 +4,7 @@ const { nanoid } = require('../utils/string')
 export default class ApplicationService {
   constructor () {
     this.collection = new NeCollection('ridge.app.db')
+    this.trashColl = new NeCollection('ridge.trash.db')
   }
 
   async createDirectory (parent) {
@@ -82,6 +83,48 @@ export default class ApplicationService {
     await this.collection.patch({ id }, {
       name: newName
     })
+    return true
+  }
+
+  /**
+   * 移动到新的目录
+   */
+  async move (id, newParent) {
+    const existed = await this.collection.findOne({ id })
+
+    if (existed.parent === newParent) {
+      return false
+    }
+
+    const nameDup = await this.collection.findOne({ parent: newParent, name: existed.name })
+    if (!nameDup) {
+      await this.collection.patch({ id }, {
+        parent: newParent
+      })
+      return true
+    } else {
+      return false
+    }
+  }
+
+  // 删除一个节点到回收站
+  async trash (id) {
+    const existed = await this.collection.findOne({ id })
+    if (existed) {
+      delete existed._id
+      await this.trashColl.insert(existed)
+
+      // 递归删除
+      const children = await this.collection.find({
+        parent: id
+      })
+      if (children.length) {
+        for (const child of children) {
+          await this.trash(child.id)
+        }
+      }
+      await this.collection.remove({ id })
+    }
   }
 
   async getFiles (filter) {
@@ -106,6 +149,11 @@ export default class ApplicationService {
       return treeNode
     })
     return roots
+  }
+
+  async getFile (id) {
+    const file = await this.collection.findOne({ id })
+    return file
   }
 
   async getRecentPage () {
@@ -141,10 +189,11 @@ export default class ApplicationService {
     return result
   }
 
-  deletePage (pageId) {
+  async exportArchive () {
+
   }
 
-  saveAppResource (appName, pid, object) {}
+  async archive () {
 
-  listAppResource (appName) {}
+  }
 }

@@ -1,20 +1,30 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IconDelete, IconEdit, IconPlus } from '@douyinfe/semi-icons'
 import { Input, Button } from '@douyinfe/semi-ui'
 import PopUpCodeEdit from '../utils/PopUpCodeEdit.jsx'
 
-import '../css/variable-list.less'
+import '../css/page-variables.less'
+import { emit, on } from '../utils/events.js'
+import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE } from '../constant.js'
 
 const REG_VARIABLE_NAME = '^([a-zA-Z_$\u4e00-\u9fa5][a-zA-Z\\d_$\u4e00-\u9fa5]*)$'
 
-export default ({
-  variables,
-  variableChange
-}) => {
+export default () => {
+  const [variables, setVariables] = useState([])
   const [variableSelectedIndex, setVariableSelectedIndex] = useState(-1)
   const [currentEditName, setCurrentEditName] = useState('')
   const [variableSelectedEdit, setVariableSelectedEdit] = useState(false)
   const [variableEditInvalid, setVariableEditInvalid] = useState(false)
+
+  const variableChange = (variables) => {
+    setVariables(variables)
+    emit(EVENT_PAGE_VAR_CHANGE, variables)
+  }
+  useEffect(() => {
+    on(EVENT_PAGE_LOADED, ({ pageVariables }) => {
+      setVariables(pageVariables)
+    })
+  })
 
   // 修改变量字段
   const variableChangeValue = (index, key, value) => {

@@ -42,7 +42,7 @@ export default props => {
             <Dropdown.Item onClick={() => toggleVisible('outlinePanelVisible')}>{outlinePanelVisible ? <IconTick /> : <EmptyIcon />} 导航列表</Dropdown.Item>
             <Dropdown.Item onClick={() => toggleVisible('pagesPanelVisible')}>{pagesPanelVisible ? <IconTick /> : <EmptyIcon />} 应用页面列表</Dropdown.Item>
           </Dropdown.Menu>
-              }
+        }
       >
         <Button disabled={modeRun} icon={<IconTemplate />} theme='borderless' size='small' type='tertiary' />
       </Dropdown>

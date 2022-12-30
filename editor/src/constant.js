@@ -1,4 +1,5 @@
 export const EVENT_PAGE_LOADED = 'pageLoaded'
+export const EVENT_PAGE_OPEN = 'pageOpen'
 export const EVENT_PAGE_VAR_CHANGE = 'pageVariableChange'
 export const EVENT_PAGE_PROP_CHANGE = 'pagePropChange'
 export const EVENT_PAGE_EVENT_CHANGE = 'pageEventChange'
@@ -13,7 +14,7 @@ export const EVENT_ELEMENT_PARENT_CHANGE = 'elementParentChanged'
 
 export const PANEL_SIZE_1920 = {
   ADD: [45, 5, 0, 0, 320, 450],
-  OUTLINE: [45, 460, 0, 8, 320, 0],
+  LEFT_BOTTOM: [45, 460, 0, 8, 320, 0],
   PROP: [0, 5, 5, 0, 320, 540],
   DATA: [0, 550, 5, 5, 320, 0]
 }

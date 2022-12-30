@@ -3,6 +3,7 @@ import { Tabs, TabPane, Typography } from '@douyinfe/semi-ui'
 import { IconInheritStroked, IconFillStroked, IconUserCircleStroked, IconHistory } from '@douyinfe/semi-icons'
 import ObjectForm from '../form/ObjectForm.jsx'
 import '../css/setting-panel.less'
+import BackUp from './app/BackUp.jsx'
 const FORM_DEBUG_SECTION = [{
   rows: [
     {
@@ -17,27 +18,6 @@ const FORM_DEBUG_SECTION = [{
       cols: [{
         label: '本地地址',
         type: 'string',
-        field: 'debugUrl',
-        bindable: false
-      }]
-    }
-  ]
-}]
-
-const FORM_APP_SECTION = [{
-  rows: [
-    {
-      cols: [{
-        label: '从本地还原',
-        type: 'file',
-        field: 'import',
-        bindable: false
-      }]
-    },
-    {
-      cols: [{
-        label: '备份到本地',
-        type: 'button',
         field: 'debugUrl',
         bindable: false
       }]
@@ -74,11 +54,7 @@ export default () => {
             }
             itemKey='app-manage'
           >
-            <ObjectForm
-              sections={FORM_APP_SECTION} onValueChange={(v) => {
-                console.log(v)
-              }}
-            />
+            <BackUp />
           </TabPane>
 
           <TabPane

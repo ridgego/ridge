@@ -1,9 +1,9 @@
 import React from 'react'
 import debug from 'debug'
 import ConfigPanel from './panels/ConfigPanel.jsx'
-import DataPanel from './panels/DataPanel.jsx'
+import RightBottomPanel from './panels/RightBottomPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
-import OutLinePanel from './panels/OutLinePanel.jsx'
+import LeftBottomPanel from './panels/LeftBottomPanel.jsx'
 import MenuBar from './panels/MenuBar.jsx'
 import CodeEditor from './code-editor/CodeEditor.jsx'
 import debounce from 'lodash/debounce'
@@ -20,7 +20,7 @@ import { emit, on } from './utils/events'
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
   EVENT_ELEMENT_CREATED,
-  PANEL_SIZE_1920, PANEL_SIZE_1366
+  PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN
 } from './constant'
 
 const trace = debug('ridge:editor')
@@ -105,17 +105,26 @@ export default class Editor extends React.Component {
       this.saveCurrentPage()
     })
 
+    on(EVENT_PAGE_OPEN, async (id) => {
+      const file = await this.ridge.appService.getFile(id)
+      if (file.type === 'page') {
+        await this.saveCurrentPage()
+        this.pageElementManager.unmount()
+        this.loadPage(file)
+      }
+    })
+
     on('*', () => {
       // this.debouncedSaveUpdatePage()
     })
   }
 
-  saveCurrentPage () {
+  async saveCurrentPage () {
     if (this.pageElementManager) {
       const pageJSONObject = this.pageElementManager.getPageJSON()
       Object.assign(this.pageConfig, pageJSONObject)
       trace('Save Page', this.pageConfig)
-      this.ridge.appService.saveOrUpdate(this.pageConfig)
+      await this.ridge.appService.saveOrUpdate(this.pageConfig)
     }
   }
 
@@ -208,18 +217,8 @@ export default class Editor extends React.Component {
             })
           }}
         />
-        <OutLinePanel position={panelPosition.OUTLINE} visible={!modeRun && outlinePanelVisible} />
-        <DataPanel
-          title='页面变量'
-          variableChange={pageVariableConfigChange.bind(this)}
-          position={panelPosition.DATA}
-          variables={variables}
-          ref={dataPanelRef} visible={!modeRun && dataPanelVisible} onClose={() => {
-            this.setState({
-              dataPanelVisible: false
-            })
-          }}
-        />
+        <LeftBottomPanel title='页面和资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
+        <RightBottomPanel position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
         <ConfigPanel
           position={panelPosition.PROP}
           ref={rightPanelRef}

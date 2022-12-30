@@ -1,13 +1,19 @@
 import React from 'react'
 import trim from 'lodash/trim'
-import { Button, Input, Tree } from '@douyinfe/semi-ui'
-import { IconPlusStroked, IconImageStroked, IconFolderStroked, IconFolder } from '@douyinfe/semi-icons'
+import { Button, Input, Tree, Dropdown, Typography, Toast } from '@douyinfe/semi-ui'
+import { IconPlusStroked, IconImageStroked, IconFolderStroked, IconFolder, IconMoreStroked } from '@douyinfe/semi-icons'
+import { emit } from '../utils/events'
+import { EVENT_PAGE_OPEN } from '../constant'
+import '../css/app-file-panel.less'
+
+const { Text } = Typography
 
 class AppFileList extends React.Component {
   constructor () {
     super()
     this.ref = React.createRef()
     this.state = {
+      expandedKeys: [],
       files: [],
       treeData: [],
       selected: null,
@@ -18,39 +24,31 @@ class AppFileList extends React.Component {
   }
 
   getFileTree (files) {
-    const roots = files.filter(file => file.parent === -1).map(file => {
-      const treeNode = {
-        key: file.id,
-        label: file.name,
-        value: file.id
-      }
-      if (file.type === 'directory') {
-        treeNode.children = this.buildDirTree(file, files)
-        if (treeNode.children.length === 0) {
-          treeNode.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-        }
-      }
-      return treeNode
+    const roots = files.filter(file => file.parent === -1).map(file => this.buildFileTree(file, files)).sort((a, b) => {
+      return a.label > b.label ? 1 : -1
     })
     return roots
   }
 
-  buildDirTree (dir, files) {
-    const children = files.filter(file => file.parent === dir.id).map(file => {
-      const treeNode = {
-        key: file.id,
-        label: file.name,
-        value: file.id
+  buildFileTree (file, files) {
+    const treeNode = {
+      key: file.id,
+      label: file.name,
+      type: file.type,
+      parent: file.parent,
+      value: file.id
+    }
+    if (treeNode.type === 'directory') {
+      const children = files.filter(item => item.parent === file.id)
+
+      treeNode.children = children.map(child => this.buildFileTree(child, files)).sort((a, b) => {
+        return a.label > b.label ? 1 : -1
+      })
+      if (treeNode.children.length === 0) {
+        treeNode.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
       }
-      if (file.type === 'directory') {
-        treeNode.children = this.buildDirTree(file, files)
-        if (treeNode.children.length === 0) {
-          treeNode.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-        }
-      }
-      return treeNode
-    })
-    return children
+    }
+    return treeNode
   }
 
   componentDidMount () {
@@ -102,7 +100,7 @@ class AppFileList extends React.Component {
   }
 
   /**
-   * 实时检查名称是否冲突
+   * 实时检查名称是否冲突，这个只更新currentEditValid状态
    */
   editLabelCheck = val => {
     this.setState({
@@ -129,6 +127,9 @@ class AppFileList extends React.Component {
     }
   }
 
+  /**
+   * 更新并保存命名修改
+   */
   checkUpdateEditName = async () => {
     if (this.state.currentEditValid) {
       if (window.Ridge) {
@@ -142,16 +143,125 @@ class AppFileList extends React.Component {
     }
   }
 
-  createDirectory = async () => {
+  // 新创建目录
+  createDirectory = async (dir) => {
     if (window.Ridge) {
       const { appService } = window.Ridge
-      await appService.createDirectory(this.getCurrentDir())
+      await appService.createDirectory(dir || this.getCurrentDir())
       await this.updateFileTree()
+    }
+  }
+
+  remove = async (data) => {
+    if (window.Ridge) {
+      const { appService } = window.Ridge
+      await appService.trash(data.key)
+      await this.updateFileTree()
+    }
+  }
+
+  createPage = async (dir) => {
+    if (window.Ridge) {
+      const { appService } = window.Ridge
+      await appService.createPage(dir || this.getCurrentDir())
+      await this.updateFileTree()
+    }
+  }
+
+  rename = async (node) => {
+    this.setState({
+      currentEditKey: node.key,
+      currentEditValue: node.label,
+      currentEditValid: true
+    })
+  }
+
+  open = async (node) => {
+    emit(EVENT_PAGE_OPEN, node.key)
+  }
+
+  move = async (node, dragNode, dropToGap) => {
+    let parentId = -1
+
+    if (dropToGap === false) { // 放置于node内
+      if (node.type === 'directory') {
+        parentId = node.key
+      } else {
+        parentId = node.parent
+      }
+    } else {
+      parentId = node.parent
+    }
+    if (window.Ridge) {
+      const { appService } = window.Ridge
+      const moveResult = await appService.move(dragNode.key, parentId)
+      if (moveResult) {
+        await this.updateFileTree()
+      } else {
+        Toast.warning({
+          content: '目录移动错误：存在同名的文件',
+          duration: 3
+        })
+      }
     }
   }
 
   renderFullLabel = (label, data) => {
     const { currentEditKey, currentEditValid } = this.state
+    const MORE_MENU = []
+
+    if (data.type === 'directory') {
+      MORE_MENU.push(
+        {
+          node: 'item',
+          name: '创建子目录',
+          onClick: () => {
+            this.setState({
+              expandedKeys: [data.key, ...this.state.expandedKeys]
+            })
+            this.createDirectory(data.key)
+          }
+        }
+      )
+      MORE_MENU.push(
+        {
+          node: 'item',
+          name: '创建空页面',
+          onClick: () => {
+            this.setState({
+              expandedKeys: [data.key, ...this.state.expandedKeys]
+            })
+            this.createPage(data.key)
+          }
+        }
+      )
+      MORE_MENU.push({ node: 'divider' })
+    } else {
+      MORE_MENU.push(
+        {
+          node: 'item',
+          name: '打开',
+          onClick: () => {
+            this.open(data)
+          }
+        }
+      )
+    }
+    MORE_MENU.push({
+      node: 'item',
+      name: '重命名',
+      onClick: () => {
+        this.rename(data)
+      }
+    })
+    MORE_MENU.push({
+      node: 'item',
+      name: '删除',
+      type: 'danger',
+      onClick: () => {
+        this.remove(data)
+      }
+    })
     return (
       <div>
         {data.key === currentEditKey && <Input
@@ -160,39 +270,56 @@ class AppFileList extends React.Component {
             this.editLabelCheck(val)
           }} size='small' defaultValue={label}
                                         />}
-        {data.key !== currentEditKey && label}
+        {data.key !== currentEditKey &&
+          <div className='tree-label'>
+            <Text className='label-content'>{label}</Text>
+            <Dropdown
+              clickToHide
+              trigger='click' showTick menu={MORE_MENU}
+            >
+              <Button className='more-button' size='small' theme='borderless' type='tertiary' icon={<IconMoreStroked rotate={90} />} />
+            </Dropdown>
+          </div>}
       </div>
     )
   }
 
-  onEditNode = (event, node) => {
-    this.setState({
-      currentEditKey: node.key,
-      currentEditValue: node.label,
-      currentEditValid: true
-    })
-  }
-
   render () {
-    const { treeData, selected } = this.state
-    const { createDirectory, renderFullLabel, onEditNode } = this
+    const { treeData, selected, expandedKeys } = this.state
+    const { createDirectory, renderFullLabel, createPage } = this
 
     return (
       <>
         <div className='file-actions'>
-          <Button icon={<IconPlusStroked />} size='small' type='primary' />
-          <Button icon={<IconImageStroked />} size='small' theme='borderless' type='tertiary' />
-          <Button icon={<IconFolderStroked />} onClick={createDirectory} size='small' theme='borderless' type='tertiary' />
+          <div className='align-right'>
+            <Button icon={<IconPlusStroked />} size='small' theme='borderless' type='tertiary' onClick={createPage} />
+            <Button icon={<IconImageStroked />} size='small' theme='borderless' type='tertiary' />
+            <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={createDirectory} />
+          </div>
         </div>
         <Tree
+          className='file-tree'
           directory
+          draggable
+          expandedKeys={expandedKeys}
           renderLabel={renderFullLabel}
-          onDoubleClick={onEditNode}
           value={selected}
+          treeData={treeData}
+          onDrop={({ node, dragNode, dropPosition, dropToGap }) => {
+            console.log(node, dragNode, dropPosition, dropToGap)
+            this.move(node, dragNode, dropToGap)
+          }}
+          onExpand={expandedKeys => {
+            this.setState({
+              expandedKeys
+            })
+          }}
+          onDoubleClick={(ev, node) => {
+            this.open(node)
+          }}
           onChange={(value) => {
             this.selectNode(value)
           }}
-          treeData={treeData}
         />
 
       </>
