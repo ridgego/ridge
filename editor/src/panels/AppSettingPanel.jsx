@@ -10,7 +10,7 @@ const FORM_DEBUG_SECTION = [{
       cols: [{
         label: '启用',
         type: 'boolean',
-        field: 'enabled',
+        field: 'debug',
         bindable: false
       }]
     },
@@ -31,6 +31,8 @@ export default () => {
   const debugFormCallback = api => {
 
   }
+
+  const debugConfig = window.Ridge.configService.getConfig()
   return (
     <>
       <Title heading={5} style={{ margin: '8px 0' }}>Ridge 应用配置</Title>
@@ -77,12 +79,10 @@ export default () => {
             itemKey='debug'
           >
             <ObjectForm
-              initValues={{
-                enabled: false,
-                debugUrl: 'http://localhost:8700'
-              }}
-              sections={FORM_DEBUG_SECTION} getFormApi={debugFormCallback} onValueChange={(v) => {
-                console.log(v)
+              initValues={debugConfig}
+              sections={FORM_DEBUG_SECTION} getFormApi={debugFormCallback} onValueChange={(values) => {
+                const { Ridge } = window
+                Ridge && Ridge.configService && Ridge.configService.updateConfig(values)
               }}
             />
           </TabPane>

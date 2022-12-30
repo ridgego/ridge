@@ -1,13 +1,14 @@
 import React from 'react'
 import trim from 'lodash/trim'
-import { Button, Input, Tree, Dropdown, Typography, Toast } from '@douyinfe/semi-ui'
-import { IconPlusStroked, IconImageStroked, IconFolderStroked, IconFolder, IconMoreStroked } from '@douyinfe/semi-icons'
+import { Button, Input, Tree, Dropdown, Typography, Toast, Upload } from '@douyinfe/semi-ui'
+import { IconImage, IconEditStroked, IconFont, IconPlusStroked, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { emit } from '../utils/events'
 import { EVENT_PAGE_OPEN } from '../constant'
 import '../css/app-file-panel.less'
 
 const { Text } = Typography
 
+const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg'
 class AppFileList extends React.Component {
   constructor () {
     super()
@@ -38,6 +39,15 @@ class AppFileList extends React.Component {
       parent: file.parent,
       value: file.id
     }
+    if (file.mimeType) {
+      if (file.mimeType === 'application/font-woff') {
+        treeNode.icon = (<IconFont />)
+      }
+      if (file.mimeType.indexOf('image/') > -1) {
+        treeNode.icon = (<IconImage />)
+      }
+    }
+
     if (treeNode.type === 'directory') {
       const children = files.filter(item => item.parent === file.id)
 
@@ -177,7 +187,9 @@ class AppFileList extends React.Component {
   }
 
   open = async (node) => {
-    emit(EVENT_PAGE_OPEN, node.key)
+    if (node.type === 'page') {
+      emit(EVENT_PAGE_OPEN, node.key)
+    }
   }
 
   move = async (node, dragNode, dropToGap) => {
@@ -206,62 +218,96 @@ class AppFileList extends React.Component {
     }
   }
 
+  fileUpload = async (files, dir) => {
+    const { appService } = window.Ridge
+    const errors = []
+    for (const file of files) {
+      const result = await appService.createFile(file, dir || this.getCurrentDir())
+      if (!result) {
+        errors.push(file)
+      }
+    }
+    await this.updateFileTree()
+
+    if (errors.length) {
+      Toast.warning({
+        content: '文件添加错误：存在相同名称文件',
+        duration: 3
+      })
+    }
+  }
+
   renderFullLabel = (label, data) => {
     const { currentEditKey, currentEditValid } = this.state
-    const MORE_MENU = []
+    const MORE_MENUS = []
 
     if (data.type === 'directory') {
-      MORE_MENU.push(
-        {
-          node: 'item',
-          name: '创建子目录',
-          onClick: () => {
+      MORE_MENUS.push(
+        <Dropdown.Item
+          icon={<IconFolderStroked />} onClick={() => {
             this.setState({
               expandedKeys: [data.key, ...this.state.expandedKeys]
             })
             this.createDirectory(data.key)
-          }
-        }
+          }}
+        >
+          创建子目录
+        </Dropdown.Item>
       )
-      MORE_MENU.push(
-        {
-          node: 'item',
-          name: '创建空页面',
-          onClick: () => {
+      MORE_MENUS.push(
+        <Dropdown.Item
+          icon={<IconPlusStroked />} onClick={() => {
             this.setState({
               expandedKeys: [data.key, ...this.state.expandedKeys]
             })
             this.createPage(data.key)
-          }
-        }
+          }}
+        >
+          创建空页面
+        </Dropdown.Item>
       )
-      MORE_MENU.push({ node: 'divider' })
+      MORE_MENUS.push(
+        <Dropdown.Item
+          icon={<IconPaperclip />}
+        >
+          <Upload
+            multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
+              this.fileUpload(files, data.key)
+            }} accept={ACCEPT_FILES}
+          >
+            上传图片/资源
+          </Upload>
+        </Dropdown.Item>
+      )
+
+      MORE_MENUS.push(<Dropdown.Divider />)
     } else {
-      MORE_MENU.push(
-        {
-          node: 'item',
-          name: '打开',
-          onClick: () => {
-            this.open(data)
-          }
-        }
+      MORE_MENUS.push(
+        <Dropdown.Item onClick={() => {
+          this.open(data)
+        }}
+        >打开
+        </Dropdown.Item>
       )
     }
-    MORE_MENU.push({
-      node: 'item',
-      name: '重命名',
-      onClick: () => {
-        this.rename(data)
-      }
-    })
-    MORE_MENU.push({
-      node: 'item',
-      name: '删除',
-      type: 'danger',
-      onClick: () => {
-        this.remove(data)
-      }
-    })
+    MORE_MENUS.push(
+      <Dropdown.Item
+        icon={<IconEditStroked />} onClick={() => {
+          this.rename(data)
+        }}
+      >重命名
+      </Dropdown.Item>
+    )
+    MORE_MENUS.push(
+      <Dropdown.Item
+        type='danger'
+        icon={<IconDeleteStroked />}
+        onClick={() => {
+          this.remove(data)
+        }}
+      >删除
+      </Dropdown.Item>
+    )
     return (
       <div>
         {data.key === currentEditKey && <Input
@@ -274,8 +320,8 @@ class AppFileList extends React.Component {
           <div className='tree-label'>
             <Text className='label-content'>{label}</Text>
             <Dropdown
-              clickToHide
-              trigger='click' showTick menu={MORE_MENU}
+              trigger='click' showTick
+              render={<Dropdown.Menu>{MORE_MENUS}</Dropdown.Menu>}
             >
               <Button className='more-button' size='small' theme='borderless' type='tertiary' icon={<IconMoreStroked rotate={90} />} />
             </Dropdown>
@@ -293,7 +339,13 @@ class AppFileList extends React.Component {
         <div className='file-actions'>
           <div className='align-right'>
             <Button icon={<IconPlusStroked />} size='small' theme='borderless' type='tertiary' onClick={createPage} />
-            <Button icon={<IconImageStroked />} size='small' theme='borderless' type='tertiary' />
+            <Upload
+              multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
+                this.fileUpload(files)
+              }} accept={ACCEPT_FILES}
+            >
+              <Button icon={<IconPaperclip />} size='small' theme='borderless' type='tertiary' />
+            </Upload>
             <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={createDirectory} />
           </div>
         </div>

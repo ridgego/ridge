@@ -49,6 +49,29 @@ export default class ApplicationService {
   }
 
   /**
+   * 新增文件
+   * @param {*} file
+   * @param {*} dir
+   * @returns
+   */
+  async createFile (file, dir) {
+    const existed = await this.collection.findOne({ parent: dir, name: file.name })
+    if (existed) {
+      return false
+    }
+    await this.collection.insert({
+      id: nanoid(10),
+      type: 'file',
+      mimeType: file.type,
+      size: file.size,
+      name: file.name,
+      buffer: file.arrayBuffer(),
+      parent: dir
+    })
+    return true
+  }
+
+  /**
    * 保存一个页面配置
    */
   async saveOrUpdate (pageObject) {
@@ -171,6 +194,13 @@ export default class ApplicationService {
     } else {
       return pages[0]
     }
+  }
+
+  async getByMimeType (mime) {
+    const files = await this.collection.find({
+      mimeType: new RegExp(mime)
+    })
+    return files
   }
 
   async addImage (name, blob) {
