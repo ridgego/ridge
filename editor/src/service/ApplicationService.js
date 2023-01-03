@@ -200,7 +200,12 @@ export default class ApplicationService {
     const files = await this.collection.find({
       mimeType: new RegExp(mime)
     })
-    return files
+    return files.map(file => {
+      if (file.mimeType.indexOf('image') > -1) {
+        file.src = URL.createObjectURL(file.buffer)
+      }
+      return file
+    })
   }
 
   async addImage (name, blob) {

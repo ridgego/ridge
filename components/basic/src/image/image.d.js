@@ -6,6 +6,7 @@ export default {
   props: [{
     name: 'src',
     type: 'image',
+    label: '地址',
     value: ''
   }, {
     name: 'objectFit',

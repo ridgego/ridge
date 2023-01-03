@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { Tabs, TabPane, Image, ImagePreview, Upload, Button } from '@douyinfe/semi-ui'
-
 export default () => {
   const [images, setImages] = useState([])
   useEffect(() => {
     if (window.Ridge) {
       const { appService } = window.Ridge
       appService.getByMimeType('image').then(files => {
-        setImages(images)
+        setImages(files)
       })
     }
   })
   return (
     <ImagePreview
+      zIndex={3001}
+      className='app-image-list'
       lazyLoad={false}
       preLoad={false}
       defaultVisible

@@ -5,6 +5,7 @@ import BorderEdit from './with-fields/BorderEdit.jsx'
 import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
 import EventEdit from './with-fields/EventEdit.jsx'
 import JSONEdit from './with-fields/JSONEdit.jsx'
+import ImageEdit from './with-fields/ImageEdit.jsx'
 
 import './form.less'
 
@@ -69,6 +70,9 @@ export default class ObjectForm extends React.Component {
         break
       case 'file':
         RenderField = <Upload label={col.label} field={col.field} />
+        break
+      case 'image':
+        RenderField = <ImageEdit label={col.label} field={col.field} />
         break
       case 'button':
         RenderField = <Button label={col.label} />
