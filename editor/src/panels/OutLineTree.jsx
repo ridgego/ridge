@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tree } from '@douyinfe/semi-ui'
 import { EVENT_PAGE_LOADED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED } from '../constant.js'
-import { on, emit } from '../utils/events'
+import { ridge, emit, on } from '../service/RidgeEditService.js'
 
 class OutLineTree extends React.Component {
   constructor () {

@@ -4,6 +4,8 @@ import { IconInheritStroked, IconFillStroked, IconUserCircleStroked, IconHistory
 import ObjectForm from '../form/ObjectForm.jsx'
 import '../css/setting-panel.less'
 import BackUp from './app/BackUp.jsx'
+
+import { ridge } from '../service/RidgeEditService.js'
 const FORM_DEBUG_SECTION = [{
   rows: [
     {
@@ -32,7 +34,7 @@ export default () => {
 
   }
 
-  const debugConfig = window.Ridge.configService.getConfig()
+  const debugConfig = ridge.configService.getConfig()
   return (
     <>
       <Title heading={5} style={{ margin: '8px 0' }}>Ridge 应用配置</Title>
@@ -81,8 +83,7 @@ export default () => {
             <ObjectForm
               initValues={debugConfig}
               sections={FORM_DEBUG_SECTION} getFormApi={debugFormCallback} onValueChange={(values) => {
-                const { Ridge } = window
-                Ridge && Ridge.configService && Ridge.configService.updateConfig(values)
+                ridge.configService.updateConfig(values)
               }}
             />
           </TabPane>

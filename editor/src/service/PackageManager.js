@@ -1,3 +1,4 @@
+import { ridge } from './RidgeEditService'
 
 export default class PackageManager {
   constructor () {
@@ -17,15 +18,15 @@ export default class PackageManager {
     const packagesLoading = []
 
     // Check & Load Debug Pacakge.json
-    const debugPkg = await window.Ridge.loader.getDebugPackage()
+    const debugPkg = await ridge.loader.getDebugPackage()
     if (debugPkg) {
-      packagesLoading.push(await window.Ridge.loader.getPackageJSON(debugPkg.name))
+      packagesLoading.push(await ridge.loader.getPackageJSON(debugPkg.name))
     }
 
     // Load Package
     for (const pkname of this.packageNames) {
       if (debugPkg == null || (debugPkg.name !== pkname)) {
-        packagesLoading.push(await window.Ridge.loader.getPackageJSON(pkname))
+        packagesLoading.push(await ridge.loader.getPackageJSON(pkname))
       }
     }
 

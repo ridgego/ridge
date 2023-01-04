@@ -1,8 +1,8 @@
 import React from 'react'
 import trim from 'lodash/trim'
-import { Button, Input, Tree, Dropdown, Typography, Toast, Upload } from '@douyinfe/semi-ui'
+import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview } from '@douyinfe/semi-ui'
 import { IconImage, IconEditStroked, IconFont, IconPlusStroked, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
-import { emit } from '../utils/events'
+import { ridge, emit, on } from '../service/RidgeEditService.js'
 import { EVENT_PAGE_OPEN } from '../constant'
 import '../css/app-file-panel.less'
 
@@ -14,6 +14,8 @@ class AppFileList extends React.Component {
     super()
     this.ref = React.createRef()
     this.state = {
+      imagePreviewVisible: false,
+      imagePreviewSrc: null,
       expandedKeys: [],
       files: [],
       treeData: [],
@@ -40,6 +42,8 @@ class AppFileList extends React.Component {
       value: file.id
     }
     if (file.mimeType) {
+      treeNode.mimeType = file.mimeType
+      treeNode.dataUrl = file.dataUrl
       if (file.mimeType === 'application/font-woff') {
         treeNode.icon = (<IconFont />)
       }
@@ -66,15 +70,13 @@ class AppFileList extends React.Component {
   }
 
   async updateFileTree () {
-    if (window.Ridge) {
-      const { appService } = window.Ridge
-      const files = await appService.getFiles(this.props.filter)
-      const treeData = this.getFileTree(files)
-      this.setState({
-        treeData,
-        files
-      })
-    }
+    const { appService } = ridge
+    const files = await appService.getFiles(this.props.filter)
+    const treeData = this.getFileTree(files)
+    this.setState({
+      treeData,
+      files
+    })
   }
 
   selectNode (val) {
@@ -142,11 +144,9 @@ class AppFileList extends React.Component {
    */
   checkUpdateEditName = async () => {
     if (this.state.currentEditValid) {
-      if (window.Ridge) {
-        const { appService } = window.Ridge
-        await appService.rename(this.state.currentEditKey, this.state.currentEditValue)
-        this.updateFileTree()
-      }
+      const { appService } = ridge
+      await appService.rename(this.state.currentEditKey, this.state.currentEditValue)
+      this.updateFileTree()
       this.setState({
         currentEditValid: true
       })
@@ -155,27 +155,21 @@ class AppFileList extends React.Component {
 
   // 新创建目录
   createDirectory = async (dir) => {
-    if (window.Ridge) {
-      const { appService } = window.Ridge
-      await appService.createDirectory(dir || this.getCurrentDir())
-      await this.updateFileTree()
-    }
+    const { appService } = ridge
+    await appService.createDirectory(dir || this.getCurrentDir())
+    await this.updateFileTree()
   }
 
   remove = async (data) => {
-    if (window.Ridge) {
-      const { appService } = window.Ridge
-      await appService.trash(data.key)
-      await this.updateFileTree()
-    }
+    const { appService } = ridge
+    await appService.trash(data.key)
+    await this.updateFileTree()
   }
 
   createPage = async (dir) => {
-    if (window.Ridge) {
-      const { appService } = window.Ridge
-      await appService.createPage(dir || this.getCurrentDir())
-      await this.updateFileTree()
-    }
+    const { appService } = ridge
+    await appService.createPage(dir || this.getCurrentDir())
+    await this.updateFileTree()
   }
 
   rename = async (node) => {
@@ -189,6 +183,21 @@ class AppFileList extends React.Component {
   open = async (node) => {
     if (node.type === 'page') {
       emit(EVENT_PAGE_OPEN, node.key)
+    } else if (node.mimeType && node.mimeType.indexOf('image/') > -1) {
+      const otherImageFiles = this.state.files.filter(file => {
+        if (file.mimeType && file.mimeType.indexOf('image/') > -1 && file.id !== node.id) {
+          return true
+        } else {
+          return false
+        }
+      }).map(file => file.dataUrl)
+
+      const srcList = [node.dataUrl, ...otherImageFiles]
+
+      this.setState({
+        imagePreviewSrc: srcList,
+        imagePreviewVisible: true
+      })
     }
   }
 
@@ -204,17 +213,15 @@ class AppFileList extends React.Component {
     } else {
       parentId = node.parent
     }
-    if (window.Ridge) {
-      const { appService } = window.Ridge
-      const moveResult = await appService.move(dragNode.key, parentId)
-      if (moveResult) {
-        await this.updateFileTree()
-      } else {
-        Toast.warning({
-          content: '目录移动错误：存在同名的文件',
-          duration: 3
-        })
-      }
+    const { appService } = ridge
+    const moveResult = await appService.move(dragNode.key, parentId)
+    if (moveResult) {
+      await this.updateFileTree()
+    } else {
+      Toast.warning({
+        content: '目录移动错误：存在同名的文件',
+        duration: 3
+      })
     }
   }
 
@@ -331,7 +338,7 @@ class AppFileList extends React.Component {
   }
 
   render () {
-    const { treeData, selected, expandedKeys } = this.state
+    const { treeData, selected, expandedKeys, imagePreviewSrc, imagePreviewVisible } = this.state
     const { createDirectory, renderFullLabel, createPage } = this
 
     return (
@@ -349,6 +356,13 @@ class AppFileList extends React.Component {
             <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={createDirectory} />
           </div>
         </div>
+        <ImagePreview
+          src={imagePreviewSrc} visible={imagePreviewVisible} onVisibleChange={() => {
+            this.setState({
+              imagePreviewVisible: false
+            })
+          }}
+        />
         <Tree
           className='file-tree'
           directory

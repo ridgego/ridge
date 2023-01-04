@@ -4,7 +4,7 @@ import { createMoveable } from '../utils/moveable'
 import Mousetrap from 'mousetrap'
 import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
 
-import { emit, on } from '../utils/events'
+import { emit, on } from '../service/RidgeEditService'
 
 /**
  * 控制工作区组件的Drag/Resize/New等动作

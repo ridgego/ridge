@@ -2,7 +2,7 @@ import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../form/ObjectForm.jsx'
 import MoveablePanel from './MoveablePanel.jsx'
-import { emit, on } from '../utils/events'
+import { ridge, emit, on } from '../service/RidgeEditService.js'
 
 import {
   EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE

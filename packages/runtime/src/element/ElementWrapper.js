@@ -55,8 +55,8 @@ class ElementWrapper {
 
     if (cloned.config.props.children) {
       cloned.config.props.children = cloned.config.props.children.map(wrapperId => {
-        const template = this.pageManager.getElement(wrapperId)
-        const clonedChild = template.clone()
+        const templateNode = this.pageManager.getElement(wrapperId)
+        const clonedChild = templateNode.clone()
         clonedChild.parentWrapper = cloned
         return clonedChild
       })
@@ -231,10 +231,8 @@ class ElementWrapper {
     if (this.mode === 'edit') {
       // 编辑时忽略动态配置的属性、事件
       this.applyDecorate('updateProps')
-      return Object.assign({}, this.config.props, this.systemProperties)
-    } else {
-      return Object.assign({}, this.config.props, this.systemProperties, this.properties)
     }
+    return Object.assign({}, this.config.props, this.systemProperties, this.properties)
   }
 
   forceUpdateStyle () {
@@ -247,9 +245,11 @@ class ElementWrapper {
       } else {
         this.el.style.transform = ''
       }
-      if (Object.keys(this.config.styleEx).length) {
-        if (this.instanceStyleEx.width) {
-          this.el.style.width = template(this.config.styleEx.width, this.getVariableContext()) + 'px'
+      if (this.mode !== 'edit') {
+        if (Object.keys(this.config.styleEx).length) {
+          if (this.instanceStyleEx.width) {
+            this.el.style.width = template(this.config.styleEx.width, this.getVariableContext()) + 'px'
+          }
         }
       }
     }
@@ -298,7 +298,9 @@ class ElementWrapper {
    * 强制重新计算属性并更新组件显示
    */
   forceUpdate () {
-    this.updateExpressionedProperties()
+    if (this.mode !== 'edit') {
+      this.updateExpressionedProperties()
+    }
     this.updateProperties()
   }
 

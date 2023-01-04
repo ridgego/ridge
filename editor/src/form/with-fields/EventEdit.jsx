@@ -36,19 +36,6 @@ const EventEdit = withField(({
     onChange(JSON.parse(JSON.stringify(actions)))
   }
 
-  const openEditCode = (value, index) => {
-    const { Ridge } = window
-
-    Ridge && Ridge.openCodeEditor &&
-    Ridge.openCodeEditor({
-      lang: 'js',
-      code: value,
-      completed: (newCode) => {
-        actionChange('value', newCode, index)
-      }
-    })
-  }
-
   const variableOptionList = options.pageVariables.map(v => {
     return {
       label: v.name,

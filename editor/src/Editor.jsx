@@ -5,18 +5,15 @@ import RightBottomPanel from './panels/RightBottomPanel.jsx'
 import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
 import LeftBottomPanel from './panels/LeftBottomPanel.jsx'
 import MenuBar from './panels/MenuBar.jsx'
-import CodeEditor from './code-editor/CodeEditor.jsx'
 import debounce from 'lodash/debounce'
 
-import ApplicationService from './service/ApplicationService.js'
-import ConfigService from './service/ConfigService.js'
 import WorkSpaceControl from './workspace/WorkspaceControl.js'
 import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
 
-import './css/editor.less'
-import { Ridge, PageElementManager } from 'ridge-runtime'
+import { ridge, emit, on } from './service/RidgeEditService.js'
 
-import { emit, on } from './utils/events'
+import './css/editor.less'
+import { PageElementManager } from 'ridge-runtime'
 
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
@@ -61,20 +58,9 @@ export default class Editor extends React.Component {
    * 编辑工具模式下初始化： 从本地存储获取相关页面及配置
    */
   initialize () {
-    const configService = new ConfigService()
-    const appService = new ApplicationService()
-    const config = configService.getConfig()
-
-    this.ridge = new Ridge({
-      debugUrl: config.debug ? config.debugUrl : null
-    })
-    this.ridge.configService = configService
-    this.ridge.appService = appService
-
-    window.Ridge = this.ridge
-
+    this.ridge = ridge
     // 应用管理器初始化
-    this.ridge.appService.getRecentPage().then((pageObject) => {
+    ridge.appService.getRecentPage().then((pageObject) => {
       console.log('pageObject', pageObject)
       this.loadPage(pageObject)
     })
@@ -230,13 +216,6 @@ export default class Editor extends React.Component {
             })
           }}
         />
-        <CodeEditor
-          visible={editorVisible} onCancel={() => {
-            this.setState({
-              editorVisible: false
-            })
-          }} value={editorCode} lang={editorLang} output={this.onCodeEditorCompleted.bind(this)}
-        />
 
         <div className='workspace' ref={workspaceRef}>
           <div
@@ -246,27 +225,6 @@ export default class Editor extends React.Component {
         </div>
       </>
     )
-  }
-
-  openCodeEditor ({
-    lang,
-    code,
-    completed
-  }) {
-    this.setState({
-      editorVisible: true,
-      editorCode: code,
-      editorLang: lang
-    })
-    this.codeEditComplete = completed
-  }
-
-  onCodeEditorCompleted (value) {
-    this.setState({
-      editorVisible: false
-    })
-
-    this.codeEditComplete && this.codeEditComplete(value)
   }
 
   togglePanel (panel) {

@@ -194,6 +194,28 @@ export default class ApplicationService {
     return file
   }
 
+  /**
+   * 根据路径获取文件
+   */
+  async getFileByPath (filePath) {
+    const parentNames = filePath.split('/')
+    let parentId = -1
+    let currentFile = null
+
+    for (const fileName of parentNames) {
+      currentFile = await this.collection.findOne({
+        parent: parentId,
+        name: fileName
+      })
+      if (currentFile == null) {
+        return null
+      } else {
+        parentId = currentFile.id
+      }
+    }
+    return currentFile
+  }
+
   async getRecentPage () {
     // 首先更新页面目录数据
     const pages = await this.collection.find({
@@ -211,12 +233,15 @@ export default class ApplicationService {
     }
   }
 
+  /**
+   * 根据文件获取文件所在路径
+   */
   async getFilePath (file) {
     if (file.parent && file.parent !== -1) {
       const parentFile = await this.getFile(file.parent)
       return (await this.getFilePath(parentFile)) + '/' + file.name
     } else {
-      return './' + file.name
+      return file.name
     }
   }
 

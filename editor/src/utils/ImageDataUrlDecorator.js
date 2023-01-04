@@ -14,7 +14,7 @@ export default class ImageDataUrlDecorator {
 
       imageProps.forEach((oneProp) => {
         if (wrapper.config.props[oneProp.name] && !wrapper.properties[oneProp.name]) {
-          appService.getDataUrlByNodePath(wrapper.config.props[oneProp.name]).then(file => {
+          appService.getFileByPath(wrapper.config.props[oneProp.name]).then(file => {
             wrapper.updateProperties({
               [oneProp.name]: file.dataUrl
             })

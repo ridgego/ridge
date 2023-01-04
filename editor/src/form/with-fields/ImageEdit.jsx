@@ -27,6 +27,7 @@ const ImageEdit = withField(({
       showClear
       onClear={() => onChange('')}
       value={value}
+      onChange={val => onChange(val)}
       suffix={
         <Popover
           trigger='click'

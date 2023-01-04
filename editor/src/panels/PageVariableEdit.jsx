@@ -4,7 +4,7 @@ import { Input, Button } from '@douyinfe/semi-ui'
 import PopUpCodeEdit from '../utils/PopUpCodeEdit.jsx'
 
 import '../css/page-variables.less'
-import { emit, on } from '../utils/events.js'
+import { ridge, emit, on } from '../service/RidgeEditService.js'
 import { EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE } from '../constant.js'
 
 const REG_VARIABLE_NAME = '^([a-zA-Z_$\u4e00-\u9fa5][a-zA-Z\\d_$\u4e00-\u9fa5]*)$'
