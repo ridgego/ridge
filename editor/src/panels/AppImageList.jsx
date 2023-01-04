@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Tabs, TabPane, Image, ImagePreview, Upload, Button } from '@douyinfe/semi-ui'
-export default () => {
+import '../css/app-image-list.less'
+export default ({
+  select
+}) => {
   const [images, setImages] = useState([])
   useEffect(() => {
     if (window.Ridge) {
@@ -10,13 +12,21 @@ export default () => {
       })
     }
   })
+
+  const onSelect = (file) => {
+    // 选择后将filePath传出
+    if (window.Ridge) {
+      const { appService } = window.Ridge
+      appService.getFilePath(file).then((filePath) => {
+        select(filePath)
+      })
+    }
+  }
+
   return (
-    <ImagePreview
+    <div
       zIndex={3001}
       className='app-image-list'
-      lazyLoad={false}
-      preLoad={false}
-      defaultVisible
       style={{
         display: 'flex',
         flexWrap: 'wrap'
@@ -25,21 +35,16 @@ export default () => {
       {images.map((img, index) => {
         return (
           <div
-            key={index} style={{
-              padding: '4px'
-            }}
+            key={index} className='image-item'
           >
-            <Image
-              lazyLoad={false}
+            <img
+              onClick={() => onSelect(img)}
               src={img.src}
-              width={160}
-              height={160}
-              style={{ marginRight: 5 }}
             />
-            <div>{img.name}</div>
+            <div className='image-title'>{img.name}</div>
           </div>
         )
       })}
-    </ImagePreview>
+    </div>
   )
 }

@@ -9,9 +9,16 @@ export default ({
     objectFit
   })
   return (
-    <img
-      style={stl}
-      src={src}
-    />
+    <>
+      {src && <img
+        style={stl}
+        src={src}
+              />}
+      {!src && <div style={{
+        ...stl,
+        backgrond: 'rgba(ff,0,0,.3)'
+      }}
+               />}
+    </>
   )
 }

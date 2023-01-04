@@ -5,6 +5,8 @@ export default class ApplicationService {
   constructor () {
     this.collection = new NeCollection('ridge.app.db')
     this.trashColl = new NeCollection('ridge.trash.db')
+
+    this.dataUrlCache = {}
   }
 
   async createDirectory (parent) {
@@ -59,13 +61,14 @@ export default class ApplicationService {
     if (existed) {
       return false
     }
+
     await this.collection.insert({
       id: nanoid(10),
       type: 'file',
       mimeType: file.type,
       size: file.size,
       name: file.name,
-      buffer: file.arrayBuffer(),
+      dataUrl: await this.blobToDataUrl(file),
       parent: dir
     })
     return true
@@ -150,6 +153,18 @@ export default class ApplicationService {
     }
   }
 
+  async blobToDataUrl (file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+
+      reader.addEventListener('load', () => {
+        // convert image file to base64 string
+        resolve(reader.result)
+      }, false)
+      reader.readAsDataURL(file)
+    })
+  }
+
   async getFiles (filter) {
     const query = {}
     if (filter) {
@@ -196,13 +211,22 @@ export default class ApplicationService {
     }
   }
 
+  async getFilePath (file) {
+    if (file.parent && file.parent !== -1) {
+      const parentFile = await this.getFile(file.parent)
+      return (await this.getFilePath(parentFile)) + '/' + file.name
+    } else {
+      return './' + file.name
+    }
+  }
+
   async getByMimeType (mime) {
     const files = await this.collection.find({
       mimeType: new RegExp(mime)
     })
     return files.map(file => {
       if (file.mimeType.indexOf('image') > -1) {
-        file.src = URL.createObjectURL(file.buffer)
+        file.src = file.dataUrl
       }
       return file
     })
@@ -210,18 +234,6 @@ export default class ApplicationService {
 
   async addImage (name, blob) {
     await this.resourceStore.setItem(name, blob)
-  }
-
-  async getImages () {
-    const keys = await this.resourceStore.keys()
-    const result = []
-    for (const key of keys) {
-      result.push({
-        name: key,
-        src: URL.createObjectURL(await this.resourceStore.getItem(key))
-      })
-    }
-    return result
   }
 
   async exportArchive () {

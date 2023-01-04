@@ -6,6 +6,7 @@ class PageElementManager {
   constructor (pageConfig, ridge, wrapperClass) {
     this.pageConfig = pageConfig
     this.ridge = ridge
+    this.decorators = {}
     this.ElementWrapper = wrapperClass || ElementWrapper
     this.initialize()
   }
@@ -258,6 +259,13 @@ class PageElementManager {
       result.elements.push(element.toJSON())
     }
     return result
+  }
+
+  addDecorators (type, decorator) {
+    if (!this.decorators[type]) {
+      this.decorators[type] = []
+    }
+    this.decorators[type].push(decorator)
   }
 
   /**

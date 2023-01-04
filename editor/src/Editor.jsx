@@ -11,6 +11,7 @@ import debounce from 'lodash/debounce'
 import ApplicationService from './service/ApplicationService.js'
 import ConfigService from './service/ConfigService.js'
 import WorkSpaceControl from './workspace/WorkspaceControl.js'
+import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
 
 import './css/editor.less'
 import { Ridge, PageElementManager } from 'ridge-runtime'
@@ -139,6 +140,7 @@ export default class Editor extends React.Component {
     // 从HTML初始化页面管理器
     this.pageElementManager = this.ridge.createPageManager(pageConfig)
     this.pageElementManager.setMode('edit')
+    this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
     window.pageManager = this.pageElementManager
     this.workspaceControl.setPageManager(this.pageElementManager)

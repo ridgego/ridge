@@ -229,6 +229,8 @@ class ElementWrapper {
 
   getProperties () {
     if (this.mode === 'edit') {
+      // 编辑时忽略动态配置的属性、事件
+      this.applyDecorate('updateProps')
       return Object.assign({}, this.config.props, this.systemProperties)
     } else {
       return Object.assign({}, this.config.props, this.systemProperties, this.properties)
@@ -370,6 +372,16 @@ class ElementWrapper {
           }
         }
       }
+    }
+  }
+
+  applyDecorate (hookName) {
+    if (this.pageManager && this.pageManager.decorators.element) {
+      this.pageManager.decorators.element.forEach(decorator => {
+        try {
+          decorator[hookName] && decorator[hookName](this)
+        } catch (e) {}
+      })
     }
   }
 

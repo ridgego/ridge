@@ -1,16 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Popover, Input, withField } from '@douyinfe/semi-ui'
 import { IconDelete, IconEdit, IconChainStroked } from '@douyinfe/semi-icons'
 import AppImageList from '../../panels/AppImageList.jsx'
-const ImageEdit = withField((props) => {
+
+const ImageEdit = withField(({
+  value,
+  onChange
+}) => {
   const AppList = () => {
     return (
       <div style={{
-        width: '600px',
+        width: '620px',
         height: '430px'
       }}
       >
-        <AppImageList />
+        <AppImageList select={filePath => {
+          onChange(filePath)
+        }}
+        />
       </div>
     )
   }
@@ -18,14 +25,20 @@ const ImageEdit = withField((props) => {
     <Input
       size='small'
       showClear
-      value={props.value}
+      onClear={() => onChange('')}
+      value={value}
       suffix={
         <Popover
+          trigger='click'
           showArrow
           zIndex={2001}
-          trigger='click' content={<AppList />}
+          content={
+            <AppList />
+          }
         >
-          <IconChainStroked style={{ cursor: 'pointer' }} />
+          <IconChainStroked
+            style={{ cursor: 'pointer' }}
+          />
         </Popover>
       }
     />
