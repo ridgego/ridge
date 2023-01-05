@@ -345,7 +345,7 @@ class AppFileList extends React.Component {
       <>
         <div className='file-actions'>
           <div className='align-right'>
-            <Button icon={<IconPlusStroked />} size='small' theme='borderless' type='tertiary' onClick={createPage} />
+            <Button icon={<IconPlusStroked />} size='small' theme='borderless' type='tertiary' onClick={() => createPage()} />
             <Upload
               multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
                 this.fileUpload(files)
@@ -353,7 +353,7 @@ class AppFileList extends React.Component {
             >
               <Button icon={<IconPaperclip />} size='small' theme='borderless' type='tertiary' />
             </Upload>
-            <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={createDirectory} />
+            <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={() => createDirectory()} />
           </div>
         </div>
         <ImagePreview

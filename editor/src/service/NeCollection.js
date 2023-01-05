@@ -1,6 +1,5 @@
 const NeDataStore = require('nedb/browser-version/out/nedb.min.js')
 const debug = require('debug')('db:nedb')
-const { nanoid } = require('../utils/string')
 
 class NeCollection {
   constructor (filename) {
@@ -103,9 +102,7 @@ class NeCollection {
         if (err) {
           reject(err)
         } else {
-          fs.unlink(filename, () => {
-            resolve(numRemoved)
-          })
+          resolve(numRemoved)
         }
       })
     })

@@ -1,4 +1,8 @@
 import NeCollection from './NeCollection.js'
+
+import BackUpService from './BackUpService.js'
+import { emit } from './RidgeEditService.js'
+import { EVENT_APP_OPEN } from '../constant.js'
 const { nanoid } = require('../utils/string')
 
 export default class ApplicationService {
@@ -6,37 +10,33 @@ export default class ApplicationService {
     this.collection = new NeCollection('ridge.app.db')
     this.trashColl = new NeCollection('ridge.trash.db')
 
-    this.dataUrlCache = {}
+    this.backUpService = new BackUpService()
   }
 
-  async createDirectory (parent) {
-    let n = 1
-    while (await this.collection.findOne({
-      parent,
-      name: '文件夹' + n
-    })) {
-      n++
-    }
+  async createDirectory (parent, name) {
     const dirObject = {
       parent,
       id: nanoid(10),
-      name: '文件夹' + n,
+      name,
       type: 'directory'
     }
-    await this.collection.insert(dirObject)
-  }
 
-  async createPage (parentId) {
-    let n = 1
+    let n = 0
     while (await this.collection.findOne({
-      parent: parentId,
-      name: '页面' + n
+      parent,
+      name: n === 0 ? (name || '文件夹') : ((name || '文件夹') + n)
     })) {
       n++
     }
+
+    dirObject.name = (n === 0 ? (name || '文件夹') : ((name || '文件夹') + n))
+    await this.collection.insert(dirObject)
+  }
+
+  async createPage (parentId, name) {
+    let n = 0
     const pageObject = {
       id: nanoid(10),
-      name: '页面' + n,
       type: 'page',
       parent: parentId,
       properties: {
@@ -47,6 +47,14 @@ export default class ApplicationService {
       variables: [],
       elements: []
     }
+
+    while (await this.collection.findOne({
+      parent: parentId,
+      name: n === 0 ? (name || '页面') : ((name || '页面') + n)
+    })) {
+      n++
+    }
+    pageObject.name = (n === 0 ? (name || '页面') : ((name || '页面') + n))
     await this.collection.insert(pageObject)
   }
 
@@ -257,12 +265,38 @@ export default class ApplicationService {
     })
   }
 
+  async exportAppArchive () {
+    this.backUpService.exportAppArchive(this.collection)
+  }
+
+  async importAppArchive (file) {
+    await this.backUpService.importAppArchive(file, this.collection)
+    emit(EVENT_APP_OPEN)
+  }
+
+  async backUpAppArchive (tag) {
+    this.backUpService.createHistory(this.collection, tag)
+  }
+
+  async recoverBackUpAppArchive (id) {
+    this.backUpService.recover(id, this.collection)
+    emit(EVENT_APP_OPEN)
+  }
+
+  async getAllBackups () {
+    return this.backUpService.listAllHistory()
+  }
+
+  async removeBackup (id) {
+    return this.backUpService.deleteHistory(id)
+  }
+
   async addImage (name, blob) {
     await this.resourceStore.setItem(name, blob)
   }
 
   async exportArchive () {
-
+    this.backUpService.exportColl(this.collection)
   }
 
   async archive () {

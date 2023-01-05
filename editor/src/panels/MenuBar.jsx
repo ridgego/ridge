@@ -48,6 +48,7 @@ export default props => {
       </Dropdown>
       <Popover
         showArrow
+        zIndex={3001}
         trigger='click'
         position='right'
         content={<AppSettingPanel />}

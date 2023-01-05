@@ -18,7 +18,7 @@ import { PageElementManager } from 'ridge-runtime'
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
   EVENT_ELEMENT_CREATED,
-  PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN
+  PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN, EVENT_APP_OPEN
 } from './constant'
 
 const trace = debug('ridge:editor')
@@ -54,16 +54,18 @@ export default class Editor extends React.Component {
     this.initialize()
   }
 
+  openApp () {
+    // 应用管理器初始化
+    this.ridge.appService.getRecentPage().then((pageObject) => {
+      this.loadPage(pageObject)
+    })
+  }
+
   /**
    * 编辑工具模式下初始化： 从本地存储获取相关页面及配置
    */
   initialize () {
     this.ridge = ridge
-    // 应用管理器初始化
-    ridge.appService.getRecentPage().then((pageObject) => {
-      console.log('pageObject', pageObject)
-      this.loadPage(pageObject)
-    })
 
     on(EVENT_PAGE_VAR_CHANGE, (variables) => {
       this.pageElementManager.updateVariableConfig(variables)
@@ -73,18 +75,11 @@ export default class Editor extends React.Component {
       this.pageElementManager.updatePageProperties(properties)
       this.debouncedSaveUpdatePage()
     })
-    on(EVENT_ELEMENT_PROP_CHANGE, ({
-      el,
-      values,
-      field
-    }) => {
+    on(EVENT_ELEMENT_PROP_CHANGE, ({ el, values, field }) => {
       el.elementWrapper.setPropsConfig(values, field)
       this.workspaceControl.updateMovable()
     })
-    on(EVENT_ELEMENT_EVENT_CHANGE, ({
-      el,
-      values
-    }) => {
+    on(EVENT_ELEMENT_EVENT_CHANGE, ({ el, values }) => {
       el.elementWrapper.setEventsConfig(values)
     })
 
@@ -101,6 +96,11 @@ export default class Editor extends React.Component {
       }
     })
 
+    on(EVENT_APP_OPEN, () => {
+      this.openApp()
+    })
+
+    this.openApp()
     on('*', () => {
       // this.debouncedSaveUpdatePage()
     })
@@ -143,7 +143,6 @@ export default class Editor extends React.Component {
     })
 
     this.workspaceControl.fitToCenter()
-    // this.pageElementManager.forceUpdate()
   }
 
   loadPageRun (pageConfig) {
@@ -171,7 +170,6 @@ export default class Editor extends React.Component {
       rightPanelRef,
       dataPanelRef,
       workspaceRef,
-      pageVariableConfigChange,
       state
     } = this
 

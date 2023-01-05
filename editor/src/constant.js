@@ -1,3 +1,5 @@
+export const EVENT_APP_OPEN = 'appOpen'
+
 export const EVENT_PAGE_LOADED = 'pageLoaded'
 export const EVENT_PAGE_OPEN = 'pageOpen'
 export const EVENT_PAGE_VAR_CHANGE = 'pageVariableChange'
