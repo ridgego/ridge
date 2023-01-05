@@ -33,8 +33,6 @@ export default class Editor extends React.Component {
     this.addComponentRef = React.createRef()
 
     this.state = {
-      variables: [],
-      properties: {},
       componentPanelVisible: true,
       propPanelVisible: true,
       outlinePanelVisible: true,
@@ -91,6 +89,7 @@ export default class Editor extends React.Component {
       const file = await this.ridge.appService.getFile(id)
       if (file.type === 'page') {
         await this.saveCurrentPage()
+        this.workspaceControl.selectElements([], true)
         this.pageElementManager.unmount()
         this.loadPage(file)
       }
@@ -130,11 +129,8 @@ export default class Editor extends React.Component {
 
     window.pageManager = this.pageElementManager
     this.workspaceControl.setPageManager(this.pageElementManager)
-    this.setState({
-      variables: this.pageElementManager.getVariableConfig(),
-      properties: this.pageElementManager.getPageProperties()
-    })
-    this.pageElementManager.mount(this.viewPortRef.current)
+
+    this.pageElementManager.mount(document.querySelector('.viewport-container'))
 
     emit(EVENT_PAGE_LOADED, {
       pageProperties: this.pageElementManager.getPageProperties(),
@@ -151,14 +147,14 @@ export default class Editor extends React.Component {
       this.pageElementManager.unmount()
     }
     this.pageElementManager = new PageElementManager(pageConfig, this.ridge)
-    this.pageElementManager.mount(this.viewPortRef.current)
+    this.pageElementManager.mount(document.querySelector('.viewport-container'))
     this.pageElementManager.forceUpdate()
   }
 
   componentDidMount () {
     this.workspaceControl = new WorkSpaceControl({
-      workspaceEl: this.workspaceRef.current,
-      viewPortEl: this.viewPortRef.current,
+      workspaceEl: document.querySelector('.workspace'),
+      viewPortEl: document.querySelector('.viewport-container'),
       ridge: this.ridge,
       zoomable: true
     })
@@ -179,7 +175,6 @@ export default class Editor extends React.Component {
       propPanelVisible,
       outlinePanelVisible,
       modeRun,
-      variables,
       editorLang,
       editorVisible,
       panelPosition,
@@ -214,13 +209,6 @@ export default class Editor extends React.Component {
             })
           }}
         />
-
-        <div className='workspace' ref={workspaceRef}>
-          <div
-            ref={viewPortRef}
-            className='viewport-container active'
-          />
-        </div>
       </>
     )
   }
@@ -240,9 +228,6 @@ export default class Editor extends React.Component {
   }
 
   pagePropertiesConfigChange (properties) {
-    this.setState({
-      properties
-    })
     this.pageElementManager.updatePageProperties(properties)
     // this.pageElementManager.properties = properties
     this.debouncedSaveUpdatePage()

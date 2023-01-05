@@ -275,24 +275,20 @@ export default class ApplicationService {
   }
 
   async backUpAppArchive (tag) {
-    this.backUpService.createHistory(this.collection, tag)
+    await this.backUpService.createHistory(this.collection, tag)
   }
 
   async recoverBackUpAppArchive (id) {
-    this.backUpService.recover(id, this.collection)
+    await this.backUpService.recover(id, this.collection)
     emit(EVENT_APP_OPEN)
   }
 
   async getAllBackups () {
-    return this.backUpService.listAllHistory()
+    return await this.backUpService.listAllHistory()
   }
 
   async removeBackup (id) {
-    return this.backUpService.deleteHistory(id)
-  }
-
-  async addImage (name, blob) {
-    await this.resourceStore.setItem(name, blob)
+    return await this.backUpService.deleteHistory(id)
   }
 
   async exportArchive () {

@@ -8,6 +8,7 @@ export default ({
   }, {
     objectFit
   })
+  console.log('render image with src', src)
   return (
     <>
       {src && <img
