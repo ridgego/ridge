@@ -60,7 +60,12 @@ export default {
     }],
     value: 'flex-start'
   }, {
+    name: 'coverContainer',
+    label: '填充',
+    type: 'boolean'
+  }, {
     name: 'children',
+    hidden: true,
     type: 'children'
   }, ...bordered.props]
 }

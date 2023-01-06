@@ -1,3 +1,5 @@
+import bordered from '../bordered.d'
+
 export default class FlexBoxContainer {
   constructor (props) {
     this.props = props
@@ -6,22 +8,19 @@ export default class FlexBoxContainer {
   getContainerStyle (props) {
     const {
       // 相关系统变量
-      padding,
       direction = 'row',
       alignItems = 'stretch',
-      justify = 'flex-start',
-      border
+      justify = 'flex-start'
     } = props
     const containerStyle = {
       width: '100%',
       height: '100%',
       display: 'flex',
-      border,
       flexDirection: direction,
       justifyContent: justify,
-      alignItems,
-      padding
+      alignItems
     }
+    Object.assign(containerStyle, bordered.style(props))
     return containerStyle
   }
 

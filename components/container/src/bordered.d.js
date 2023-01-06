@@ -3,6 +3,7 @@ export default {
     return {
       border: props.border,
       padding: props.padding,
+      borderRadius: props.radius,
       shadow: props.shadow
     }
   },
@@ -12,6 +13,11 @@ export default {
     type: 'string',
     control: 'border',
     value: '1px solid #ccc'
+  }, {
+    name: 'radius',
+    label: '圆角',
+    type: 'string',
+    control: 'radius'
   }, {
     name: 'padding',
     label: '内边距',
@@ -23,6 +29,6 @@ export default {
     label: '阴影',
     type: 'string',
     control: 'shadow',
-    value: 'none'
+    value: ''
   }]
 }

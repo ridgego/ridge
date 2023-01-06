@@ -104,6 +104,14 @@ const FORM_PAGE_PROPS = [{
       control: 'number',
       field: 'height'
     }]
+  }, {
+    cols: [{
+      label: '背景',
+      bindable: false,
+      field: 'background',
+      type: 'string',
+      control: 'background'
+    }]
   }]
 }]
 
@@ -174,15 +182,11 @@ export default class ComponentPanel extends React.Component {
       const styledProps = []
       let partied = null
       for (const prop of componentDefiProps) {
-        const control = {
-          label: prop.label,
-          type: prop.type,
-          bindable: prop.bindable,
-          control: prop.control,
-          optionList: prop.optionList,
+        const control = {}
+        Object.assign(control, prop, {
           field: 'props.' + prop.name,
           fieldEx: 'propsEx.' + prop.name
-        }
+        })
         if (prop.party) {
           partied = control
         } else {

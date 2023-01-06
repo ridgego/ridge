@@ -14,6 +14,7 @@ const BorderEdit = withField((props) => {
         style={{
           width: '64px'
         }}
+        size='small'
         defaultValue={sp[0]}
         value={sp[0]} onChange={value => {
           props.onChange(value + 'px ' + sp[1] + ' ' + sp[2])
@@ -26,6 +27,7 @@ const BorderEdit = withField((props) => {
           label: '点划线',
           value: 'dashed'
         }]}
+        size='small'
         onChange={value => {
           props.onChange(sp[0] + 'px ' + value + ' ' + sp[2])
         }}
@@ -38,9 +40,10 @@ const BorderEdit = withField((props) => {
         />
         }
       >
-        <Button style={{
-          backgroundColor: sp[2]
-        }}
+        <Button
+          size='small' style={{
+            backgroundColor: sp[2]
+          }}
         />
       </Popover>
     </Space>

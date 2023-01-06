@@ -233,14 +233,26 @@ class ElementWrapper {
 
   forceUpdateStyle () {
     if (this.el) {
-      this.el.style.width = this.config.style.width ? (this.config.style.width + 'px') : ''
-      this.el.style.height = this.config.style.height ? (this.config.style.height + 'px') : ''
-      this.el.style.position = this.config.style.position
-      if (this.config.style.position === 'absolute') {
-        this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
-      } else {
+      if (this.config.props.coverContainer) {
+        this.el.style.width = '100%'
+        this.el.style.height = '100%'
+        this.el.style.position = 'absolute'
+        this.el.style.left = 0
         this.el.style.transform = ''
+        this.el.style.top = 0
+      } else {
+        this.el.style.width = this.config.style.width ? (this.config.style.width + 'px') : ''
+        this.el.style.height = this.config.style.height ? (this.config.style.height + 'px') : ''
+        this.el.style.position = this.config.style.position
+        if (this.config.style.position === 'absolute') {
+          this.el.style.left = 0
+          this.el.style.top = 0
+          this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
+        } else {
+          this.el.style.transform = ''
+        }
       }
+
       if (this.mode !== 'edit') {
         if (Object.keys(this.config.styleEx).length) {
           if (this.instanceStyleEx.width) {
@@ -495,23 +507,7 @@ class ElementWrapper {
   setStyle (style) {
     Object.assign(this.config.style, style)
 
-    if (style.width) {
-      this.el.style.width = style.width + 'px'
-    }
-    if (style.height) {
-      this.el.style.height = style.height + 'px'
-    }
-    if (this.config.style.position === 'absolute') {
-      if (this.el.style.position !== 'absolute') {
-        this.el.style.position = 'absolute'
-        this.el.style.left = 0
-        this.el.style.top = 0
-      }
-      this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
-    } else {
-      this.el.style.transform = ''
-      this.el.style.position = 'relative'
-    }
+    this.forceUpdateStyle()
   }
 
   /**

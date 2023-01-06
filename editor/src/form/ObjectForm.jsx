@@ -6,6 +6,7 @@ import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
 import EventEdit from './with-fields/EventEdit.jsx'
 import JSONEdit from './with-fields/JSONEdit.jsx'
 import ImageEdit from './with-fields/ImageEdit.jsx'
+import RadiusEdit from './with-fields/RadiusEdit.jsx'
 
 import './form.less'
 
@@ -13,74 +14,59 @@ export default class ObjectForm extends React.Component {
   constructor (props) {
     super(props)
     this.ref = React.createRef()
+
+    const {
+      InputNumber,
+      Select,
+      Checkbox,
+      Input
+    } = Form
+
+    this.controlGeneratorMap = {
+      number: (col, readonly) => <InputNumber size='small' label={col.label} disabled={readonly} field={col.field} />,
+      string: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
+      text: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
+      checkbox: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
+      boolean: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
+      select: (col, readonly) => {
+        if (col.required) {
+          return <Select size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
+        } else {
+          return <Select placeholder='请选择' showClear size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
+        }
+      },
+      border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
+      event: (col, readonly, options) => <EventEdit labelPosition='top' label={col.label} field={col.field} options={options} />,
+      image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
+      radius: (col, readonly) => <RadiusEdit label={col.label} field={col.field} disabled={readonly} />,
+      background: (col, readonly) => <RadiusEdit label={col.label} field={col.field} disabled={readonly} />,
+      json: (col, readonly) => <JSONEdit label={col.label} field={col.field} disabled={readonly} />
+    }
+  }
+
+  getRenderField (col, readonly, options) {
+    if (this.controlGeneratorMap[col.control]) {
+      return this.controlGeneratorMap[col.control](col, readonly, options)
+    } else {
+      return <div>{col.label}类型不支持{col.control}</div>
+    }
   }
 
   renderCol (col) {
-    const {
-      InputNumber,
-      TextArea,
-      Select,
-      Checkbox,
-      Input,
-      Upload
-    } = Form
-    const {
-      options
-    } = this.props
-    const readonly = (typeof col.readonly === 'function') ? col.readonly(this.api.getValues()) : col.readonly
     const hidden = (typeof col.hidden === 'function') ? col.hidden(this.api.getValues()) : col.hidden
 
     if (hidden) {
       return
     }
+
+    const {
+      options
+    } = this.props
+    const readonly = (typeof col.readonly === 'function') ? col.readonly(this.api.getValues()) : col.readonly
     if (col.control == null) {
       col.control = col.type
     }
-    let RenderField = null
-    switch (col.control) {
-      case 'number':
-        RenderField = <InputNumber size='small' label={col.label} disabled={readonly} field={col.field} />
-        break
-      case 'text':
-      case 'string':
-        RenderField = <Input size='small' label={col.label} field={col.field} disabled={readonly} />
-        break
-      case 'boolean':
-      case 'checkbox':
-        RenderField = <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />
-        break
-      case 'select':
-        if (col.required) {
-          RenderField = <Select size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
-        } else {
-          RenderField = <Select placeholder='请选择' showClear size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
-        }
-        break
-      case 'border':
-        RenderField = <BorderEdit label={col.label} field={col.field} disabled={readonly} />
-        break
-      case 'css-style':
-        RenderField = <TextArea label={col.label} field={col.field} disabled={readonly} />
-        break
-      case 'event':
-        RenderField = <EventEdit labelPosition='top' label={col.label} field={col.field} options={options} />
-        break
-      case 'json-editor':
-        RenderField = <JSONEdit label={col.label} field={col.field} disabled={readonly} />
-        break
-      case 'file':
-        RenderField = <Upload label={col.label} field={col.field} disabled={readonly} />
-        break
-      case 'image':
-        RenderField = <ImageEdit label={col.label} field={col.field} disabled={readonly} />
-        break
-      case 'button':
-        RenderField = <Button label={col.label} />
-        break
-      default:
-        break
-    }
-
+    const RenderField = this.getRenderField(col, readonly, options)
     if (col.bindable === false) {
       return RenderField
     } else {
