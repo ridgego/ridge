@@ -53,7 +53,7 @@ export default class Editor extends React.Component {
   }
 
   async openApp () {
-    await this.ridge.appService.updateDataUrl()
+    // await this.ridge.appService.updateDataUrl()
     // 应用管理器初始化
     const pageObject = await this.ridge.appService.getRecentPage()
     this.loadPage(pageObject)

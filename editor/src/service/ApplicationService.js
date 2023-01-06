@@ -1,5 +1,5 @@
 import NeCollection from './NeCollection.js'
-
+import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
 import { emit } from './RidgeEditService.js'
 import { EVENT_APP_OPEN } from '../constant.js'
@@ -10,6 +10,9 @@ export default class ApplicationService {
     this.collection = new NeCollection('ridge.app.db')
     this.trashColl = new NeCollection('ridge.trash.db')
 
+    this.store = Localforge.createInstance({
+      name: 'ridge-store'
+    })
     this.backUpService = new BackUpService()
     this.dataUrls = {}
   }
@@ -72,17 +75,16 @@ export default class ApplicationService {
     }
     const id = nanoid(10)
     const dataUrl = await this.blobToDataUrl(file)
+
+    await this.store.setItem(id, dataUrl)
     await this.collection.insert({
       id,
       type: 'file',
       mimeType: file.type,
       size: file.size,
       name: file.name,
-      dataUrl,
       parent: dir
     })
-
-    this.dataUrls[id] = dataUrl
     return true
   }
 
@@ -149,9 +151,9 @@ export default class ApplicationService {
   async trash (id) {
     const existed = await this.collection.findOne({ id })
     if (existed) {
-      delete existed._id
-      // await this.trashColl.insert(existed)
-
+      if (existed.type === 'file') {
+        await this.store.removeItem(id)
+      }
       // 递归删除
       const children = await this.collection.find({
         parent: id
@@ -245,12 +247,12 @@ export default class ApplicationService {
     const files = await this.collection.find({
       mimeType: new RegExp(mime)
     })
-    return files.map(file => {
-      if (file.mimeType.indexOf('image') > -1) {
-        file.src = file.dataUrl
+    for (const file of files) {
+      if (file.type === 'file') {
+        file.src = await this.store.getItem(file.id)
       }
-      return file
-    })
+    }
+    return files
   }
 
   async isParent (parent, child) {
@@ -273,15 +275,17 @@ export default class ApplicationService {
 
   async getDataUrl (path) {
     const file = await this.getFileByPath(path)
-    return file.dataUrl
+    if (file) {
+      return await this.store.getItem(file.id)
+    }
   }
 
   async exportAppArchive () {
-    this.backUpService.exportAppArchive(this.collection)
+    this.backUpService.exportAppArchive(this.collection, this.store)
   }
 
   async importAppArchive (file) {
-    await this.backUpService.importAppArchive(file, this.collection)
+    await this.backUpService.importAppArchive(file, this.collection, this.store)
     emit(EVENT_APP_OPEN)
   }
 

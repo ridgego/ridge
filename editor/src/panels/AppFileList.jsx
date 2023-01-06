@@ -206,14 +206,18 @@ class AppFileList extends React.Component {
       emit(EVENT_PAGE_OPEN, node.key)
     } else if (node.mimeType && node.mimeType.indexOf('image/') > -1) {
       const otherImageFiles = this.state.files.filter(file => {
-        if (file.mimeType && file.mimeType.indexOf('image/') > -1 && file.id !== node.id) {
+        if (file.mimeType && file.mimeType.indexOf('image/') > -1 && file.id !== node.key) {
           return true
         } else {
           return false
         }
-      }).map(file => file.dataUrl)
+      })
+      const srcList = []
 
-      const srcList = [node.dataUrl, ...otherImageFiles]
+      srcList.push(await ridge.appService.store.getItem(node.key))
+      for (const imageFile of otherImageFiles) {
+        srcList.push(await ridge.appService.store.getItem(imageFile.id))
+      }
 
       this.setState({
         imagePreviewSrc: srcList,
