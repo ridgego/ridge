@@ -27,8 +27,8 @@ export default class ObjectForm extends React.Component {
     const {
       options
     } = this.props
-    const readonly = col.readonly ? col.readonly(this.api.getValues()) : false
-    const hidden = col.hidden ? col.hidden(this.api.getValues()) : false
+    const readonly = (typeof col.readonly === 'function') ? col.readonly(this.api.getValues()) : col.readonly
+    const hidden = (typeof col.hidden === 'function') ? col.hidden(this.api.getValues()) : col.hidden
 
     if (hidden) {
       return
@@ -43,36 +43,36 @@ export default class ObjectForm extends React.Component {
         break
       case 'text':
       case 'string':
-        RenderField = <Input size='small' label={col.label} field={col.field} />
+        RenderField = <Input size='small' label={col.label} field={col.field} disabled={readonly} />
         break
       case 'boolean':
       case 'checkbox':
-        RenderField = <Checkbox size='small' label={col.label} field={col.field} />
+        RenderField = <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />
         break
       case 'select':
         if (col.required) {
-          RenderField = <Select size='small' label={col.label} field={col.field} optionList={col.optionList} />
+          RenderField = <Select size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
         } else {
-          RenderField = <Select placeholder='请选择' showClear size='small' label={col.label} field={col.field} optionList={col.optionList} />
+          RenderField = <Select placeholder='请选择' showClear size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
         }
         break
       case 'border':
-        RenderField = <BorderEdit label={col.label} field={col.field} />
+        RenderField = <BorderEdit label={col.label} field={col.field} disabled={readonly} />
         break
       case 'css-style':
-        RenderField = <TextArea label={col.label} field={col.field} />
+        RenderField = <TextArea label={col.label} field={col.field} disabled={readonly} />
         break
       case 'event':
         RenderField = <EventEdit labelPosition='top' label={col.label} field={col.field} options={options} />
         break
       case 'json-editor':
-        RenderField = <JSONEdit label={col.label} field={col.field} />
+        RenderField = <JSONEdit label={col.label} field={col.field} disabled={readonly} />
         break
       case 'file':
-        RenderField = <Upload label={col.label} field={col.field} />
+        RenderField = <Upload label={col.label} field={col.field} disabled={readonly} />
         break
       case 'image':
-        RenderField = <ImageEdit label={col.label} field={col.field} />
+        RenderField = <ImageEdit label={col.label} field={col.field} disabled={readonly} />
         break
       case 'button':
         RenderField = <Button label={col.label} />

@@ -69,8 +69,9 @@ const FORM_PAGE_PROPS = [{
     cols: [{
       label: '页面名称',
       control: 'text',
+      readonly: true,
       bindable: false,
-      field: 'title'
+      field: 'name'
     }]
   }, {
     cols: [{
@@ -123,19 +124,26 @@ export default class ComponentPanel extends React.Component {
   }
 
   initEvents () {
-    on(EVENT_PAGE_LOADED, ({ pageProperties, pageVariables }) => {
-      this.pagePropFormApi.setValues(pageProperties, {
+    on(EVENT_PAGE_LOADED, ({ pageConfig, pageProperties, pageVariables }) => {
+      for (const key of Object.keys(pageProperties)) {
+        this.pagePropFormApi.setValue(key, pageProperties[key], {
+          notNotify: true
+        })
+      }
+      this.pagePropFormApi.setValue('name', pageConfig.name, {
         notNotify: true
       })
       this.setState({
         pageVariables
       })
     })
-    on(EVENT_PAGE_PROP_CHANGE, payload => {
-      if (payload.from === 'workspace') {
-        this.pagePropFormApi.setValues(payload.properties, {
-          notNotify: true
-        })
+    on(EVENT_PAGE_PROP_CHANGE, ({ from, properties }) => {
+      if (from === 'workspace') {
+        for (const key of Object.keys(properties)) {
+          this.pagePropFormApi.setValue(key, properties[key], {
+            notNotify: true
+          })
+        }
       }
     })
     on(EVENT_PAGE_VAR_CHANGE, pageVariables => {

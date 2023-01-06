@@ -228,10 +228,6 @@ class ElementWrapper {
   }
 
   getProperties () {
-    if (this.mode === 'edit') {
-      // 编辑时忽略动态配置的属性、事件
-      this.applyDecorate('updateProps')
-    }
     return Object.assign({}, this.config.props, this.systemProperties, this.properties)
   }
 
@@ -297,11 +293,12 @@ class ElementWrapper {
   /**
    * 强制重新计算属性并更新组件显示
    */
-  forceUpdate () {
+  async forceUpdate () {
     if (this.mode !== 'edit') {
       this.updateExpressionedProperties()
     }
-    this.updateProperties()
+    console.log('forceUpdate', this.properties)
+    await this.updateProperties()
   }
 
   /**
@@ -377,13 +374,17 @@ class ElementWrapper {
     }
   }
 
-  applyDecorate (hookName) {
+  /**
+   * 应用拦截器的拦截方法（异步）
+   * @param {*} hookName
+   */
+  async applyDecorate (hookName) {
     if (this.pageManager && this.pageManager.decorators.element) {
-      this.pageManager.decorators.element.forEach(decorator => {
+      for (const decorator of this.pageManager.decorators.element) {
         try {
-          decorator[hookName] && decorator[hookName](this)
+          decorator[hookName] && await decorator[hookName](this)
         } catch (e) {}
-      })
+      }
     }
   }
 
@@ -544,7 +545,11 @@ class ElementWrapper {
       }
     }
     this.forceUpdateStyle()
-    this.forceUpdate()
+
+    // 编辑时忽略动态配置的属性、事件
+    this.applyDecorate('setPropsConfig').then(() => {
+      this.forceUpdate()
+    })
   }
 
   setEventsConfig (values, update) {

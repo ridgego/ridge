@@ -16,6 +16,13 @@
 
   .tree-label {
     display: flex;
+    align-items: center;
+    &.opened {
+      .label-content  {
+        color: var(--semi-color-success);
+        font-weight: bold;
+      }
+    }
     .label-content {
       flex: 1;
     }

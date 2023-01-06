@@ -210,6 +210,7 @@ class NeCollection {
         if (err) {
           reject(err)
         } else {
+          debug('found', docs)
           resolve(docs)
         }
       })

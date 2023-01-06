@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Popover, Input, withField } from '@douyinfe/semi-ui'
-import { IconDelete, IconEdit, IconChainStroked } from '@douyinfe/semi-icons'
+import { IconChainStroked } from '@douyinfe/semi-icons'
 import AppImageList from '../../panels/AppImageList.jsx'
+import { ridge } from '../../service/RidgeEditService.js'
 
 const ImageEdit = withField(({
   value,
   onChange
 }) => {
+  const [images, setImages] = useState([])
   const AppList = () => {
     return (
       <div style={{
@@ -14,13 +16,24 @@ const ImageEdit = withField(({
         height: '430px'
       }}
       >
-        <AppImageList select={filePath => {
-          onChange(filePath)
-        }}
+        <AppImageList
+          images={images} select={filePath => {
+            onChange(filePath)
+          }}
         />
       </div>
     )
   }
+
+  const visibleChange = visible => {
+    if (visible) {
+      const { appService } = ridge
+      appService.getByMimeType('image').then(files => {
+        setImages(files)
+      })
+    }
+  }
+
   return (
     <Input
       size='small'
@@ -30,6 +43,7 @@ const ImageEdit = withField(({
       onChange={val => onChange(val)}
       suffix={
         <Popover
+          onVisibleChange={visibleChange}
           trigger='click'
           showArrow
           zIndex={2001}

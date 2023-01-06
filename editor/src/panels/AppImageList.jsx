@@ -2,19 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { ridge } from '../service/RidgeEditService'
 import '../css/app-image-list.less'
 export default ({
+  images,
   select
 }) => {
-  const [images, setImages] = useState([])
   useEffect(() => {
-    const { appService } = ridge
-    appService.getByMimeType('image').then(files => {
-      setImages(files)
-    })
-  })
+
+  }, [true])
 
   const onSelect = (file) => {
     // 选择后将filePath传出
     const { appService } = ridge
+    // select(file.id)
     appService.getFilePath(file).then((filePath) => {
       select(filePath)
     })

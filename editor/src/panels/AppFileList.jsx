@@ -1,11 +1,13 @@
 import React from 'react'
 import trim from 'lodash/trim'
+import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview } from '@douyinfe/semi-ui'
-import { IconImage, IconEditStroked, IconFont, IconPlusStroked, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
+import { IconFolderOpen, IconImage, IconEditStroked, IconFont, IconPlusStroked, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on } from '../service/RidgeEditService.js'
-import { EVENT_PAGE_OPEN } from '../constant'
+import { EVENT_PAGE_LOADED, EVENT_PAGE_OPEN } from '../constant'
 import '../css/app-file-panel.less'
 
+const trace = debug('ridge:file-list')
 const { Text } = Typography
 
 const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg'
@@ -14,6 +16,7 @@ class AppFileList extends React.Component {
     super()
     this.ref = React.createRef()
     this.state = {
+      currentOpenId: null,
       imagePreviewVisible: false,
       imagePreviewSrc: null,
       expandedKeys: [],
@@ -24,6 +27,14 @@ class AppFileList extends React.Component {
       currentEditValid: true,
       currentEditValue: ''
     }
+    on(EVENT_PAGE_LOADED, ({
+      pageConfig
+    }) => {
+      this.setState({
+        currentOpenId: pageConfig.id
+      })
+    })
+    trace('constructor')
   }
 
   getFileTree (files) {
@@ -162,6 +173,16 @@ class AppFileList extends React.Component {
 
   remove = async (data) => {
     const { appService } = ridge
+    if (data.key === this.state.currentOpenId) {
+      Toast.warning('无法删除正打开的文件')
+      return
+    }
+    if (data.type === 'directory') {
+      if (await appService.isParent(data.key, this.state.currentOpenId)) {
+        Toast.warning('目录包含当前正打开的文件')
+        return
+      }
+    }
     await appService.trash(data.key)
     await this.updateFileTree()
   }
@@ -245,7 +266,7 @@ class AppFileList extends React.Component {
   }
 
   renderFullLabel = (label, data) => {
-    const { currentEditKey, currentEditValid } = this.state
+    const { currentEditKey, currentEditValid, currentOpenId } = this.state
     const MORE_MENUS = []
 
     if (data.type === 'directory') {
@@ -290,9 +311,10 @@ class AppFileList extends React.Component {
       MORE_MENUS.push(<Dropdown.Divider />)
     } else {
       MORE_MENUS.push(
-        <Dropdown.Item onClick={() => {
-          this.open(data)
-        }}
+        <Dropdown.Item
+          icon={<IconFolderOpen />} onClick={() => {
+            this.open(data)
+          }}
         >打开
         </Dropdown.Item>
       )
@@ -324,9 +346,10 @@ class AppFileList extends React.Component {
           }} size='small' defaultValue={label}
                                         />}
         {data.key !== currentEditKey &&
-          <div className='tree-label'>
+          <div className={'tree-label' + (currentOpenId === data.key ? ' opened' : '')}>
             <Text className='label-content'>{label}</Text>
             <Dropdown
+              clickToHide
               trigger='click' showTick
               render={<Dropdown.Menu>{MORE_MENUS}</Dropdown.Menu>}
             >

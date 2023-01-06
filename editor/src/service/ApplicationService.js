@@ -11,6 +11,7 @@ export default class ApplicationService {
     this.trashColl = new NeCollection('ridge.trash.db')
 
     this.backUpService = new BackUpService()
+    this.dataUrls = {}
   }
 
   async createDirectory (parent, name) {
@@ -69,16 +70,19 @@ export default class ApplicationService {
     if (existed) {
       return false
     }
-
+    const id = nanoid(10)
+    const dataUrl = await this.blobToDataUrl(file)
     await this.collection.insert({
-      id: nanoid(10),
+      id,
       type: 'file',
       mimeType: file.type,
       size: file.size,
       name: file.name,
-      dataUrl: await this.blobToDataUrl(file),
+      dataUrl,
       parent: dir
     })
+
+    this.dataUrls[id] = dataUrl
     return true
   }
 
@@ -146,7 +150,7 @@ export default class ApplicationService {
     const existed = await this.collection.findOne({ id })
     if (existed) {
       delete existed._id
-      await this.trashColl.insert(existed)
+      // await this.trashColl.insert(existed)
 
       // 递归删除
       const children = await this.collection.find({
@@ -179,22 +183,6 @@ export default class ApplicationService {
       query.name = new RegExp(filter)
     }
     return await this.collection.find(query)
-  }
-
-  async getFileTree () {
-    const files = await this.collection.find({})
-    const roots = files.filter(file => file.parent === -1).map(file => {
-      const treeNode = {
-        key: file.id,
-        label: file.name,
-        value: file.id
-      }
-      if (file.type === 'directory') {
-        treeNode.children = this.buildDirTree(file, files)
-      }
-      return treeNode
-    })
-    return roots
   }
 
   async getFile (id) {
@@ -263,6 +251,29 @@ export default class ApplicationService {
       }
       return file
     })
+  }
+
+  async isParent (parent, child) {
+    let lop = await this.getFile(child)
+    while (lop.parent !== -1) {
+      if (lop.parent === parent) {
+        return true
+      }
+      lop = await this.getFile(lop.parent)
+    }
+    return false
+  }
+
+  async updateDataUrl () {
+    const images = await this.getByMimeType('image')
+    for (const image of images) {
+      this.dataUrls[image.id] = image.dataUrl
+    }
+  }
+
+  async getDataUrl (path) {
+    const file = await this.getFileByPath(path)
+    return file.dataUrl
   }
 
   async exportAppArchive () {

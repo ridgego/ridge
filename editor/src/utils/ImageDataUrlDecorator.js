@@ -6,30 +6,25 @@ export default class ImageDataUrlDecorator {
    * 更新属性触发
    * @param {*} wrapper 组件封装类
    */
-  updateProps (wrapper) {
+  async setPropsConfig (wrapper) {
     const { appService } = window.Ridge
 
     if (wrapper.componentDefinition && wrapper.componentDefinition.props) {
       const imageProps = wrapper.componentDefinition.props.filter(prop => prop.type === 'image')
-
-      imageProps.forEach((oneProp) => {
-        if (wrapper.config.props[oneProp.name] && !wrapper.properties[oneProp.name]) {
-          appService.getFileByPath(wrapper.config.props[oneProp.name]).then(file => {
-            wrapper.updateProperties({
-              [oneProp.name]: file.dataUrl
-            })
-          })
+      for (const imgProp of imageProps) {
+        if (wrapper.config.props[imgProp.name]) {
+          wrapper.properties[imgProp.name] = await appService.getDataUrl(wrapper.config.props[imgProp.name])
+        } else {
+          wrapper.properties[imgProp.name] = ''
         }
-        if (!wrapper.config.props[oneProp.name]) {
-          wrapper.properties[oneProp.name] = ''
-        }
-      })
+        console.log('update by', wrapper.config.props[imgProp.name], wrapper.properties[imgProp.name])
+      }
     }
   }
 
   /**
-       * 销毁触发
-       * @param {*} fcViewInstance
-       */
+   * 销毁触发
+   * @param {*} fcViewInstance
+   */
   unmount (fcViewInstance) {}
 }

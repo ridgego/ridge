@@ -52,11 +52,11 @@ export default class Editor extends React.Component {
     this.initialize()
   }
 
-  openApp () {
+  async openApp () {
+    await this.ridge.appService.updateDataUrl()
     // 应用管理器初始化
-    this.ridge.appService.getRecentPage().then((pageObject) => {
-      this.loadPage(pageObject)
-    })
+    const pageObject = await this.ridge.appService.getRecentPage()
+    this.loadPage(pageObject)
   }
 
   /**
@@ -133,6 +133,7 @@ export default class Editor extends React.Component {
     this.pageElementManager.mount(document.querySelector('.viewport-container'))
 
     emit(EVENT_PAGE_LOADED, {
+      pageConfig,
       pageProperties: this.pageElementManager.getPageProperties(),
       pageVariables: this.pageElementManager.getVariableConfig(),
       elements: this.pageElementManager.getPageElements()
