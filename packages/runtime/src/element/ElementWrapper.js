@@ -165,7 +165,9 @@ class ElementWrapper {
         this.emit(event.name, ...args)
       }
     }
-    this.updateExpressionedProperties()
+    if (this.mode !== 'edit') {
+      this.updateExpressionedProperties()
+    }
     delete this.config.isNew
   }
 
@@ -538,6 +540,10 @@ class ElementWrapper {
         Object.assign(this.config.styleEx, {
           [key]: field[keyPath]
         })
+      }
+
+      if (keyPath === 'title') {
+        this.config.title = field[keyPath]
       }
     }
     this.forceUpdateStyle()

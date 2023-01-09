@@ -18,6 +18,7 @@ import { PageElementManager } from 'ridge-runtime'
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
   EVENT_ELEMENT_CREATED,
+  EVENT_PAGE_OUTLINE_CHANGE,
   PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN, EVENT_APP_OPEN
 } from './constant'
 
@@ -73,12 +74,20 @@ export default class Editor extends React.Component {
       this.pageElementManager.updatePageProperties(properties)
       this.debouncedSaveUpdatePage()
     })
+
     on(EVENT_ELEMENT_PROP_CHANGE, ({ el, values, field }) => {
       el.elementWrapper.setPropsConfig(values, field)
+      if (field.title) {
+        emit(EVENT_PAGE_OUTLINE_CHANGE, {
+          elements: this.pageElementManager.getPageElements()
+        })
+      }
       this.workspaceControl.updateMovable()
+      this.debouncedSaveUpdatePage()
     })
     on(EVENT_ELEMENT_EVENT_CHANGE, ({ el, values }) => {
       el.elementWrapper.setEventsConfig(values)
+      this.debouncedSaveUpdatePage()
     })
 
     on(EVENT_ELEMENT_CREATED, () => {

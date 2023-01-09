@@ -15,7 +15,7 @@ const FORM_COMPONENT_BASIC = [{
         label: '名称',
         control: 'text',
         bindable: false,
-        field: 'name'
+        field: 'title'
       }]
     },
     {
@@ -225,7 +225,7 @@ export default class ComponentPanel extends React.Component {
           rows: eventRows
         }]
       }, () => {
-        this.componentPropFormApi.setValue('name', elementWrapper.config.title, {
+        this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
           notNotify: true
         })
         this.componentPropFormApi.setValue('props', elementWrapper.config.props, {

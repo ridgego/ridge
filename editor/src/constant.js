@@ -5,6 +5,7 @@ export const EVENT_PAGE_OPEN = 'pageOpen'
 export const EVENT_PAGE_VAR_CHANGE = 'pageVariableChange'
 export const EVENT_PAGE_PROP_CHANGE = 'pagePropChange'
 export const EVENT_PAGE_EVENT_CHANGE = 'pageEventChange'
+export const EVENT_PAGE_OUTLINE_CHANGE = 'pageOutlineChange'
 
 export const EVENT_ELEMENT_SELECTED = 'elementSelected'
 export const EVENT_ELEMENT_DRAG_END = 'elementDragEnd'
