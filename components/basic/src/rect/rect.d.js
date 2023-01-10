@@ -3,6 +3,7 @@ import Rect from './Rect'
 export default {
   name: 'rect',
   component: Rect,
+  type: 'vanilla',
   props: [{
     name: 'style',
     label: '样式',

@@ -33,6 +33,12 @@
     "icon": "img/image.svg",
     "width": 160,
     "height": 160
+  }, {
+    "title": "输入框",
+    "path": "build/input-input.d.js",
+    "icon": "img/image.svg",
+    "width": 160,
+    "height": 28
   }],
   "author": "",
   "license": "ISC"

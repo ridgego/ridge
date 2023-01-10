@@ -148,7 +148,7 @@ class ElementWrapper {
             } else {
               return element
             }
-          })
+          }).filter(child => child)
         }
       } else if (prop.type === 'slot') {
         this.isContainer = true
@@ -442,15 +442,13 @@ class ElementWrapper {
   }
 
   setStatus (status, el) {
-    if (this.status !== status) {
-      this.status = status
-      this.addMaskLayer({
-        el: el || this.el,
-        name: status,
-        className: 'status-' + status,
-        zIndex: -1
-      })
-    }
+    this.status = status
+    this.addMaskLayer({
+      el: el || this.el,
+      name: status,
+      className: 'status-' + status,
+      zIndex: -1
+    })
   }
 
   removeStatus (status, el) {
@@ -594,7 +592,7 @@ class ElementWrapper {
 
       // 保存时children及slotProp只保存id
       if (this.config.props.children) {
-        result.props.children = this.config.props.children.map(child => child.id)
+        result.props.children = this.config.props.children.filter(n => n).map(child => child.id)
       }
       if (this.slotProps && this.slotProps.length) {
         for (const key of this.slotProps) {

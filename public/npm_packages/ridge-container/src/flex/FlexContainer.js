@@ -55,7 +55,7 @@ export default class FlexBoxContainer {
     // 获取当前放置的次序
     const afterNode = this.getAfterNode(el, this.containerEl.childNodes, direction)
     const style = {
-      position: 'static'
+      position: 'relative'
     }
     if (direction === 'row' && alignItems === 'stretch') {
       style.height = ''
@@ -101,6 +101,6 @@ export default class FlexBoxContainer {
   getChildren () {
     return Array.from(this.containerEl.childNodes).map(el => {
       return el.elementWrapper
-    })
+    }).filter(e => e != null)
   }
 }

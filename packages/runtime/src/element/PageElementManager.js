@@ -194,7 +194,9 @@ class PageElementManager {
         this.removeElement(childId)
       }
       for (const slotChild of element.getSlotChildren()) {
-        this.removeElement(slotChild.element.id)
+        if (slotChild.element) {
+          this.removeElement(slotChild.element.id)
+        }
       }
       if (element.config.parent) {
         this.detachChildElement(this.pageElements[element.config.parent], id)

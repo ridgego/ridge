@@ -3,7 +3,6 @@ import { fitRectIntoBounds } from '../utils/rectUtils.js'
 import { createMoveable } from '../utils/moveable'
 import Mousetrap from 'mousetrap'
 import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
-
 import { emit, on } from '../service/RidgeEditService'
 
 /**
@@ -104,15 +103,12 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragStart', ev => {
-      sm.moveable.elementGuidelines = this.guidelines
+      // sm.moveable.elementGuidelines = this.guidelines
     })
 
     this.moveable.on('drag', ev => {
       ev.target.style.transform = ev.transform
-
       sm.checkDropTargetStatus(ev)
-
-      sm.onm && sm.onm(ev.target)
     })
 
     this.moveable.on('dragEnd', ev => {
@@ -140,9 +136,6 @@ export default class WorkSpaceControl {
         style.height = height
       }
       target.elementWrapper.setStyle(style)
-      // delta[0] && (target.style.width = `${width}px`)
-      // delta[1] && (target.style.height = `${height}px`)
-      // sm.onr && sm.onr(target)
     })
 
     this.moveable.on('resizeEnd', ({
@@ -261,6 +254,10 @@ export default class WorkSpaceControl {
     this.workspaceEl.addEventListener('dragover', ev => {
       ev.preventDefault()
       ev.dataTransfer.dropEffect = 'move'
+      this.checkDropTargetStatus({
+        clientX: ev.clientX,
+        clientY: ev.clientY
+      })
     })
 
     this.workspaceEl.addEventListener('drop', ev => {
@@ -410,14 +407,6 @@ export default class WorkSpaceControl {
     emit(EVENT_ELEMENT_CREATED, [wrapper])
   }
 
-  onNodeResize (onr) {
-    this.onr = onr
-  }
-
-  onNodeMove (onm) {
-    this.onm = onm
-  }
-
   /**
    * 判断正拖拽的节点是否在容器内部区域。（存在嵌套、重叠情况下取最顶层那个）
    * @param {Element} dragEl 被拖拽的DOM Element
@@ -429,15 +418,16 @@ export default class WorkSpaceControl {
     for (const selector of this.selectorDropableTarget) {
       droppableElements = droppableElements.concat(Array.from(document.querySelectorAll(selector)))
     }
-
     const filtered = Array.from(droppableElements).filter(el => {
       // Exclude: droppables in the dragging element
-      if (dragEl.contains(el)) {
-        return false
-      }
-      // Exclude: slot el with element dropped
-      if (el.tagName === 'SLOT' && el.getAttribute('tpl') && el.getAttribute('tpl') !== dragEl.getAttribute('ridge-id')) {
-        return false
+      if (dragEl) {
+        if (dragEl.contains(el)) {
+          return false
+        }
+        // Exclude: slot el with element dropped
+        if (el.tagName === 'SLOT' && el.getAttribute('tpl') && el.getAttribute('tpl') !== dragEl.getAttribute('ridge-id')) {
+          return false
+        }
       }
       const { x, y, width, height } = el.getBoundingClientRect()
       return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height) && el !== dragEl && el.closest('[ridge-id]') !== dragEl
