@@ -36,10 +36,14 @@ export default class ListContainer {
       const slotEl = document.createElement('slot')
       slotEl.setAttribute('name', 'renderItem')
       slotEl.elementWrapper = this.props.__elementWrapper
-      Object.assign(slotEl.style, this.getSlotStyle())
       this.containerEl.appendChild(slotEl)
       this.slotEl = slotEl
     }
+
+    this.slotEl.style.display = 'block'
+    this.slotEl.style.width = 'calc(100% - 20px)'
+    this.slotEl.style.height = 'calc(100% - 20px)'
+    this.slotEl.style.margin = '10px'
 
     if (renderItem) {
       if (!renderItem.isMounted()) {
@@ -48,14 +52,20 @@ export default class ListContainer {
       }
       // 每次放入都要设置到固定位置
       renderItem.setStyle({
-        position: 'static',
+        position: 'relative',
         x: 0,
         y: 0
       })
       this.slotEl.appendChild(renderItem.el)
       this.slotEl.setAttribute('tpl', renderItem.id)
+    } else {
+      this.slotEl.style.border = '1px dashed rgb(164,224,167)'
+      this.slotEl.style.display = 'flex'
+      this.slotEl.style.alignItems = 'center'
+      this.slotEl.style.justifyContent = 'center'
+      this.slotEl.style.fontSize = '14px'
+      this.slotEl.innerHTML = '请拖拽放入列表项模板'
     }
-    Object.assign(this.slotEl.style, this.getSlotStyle())
   }
 
   /**
