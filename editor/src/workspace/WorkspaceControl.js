@@ -22,21 +22,22 @@ export default class WorkSpaceControl {
 
     this.ridge = ridge
     this.selectorDropableTarget = ['.ridge-element.container', 'slot']
-    this.init()
-  }
 
-  init () {
-    this.initSelecto()
-    this.initMoveable()
-
-    this.initComponentDrop()
-    this.initKeyBind()
-    this.setWorkSpaceMovable()
     on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'outline') {
         this.selectElements([payload.element])
       }
     })
+    this.enable()
+  }
+
+  enable () {
+    this.initSelecto()
+    this.initMoveable()
+    this.setWorkSpaceMovable()
+
+    this.initComponentDrop()
+    this.initKeyBind()
   }
 
   disable () {

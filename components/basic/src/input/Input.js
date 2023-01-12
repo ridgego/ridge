@@ -6,7 +6,9 @@ export default class Input {
   async mount (el) {
     this.el = el
     this.input = document.createElement('input')
-    this.input.value = this.props.value
+    if (this.props.value != null) {
+      this.input.value = this.props.value
+    }
     this.el.append(this.input)
     this.input.oninput = (e) => {
       this.props.input && this.props.input(e.currentTarget.value)
@@ -38,7 +40,11 @@ export default class Input {
 
   update (props) {
     Object.assign(this.props, props)
-    this.input.value = this.props.value
+    if (this.props.value != null) {
+      this.input.value = this.props.value
+    } else {
+      this.input.value = ''
+    }
     Object.assign(this.input.style, this.getStyle())
   }
 }

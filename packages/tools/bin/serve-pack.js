@@ -1,6 +1,4 @@
-process.env.DEBUG = 'wind:*, apollo:*'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
-
 const Boostrap = require('ridge-boot') // 启动器
 const path = require('path')
 const fs = require('fs')

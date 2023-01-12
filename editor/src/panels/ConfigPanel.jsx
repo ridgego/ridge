@@ -126,7 +126,9 @@ export default class ComponentPanel extends React.Component {
     this.state = {
       pageVariables: [],
       nodePropsSection: [], // 当前节点属性
-      nodeEventsSection: [] // 当前节点事件
+      nodePropsValues: {},
+      nodeEventsSection: [], // 当前节点事件
+      nodeEventsValues: {}
     }
     this.initEvents()
   }
@@ -219,27 +221,52 @@ export default class ComponentPanel extends React.Component {
           ]
         })
       }
+      this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
+        notNotify: true
+      })
+      this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
+        notNotify: true
+      })
+      this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
+        notNotify: true
+      })
+      this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
+        notNotify: true
+      })
+      this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
+        notNotify: true
+      })
+
       this.setState({
         nodePropsSection,
+        nodePropsValues: {
+          title: elementWrapper.config.title,
+          props: elementWrapper.config.props,
+          propsEx: elementWrapper.config.propEx,
+          styleEx: elementWrapper.config.styleEx
+        },
         nodeEventsSection: [{
           rows: eventRows
-        }]
+        }],
+        nodeEventsValues: {
+          event: elementWrapper.config.events
+        }
       }, () => {
-        this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
-          notNotify: true
-        })
-        this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
-          notNotify: true
-        })
-        this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
-          notNotify: true
-        })
-        this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
-          notNotify: true
-        })
-        this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
-          notNotify: true
-        })
+        // this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
+        //   notNotify: true
+        // })
+        // this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
+        //   notNotify: true
+        // })
+        // this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
+        //   notNotify: true
+        // })
+        // this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
+        //   notNotify: true
+        // })
+        // this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
+        //   notNotify: true
+        // })
       })
     }
   }
@@ -284,6 +311,8 @@ export default class ComponentPanel extends React.Component {
     const {
       nodePropsSection,
       nodeEventsSection,
+      nodePropsValues,
+      nodeEventsValues,
       pageVariables
     } = this.state
 
@@ -330,6 +359,7 @@ export default class ComponentPanel extends React.Component {
         >
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
+              initValues={nodePropsValues}
               sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
                 pageVariables
               }}
@@ -337,6 +367,7 @@ export default class ComponentPanel extends React.Component {
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
+              initValues={nodeEventsValues}
               sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
                 pageVariables
               }}

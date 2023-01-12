@@ -132,14 +132,9 @@ export default class Editor extends React.Component {
     trace('loadPage', pageConfig)
     this.pageConfig = pageConfig
     // 从HTML初始化页面管理器
-    this.pageElementManager = this.ridge.createPageManager(pageConfig)
+    this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig)
     this.pageElementManager.setMode('edit')
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
-
-    window.pageManager = this.pageElementManager
-    this.workspaceControl.setPageManager(this.pageElementManager)
-
-    this.pageElementManager.mount(document.querySelector('.viewport-container'))
 
     emit(EVENT_PAGE_LOADED, {
       pageConfig,
@@ -148,6 +143,7 @@ export default class Editor extends React.Component {
       elements: this.pageElementManager.getPageElements()
     })
 
+    this.workspaceControl.setPageManager(this.pageElementManager)
     this.workspaceControl.fitToCenter()
   }
 
@@ -256,15 +252,21 @@ export default class Editor extends React.Component {
   toggoleRunMode () {
     this.setState({
       modeRun: !this.state.modeRun
-    }, () => {
+    }, async () => {
       if (this.state.modeRun) {
+        await this.saveCurrentPage()
         this.workspaceControl.disable()
-        this.saveCurrentPage()
+
+        this.pageElementManager.unmount()
+        this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), this.pageConfig)
         this.pageElementManager.setMode('run')
       } else {
-        this.pageElementManager.updateVariableConfigFromValue()
-        this.pageElementManager.setMode('edit')
-        this.workspaceControl.init()
+        this.pageElementManager.unmount()
+        this.loadPage(this.pageConfig)
+        this.workspaceControl.enable()
+        // this.pageElementManager.updateVariableConfigFromValue()
+        // this.pageElementManager.setMode('edit')
+        // this.workspaceControl.init()
       }
     })
   }

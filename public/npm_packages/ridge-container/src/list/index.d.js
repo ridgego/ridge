@@ -7,7 +7,7 @@ export default {
     name: 'dataSource',
     label: '数据',
     type: 'array',
-    control: 'json-editor',
+    control: 'json',
     value: []
   }, {
     name: 'itemKey',

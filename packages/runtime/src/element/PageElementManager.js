@@ -170,7 +170,7 @@ class PageElementManager {
       styleEx: {},
       props: {},
       propEx: {},
-      events: []
+      events: {}
     }
 
     const wrapper = new ElementWrapper({
