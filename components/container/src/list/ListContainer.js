@@ -17,7 +17,7 @@ export default class ListContainer {
     el.appendChild(this.containerEl)
 
     if (renderItem) {
-      await renderItem.preload()
+      await renderItem.preload(true)
     }
     if (this.isEditMode()) { // 编辑
       this.renderInEditor()

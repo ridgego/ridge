@@ -8,7 +8,7 @@
     "build": "build-fc",
     "watch": "build-fc -w",
     "help": "build-fc --help",
-    "debug": "build-fc -w -s -p 8700",
+    "debug": "build-fc -w -s -p 5151",
     "bs": "build-fc -s",
     "pd": "npm publish --tag dev"
   },

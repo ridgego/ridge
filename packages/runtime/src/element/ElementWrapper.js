@@ -50,8 +50,10 @@ class ElementWrapper {
       config: this.toJSON(),
       pageManager: this.pageManager
     })
-    cloned.componentDefinition = this.componentDefinition
-    cloned.preloaded = true
+    if (this.componentDefinition) {
+      cloned.componentDefinition = this.componentDefinition
+      cloned.preloaded = true
+    }
 
     if (cloned.config.props.children) {
       cloned.config.props.children = cloned.config.props.children.map(wrapperId => {
@@ -68,11 +70,20 @@ class ElementWrapper {
   /**
    * 加载组件代码、按代码初始化属性
    */
-  async preload () {
+  async preload (deepPreload) {
     if (this.preloaded) return
 
     this.setStatus('Loading')
     this.componentDefinition = await this.loadComponentDefinition()
+
+    if (deepPreload) {
+      if (this.config.props.children) {
+        for (const childId of this.config.props.children) {
+          const childWrapper = this.pageManager.getElement(childId)
+          await childWrapper.preload(deepPreload)
+        }
+      }
+    }
     if (this.componentDefinition) {
       this.removeStatus('Loading')
       this.preloaded = true
@@ -594,16 +605,15 @@ class ElementWrapper {
       if (this.config.props.children) {
         result.props.children = this.config.props.children.filter(n => n).map(child => child.id)
       }
-      if (this.slotProps && this.slotProps.length) {
-        for (const key of this.slotProps) {
-          if (result.props[key]) {
-            result.props[key] = result.props[key].id
-          }
+
+      for (const key of this.slotProps ?? []) {
+        if (result.props[key]) {
+          result.props[key] = result.props[key].id
         }
       }
-      return result
+      return JSON.parse(JSON.stringify(result))
     } else {
-      return this.config
+      return JSON.parse(JSON.stringify(this.config))
     }
   }
 }

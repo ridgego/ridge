@@ -11,7 +11,7 @@ const JSONEdit = withField(({
       size='small'
       autosize
       defaultValue={JSON.stringify(value)}
-      rows={1} onBlur={(e) => {
+      rows={2} onBlur={(e) => {
         onChange(JSON.parse(e.target.value))
       }}
     />
