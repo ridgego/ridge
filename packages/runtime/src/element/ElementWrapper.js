@@ -2,6 +2,7 @@ import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import template from '../template'
+import lodashSet from 'lodash/set'
 const log = debug('ridge:el-wrapper')
 const error = debug('ridge:error')
 
@@ -267,11 +268,18 @@ class ElementWrapper {
       }
 
       if (this.mode !== 'edit') {
-        if (Object.keys(this.config.styleEx).length) {
-          if (this.instanceStyleEx.width) {
-            this.el.style.width = template(this.config.styleEx.width, this.getVariableContext()) + 'px'
+        this.el.style.visibility = this.config.style.visible ? 'visible' : 'hidden'
+        for (const styleName of Object.keys(this.config.styleEx || {})) {
+          const value = template(this.config.styleEx[styleName], this.getVariableContext())
+          if (styleName === 'width') {
+            this.el.style.width = value + 'px'
+          }
+          if (styleName === 'visible') {
+            this.el.style.visibility = value ? 'visible' : 'hidden'
           }
         }
+      } else {
+        this.el.style.visibility = 'visible'
       }
     }
   }
@@ -297,6 +305,10 @@ class ElementWrapper {
     this.scopeVariableValues = scopeVariableValues
   }
 
+  updateScopeVariableValues (updated) {
+    Object.assign(this.scopeVariableValues, updated)
+  }
+
   getScopeVariableValues () {
     if (this.parentWrapper) {
       return Object.assign(this.parentWrapper.getScopeVariableValues(), this.scopeVariableValues)
@@ -318,12 +330,17 @@ class ElementWrapper {
   /**
    * 强制重新计算属性并更新组件显示
    */
-  async forceUpdate () {
+  async forceUpdateProps () {
     if (this.mode !== 'edit') {
       this.updateExpressionedProperties()
     }
     console.log('forceUpdate', this.properties)
     await this.updateProperties()
+  }
+
+  async forceUpdate () {
+    this.forceUpdateStyle()
+    this.forceUpdateProps()
   }
 
   /**
@@ -351,7 +368,7 @@ class ElementWrapper {
    */
   reactBy (variableNames) {
     if (this.configUseVariable(this.config.propEx, variableNames)) {
-      this.forceUpdate()
+      this.forceUpdateProps()
     }
     if (this.configUseVariable(this.config.styleEx, variableNames)) {
       this.forceUpdateStyle()
@@ -387,10 +404,16 @@ class ElementWrapper {
       for (const action of this.config.events[eventName]) {
         if (action.name === 'setvar') {
           try {
-            const newVariableValue = template(action.value, this.getVariableContext())
-            this.pageManager.updatePageVariableValue({
-              [action.target]: newVariableValue
-            })
+            const variableContext = this.getVariableContext()
+            const newVariableValue = template(action.value, variableContext)
+
+            if (action.target.indexOf('.') > -1) {
+              lodashSet(variableContext, action.target, newVariableValue)
+            } else {
+              this.pageManager.updatePageVariableValue({
+                [action.target]: newVariableValue
+              })
+            }
           } catch (e) {
             log('Event Action[setvar] Error', e)
           }
@@ -411,28 +434,6 @@ class ElementWrapper {
         } catch (e) {}
       }
     }
-  }
-
-  getCreateChildElement (name) {}
-
-  getName () {
-    return this.el.dataset.name
-  }
-
-  getPropsValue () {
-    return this.instancePropConfig
-  }
-
-  getPropsBinding () {
-    return this.instancePropConfigEx
-  }
-
-  getStyleBinding () {
-    return this.instanceStyleEx
-  }
-
-  getEventActionsConfig () {
-    return this.eventActionsConfig
   }
 
   /**
@@ -559,7 +560,7 @@ class ElementWrapper {
 
     // 编辑时忽略动态配置的属性、事件
     this.applyDecorate('setPropsConfig').then(() => {
-      this.forceUpdate()
+      this.forceUpdateProps()
     })
   }
 

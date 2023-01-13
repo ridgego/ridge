@@ -1,14 +1,15 @@
-import CheckBox from './CheckBox'
+import Button from './Button'
 
 export default {
-  name: 'checkbox',
-  component: CheckBox,
+  name: 'button',
+  component: Button,
   type: 'vanilla',
   props: [{
-    label: '选中',
-    name: 'value',
-    type: 'boolean'
-  }, {
+    name: 'text',
+    label: '文本',
+    type: 'string'
+  },
+  {
     name: 'border',
     label: '边框',
     type: 'string',
@@ -20,18 +21,18 @@ export default {
     type: 'number',
     value: 0
   }, {
+    name: 'color',
+    label: '颜色',
+    type: 'string',
+    control: 'colorpicker'
+  }, {
     name: 'backgroundColor',
     label: '背景色',
     type: 'string',
     control: 'colorpicker'
-  }, {
-    name: 'backgroundColorChecked',
-    label: '选中颜色',
-    type: 'string',
-    control: 'colorpicker'
   }],
   events: [{
-    label: '输入值变化',
-    name: 'onChange'
+    label: '点击事件',
+    name: 'onClick'
   }]
 }

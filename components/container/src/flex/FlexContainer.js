@@ -10,6 +10,7 @@ export default class FlexBoxContainer {
       // 相关系统变量
       direction = 'row',
       alignItems = 'stretch',
+      gap = 0,
       justify = 'flex-start'
     } = props
     const containerStyle = {
@@ -18,7 +19,8 @@ export default class FlexBoxContainer {
       display: 'flex',
       flexDirection: direction,
       justifyContent: justify,
-      alignItems
+      alignItems,
+      gap: gap + 'px'
     }
     Object.assign(containerStyle, bordered.style(props))
     return containerStyle

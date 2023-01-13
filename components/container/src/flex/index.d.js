@@ -60,6 +60,11 @@ export default {
     }],
     value: 'flex-start'
   }, {
+    label: '间隔',
+    name: 'gap',
+    type: 'number',
+    value: 0
+  }, {
     name: 'coverContainer',
     label: '填充',
     type: 'boolean'

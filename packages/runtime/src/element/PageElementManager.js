@@ -132,7 +132,6 @@ class PageElementManager {
    */
   forceUpdate () {
     for (const element of Object.values(this.pageElements)) {
-      element.forceUpdateStyle()
       element.forceUpdate()
     }
   }

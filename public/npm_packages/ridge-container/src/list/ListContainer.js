@@ -17,7 +17,7 @@ export default class ListContainer {
     el.appendChild(this.containerEl)
 
     if (renderItem) {
-      await renderItem.preload()
+      await renderItem.preload(true)
     }
     if (this.isEditMode()) { // 编辑
       this.renderInEditor()
@@ -36,10 +36,14 @@ export default class ListContainer {
       const slotEl = document.createElement('slot')
       slotEl.setAttribute('name', 'renderItem')
       slotEl.elementWrapper = this.props.__elementWrapper
-      Object.assign(slotEl.style, this.getSlotStyle())
       this.containerEl.appendChild(slotEl)
       this.slotEl = slotEl
     }
+
+    this.slotEl.style.display = 'block'
+    this.slotEl.style.width = 'calc(100% - 20px)'
+    this.slotEl.style.height = 'calc(100% - 20px)'
+    this.slotEl.style.margin = '10px'
 
     if (renderItem) {
       if (!renderItem.isMounted()) {
@@ -48,14 +52,20 @@ export default class ListContainer {
       }
       // 每次放入都要设置到固定位置
       renderItem.setStyle({
-        position: 'static',
+        position: 'relative',
         x: 0,
         y: 0
       })
       this.slotEl.appendChild(renderItem.el)
       this.slotEl.setAttribute('tpl', renderItem.id)
+    } else {
+      this.slotEl.style.border = '1px dashed rgb(164,224,167)'
+      this.slotEl.style.display = 'flex'
+      this.slotEl.style.alignItems = 'center'
+      this.slotEl.style.justifyContent = 'center'
+      this.slotEl.style.fontSize = '14px'
+      this.slotEl.innerHTML = '请拖拽放入列表项模板'
     }
-    Object.assign(this.slotEl.style, this.getSlotStyle())
   }
 
   /**
@@ -67,7 +77,7 @@ export default class ListContainer {
       this.slotEl.parentElement.removeChild(this.slotEl)
       this.slotEl = null
     }
-    const { itemKey, dataSource, renderItem, slotKey } = this.props
+    const { itemKey, dataSource, renderItem } = this.props
     if (dataSource && renderItem) {
       for (let index = 0; index < dataSource.length; index++) {
         const data = dataSource[index]
@@ -84,11 +94,9 @@ export default class ListContainer {
 
           // 更新属性后强制更新
           wrapper.setScopeVariableValues({
-            [slotKey || '$scope']: {
-              index,
-              data,
-              listData: dataSource
-            }
+            $item: data,
+            $index: index,
+            $list: dataSource
           })
           wrapper.forceUpdate()
         } else {
@@ -103,13 +111,23 @@ export default class ListContainer {
           }
           const newWrapper = renderItem.clone()
           newWrapper.setScopeVariableValues({
-            [slotKey || '$scope']: {
-              index,
-              data,
-              listData: dataSource
-            }
+            $item: data,
+            $index: index,
+            $list: dataSource
           })
           newWrapper.mount(newEl)
+          newEl.onmouseover = () => {
+            newWrapper.updateScopeVariableValues({
+              $hover: true
+            })
+            newWrapper.forceUpdate()
+          }
+          newEl.onmouseout = () => {
+            newWrapper.updateScopeVariableValues({
+              $hover: false
+            })
+            newWrapper.forceUpdate()
+          }
         }
       }
 

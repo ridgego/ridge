@@ -1,4 +1,5 @@
 import ListContainer from './ListContainer'
+import bordered from '../bordered.d'
 export default {
   name: 'list-container',
   component: ListContainer,
@@ -14,16 +15,6 @@ export default {
     label: '数据键',
     type: 'string',
     value: ''
-  }, {
-    name: 'slotKey',
-    label: '变量命名',
-    type: 'string',
-    value: ''
-  }, {
-    name: 'padding',
-    label: '内边',
-    type: 'number',
-    value: 5
   }, {
     name: 'itemLayout',
     label: '布局',
@@ -49,5 +40,5 @@ export default {
     name: 'renderItem',
     label: '单项模板',
     type: 'slot'
-  }]
+  }, ...bordered.props]
 }

@@ -1,3 +1,5 @@
+import bordered from '../bordered.d'
+
 export default class ListContainer {
   constructor (props) {
     this.props = props
@@ -77,7 +79,7 @@ export default class ListContainer {
       this.slotEl.parentElement.removeChild(this.slotEl)
       this.slotEl = null
     }
-    const { itemKey, dataSource, renderItem, slotKey } = this.props
+    const { itemKey, dataSource, renderItem } = this.props
     if (dataSource && renderItem) {
       for (let index = 0; index < dataSource.length; index++) {
         const data = dataSource[index]
@@ -93,12 +95,10 @@ export default class ListContainer {
           const wrapper = existedEl.elementWrapper
 
           // 更新属性后强制更新
-          wrapper.setScopeVariableValues({
-            [slotKey || '$scope']: {
-              index,
-              data,
-              listData: dataSource
-            }
+          wrapper.updateScopeVariableValues({
+            $item: data,
+            $index: index,
+            $list: dataSource
           })
           wrapper.forceUpdate()
         } else {
@@ -113,13 +113,24 @@ export default class ListContainer {
           }
           const newWrapper = renderItem.clone()
           newWrapper.setScopeVariableValues({
-            [slotKey || '$scope']: {
-              index,
-              data,
-              listData: dataSource
-            }
+            $hover: false,
+            $item: data,
+            $index: index,
+            $list: dataSource
           })
           newWrapper.mount(newEl)
+          newEl.onmouseover = () => {
+            newWrapper.updateScopeVariableValues({
+              $hover: true
+            })
+            newWrapper.forceUpdate()
+          }
+          newEl.onmouseout = () => {
+            newWrapper.updateScopeVariableValues({
+              $hover: false
+            })
+            newWrapper.forceUpdate()
+          }
         }
       }
 
@@ -136,9 +147,10 @@ export default class ListContainer {
     const style = {
       width: '100%',
       height: '100%',
-      padding: this.props.padding + 'px',
-      border: '1px solid #ccc'
+      overflow: 'overlay'
     }
+
+    Object.assign(style, bordered.style(this.props))
 
     if (!this.props.grid) {
       style.display = 'flex'

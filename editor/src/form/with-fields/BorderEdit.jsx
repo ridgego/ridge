@@ -1,6 +1,6 @@
 import React from 'react'
 import { HexColorPicker } from 'react-colorful'
-import { Select, Space, withField, Button, InputNumber, Popover } from '@douyinfe/semi-ui'
+import { Select, Space, withField, Button, InputNumber, Popover, Input } from '@douyinfe/semi-ui'
 
 const BorderEdit = withField((props) => {
   let sp = [0, 'solid', '#fff']
@@ -33,11 +33,18 @@ const BorderEdit = withField((props) => {
         }}
          />
       <Popover content={
-        <HexColorPicker
-          color={sp[2]} onChange={value => {
-            props.onChange(sp[0] + 'px ' + sp[1] + ' ' + value)
-          }}
-        />
+        <>
+          <HexColorPicker
+            color={sp[2]} onChange={value => {
+              props.onChange(sp[0] + 'px ' + sp[1] + ' ' + value)
+            }}
+          />
+          <Input
+            size='small' value={sp[2]} onChange={value => {
+              props.onChange(sp[0] + 'px ' + sp[1] + ' ' + value)
+            }}
+          />
+        </>
         }
       >
         <Button

@@ -39,6 +39,18 @@
     "icon": "img/image.svg",
     "width": 160,
     "height": 28
+  }, {
+    "title": "单选框",
+    "path": "build/checkbox-index.d.js",
+    "icon": "img/image.svg",
+    "width": 28,
+    "height": 28
+  }, {
+    "title": "按钮",
+    "path": "build/button-index.d.js",
+    "icon": "img/image.svg",
+    "width": 64,
+    "height": 28
   }],
   "author": "",
   "license": "ISC"

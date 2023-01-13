@@ -7,6 +7,7 @@ import EventEdit from './with-fields/EventEdit.jsx'
 import JSONEdit from './with-fields/JSONEdit.jsx'
 import ImageEdit from './with-fields/ImageEdit.jsx'
 import RadiusEdit from './with-fields/RadiusEdit.jsx'
+import ColorPicker from './with-fields/ColorPicker.jsx'
 
 import './form.less'
 
@@ -40,6 +41,7 @@ export default class ObjectForm extends React.Component {
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
       radius: (col, readonly) => <RadiusEdit label={col.label} field={col.field} disabled={readonly} />,
       background: (col, readonly) => <RadiusEdit label={col.label} field={col.field} disabled={readonly} />,
+      colorpicker: (col, readonly) => <ColorPicker label={col.label} field={col.field} disabled={readonly} />,
       json: (col, readonly) => <JSONEdit label={col.label} field={col.field} disabled={readonly} />
     }
   }

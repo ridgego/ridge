@@ -54,7 +54,7 @@ const EventEdit = withField(({
           }]
         }}
         msg='请输入取值表达式'
-        type='json' value={value} onChange={val => {
+        type='js' value={value} onChange={val => {
           actionChange('value', val, index)
         }}
       >
@@ -86,14 +86,7 @@ const EventEdit = withField(({
               <>
                 <div className='action-field'>
                   <div className='action-label'>目标</div>
-                  <Select
-                    size='small'
-                    style={{ width: 120 }}
-                    filter
-                    optionList={variableOptionList}
-                    value={action.target}
-                    onChange={(value) => actionChange('target', value, index)}
-                  />
+                  <Input size='small' value={action.target} onChange={(value) => actionChange('target', value, index)} />
                 </div>
                 <div className='action-field'>
                   <div className='action-label'>取值</div>
