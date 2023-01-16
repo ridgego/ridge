@@ -24,7 +24,7 @@ export const PANEL_SIZE_1920 = {
 
 export const PANEL_SIZE_1366 = {
   ADD: [45, 5, 0, 0, 280, 360],
-  OUTLINE: [45, 370, 0, 5, 280, 0],
+  LEFT_BOTTOM: [45, 370, 0, 5, 280, 0],
   PROP: [0, 5, 5, 0, 280, 400],
   DATA: [0, 410, 5, 5, 280, 0]
 }

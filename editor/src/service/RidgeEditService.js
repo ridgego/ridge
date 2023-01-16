@@ -1,6 +1,6 @@
 import EventEmitter from 'eventemitter3'
 
-import { Ridge } from 'ridge-runtime'
+import Ridge from 'ridge-runtime'
 
 import ApplicationService from './ApplicationService.js'
 import ConfigService from './ConfigService.js'

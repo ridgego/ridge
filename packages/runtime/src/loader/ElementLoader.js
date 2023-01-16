@@ -558,6 +558,10 @@ class ElementLoader {
       await this.loadExternals(Object.keys(packageObject.dependencies))
     }
   }
+
+  async loadJSON (path) {
+    return await ky.get(path).json()
+  }
 }
 
 export default ElementLoader

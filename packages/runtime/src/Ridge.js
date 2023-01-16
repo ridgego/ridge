@@ -4,7 +4,7 @@ import PageElementManager from './element/PageElementManager'
  * The Ridge Platform Runtime
  */
 class Ridge {
-  constructor (opts) {
+  constructor (opts = {}) {
     const baseUrl = opts.baseUrl ?? '/npm_packages'
     const unpkgUrl = opts.unkpgUrl ?? baseUrl
     const debugUrl = opts.debugUrl
@@ -15,6 +15,14 @@ class Ridge {
       unpkgUrl
     })
     this.pageElementManagers = {}
+  }
+
+  static async load (json) {
+    const instance = new Ridge()
+    window.ridge = instance
+
+    const jsonObject = await instance.loader.loadJSON(json)
+    instance.loadPage(null, jsonObject)
   }
 
   /**

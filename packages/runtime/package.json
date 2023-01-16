@@ -4,7 +4,7 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint",
-    "build": "babel src -d lib"
+    "build": "webpack --config webpack.config.js"
   },
   "license": "ISC",
   "dependencies": {
@@ -24,6 +24,7 @@
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-syntax-flow": "^7.16.5",
     "@babel/preset-env": "^7.14.2",
-    "@babel/preset-react": "^7.13.13"
+    "@babel/preset-react": "^7.13.13",
+    "@rollup/plugin-node-resolve": "^15.0.1"
   }
 }

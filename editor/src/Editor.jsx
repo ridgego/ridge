@@ -13,7 +13,6 @@ import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
 import { ridge, emit, on } from './service/RidgeEditService.js'
 
 import './css/editor.less'
-import { PageElementManager } from 'ridge-runtime'
 
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
@@ -145,16 +144,6 @@ export default class Editor extends React.Component {
 
     this.workspaceControl.setPageManager(this.pageElementManager)
     this.workspaceControl.fitToCenter()
-  }
-
-  loadPageRun (pageConfig) {
-    trace('runPage', pageConfig)
-    if (this.pageElementManager) {
-      this.pageElementManager.unmount()
-    }
-    this.pageElementManager = new PageElementManager(pageConfig, this.ridge)
-    this.pageElementManager.mount(document.querySelector('.viewport-container'))
-    this.pageElementManager.forceUpdate()
   }
 
   componentDidMount () {

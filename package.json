@@ -13,12 +13,11 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {},
   "devDependencies": {
     "standard": "^17.0.0"
   },
   "browserslist": [
-      "last 1 chrome version",
-      "last 1 firefox version"
-  ]   
+    "last 1 chrome version",
+    "last 1 firefox version"
+  ]
 }

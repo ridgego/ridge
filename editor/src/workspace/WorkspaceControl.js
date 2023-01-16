@@ -29,15 +29,14 @@ export default class WorkSpaceControl {
       }
     })
     this.enable()
+    this.initComponentDrop()
+    this.initKeyBind()
   }
 
   enable () {
     this.initSelecto()
     this.initMoveable()
     this.setWorkSpaceMovable()
-
-    this.initComponentDrop()
-    this.initKeyBind()
   }
 
   disable () {
