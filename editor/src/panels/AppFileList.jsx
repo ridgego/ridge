@@ -1,10 +1,10 @@
 import React from 'react'
 import trim from 'lodash/trim'
 import debug from 'debug'
-import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview } from '@douyinfe/semi-ui'
-import { IconFolderOpen, IconImage, IconEditStroked, IconFont, IconPlusStroked, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
+import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin } from '@douyinfe/semi-ui'
+import { IconTick, IconFolderOpen, IconImage, IconEditStroked, IconFont, IconPlusStroked, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on } from '../service/RidgeEditService.js'
-import { EVENT_PAGE_LOADED, EVENT_PAGE_OPEN } from '../constant'
+import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED } from '../constant'
 import '../css/app-file-panel.less'
 
 const trace = debug('ridge:file-list')
@@ -21,20 +21,12 @@ class AppFileList extends React.Component {
       imagePreviewSrc: null,
       expandedKeys: [],
       files: [],
-      treeData: [],
+      treeData: null,
       selected: null,
       currentEditKey: null,
       currentEditValid: true,
       currentEditValue: ''
     }
-    on(EVENT_PAGE_LOADED, ({
-      pageConfig
-    }) => {
-      this.setState({
-        currentOpenId: pageConfig.id
-      })
-    })
-    trace('constructor')
   }
 
   getFileTree (files) {
@@ -77,12 +69,34 @@ class AppFileList extends React.Component {
   }
 
   componentDidMount () {
-    this.updateFileTree()
+    this.openAppFileTree()
+  }
+
+  async openAppFileTree () {
+    await this.updateFileTree()
+
+    if (this.files.filter(a => a.type === 'page').length === 0) {
+      await ridge.appService.createPage(-1)
+    }
+
+    await this.updateFileTree()
+
+    const sorted = this.files.filter(a => a.type === 'page').sort((a, b) => a.updatedAt - b.updatedAt)
+
+    this.setState({
+      currentOpenId: sorted[0].id
+    })
+
+    emit(EVENT_PAGE_OPEN, sorted[0].id)
   }
 
   async updateFileTree () {
+    trace('FileList  updateFileTree')
     const { appService } = ridge
+
     const files = await appService.getFiles(this.props.filter)
+    this.files = files
+    trace('FileList  files Loaded', files)
     const treeData = this.getFileTree(files)
     this.setState({
       treeData,
@@ -158,8 +172,12 @@ class AppFileList extends React.Component {
       const { appService } = ridge
       await appService.rename(this.state.currentEditKey, this.state.currentEditValue)
       this.updateFileTree()
+      if (this.state.currentOpenId === this.state.currentEditKey) {
+        emit(EVENT_PAGE_RENAMED, this.state.currentEditValue)
+      }
       this.setState({
-        currentEditValid: true
+        currentEditValid: true,
+        currentEditKey: null
       })
     }
   }
@@ -201,9 +219,21 @@ class AppFileList extends React.Component {
     })
   }
 
+  copy = async node => {
+    const { appService } = ridge
+    await appService.copy(node.key)
+    await this.updateFileTree()
+  }
+
   open = async (node) => {
     if (node.type === 'page') {
+      if (this.state.currentOpenId === node.key) {
+        return
+      }
       emit(EVENT_PAGE_OPEN, node.key)
+      this.setState({
+        currentOpenId: node.key
+      })
     } else if (node.mimeType && node.mimeType.indexOf('image/') > -1) {
       const otherImageFiles = this.state.files.filter(file => {
         if (file.mimeType && file.mimeType.indexOf('image/') > -1 && file.id !== node.key) {
@@ -322,6 +352,14 @@ class AppFileList extends React.Component {
         >打开
         </Dropdown.Item>
       )
+      MORE_MENUS.push(
+        <Dropdown.Item
+          icon={<IconFolderOpen />} onClick={() => {
+            this.copy(data)
+          }}
+        >复制页面
+        </Dropdown.Item>
+      )
     }
     MORE_MENUS.push(
       <Dropdown.Item
@@ -343,12 +381,14 @@ class AppFileList extends React.Component {
     )
     return (
       <div>
-        {data.key === currentEditKey && <Input
-          validateStatus={!currentEditValid ? 'error' : 'default'}
-          onChange={(val) => {
-            this.editLabelCheck(val)
-          }} size='small' defaultValue={label}
-                                        />}
+        {data.key === currentEditKey &&
+          <Input
+            validateStatus={!currentEditValid ? 'error' : 'default'}
+            onChange={(val) => {
+              this.editLabelCheck(val)
+            }} size='small' defaultValue={label}
+            suffix={<IconTick onClick={() => this.checkUpdateEditName()} color={!currentEditValid ? 'error' : 'default'} />}
+          />}
         {data.key !== currentEditKey &&
           <div className={'tree-label' + (currentOpenId === data.key ? ' opened' : '')}>
             <Text className='label-content'>{label}</Text>
@@ -390,31 +430,32 @@ class AppFileList extends React.Component {
             })
           }}
         />
-        <Tree
-          className='file-tree'
-          directory
-          draggable
-          expandedKeys={expandedKeys}
-          renderLabel={renderFullLabel}
-          value={selected}
-          treeData={treeData}
-          onDrop={({ node, dragNode, dropPosition, dropToGap }) => {
-            console.log(node, dragNode, dropPosition, dropToGap)
-            this.move(node, dragNode, dropToGap)
-          }}
-          onExpand={expandedKeys => {
-            this.setState({
-              expandedKeys
-            })
-          }}
-          onDoubleClick={(ev, node) => {
-            this.open(node)
-          }}
-          onChange={(value) => {
-            this.selectNode(value)
-          }}
-        />
-
+        {treeData &&
+          <Tree
+            className='file-tree'
+            directory
+            draggable
+            expandedKeys={expandedKeys}
+            renderLabel={renderFullLabel}
+            value={selected}
+            treeData={treeData}
+            onDrop={({ node, dragNode, dropPosition, dropToGap }) => {
+              console.log(node, dragNode, dropPosition, dropToGap)
+              this.move(node, dragNode, dropToGap)
+            }}
+            onExpand={expandedKeys => {
+              this.setState({
+                expandedKeys
+              })
+            }}
+            onDoubleClick={(ev, node) => {
+              this.open(node)
+            }}
+            onChange={(value) => {
+              this.selectNode(value)
+            }}
+          />}
+        {!treeData && <div className='tree-loading'><Spin size='middle' /></div>}
       </>
     )
   }

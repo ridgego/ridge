@@ -3,6 +3,7 @@ import { Tabs, TabPane, Spin, List } from '@douyinfe/semi-ui'
 import MoveablePanel from './MoveablePanel.jsx'
 import PackageManager from '../service/PackageManager'
 import '../css/component-add.less'
+const trace = require('debug')('ridge:component-panel')
 
 class ComponentAddPanel extends React.Component {
   constructor () {
@@ -39,7 +40,9 @@ class ComponentAddPanel extends React.Component {
 
   componentDidMount () {
     if (!this.state.packageListingLoaded) {
+      trace('Request package listing')
       this.packageManager.getBuildInPackages().then(result => {
+        trace('App Package Loaded')
         this.setState({
           currentPackage: this.packageManager.packageNames[0],
           packages: result,

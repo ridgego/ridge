@@ -55,14 +55,16 @@ export default class Editor extends React.Component {
   async openApp () {
     // await this.ridge.appService.updateDataUrl()
     // 应用管理器初始化
-    const pageObject = await this.ridge.appService.getRecentPage()
-    this.loadPage(pageObject)
+    trace('open App')
+    // const pageObject = await this.ridge.appService.getRecentPage()
+    // this.loadPage(pageObject)
   }
 
   /**
    * 编辑工具模式下初始化： 从本地存储获取相关页面及配置
    */
   initialize () {
+    trace('editor initialize')
     this.ridge = ridge
 
     on(EVENT_PAGE_VAR_CHANGE, (variables) => {
@@ -73,7 +75,6 @@ export default class Editor extends React.Component {
       this.pageElementManager.updatePageProperties(properties)
       this.debouncedSaveUpdatePage()
     })
-
     on(EVENT_ELEMENT_PROP_CHANGE, ({ el, values, field }) => {
       el.elementWrapper.setPropsConfig(values, field)
       if (field.title) {
@@ -96,9 +97,11 @@ export default class Editor extends React.Component {
     on(EVENT_PAGE_OPEN, async (id) => {
       const file = await this.ridge.appService.getFile(id)
       if (file.type === 'page') {
-        await this.saveCurrentPage()
+        if (this.pageElementManager) {
+          await this.saveCurrentPage()
+          this.pageElementManager.unmount()
+        }
         this.workspaceControl.selectElements([], true)
-        this.pageElementManager.unmount()
         this.loadPage(file)
       }
     })
@@ -116,9 +119,9 @@ export default class Editor extends React.Component {
   async saveCurrentPage () {
     if (this.pageElementManager) {
       const pageJSONObject = this.pageElementManager.getPageJSON()
-      Object.assign(this.pageConfig, pageJSONObject)
-      trace('Save Page', this.pageConfig)
-      await this.ridge.appService.saveOrUpdate(this.pageConfig)
+      this.pageConfig.content = pageJSONObject
+      trace('Save Page', this.pageConfig.id, pageJSONObject)
+      await this.ridge.appService.savePageContent(this.pageConfig.id, pageJSONObject)
     }
   }
 
@@ -131,12 +134,12 @@ export default class Editor extends React.Component {
     trace('loadPage', pageConfig)
     this.pageConfig = pageConfig
     // 从HTML初始化页面管理器
-    this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig)
+    this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content)
     this.pageElementManager.setMode('edit')
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
     emit(EVENT_PAGE_LOADED, {
-      pageConfig,
+      name: pageConfig.name,
       pageProperties: this.pageElementManager.getPageProperties(),
       pageVariables: this.pageElementManager.getVariableConfig(),
       elements: this.pageElementManager.getPageElements()
@@ -157,10 +160,7 @@ export default class Editor extends React.Component {
 
   render () {
     const {
-      viewPortRef,
       rightPanelRef,
-      dataPanelRef,
-      workspaceRef,
       state
     } = this
 
@@ -247,7 +247,7 @@ export default class Editor extends React.Component {
         this.workspaceControl.disable()
 
         this.pageElementManager.unmount()
-        this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), this.pageConfig)
+        this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), this.pageConfig.content)
         this.pageElementManager.setMode('run')
       } else {
         this.pageElementManager.unmount()

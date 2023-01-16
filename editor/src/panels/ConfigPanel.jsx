@@ -5,7 +5,7 @@ import MoveablePanel from './MoveablePanel.jsx'
 import { ridge, emit, on } from '../service/RidgeEditService.js'
 
 import {
-  EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE
+  EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED
 } from '../constant.js'
 
 const FORM_COMPONENT_BASIC = [{
@@ -134,17 +134,22 @@ export default class ComponentPanel extends React.Component {
   }
 
   initEvents () {
-    on(EVENT_PAGE_LOADED, ({ pageConfig, pageProperties, pageVariables }) => {
+    on(EVENT_PAGE_LOADED, ({ name, pageProperties, pageVariables }) => {
       for (const key of Object.keys(pageProperties)) {
         this.pagePropFormApi.setValue(key, pageProperties[key], {
           notNotify: true
         })
       }
-      this.pagePropFormApi.setValue('name', pageConfig.name, {
+      this.pagePropFormApi.setValue('name', name, {
         notNotify: true
       })
       this.setState({
         pageVariables
+      })
+    })
+    on(EVENT_PAGE_RENAMED, name => {
+      this.pagePropFormApi.setValue('name', name, {
+        notNotify: true
       })
     })
     on(EVENT_PAGE_PROP_CHANGE, ({ from, properties }) => {

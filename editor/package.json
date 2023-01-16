@@ -17,6 +17,7 @@
     "eventemitter3": "^5.0.0",
     "jszip": "^3.10.1",
     "localforage": "^1.10.0",
+    "lowdb": "^5.0.5",
     "mousetrap": "^1.6.5",
     "moveable": "^0.37.1",
     "nanobus": "^4.5.0",

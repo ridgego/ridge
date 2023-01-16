@@ -1,4 +1,6 @@
 import NeCollection from './NeCollection.js'
+
+// import LowCollection from './LowCollection.js'
 import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
 import { emit } from './RidgeEditService.js'
@@ -8,7 +10,7 @@ const { nanoid } = require('../utils/string')
 export default class ApplicationService {
   constructor () {
     this.collection = new NeCollection('ridge.app.db')
-    this.trashColl = new NeCollection('ridge.trash.db')
+    // this.trashColl = new NeCollection('ridge.trash.db')
 
     this.store = Localforge.createInstance({
       name: 'ridge-store'
@@ -17,32 +19,38 @@ export default class ApplicationService {
     this.dataUrls = {}
   }
 
+  /**
+   * 获取新的文件名称（去重）
+   * @param {*} parent
+   * @param {*} baseName
+   * @param {*} nextNameFunc
+   * @returns
+   */
+  async getNewFileName (parent, baseName, nextNameFunc) {
+    let n = 0
+    while (await this.collection.findOne({
+      parent,
+      name: n === 0 ? baseName : (baseName + nextNameFunc(n))
+    })) {
+      n++
+    }
+    return n === 0 ? baseName : (baseName + nextNameFunc(n))
+  }
+
   async createDirectory (parent, name) {
     const dirObject = {
       parent,
       id: nanoid(10),
-      name,
+      name: await this.getNewFileName(parent, name || '新建文件夹', n => `(${n})`),
       type: 'directory'
     }
-
-    let n = 0
-    while (await this.collection.findOne({
-      parent,
-      name: n === 0 ? (name || '文件夹') : ((name || '文件夹') + n)
-    })) {
-      n++
-    }
-
-    dirObject.name = (n === 0 ? (name || '文件夹') : ((name || '文件夹') + n))
     await this.collection.insert(dirObject)
   }
 
   async createPage (parentId, name) {
-    let n = 0
-    const pageObject = {
-      id: nanoid(10),
-      type: 'page',
-      parent: parentId,
+    const id = nanoid(10)
+    const pageContent = {
+      id,
       properties: {
         type: 'fixed',
         width: 800,
@@ -51,14 +59,14 @@ export default class ApplicationService {
       variables: [],
       elements: []
     }
-
-    while (await this.collection.findOne({
+    const pageObject = {
+      id,
+      name: await this.getNewFileName(parentId, name || '新建页面', n => `(${n})`),
+      type: 'page',
       parent: parentId,
-      name: n === 0 ? (name || '页面') : ((name || '页面') + n)
-    })) {
-      n++
+      mimeType: 'text/json'
     }
-    pageObject.name = (n === 0 ? (name || '页面') : ((name || '页面') + n))
+    await this.store.setItem(id, pageContent)
     await this.collection.insert(pageObject)
   }
 
@@ -69,19 +77,14 @@ export default class ApplicationService {
    * @returns
    */
   async createFile (file, dir) {
-    const existed = await this.collection.findOne({ parent: dir, name: file.name })
-    if (existed) {
-      return false
-    }
     const id = nanoid(10)
     const dataUrl = await this.blobToDataUrl(file)
 
     await this.store.setItem(id, dataUrl)
     await this.collection.insert({
       id,
-      type: 'file',
       mimeType: file.type,
-      size: file.size,
+      size: await this.getNewFileName(dir, file.name, n => `(${n})`),
       name: file.name,
       parent: dir
     })
@@ -89,14 +92,10 @@ export default class ApplicationService {
   }
 
   /**
-   * 保存一个页面配置
-   */
-  async saveOrUpdate (pageObject) {
-    if (await this.collection.findOne({ id: pageObject.id })) {
-      return await this.collection.update({ id: pageObject.id }, pageObject)
-    } else {
-      return await this.collection.insert(pageObject)
-    }
+     * 保存页面配置
+     */
+  async savePageContent (id, content) {
+    await this.store.setItem(id, content)
   }
 
   /**
@@ -147,11 +146,29 @@ export default class ApplicationService {
     }
   }
 
+  async copy (id) {
+    const existed = await this.collection.findOne({ id })
+
+    if (existed) {
+      const newObject = {
+        ...existed
+      }
+      const newId = nanoid(10)
+      newObject.name = await this.getNewFileName(existed.parent, existed.name, n => `(${n})`)
+      newObject.copyFrom = existed.id
+      newObject.id = newId
+      const content = await this.store.getItem(existed.id)
+      if (content) {
+        await this.store.setItem(newId, content)
+      }
+    }
+  }
+
   // 删除一个节点到回收站
   async trash (id) {
     const existed = await this.collection.findOne({ id })
     if (existed) {
-      if (existed.type === 'file') {
+      if (existed.type !== 'directory') {
         await this.store.removeItem(id)
       }
       // 递归删除
@@ -189,7 +206,11 @@ export default class ApplicationService {
 
   async getFile (id) {
     const file = await this.collection.findOne({ id })
-    return file
+
+    if (file) {
+      file.content = await this.store.getItem(id)
+      return file
+    }
   }
 
   /**
@@ -227,7 +248,10 @@ export default class ApplicationService {
     if (pages.length === 0) {
       return this.createPage(-1)
     } else {
-      return pages[0]
+      return {
+        ...pages[0],
+        ...(await this.store.getItem(pages[0].id))
+      }
     }
   }
 

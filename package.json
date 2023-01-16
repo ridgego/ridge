@@ -19,5 +19,8 @@
   "browserslist": [
     "last 1 chrome version",
     "last 1 firefox version"
-  ]
+  ],
+  "dependencies": {
+    "lowdb": "^5.0.5"
+  }
 }
