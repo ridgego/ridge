@@ -134,8 +134,7 @@ export default class Editor extends React.Component {
     trace('loadPage', pageConfig)
     this.pageConfig = pageConfig
     // 从HTML初始化页面管理器
-    this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content)
-    this.pageElementManager.setMode('edit')
+    this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, 'edit')
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
     emit(EVENT_PAGE_LOADED, {
@@ -247,8 +246,7 @@ export default class Editor extends React.Component {
         this.workspaceControl.disable()
 
         this.pageElementManager.unmount()
-        this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), this.pageConfig.content)
-        this.pageElementManager.setMode('run')
+        this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), this.pageConfig.content, 'run')
       } else {
         this.pageElementManager.unmount()
         this.loadPage(this.pageConfig)

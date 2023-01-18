@@ -53,9 +53,13 @@ export default class FlexBoxContainer {
     const style = {}
     if (wrapper.config.props.styleMargin) {
       style.margin = wrapper.config.props.styleMargin
+    } else {
+      style.margin = 0
     }
     if (wrapper.config.props.flex) {
       style.flex = wrapper.config.props.flex
+    } else {
+      style.flex = ''
     }
   }
 
@@ -70,7 +74,9 @@ export default class FlexBoxContainer {
     // 获取当前放置的次序
     const afterNode = this.getAfterNode(el, this.containerEl.childNodes, direction)
     const style = {
-      position: 'relative'
+      position: 'relative',
+      left: 0,
+      top: 0
     }
 
     if (direction === 'row' && alignItems === 'stretch') {
@@ -81,12 +87,13 @@ export default class FlexBoxContainer {
     }
 
     Object.assign(style, this.getChildrenWrapperStyle(wrapper))
-    Object.assign(el.style, style)
     if (afterNode) {
       this.containerEl.insertBefore(el, afterNode)
     } else {
       this.containerEl.appendChild(el)
     }
+
+    wrapper.setStyle(style)
   }
 
   getAfterNode (dropped, siblings, row) {

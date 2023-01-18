@@ -48,6 +48,7 @@ export default class CheckBox {
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
       backgroundImage: '',
+      margin: 0,
       backgroundColor: this.props.backgroundColor
     }
     if (this.input.checked) {

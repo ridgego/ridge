@@ -15,23 +15,43 @@ export default {
     type: 'string',
     control: 'colorpicker'
   }, {
+    label: '字号',
+    name: 'fontSize',
+    party: true,
+    type: 'number',
+    value: 14
+  }, {
+    label: '行高',
+    name: 'lineHeight',
+    type: 'number',
+    value: 14
+  }, {
     name: 'fontWeight',
     label: '粗细',
     type: 'string',
-    control: 'fontWeight'
-  }, {
-    label: '字号',
-    name: 'fontSize',
-    type: 'number',
-    value: 14
+    control: 'radiogroup',
+    optionList: [{
+      label: '细',
+      style: {
+        fontWeight: 'lighter'
+      },
+      value: 'lighter'
+    }, {
+      label: '正常',
+      style: {
+        fontWeight: 'normal'
+      },
+      value: 'normal'
+    }, {
+      label: '加粗',
+      style: {
+        fontWeight: 'bold'
+      },
+      value: 'bold'
+    }]
   }, {
     label: '字体',
     name: 'fontFamilly',
     type: 'font'
-  }, {
-    label: '换行',
-    name: 'breakLines',
-    type: 'string',
-    control: 'word-line'
   }]
 }

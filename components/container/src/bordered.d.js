@@ -2,6 +2,7 @@ export default {
   style: (props) => {
     return {
       border: props.border,
+      background: props.background,
       padding: props.padding,
       borderRadius: props.radius,
       shadow: props.shadow
@@ -17,13 +18,17 @@ export default {
     name: 'radius',
     label: '圆角',
     type: 'string',
-    control: 'radius'
+    control: 'px4'
   }, {
     name: 'padding',
-    label: '内边距',
+    label: '内边',
     type: 'string',
-    control: 'padding',
-    value: '5px'
+    control: 'px4'
+  }, {
+    name: 'background',
+    label: '背景',
+    type: 'string',
+    control: 'background'
   }, {
     name: 'shadow',
     label: '阴影',

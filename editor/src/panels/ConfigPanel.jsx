@@ -107,8 +107,7 @@ const FORM_PAGE_PROPS = [{
       label: '背景',
       bindable: false,
       field: 'background',
-      type: 'string',
-      control: 'background'
+      type: 'string'
     }]
   }]
 }]

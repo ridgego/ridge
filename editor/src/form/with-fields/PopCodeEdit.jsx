@@ -26,8 +26,8 @@ const CodeExprEdit = withField(({
         setOpen(open)
       }}
     >
-      {value && <Button placeholder='绑定表达式' type='primary' size='small' theme='borderless' icon={<IconCode />} />}
-      {!value && <Button className={open ? 'is-open' : ''} type='tertiary' size='small' theme='borderless' icon={<IconCode />} />}
+      {value && <Button className='btn-code' placeholder='绑定表达式' type='primary' size='small' theme='borderless' icon={<IconCode />} />}
+      {!value && <Button className={open ? 'is-open btn-code' : 'btn-code'} type='tertiary' size='small' theme='borderless' icon={<IconCode />} />}
     </PopUpCodeEdit>
   )
 })

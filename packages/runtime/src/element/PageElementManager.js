@@ -106,8 +106,23 @@ class PageElementManager {
   }
 
   updateRootElStyle () {
-    this.el.style.width = this.pageConfig.properties.width + 'px'
-    this.el.style.height = this.pageConfig.properties.height + 'px'
+    if (this.mode === 'run') {
+      if (this.pageConfig.properties.type === 'fit-wh') {
+        this.el.style.position = 'absolute'
+        this.el.style.left = 0
+        this.el.style.right = 0
+        this.el.style.top = 0
+        this.el.style.bottom = 0
+      }
+    }
+    if (this.mode === 'edit') {
+      this.el.style.width = this.pageConfig.properties.width + 'px'
+      this.el.style.height = this.pageConfig.properties.height + 'px'
+    }
+
+    if (this.pageConfig.properties.background) {
+      this.el.style.background = this.pageConfig.properties.background
+    }
   }
 
   async unmount () {
@@ -144,6 +159,7 @@ class PageElementManager {
   }
 
   setMode (mode) {
+    this.mode = mode
     for (const element of Object.values(this.pageElements)) {
       element.setMode(mode)
     }

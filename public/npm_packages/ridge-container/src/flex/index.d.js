@@ -11,10 +11,11 @@ export default {
     type: 'string',
     control: 'radiogroup',
     optionList: [{
-      icon: 'IconDescend2',
+      icon: 'IconSortStroked',
       value: 'row'
     }, {
-      icon: 'IconDescend2',
+      icon: 'IconSortStroked',
+      rotate: 90,
       value: 'column'
     }],
     value: 'row'
@@ -22,41 +23,42 @@ export default {
     name: 'justify',
     label: '对齐方式',
     type: 'string',
-    control: 'select',
+    control: 'radiogroup',
     optionList: [{
-      label: '顶端',
+      icon: 'IconCenterLeftStroked',
       value: 'flex-start'
     }, {
-      label: '底部',
-      value: 'flex-end'
-    }, {
       label: '正中',
+      icon: 'IconCarouselStroked',
       value: 'center'
     }, {
-      label: '中央平分',
-      value: 'space-between'
-    }, {
-      label: '两端平分',
-      value: 'space-around'
+      icon: 'IconCenterRightStroked',
+      label: '底部',
+      value: 'flex-end'
     }],
     value: 'flex-start'
   }, {
     name: 'alignItems',
     label: '交叉对齐',
     type: 'string',
-    control: 'select',
+    control: 'radiogroup',
     optionList: [{
       label: '起点对齐',
+      icon: 'IconAlignHLeftStroked',
       value: 'flex-start'
     }, {
-      label: '终点对齐',
-      value: 'flex-end'
-    }, {
       label: '正中对齐',
+      icon: 'IconAlignHCenterStroked',
       value: 'center'
     }, {
       label: '填充对齐',
+      icon: 'IconSectionStroked',
       value: 'stretch'
+    },
+    {
+      label: '终点对齐',
+      icon: 'IconAlignHRightStroked',
+      value: 'flex-end'
     }],
     value: 'flex-start'
   }, {
@@ -76,6 +78,7 @@ export default {
   childStyle: [{
     name: 'flex',
     label: '弹性',
+    party: true,
     type: 'string'
   }, {
     name: 'margin',

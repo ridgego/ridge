@@ -8,11 +8,30 @@ const RadioGroupEdit = withField(({
   onChange
 }) => {
   return (
-    <RadioGroup type='button' buttonSize='small' value={value}>
+    <RadioGroup
+      type='button' buttonSize='small' value={value} onChange={e => {
+        onChange(e.target.value)
+      }}
+    >
       {options &&
       options.map(option => {
-        const Icon = SEMI_ICONS[option.icon]
-        return <Radio key={option.value} value={option.value}><Icon rotate={option.rotate || 0} /></Radio>
+        if (option.icon) {
+          const Icon = SEMI_ICONS[option.icon]
+          return <Radio key={option.value} value={option.value}><Icon rotate={option.rotate || 0} /></Radio>
+        } else if (option.label) {
+          return (
+            <Radio key={option.value} value={option.value}>
+              <div style={{
+                fontSize: '14px',
+                ...option.style
+              }}
+              >{option.label}
+              </div>
+            </Radio>
+          )
+        } else {
+          return <Radio key={option.value} value={option.value} />
+        }
       })}
     </RadioGroup>
   )

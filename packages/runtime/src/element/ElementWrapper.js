@@ -391,6 +391,7 @@ class ElementWrapper {
   }
 
   emit (eventName, payload) {
+    log('Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
       if (this.config.propEx.value && Object.keys(this.getVariableContext()).indexOf(this.config.propEx.value) > -1) {
@@ -411,6 +412,7 @@ class ElementWrapper {
             if (action.target.indexOf('.') > -1) {
               lodashSet(variableContext, action.target, newVariableValue)
             } else {
+              log('Update Variable:', action.target, newVariableValue)
               this.pageManager.updatePageVariableValue({
                 [action.target]: newVariableValue
               })
@@ -459,8 +461,7 @@ class ElementWrapper {
     this.addMaskLayer({
       el: el || this.el,
       name: status,
-      className: 'status-' + status,
-      zIndex: -1
+      className: 'status-' + status
     })
   }
 
@@ -518,6 +519,9 @@ class ElementWrapper {
    * @param {*} style
    */
   setStyle (style) {
+    if (style.hasOwnProperty('flex') && style.flex == null) {
+      style.flex = ''
+    }
     Object.assign(this.config.style, style)
 
     this.forceUpdateStyle()

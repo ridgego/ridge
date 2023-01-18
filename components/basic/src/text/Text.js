@@ -22,13 +22,16 @@ export default class Text {
     if (this.props.fontSize) {
       style.fontSize = this.props.fontSize + 'px'
     }
+    if (this.props.lineHeight) {
+      style.lineHeight = this.props.lineHeight + 'px'
+    }
 
     return style
   }
 
   update (props) {
     Object.assign(this.props, props)
-
+    this.textDiv.innerHTML = this.props.text
     Object.assign(this.textDiv.style, this.getStyle())
   }
 }
