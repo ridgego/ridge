@@ -1,11 +1,10 @@
-export default class CheckBox {
+export default class Icon {
   constructor (props) {
     this.props = props
   }
 
   async mount (el) {
     this.el = el
-    // <input class="task-status" type="checkbox" checked="true" data-id="-1">
     this.button = document.createElement('button')
 
     this.el.append(this.button)

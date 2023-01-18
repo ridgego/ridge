@@ -6,6 +6,7 @@ import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
 import EventEdit from './with-fields/EventEdit.jsx'
 import JSONEdit from './with-fields/JSONEdit.jsx'
 import ImageEdit from './with-fields/ImageEdit.jsx'
+import IconEdit from './with-fields/IconEdit.jsx'
 import Px4Edit from './with-fields/Px4Edit.jsx'
 import BackgroundEdit from './with-fields/BackgroundEdit.jsx'
 import ColorPicker from './with-fields/ColorPicker.jsx'
@@ -42,6 +43,7 @@ export default class ObjectForm extends React.Component {
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
       event: (col, readonly, options) => <EventEdit className='event-field' labelPosition='top' label={col.label} field={col.field} options={options} />,
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
+      icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
       px4: (col, readonly) => <Px4Edit label={col.label} field={col.field} disabled={readonly} />,
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,
       colorpicker: (col, readonly) => <ColorPicker label={col.label} field={col.field} disabled={readonly} />,

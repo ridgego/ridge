@@ -5,10 +5,6 @@ export default ({
   images,
   select
 }) => {
-  useEffect(() => {
-
-  }, [true])
-
   const onSelect = (file) => {
     // 选择后将filePath传出
     const { appService } = ridge

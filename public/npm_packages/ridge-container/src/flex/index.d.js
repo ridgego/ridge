@@ -64,6 +64,7 @@ export default {
   }, {
     label: '间隔',
     name: 'gap',
+    party: true,
     type: 'number',
     value: 0
   }, {
