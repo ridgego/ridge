@@ -150,13 +150,16 @@ export default class ApplicationService {
     const existed = await this.collection.findOne({ id })
 
     if (existed) {
-      const newObject = {
-        ...existed
-      }
       const newId = nanoid(10)
-      newObject.name = await this.getNewFileName(existed.parent, existed.name, n => `(${n})`)
-      newObject.copyFrom = existed.id
-      newObject.id = newId
+      const newObject = {
+        id: newId,
+        name: await this.getNewFileName(existed.parent, existed.name, n => `(${n})`),
+        type: existed.type,
+        parent: existed.parent,
+        mimeType: existed.mimeType,
+        copyFrom: id
+      }
+      await this.collection.insert(newObject)
       const content = await this.store.getItem(existed.id)
       if (content) {
         await this.store.setItem(newId, content)

@@ -81,7 +81,7 @@ class AppFileList extends React.Component {
 
     await this.updateFileTree()
 
-    const sorted = this.files.filter(a => a.type === 'page').sort((a, b) => a.updatedAt - b.updatedAt)
+    const sorted = this.files.filter(a => a.type === 'page').sort((a, b) => b.updatedAt - a.updatedAt)
 
     this.setState({
       currentOpenId: sorted[0].id

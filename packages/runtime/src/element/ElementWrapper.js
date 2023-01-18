@@ -247,6 +247,7 @@ class ElementWrapper {
 
   forceUpdateStyle () {
     if (this.el) {
+      Object.assign(this.el.style, this.config.style)
       if (this.config.props.coverContainer) {
         this.el.style.width = '100%'
         this.el.style.height = '100%'
@@ -595,6 +596,10 @@ class ElementWrapper {
     } else {
       return []
     }
+  }
+
+  getConfigurableProps () {
+    return [...this.componentDefinition.props, ...(this.parentWrapper?.componentDefinition?.childProps || [])]
   }
 
   toJSON () {

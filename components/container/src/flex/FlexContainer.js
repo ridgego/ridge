@@ -37,13 +37,26 @@ export default class FlexBoxContainer {
       for (const childWrapper of this.props.children) {
         const childDiv = document.createElement('div')
         containerDiv.appendChild(childDiv)
+
         childWrapper.mount(childDiv)
+
+        Object.assign(childDiv.style, this.getChildrenWrapperStyle(childWrapper))
       }
     }
   }
 
   updateChild (el) {
     this.appendChild(el)
+  }
+
+  getChildrenWrapperStyle (wrapper) {
+    const style = {}
+    if (wrapper.config.props.styleMargin) {
+      style.margin = wrapper.config.props.styleMargin
+    }
+    if (wrapper.config.props.flex) {
+      style.flex = wrapper.config.props.flex
+    }
   }
 
   appendChild (wrapper) {
@@ -59,13 +72,16 @@ export default class FlexBoxContainer {
     const style = {
       position: 'relative'
     }
+
     if (direction === 'row' && alignItems === 'stretch') {
       style.height = ''
     }
     if (direction === 'column' && alignItems === 'stretch') {
       style.width = ''
     }
-    wrapper.setStyle(style)
+
+    Object.assign(style, this.getChildrenWrapperStyle(wrapper))
+    Object.assign(el.style, style)
     if (afterNode) {
       this.containerEl.insertBefore(el, afterNode)
     } else {

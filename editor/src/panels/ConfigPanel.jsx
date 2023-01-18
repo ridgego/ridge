@@ -62,8 +62,6 @@ const FORM_COMPONENT_BASIC = [{
   ]
 }]
 
-const basicStyleSections = FORM_COMPONENT_BASIC
-
 const FORM_PAGE_PROPS = [{
   rows: [{
     cols: [{
@@ -184,11 +182,11 @@ export default class ComponentPanel extends React.Component {
     this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
       notNotify: true
     })
+
     if (elementWrapper.componentDefinition) {
-      const componentDefiProps = elementWrapper.componentDefinition.props
-      const styledProps = []
+      const componentProps = []
       let partied = null
-      for (const prop of componentDefiProps) {
+      for (const prop of elementWrapper.componentDefinition.props) {
         const control = {}
         Object.assign(control, prop, {
           field: 'props.' + prop.name,
@@ -197,7 +195,7 @@ export default class ComponentPanel extends React.Component {
         if (prop.party) {
           partied = control
         } else {
-          styledProps.push({
+          componentProps.push({
             cols: partied
               ? [partied, control]
               : [
@@ -207,9 +205,21 @@ export default class ComponentPanel extends React.Component {
           partied = null
         }
       }
-      const nodePropsSection = basicStyleSections.concat({
-        rows: styledProps
-      })
+      const styleSection = JSON.parse(JSON.stringify(FORM_COMPONENT_BASIC))
+      for (const style of elementWrapper.parentWrapper?.componentDefinition?.childStyle || []) {
+        const control = {}
+        Object.assign(control, style, {
+          field: 'style.' + style.name,
+          fieldEx: 'styleEl.' + style.name
+        })
+        styleSection[0].rows.push({
+          cols: [control]
+        })
+      }
+
+      const nodePropsSection = [...styleSection, {
+        rows: componentProps
+      }]
 
       const eventRows = []
       for (const event of elementWrapper.componentDefinition.events || []) {
@@ -364,7 +374,6 @@ export default class ComponentPanel extends React.Component {
         >
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
-              initValues={nodePropsValues}
               sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
                 pageVariables
               }}

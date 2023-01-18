@@ -8,6 +8,7 @@ import JSONEdit from './with-fields/JSONEdit.jsx'
 import ImageEdit from './with-fields/ImageEdit.jsx'
 import RadiusEdit from './with-fields/RadiusEdit.jsx'
 import ColorPicker from './with-fields/ColorPicker.jsx'
+import RadioGroupEdit from './with-fields/RadioGroupEdit.jsx'
 
 import './form.less'
 
@@ -36,6 +37,7 @@ export default class ObjectForm extends React.Component {
           return <Select placeholder='请选择' showClear size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
         }
       },
+      radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
       event: (col, readonly, options) => <EventEdit labelPosition='top' label={col.label} field={col.field} options={options} />,
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,

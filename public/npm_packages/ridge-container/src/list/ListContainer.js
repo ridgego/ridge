@@ -1,3 +1,5 @@
+import bordered from '../bordered.d'
+
 export default class ListContainer {
   constructor (props) {
     this.props = props
@@ -93,7 +95,7 @@ export default class ListContainer {
           const wrapper = existedEl.elementWrapper
 
           // 更新属性后强制更新
-          wrapper.setScopeVariableValues({
+          wrapper.updateScopeVariableValues({
             $item: data,
             $index: index,
             $list: dataSource
@@ -111,6 +113,7 @@ export default class ListContainer {
           }
           const newWrapper = renderItem.clone()
           newWrapper.setScopeVariableValues({
+            $hover: false,
             $item: data,
             $index: index,
             $list: dataSource
@@ -144,9 +147,10 @@ export default class ListContainer {
     const style = {
       width: '100%',
       height: '100%',
-      padding: this.props.padding + 'px',
-      border: '1px solid #ccc'
+      overflow: 'overlay'
     }
+
+    Object.assign(style, bordered.style(this.props))
 
     if (!this.props.grid) {
       style.display = 'flex'

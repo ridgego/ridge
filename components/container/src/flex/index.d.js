@@ -9,12 +9,12 @@ export default {
     name: 'direction',
     label: '排列方向',
     type: 'string',
-    control: 'select',
+    control: 'radiogroup',
     optionList: [{
-      label: '横向',
+      icon: 'IconDescend2',
       value: 'row'
     }, {
-      label: '纵向',
+      icon: 'IconDescend2',
       value: 'column'
     }],
     value: 'row'
@@ -72,5 +72,14 @@ export default {
     name: 'children',
     hidden: true,
     type: 'children'
-  }, ...bordered.props]
+  }, ...bordered.props],
+  childStyle: [{
+    name: 'flex',
+    label: '弹性',
+    type: 'string'
+  }, {
+    name: 'margin',
+    label: '外边距',
+    type: 'string'
+  }]
 }
