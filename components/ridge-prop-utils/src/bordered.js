@@ -4,7 +4,7 @@ export default {
       background: props.background,
       padding: props.padding,
       borderRadius: props.radius,
-      shadow: props.shadow
+      boxShadow: props.shadow
     }
     if (typeof props.border === 'object') {
       style.borderTop = props.border[0]
@@ -41,7 +41,7 @@ export default {
     name: 'shadow',
     label: '阴影',
     type: 'string',
-    control: 'shadow',
+    control: 'boxshadow',
     value: ''
   }]
 }

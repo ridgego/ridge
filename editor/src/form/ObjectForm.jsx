@@ -11,6 +11,7 @@ import Px4Edit from './with-fields/Px4Edit.jsx'
 import BackgroundEdit from './with-fields/BackgroundEdit.jsx'
 import ColorPicker from './with-fields/ColorPicker.jsx'
 import RadioGroupEdit from './with-fields/RadioGroupEdit.jsx'
+import BoxShadowEdit from './with-fields/BoxShadowEdit.jsx'
 
 import './form.less'
 
@@ -41,6 +42,7 @@ export default class ObjectForm extends React.Component {
       },
       radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
+      boxshadow: (col, readonly) => <BoxShadowEdit label={col.label} field={col.field} disabled={readonly} />,
       event: (col, readonly, options) => <EventEdit className='event-field' labelPosition='top' label={col.label} field={col.field} options={options} />,
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,

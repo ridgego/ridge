@@ -18,8 +18,8 @@ const PopColorPicker = ({
       <Button
         size='small' style={{
           backgroundColor: value,
-          height: '24px',
-          width: '24px',
+          height: '22px',
+          width: '22px',
           padding: 0,
           border: '1px solid #ccc'
         }}

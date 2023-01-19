@@ -30,27 +30,24 @@ const Px4Edit = withField((props) => {
   }
 
   return (
-    <Space style={{
-      display: 'flex'
-    }}
-    >
+    <Space spacing={2}>
       {values.map((value, index) =>
         <InputNumber
           key={index}
           style={{
-            width: '52px'
+            width: '46px'
           }}
           size='small'
           value={value} onChange={value => {
             setRadius(value, index)
           }}
         />)}
-      {values.length <= 4 &&
+      {values.length <= 3 &&
         <Button
           style={{
             padding: '4px 4px',
             height: '26px'
-          }} size='mini' type='tertiary'
+          }} size='mini' type='tertiary' theme='borderless'
           icon={<IconPlus />}
           onClick={addPx}
         />}
@@ -59,7 +56,7 @@ const Px4Edit = withField((props) => {
           style={{
             padding: '4px 4px',
             height: '26px'
-          }} size='mini' type='tertiary'
+          }} size='mini' type='tertiary' theme='borderless'
           icon={<IconMinus />}
           onClick={removePx}
         />}

@@ -61,6 +61,7 @@ export default class FlexBoxContainer {
     } else {
       style.flex = ''
     }
+    style.zIndex = 10
   }
 
   appendChild (wrapper) {
