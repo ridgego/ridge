@@ -1,4 +1,4 @@
-import bordered from '../bordered.d'
+import { border } from 'ridge-prop-utils'
 
 export default class ListContainer {
   constructor (props) {
@@ -119,13 +119,16 @@ export default class ListContainer {
             $list: dataSource
           })
           newWrapper.mount(newEl)
-          newEl.onmouseover = () => {
+          newEl.onmouseenter = (e) => {
+            console.log('mouser over hover', e.target)
+
             newWrapper.updateScopeVariableValues({
               $hover: true
             })
             newWrapper.forceUpdate()
           }
-          newEl.onmouseout = () => {
+          newEl.onmouseleave = (e) => {
+            console.log('mouser over out', e.target)
             newWrapper.updateScopeVariableValues({
               $hover: false
             })
@@ -150,7 +153,7 @@ export default class ListContainer {
       overflow: 'overlay'
     }
 
-    Object.assign(style, bordered.style(this.props))
+    Object.assign(style, border.style(this.props))
 
     if (!this.props.grid) {
       style.display = 'flex'

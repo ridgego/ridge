@@ -58,6 +58,9 @@
     "width": 64,
     "height": 28
   }],
+  "dependencies": {
+    "ridge-prop-utils": "^1.0.0"
+  },
   "author": "",
   "license": "ISC"
 }

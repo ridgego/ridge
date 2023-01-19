@@ -212,7 +212,7 @@ export default class WorkSpaceControl {
       const inputEvent = e.inputEvent
       const target = inputEvent.target
       // Group Selected for resize or move
-      if (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1) {
+      if (target.className && target.className.indexOf && (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1)) {
         e.stop()
       }
       const closestRidgeNode = target.closest('.ridge-element')

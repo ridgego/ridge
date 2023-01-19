@@ -4,7 +4,9 @@ import VanillaRender from '../render/VanillaRenderer'
 import template from '../template'
 import lodashSet from 'lodash/set'
 const log = debug('ridge:el-wrapper')
+
 const error = debug('ridge:error')
+const log_edit = debug('ridge:editor-wrapper')
 
 /**
  * 组件封装类
@@ -533,6 +535,7 @@ class ElementWrapper {
      * @param {*} field
      */
   setPropsConfig (values, field) {
+    log_edit(this, field)
     for (const keyPath of Object.keys(field)) {
       const [type, key] = keyPath.split('.')
 

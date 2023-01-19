@@ -1,3 +1,4 @@
+import { border } from 'ridge-prop-utils'
 export default class Input {
   constructor (props) {
     this.props = props
@@ -34,6 +35,8 @@ export default class Input {
     if (this.props.fontSize) {
       style.fontSize = this.props.fontSize + 'px'
     }
+
+    Object.assign(style, border.style(this.props))
 
     return style
   }

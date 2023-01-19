@@ -5,13 +5,24 @@ export default class Icon {
 
   async mount (el) {
     this.el = el
-    this.button = document.createElement('button')
+    this.render()
+  }
 
-    this.el.append(this.button)
-    this.button.onclick = (e) => {
-      this.props.onClick && this.props.onClick()
+  async render () {
+    if (this.props.src) {
+      this.el.innerHTML = this.props.src
     }
-    this.update()
+    this.el.onclick = () => {
+      this.props.onClick && this.props.onClick(this.props)
+    }
+    const svg = this.el.querySelector('svg')
+
+    if (svg) {
+      svg.style.width = '100%'
+      svg.style.height = '100%'
+      svg.style.fill = this.props.color
+      svg.style.cursor = this.props.cursor
+    }
   }
 
   getStyle () {
@@ -37,11 +48,6 @@ export default class Icon {
     if (props) {
       Object.assign(this.props, props)
     }
-    if (this.props.text) {
-      this.button.innerHTML = this.props.text
-    } else {
-      this.button.innerHTML = ''
-    }
-    Object.assign(this.button.style, this.getStyle())
+    this.render()
   }
 }

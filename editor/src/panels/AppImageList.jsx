@@ -10,14 +10,14 @@ export default ({
     const { appService } = ridge
     // select(file.id)
     appService.getFilePath(file).then((filePath) => {
-      select(filePath)
+      select(filePath, file.src)
     })
   }
 
   return (
     <div
       zIndex={3001}
-      className='app-image-list'
+      className='app-image-list-icon'
       style={{
         display: 'flex',
         flexWrap: 'wrap'

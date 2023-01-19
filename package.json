@@ -8,6 +8,7 @@
   },
   "workspaces": [
     "editor",
+    "components/*",
     "server/*",
     "packages/*"
   ],

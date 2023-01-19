@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import { Popover, Input, withField } from '@douyinfe/semi-ui'
-import { IconChainStroked } from '@douyinfe/semi-icons'
+import React, { useState } from 'react'
+import { Popover, Input, Typography, withField } from '@douyinfe/semi-ui'
 import AppImageList from '../../panels/AppImageList.jsx'
 import { ridge } from '../../service/RidgeEditService.js'
+import { dataURLToString } from '../../utils/blob.js'
+
+const { Text } = Typography
 
 const IconEdit = withField(({
   value,
@@ -12,13 +14,16 @@ const IconEdit = withField(({
   const AppList = () => {
     return (
       <div style={{
-        width: '620px',
-        height: '430px'
+        width: '400px',
+        height: '320px'
       }}
       >
+        <Text>选择图标</Text>
         <AppImageList
-          images={images} select={filePath => {
-            onChange(filePath)
+          images={images} select={(filePath, base64Url) => {
+            dataURLToString(base64Url).then(blob => {
+              onChange(blob)
+            })
           }}
         />
       </div>

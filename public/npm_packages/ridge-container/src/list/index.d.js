@@ -1,5 +1,5 @@
 import ListContainer from './ListContainer'
-import bordered from '../bordered.d'
+import { border } from 'ridge-prop-utils'
 export default {
   name: 'list-container',
   component: ListContainer,
@@ -40,5 +40,5 @@ export default {
     name: 'renderItem',
     label: '单项模板',
     type: 'slot'
-  }, ...bordered.props]
+  }, ...border.props]
 }

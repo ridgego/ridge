@@ -1,12 +1,19 @@
 export default {
   style: (props) => {
-    return {
+    const style = {
       border: props.border,
       background: props.background,
       padding: props.padding,
       borderRadius: props.radius,
       shadow: props.shadow
     }
+    if (typeof props.border === 'object') {
+      style.borderTop = props.border[0]
+      style.borderRight = props.border[1]
+      style.borderBottom = props.border[2]
+      style.borderLeft = props.border[3]
+    }
+    return style
   },
   props: [{
     name: 'border',

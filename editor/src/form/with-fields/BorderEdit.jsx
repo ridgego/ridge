@@ -1,60 +1,113 @@
 import React from 'react'
-import { HexColorPicker } from 'react-colorful'
-import { Select, Space, withField, Button, InputNumber, Popover, Input } from '@douyinfe/semi-ui'
+import PopColorPicker from './PopColorPicker.jsx'
+import { Select, Space, withField, Button, InputNumber, Popover, Input, Typography } from '@douyinfe/semi-ui'
 
-const BorderEdit = withField((props) => {
-  let sp = [0, 'solid', '#fff']
-  if (props.value) {
-    sp = props.value.split(' ')
-    sp[0] = parseInt(sp[0])
+const { Text } = Typography
+const BorderEdit = withField(({
+  value,
+  onChange
+}) => {
+  const toArray = (value) => {
+    const border = value.split(' ')
+    border[0] = parseInt(border[0]) || 0
+    return border
   }
-  return (
-    <Space>
-      <InputNumber
-        style={{
-          width: '64px'
-        }}
-        size='small'
-        defaultValue={sp[0]}
-        value={sp[0]} onChange={value => {
-          props.onChange(value + 'px ' + sp[1] + ' ' + sp[2])
-        }}
-      /> <Select
-        value={sp[1]} optionList={[{
-          label: '实线',
-          value: 'solid'
-        }, {
-          label: '点划线',
-          value: 'dashed'
-        }]}
-        size='small'
-        onChange={value => {
-          props.onChange(sp[0] + 'px ' + value + ' ' + sp[2])
-        }}
-         />
-      <Popover content={
-        <>
-          <HexColorPicker
-            color={sp[2]} onChange={value => {
-              props.onChange(sp[0] + 'px ' + sp[1] + ' ' + value)
-            }}
-          />
-          <Input
-            size='small' value={sp[2]} onChange={value => {
-              props.onChange(sp[0] + 'px ' + sp[1] + ' ' + value)
-            }}
-          />
-        </>
-        }
-      >
-        <Button
-          size='small' style={{
-            backgroundColor: sp[2]
+
+  const fromArray = (border) => {
+    return border[0] + 'px' + ' ' + border[1] + ' ' + border[2]
+  }
+
+  const renderExpand = () => {
+    return (
+      <Text
+        onClick={() => {
+          onChange([value, value, value, value])
+        }} code
+      >展开
+      </Text>
+    )
+  }
+  const renderCollapse = () => {
+    return (
+      <Text
+        onClick={() => {
+          onChange(value[0])
+        }} code
+      >收起
+      </Text>
+    )
+  }
+
+  const borderChange = (border, index) => {
+    onChange(value.map((item, i) => (i === index) ? border : item))
+  }
+
+  // 渲染单行
+  const renderBorder = (border, output, btn) => {
+    return (
+      <Space spacing={2}>
+        <InputNumber
+          style={{
+            width: '64px'
+          }}
+          size='small'
+          value={border[0]} onChange={value => {
+            border[0] = value
+            output(fromArray(border))
+          }}
+        /> <Select
+          value={border[1]} optionList={[{
+            label: '实线',
+            value: 'solid'
+          }, {
+            label: '点划线',
+            value: 'dashed'
+          }]}
+          size='small'
+          onChange={value => {
+            border[1] = value
+            output(fromArray(border))
+          }}
+           />
+        <PopColorPicker
+          value={border[2]} onChange={value => {
+            border[2] = value
+            output(fromArray(border))
           }}
         />
-      </Popover>
-    </Space>
-  )
+        {btn && btn()}
+      </Space>
+    )
+  }
+
+  if (value == null) {
+    return renderBorder([0, 'solid', '#fff'], (value) => {
+      onChange(value)
+    }, renderExpand)
+  } else if (typeof value === 'string') {
+    return renderBorder(toArray(value), (value) => {
+      onChange(value)
+    }, renderExpand)
+  } else {
+    return (
+      <>
+        <>
+          {renderBorder(toArray(value[0]), (value) => {
+            borderChange(value, 0)
+          }, renderCollapse)}
+          {renderBorder(toArray(value[1]), (value) => {
+            borderChange(value, 1)
+          })}
+          {renderBorder(toArray(value[2]), (value) => {
+            borderChange(value, 2)
+          })}
+          {renderBorder(toArray(value[3]), (value) => {
+            borderChange(value, 3)
+          })}
+        </>
+      </>
+    )
+  }
 })
 
 export default BorderEdit

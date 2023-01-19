@@ -1,4 +1,4 @@
-import bordered from '../bordered.d'
+import { border } from 'ridge-prop-utils'
 
 export default class FlexBoxContainer {
   constructor (props) {
@@ -22,7 +22,7 @@ export default class FlexBoxContainer {
       alignItems,
       gap: gap + 'px'
     }
-    Object.assign(containerStyle, bordered.style(props))
+    Object.assign(containerStyle, border.style(props))
     return containerStyle
   }
 

@@ -1,4 +1,5 @@
 import Input from './Input'
+import { border } from 'ridge-prop-utils'
 
 export default {
   name: 'input',
@@ -20,24 +21,12 @@ export default {
     type: 'number',
     value: ''
   }, {
-    name: 'padding',
-    label: '内边距',
-    type: 'string',
-    control: 'padding',
-    value: '5px'
-  }, {
     name: 'color',
     label: '颜色',
     type: 'string',
-    control: 'color',
+    control: 'colorpicker',
     value: ''
-  }, {
-    name: 'border',
-    label: '边框',
-    type: 'string',
-    control: 'border',
-    value: '1px solid #ccc'
-  }],
+  }, ...border.props],
   events: [{
     label: '输入值变化',
     name: 'onChange'

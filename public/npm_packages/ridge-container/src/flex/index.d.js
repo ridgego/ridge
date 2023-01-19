@@ -1,6 +1,7 @@
 import FlexBoxContainer from './FlexContainer'
-import bordered from '../bordered.d'
+import { border } from 'ridge-prop-utils'
 
+console.log('border', border)
 export default {
   name: 'flex-container',
   component: FlexBoxContainer,
@@ -75,7 +76,7 @@ export default {
     name: 'children',
     hidden: true,
     type: 'children'
-  }, ...bordered.props],
+  }, ...border.props],
   childStyle: [{
     name: 'flex',
     label: '弹性',

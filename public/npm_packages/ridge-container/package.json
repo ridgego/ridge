@@ -43,5 +43,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ridge-prop-utils": "^1.0.0"
   }
 }
