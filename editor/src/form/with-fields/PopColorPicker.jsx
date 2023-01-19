@@ -10,7 +10,7 @@ const PopColorPicker = ({
     <Popover content={
       <SketchPicker
         color={value} onChangeComplete={val => {
-          onChange(val.hex)
+          onChange(val.hex + parseInt(val.rgb.a * 255).toString(16))
         }}
       />
     }

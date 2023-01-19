@@ -45,7 +45,6 @@ export default class ListContainer {
     this.slotEl.style.display = 'block'
     this.slotEl.style.width = 'calc(100% - 20px)'
     this.slotEl.style.height = 'calc(100% - 20px)'
-    this.slotEl.style.margin = '10px'
 
     if (renderItem) {
       if (!renderItem.isMounted()) {
