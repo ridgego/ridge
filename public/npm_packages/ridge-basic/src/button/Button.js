@@ -1,4 +1,5 @@
-export default class CheckBox {
+import { border } from 'ridge-prop-utils'
+export default class Button {
   constructor (props) {
     this.props = props
   }
@@ -12,7 +13,16 @@ export default class CheckBox {
     this.button.onclick = (e) => {
       this.props.onClick && this.props.onClick()
     }
-    this.update()
+    this.render()
+  }
+
+  render () {
+    if (this.props.text) {
+      this.button.innerHTML = this.props.text
+    } else {
+      this.button.innerHTML = ''
+    }
+    Object.assign(this.button.style, this.getStyle())
   }
 
   getStyle () {
@@ -21,15 +31,14 @@ export default class CheckBox {
       height: '100%',
       cursor: 'pointer',
       boxSizing: 'border-box',
+      lineHeight: '100%',
       appearance: 'button',
-      borderRadius: this.props.borderRadius + 'px',
-      border: this.props.border,
-      color: this.props.color,
-      backgroundColor: this.props.backgroundColor
+      color: this.props.color
     }
     if (this.props.fontSize) {
       style.fontSize = this.props.fontSize + 'px'
     }
+    Object.assign(style, border.style(this.props))
 
     return style
   }
@@ -38,11 +47,6 @@ export default class CheckBox {
     if (props) {
       Object.assign(this.props, props)
     }
-    if (this.props.text) {
-      this.button.innerHTML = this.props.text
-    } else {
-      this.button.innerHTML = ''
-    }
-    Object.assign(this.button.style, this.getStyle())
+    this.render()
   }
 }

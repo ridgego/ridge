@@ -15,7 +15,7 @@ import { ridge, emit, on } from './service/RidgeEditService.js'
 import './css/editor.less'
 
 import {
-  EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
+  EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
   EVENT_ELEMENT_CREATED,
   EVENT_PAGE_OUTLINE_CHANGE,
   PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN, EVENT_APP_OPEN
@@ -46,7 +46,7 @@ export default class Editor extends React.Component {
     if (window.screen.width <= 1366) {
       this.state.panelPosition = PANEL_SIZE_1366
     }
-    this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 5000)
+    this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 300)
 
     this.currentId = null
     this.initialize()
@@ -67,8 +67,8 @@ export default class Editor extends React.Component {
     trace('editor initialize')
     this.ridge = ridge
 
-    on(EVENT_PAGE_VAR_CHANGE, (variables) => {
-      this.pageElementManager.updateVariableConfig(variables)
+    on(EVENT_PAGE_CONFIG_CHANGE, (change) => {
+      this.pageElementManager.updatePageConfig(change)
       this.debouncedSaveUpdatePage()
     })
     on(EVENT_PAGE_PROP_CHANGE, ({ from, properties }) => {
@@ -137,15 +137,14 @@ export default class Editor extends React.Component {
     this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, 'edit')
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
-    emit(EVENT_PAGE_LOADED, {
+    emit(EVENT_PAGE_LOADED, Object.assign(this.pageElementManager.pageConfig, {
       name: pageConfig.name,
-      pageProperties: this.pageElementManager.getPageProperties(),
-      pageVariables: this.pageElementManager.getVariableConfig(),
       elements: this.pageElementManager.getPageElements()
-    })
-
+    }))
     this.workspaceControl.setPageManager(this.pageElementManager)
     this.workspaceControl.fitToCenter()
+
+    ridge.pageElementManagers = this.pageElementManager
   }
 
   componentDidMount () {
@@ -225,15 +224,6 @@ export default class Editor extends React.Component {
     this.pageElementManager.updatePageProperties(properties)
     // this.pageElementManager.properties = properties
     this.debouncedSaveUpdatePage()
-  }
-
-  pageVariableConfigChange (variables) {
-    this.setState({
-      variables
-    })
-    emit(EVENT_PAGE_VAR_CHANGE, variables)
-    // this.pageElementManager.updateVariableConfig(variables)
-    // this.debouncedSaveUpdatePage()
   }
 
   // 切换运行模式

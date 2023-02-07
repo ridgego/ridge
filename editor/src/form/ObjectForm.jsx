@@ -113,7 +113,7 @@ export default class ObjectForm extends React.Component {
       return (
         <div key={i} className='object-section'>
           {section.title &&
-            <Section>
+            <Section text={section.title}>
               {section.rows.map(renderRows)}
             </Section>}
           {!section.title && section.rows.map(renderRows)}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { EditorView, basicSetup } from 'codemirror'
 import { tooltips } from '@codemirror/view'
-import { javascript } from '@codemirror/lang-javascript'
+import { javascript, esLint } from '@codemirror/lang-javascript'
 import { json, jsonParseLinter } from '@codemirror/lang-json'
 import { autocompletion } from '@codemirror/autocomplete'
 import { Button, Popover, Typography } from '@douyinfe/semi-ui'

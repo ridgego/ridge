@@ -2,10 +2,11 @@ import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../form/ObjectForm.jsx'
 import MoveablePanel from './MoveablePanel.jsx'
+import PageDataPanel from './PageDataPanel.jsx'
 import { ridge, emit, on } from '../service/RidgeEditService.js'
 
 import {
-  EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_VAR_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED
+  EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED
 } from '../constant.js'
 
 const FORM_COMPONENT_BASIC = [{
@@ -121,7 +122,8 @@ export default class ComponentPanel extends React.Component {
     this.pagePropFormApi = null
 
     this.state = {
-      pageVariables: [],
+      pageStates: [],
+      pageReducers: [],
       nodePropsSection: [], // 当前节点属性
       nodePropsValues: {},
       nodeEventsSection: [], // 当前节点事件
@@ -131,9 +133,9 @@ export default class ComponentPanel extends React.Component {
   }
 
   initEvents () {
-    on(EVENT_PAGE_LOADED, ({ name, pageProperties, pageVariables }) => {
-      for (const key of Object.keys(pageProperties)) {
-        this.pagePropFormApi.setValue(key, pageProperties[key], {
+    on(EVENT_PAGE_LOADED, ({ name, properties, states, reducers }) => {
+      for (const key of Object.keys(properties)) {
+        this.pagePropFormApi.setValue(key, properties[key], {
           notNotify: true
         })
       }
@@ -141,7 +143,14 @@ export default class ComponentPanel extends React.Component {
         notNotify: true
       })
       this.setState({
-        pageVariables
+        pageReducers: reducers,
+        pageStates: states
+      })
+    })
+    on(EVENT_PAGE_CONFIG_CHANGE, ({ states, reducers }) => {
+      this.setState({
+        pageReducers: reducers,
+        pageStates: states
       })
     })
     on(EVENT_PAGE_RENAMED, name => {
@@ -157,11 +166,6 @@ export default class ComponentPanel extends React.Component {
           })
         }
       }
-    })
-    on(EVENT_PAGE_VAR_CHANGE, pageVariables => {
-      this.setState({
-        pageVariables
-      })
     })
     on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'workspace') {
@@ -326,8 +330,9 @@ export default class ComponentPanel extends React.Component {
       nodePropsSection,
       nodeEventsSection,
       nodePropsValues,
-      nodeEventsValues,
-      pageVariables
+      pageReducers,
+      pageStates,
+      nodeEventsValues
     } = this.state
 
     // 回写styleApi句柄以便直接操作基础form
@@ -374,7 +379,8 @@ export default class ComponentPanel extends React.Component {
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
               sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
-                pageVariables
+                pageReducers,
+                pageStates
               }}
             />
           </TabPane>
@@ -382,7 +388,8 @@ export default class ComponentPanel extends React.Component {
             <ObjectForm
               initValues={nodeEventsValues}
               sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
-                pageVariables
+                pageReducers,
+                pageStates
               }}
             />
           </TabPane>
@@ -401,9 +408,13 @@ export default class ComponentPanel extends React.Component {
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
               sections={nodeEventsSection} getFormApi={pageEventPropsAPI} onValueChange={componentEventValueChange} options={{
-                pageVariables
+                pageReducers,
+                pageStates
               }}
             />
+          </TabPane>
+          <TabPane tab='数据' itemKey='data'>
+            <PageDataPanel />
           </TabPane>
         </Tabs>
       </MoveablePanel>

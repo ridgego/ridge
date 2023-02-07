@@ -24,9 +24,7 @@ export default class DataPanel extends React.Component {
           <TabPane
             tab='页面变量'
             itemKey='page-var'
-          >
-            <PageVariableEdit />
-          </TabPane>
+          />
           <TabPane
             tab='大纲视图'
             itemKey='outlint'

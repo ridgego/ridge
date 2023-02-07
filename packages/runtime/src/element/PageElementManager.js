@@ -19,6 +19,13 @@ class PageElementManager {
     this.id = this.pageConfig.id
     this.pageVariableValues = {}
 
+    if (!this.pageConfig.states) {
+      this.pageConfig.states = []
+    }
+    if (!this.pageConfig.reducers) {
+      this.pageConfig.reducers = []
+    }
+
     for (const variablesConfig of this.pageConfig.variables || []) {
       if (trim(variablesConfig.name)) {
         this.pageVariableValues[trim(variablesConfig.name)] = pe(variablesConfig.value)
@@ -60,9 +67,12 @@ class PageElementManager {
    * 更新页面变量取值
    * @param {*} values 新的页面变量对
    */
-  updatePageVariableValue (values) {
-    Object.assign(this.pageVariableValues, values)
-    this.updateVariableRelated(values)
+  updatePageConfig (change) {
+    Object.assign(this.pageConfig, change)
+
+    if (change.states) {
+      this.updateVariableRelated(change.states)
+    }
   }
 
   /**
@@ -266,16 +276,11 @@ class PageElementManager {
      * @returns JSON
      */
   getPageJSON () {
-    const result = {
-      properties: this.pageConfig.properties,
-      variables: this.pageConfig.variables,
-      elements: []
-    }
-
+    this.pageConfig.elements = []
     for (const element of Object.values(this.pageElements)) {
-      result.elements.push(element.toJSON())
+      this.pageConfig.elements.push(element.toJSON())
     }
-    return result
+    return this.pageConfig
   }
 
   addDecorators (type, decorator) {
