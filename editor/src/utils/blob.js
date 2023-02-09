@@ -26,7 +26,13 @@ const saveAs = (blob, name) => {
   // see FileSaver.js
   // saveAs(content, 'example.zip')
   const a = document.createElement('a')
-  a.href = window.URL.createObjectURL(blob)
+  if (blob instanceof Blob) {
+    a.href = window.URL.createObjectURL(blob)
+  } else {
+    a.href = window.URL.createObjectURL(new Blob([blob], {
+      type: 'text/plain'
+    }))
+  }
   a.download = name || blob.name || '下载'
   a.rel = 'noopener'
   setTimeout(function () { URL.revokeObjectURL(a.href) }, 4E4) // 40s

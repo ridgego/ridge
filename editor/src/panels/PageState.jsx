@@ -15,11 +15,9 @@ export default () => {
   const [visible, setVisible] = useState(false)
   const [stateIndex, setStateIndex] = useState(-1)
   const [states, setStates] = useState([])
-  const [reducers, setReducers] = useState([])
 
   useEffect(() => {
     setStates(ridge.pageElementManagers.pageConfig.states)
-    setReducers(ridge.pageElementManagers.pageConfig.reducers)
   })
 
   // 创建、更新状态
@@ -29,9 +27,6 @@ export default () => {
       // 命名重复
       return
     }
-    console.log(formRef.current.formApi.getValues())
-    console.log(ref.current.editorView)
-
     const newState = {
       name: formRef.current.formApi.getValues().name,
       value: ref.current.editorView.state.doc.toString()
@@ -52,6 +47,7 @@ export default () => {
     emit(EVENT_PAGE_CONFIG_CHANGE, {
       states: newStates
     })
+    setVisible(false)
   }
 
   // 移除状态

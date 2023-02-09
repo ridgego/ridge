@@ -13,7 +13,7 @@ export default () => {
   const ref = React.createRef()
   const formRef = React.createRef()
   const [visible, setVisible] = useState(false)
-  const [stateIndex, setStateIndex] = useState(-1)
+  const [reducerIndex, setReducerIndex] = useState(-1)
   const [reducers, setReducers] = useState([])
 
   useEffect(() => {
@@ -23,46 +23,43 @@ export default () => {
   // 创建、更新状态
   const finishEdit = () => {
     const name = formRef.current.formApi.getValues().name
-    if (states.filter((state, index) => index !== stateIndex && state.name === name).length) {
+    if (reducers.filter((reducer, index) => index !== reducerIndex && reducer.name === name).length) {
       // 命名重复
       return
     }
-    console.log(formRef.current.formApi.getValues())
-    console.log(ref.current.editorView)
-
-    const newState = {
+    const newReducer = {
       name: formRef.current.formApi.getValues().name,
       value: ref.current.editorView.state.doc.toString()
     }
-    let newStates = null
-    if (stateIndex === -1) {
-      newStates = [...states, newState]
+    let newReducers = null
+    if (reducerIndex === -1) {
+      newReducers = [...reducers, newReducer]
     } else {
-      newStates = states.map((state, index) => {
-        if (index === stateIndex) {
-          return newState
+      newReducers = reducers.map((reducer, index) => {
+        if (index === reducerIndex) {
+          return newReducer
         } else {
-          return state
+          return reducer
         }
       })
     }
-    setStates(newStates)
+    setReducers(newReducers)
     emit(EVENT_PAGE_CONFIG_CHANGE, {
-      states: newStates
+      reducers: newReducers
     })
   }
 
-  // 移除状态
-  const removeState = (record) => {
-    const newStates = states.filter(a => a.name !== record.name)
-    setStates(newStates)
+  // 移除Reducer
+  const removeReducer = (record) => {
+    const newReducers = reducers.filter(a => a.name !== record.name)
+    setReducers(newReducers)
     emit(EVENT_PAGE_CONFIG_CHANGE, {
-      states: newStates
+      reducers: newReducers
     })
   }
 
   // 新增或者编辑状态
-  const editState = (record, index) => {
+  const editReducer = (record, index) => {
     setVisible(true)
     // 初始化编辑器
     if (ref.current.editorView) {
@@ -78,10 +75,10 @@ export default () => {
     })
 
     if (record) {
-      setStateIndex(index)
+      setReducerIndex(index)
       formRef.current.formApi.setValue('name', record.name)
     } else {
-      setStateIndex(-1)
+      setReducerIndex(-1)
       formRef.current.formApi.setValue('name', '')
     }
   }
@@ -111,13 +108,13 @@ export default () => {
       </Modal>
 
       <Button
-        theme='solid' type='primary' size='small' onClick={() => editState()}
+        theme='solid' type='primary' size='small' onClick={() => editReducer()}
       >新增
       </Button>
-      <Table size='small' dataSource={states} pagination={false}>
+      <Table size='small' dataSource={reducers} pagination={false}>
         <Column title='名称' dataIndex='name' key='name' />
         <Column
-          title='默认值' dataIndex='value' width={100} key='value' render={(text, record, index) => {
+          title='内容' dataIndex='value' width={100} key='value' render={(text, record, index) => {
             return (
               <Text ellipsis={{ showTooltip: true }} style={{ width: 100 }}>
                 {text}
@@ -131,8 +128,8 @@ export default () => {
           render={(text, record, index) => {
             return (
               <>
-                <Button size='small' theme='borderless' icon={<IconEdit />} onClick={() => editState(record, index)} />
-                <Button size='small' theme='borderless' type='danger' icon={<IconDelete />} onClick={() => removeState(record)} />
+                <Button size='small' theme='borderless' icon={<IconEdit />} onClick={() => editReducer(record, index)} />
+                <Button size='small' theme='borderless' type='danger' icon={<IconDelete />} onClick={() => removeReducer(record)} />
               </>
             )
           }}
