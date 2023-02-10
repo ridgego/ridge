@@ -88,10 +88,10 @@ export default () => {
   return (
     <>
       <Collapse>
-        <Collapse.Panel header='状态值' itemKey='state'>
+        <Collapse.Panel header='页面状态' itemKey='state'>
           <PageState />
         </Collapse.Panel>
-        <Collapse.Panel header='函数' itemKey='reducer'>
+        <Collapse.Panel header='页面函数' itemKey='reducer'>
           <PageReducer />
         </Collapse.Panel>
       </Collapse>

@@ -29,6 +29,7 @@ export default () => {
     }
     const newReducer = {
       name: formRef.current.formApi.getValues().name,
+      label: formRef.current.formApi.getValues().label,
       value: ref.current.editorView.state.doc.toString()
     }
     let newReducers = null
@@ -47,6 +48,7 @@ export default () => {
     emit(EVENT_PAGE_CONFIG_CHANGE, {
       reducers: newReducers
     })
+    setVisible(false)
   }
 
   // 移除Reducer
@@ -92,11 +94,12 @@ export default () => {
         }}
         onOk={finishEdit}
         keepDOM
-        title='页面状态值编辑'
+        title='页面函数配置'
         visible={visible}
       >
         <Form labelPosition='left' ref={formRef}>
           <Form.Input field='name' label='名称' />
+          <Form.Input field='label' label='描述' />
           <div
             style={{
               border: '1px solid var(--semi-color-border)',
@@ -113,15 +116,7 @@ export default () => {
       </Button>
       <Table size='small' dataSource={reducers} pagination={false}>
         <Column title='名称' dataIndex='name' key='name' />
-        <Column
-          title='内容' dataIndex='value' width={100} key='value' render={(text, record, index) => {
-            return (
-              <Text ellipsis={{ showTooltip: true }} style={{ width: 100 }}>
-                {text}
-              </Text>
-            )
-          }}
-        />
+        <Column title='描述' dataIndex='label' width={100} key='label' />
         <Column
           width={64}
           title='-' dataIndex='operate' key='operate'

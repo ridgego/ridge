@@ -360,8 +360,8 @@ export default class ComponentPanel extends React.Component {
     } else {
       this.currentElement = null
       this.setState({
-        nodePropsSection: [],
-        nodeEventsSection: []
+        nodePropFields: [],
+        nodeEventFields: []
       })
     }
   }
@@ -446,12 +446,12 @@ export default class ComponentPanel extends React.Component {
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
               fields={PAGE_FIELDS}
-              sections={FORM_PAGE_PROPS} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
+              getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
             />
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
-              sections={nodeEventFields} getFormApi={pageEventPropsAPI} onValueChange={componentEventValueChange} options={{
+              getFormApi={pageEventPropsAPI} onValueChange={componentEventValueChange} options={{
                 pageReducers,
                 pageStates
               }}

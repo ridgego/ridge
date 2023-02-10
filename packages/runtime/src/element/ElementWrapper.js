@@ -37,7 +37,6 @@ class ElementWrapper {
   setMode (mode) {
     this.mode = mode
     this.systemProperties.__mode = mode
-    this.forceUpdate()
   }
 
   isRoot () {
@@ -352,7 +351,7 @@ class ElementWrapper {
   updateExpressionedProperties () {
     for (const propBindKey of Object.keys(this.config.propEx)) {
       if (this.hasExpression(propBindKey)) {
-        this.properties[propBindKey] = template(this.config.propEx[propBindKey], this.getVariableContext())
+        this.properties[propBindKey] = this.pageManager.pageStore.stateValue[this.config.propEx[propBindKey]]
       }
     }
   }

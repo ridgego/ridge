@@ -69,10 +69,6 @@ class PageElementManager {
    */
   updatePageConfig (change) {
     Object.assign(this.pageConfig, change)
-
-    if (change.states) {
-      this.updateVariableRelated(change.states)
-    }
   }
 
   /**
@@ -112,7 +108,47 @@ class PageElementManager {
       el.appendChild(div)
     }
     this.el = el
+
+    if (this.mode === 'run') {
+      this.pageStore = this.initPageStore(this.pageConfig)
+    }
     this.updateRootElStyle()
+    this.forceUpdate()
+  }
+
+  initPageStore (pageConfig) {
+    const stateList = []
+    const initStateValues = {}
+    for (const state of pageConfig.states) {
+      stateList.push(`${state.name}: ${state.value}`)
+
+      if (typeof state.value === 'function') {
+        initStateValues[state.name] = state.value(initStateValues)
+      } else {
+        initStateValues[state.name] = state.value
+      }
+    }
+
+    const reducerList = []
+    for (const reducer of pageConfig.reducers) {
+      reducerList.push(`${reducer.name}: ${reducer.value}`)
+    }
+
+    let ridgePageStore = null
+    const jsContent = `ridgePageStore = {
+      state: {
+        ${stateList.join(',\n')}
+      },
+      reducers: { 
+        ${reducerList.join(',\n')}
+      }
+    }`
+    const evaluatedObject = eval(jsContent)
+    ridgePageStore = evaluatedObject
+    console.log('evaluated', ridgePageStore, evaluatedObject)
+
+    evaluatedObject.stateValue = initStateValues
+    return evaluatedObject
   }
 
   updateRootElStyle () {
