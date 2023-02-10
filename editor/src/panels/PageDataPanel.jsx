@@ -1,17 +1,17 @@
 import React from 'react'
 import PageState from './PageState.jsx'
 import PageReducer from './PageReducer.jsx'
-import { Button, Collapse, Upload } from '@douyinfe/semi-ui'
+import { Button, Collapse, Upload, Toast } from '@douyinfe/semi-ui'
 import { IconDownloadStroked, IconCloudUploadStroked } from '@douyinfe/semi-icons'
-import { EditorView, basicSetup } from 'codemirror'
-import { javascript } from '@codemirror/lang-javascript'
-import { syntaxTree } from '@codemirror/language'
 import { EVENT_PAGE_CONFIG_CHANGE } from '../constant'
 
 import { saveAs } from '../utils/blob.js'
 import { emit, ridge } from '../service/RidgeEditService'
+
 export default () => {
   const ref = React.createRef()
+
+  // 导出页面数据配置
   const exportDataSetting = () => {
     const pageConfig = ridge.pageElementManagers.pageConfig
 
@@ -36,11 +36,13 @@ export default () => {
     saveAs(jsContent, 'page-store.js')
   }
 
+  // 导入页面数据配置
   const importDataSetting = async (file) => {
     const text = await file.text()
 
     const startPos = text.indexOf('{')
 
+    // 增加个模拟量才能eval出来（不知道为啥）
     let ridgeImported = null
     const toBeEvaluated = `ridgeImported = ${text.substring(startPos)}`
     ridgeImported = 6
@@ -50,6 +52,7 @@ export default () => {
       const evaluatedObject = eval(toBeEvaluated)
 
       const states = []
+      // 导入状态，包括计算型
       for (const key in evaluatedObject.state) {
         if (typeof evaluatedObject.state[key] === 'function') {
           states.push({
@@ -63,6 +66,7 @@ export default () => {
           })
         }
       }
+      // 导入函数
       const reducers = []
       for (const key in evaluatedObject.reducers) {
         reducers.push({
@@ -74,7 +78,10 @@ export default () => {
         states,
         reducers
       })
+
+      Toast.success('页面数据配置导入成功')
     } catch (e) {
+      Toast.error('页面数据配置异常', e)
       console.log(e)
     }
   }

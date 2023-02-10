@@ -63,6 +63,70 @@ const FORM_COMPONENT_BASIC = [{
   ]
 }]
 
+const COMPONENT_BASIC_FIELDS = [
+  {
+    label: '名称',
+    control: 'text',
+    bindable: false,
+    field: 'title'
+  },
+  {
+    label: 'X',
+    control: 'number',
+    width: '50%',
+    readonly: (values) => {
+      return !(values && values.style && values.style.position === 'absolute')
+    },
+    field: 'style.x',
+    fieldEx: 'styleEx.x'
+  }, {
+    label: 'Y',
+    width: '50%',
+    control: 'number',
+    readonly: (values) => {
+      return !(values && values.style && values.style.position === 'absolute')
+    },
+    field: 'style.y',
+    fieldEx: 'styleEx.Y'
+  },
+  {
+    label: 'W',
+    width: '50%',
+    control: 'number',
+    field: 'style.width',
+    fieldEx: 'styleEx.width'
+  }, {
+    label: 'H',
+    width: '50%',
+    control: 'number',
+    field: 'style.height',
+    fieldEx: 'styleEx.height'
+  }
+]
+
+const PAGE_FIELDS = [
+  {
+    label: '页面名称',
+    control: 'text',
+    readonly: true,
+    bindable: false,
+    field: 'name'
+  },
+  {
+    label: 'W',
+    width: '50%',
+    bindable: false,
+    control: 'number',
+    field: 'width'
+  }, {
+    label: 'H',
+    width: '50%',
+    bindable: false,
+    control: 'number',
+    field: 'height'
+  }
+]
+
 const FORM_PAGE_PROPS = [{
   rows: [{
     cols: [{
@@ -124,9 +188,9 @@ export default class ComponentPanel extends React.Component {
     this.state = {
       pageStates: [],
       pageReducers: [],
-      nodePropsSection: [], // 当前节点属性
+      nodePropFields: [], // 当前节点属性
+      nodeEventFields: [], // 当前节点事件
       nodePropsValues: {},
-      nodeEventsSection: [], // 当前节点事件
       nodeEventsValues: {}
     }
     this.initEvents()
@@ -180,51 +244,38 @@ export default class ComponentPanel extends React.Component {
     })
   }
 
+  // 按照选择的组件更新面板配置表单
   updatePanelConfig () {
     const elementWrapper = this.currentElement.elementWrapper
     this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
       notNotify: true
     })
 
+    // 节点基本样式 （x/y/w/h)
+    const nodePropFields = JSON.parse(JSON.stringify(COMPONENT_BASIC_FIELDS))
+    const nodeEventFields = []
+
+    // 放置到容器中，有容器赋予的样式配置的
+    for (const style of elementWrapper.parentWrapper?.componentDefinition?.childStyle || []) {
+      const field = {}
+      Object.assign(field, style, {
+        field: 'style.' + style.name,
+        fieldEx: 'styleEl.' + style.name
+      })
+      nodePropFields.push(field)
+    }
+
+    // 能加载到节点定义
     if (elementWrapper.componentDefinition) {
-      const componentProps = []
-      let partied = null
       for (const prop of elementWrapper.componentDefinition.props) {
-        const control = {}
-        Object.assign(control, prop, {
+        const field = {}
+        Object.assign(field, prop, {
           field: 'props.' + prop.name,
           fieldEx: 'propsEx.' + prop.name
         })
-        if (prop.party) {
-          partied = control
-        } else {
-          componentProps.push({
-            cols: partied
-              ? [partied, control]
-              : [
-                  control
-                ]
-          })
-          partied = null
-        }
-      }
-      const styleSection = JSON.parse(JSON.stringify(FORM_COMPONENT_BASIC))
-      for (const style of elementWrapper.parentWrapper?.componentDefinition?.childStyle || []) {
-        const control = {}
-        Object.assign(control, style, {
-          field: 'style.' + style.name,
-          fieldEx: 'styleEl.' + style.name
-        })
-        styleSection[0].rows.push({
-          cols: [control]
-        })
+        nodePropFields.push(field)
       }
 
-      const nodePropsSection = [...styleSection, {
-        rows: componentProps
-      }]
-
-      const eventRows = []
       for (const event of elementWrapper.componentDefinition.events || []) {
         const control = {
           label: event.label,
@@ -233,60 +284,54 @@ export default class ComponentPanel extends React.Component {
           bindable: false,
           field: 'event.' + event.name
         }
-        eventRows.push({
-          cols: [
-            control
-          ]
-        })
+        nodeEventFields.push(control)
       }
-      this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
-        notNotify: true
-      })
-      this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
-        notNotify: true
-      })
-      this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
-        notNotify: true
-      })
-      this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
-        notNotify: true
-      })
-      this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
-        notNotify: true
-      })
-
-      this.setState({
-        nodePropsSection,
-        nodePropsValues: {
-          title: elementWrapper.config.title,
-          props: elementWrapper.config.props,
-          propsEx: elementWrapper.config.propEx,
-          styleEx: elementWrapper.config.styleEx
-        },
-        nodeEventsSection: [{
-          rows: eventRows
-        }],
-        nodeEventsValues: {
-          event: elementWrapper.config.events
-        }
-      }, () => {
-        // this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
-        //   notNotify: true
-        // })
-        // this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
-        //   notNotify: true
-        // })
-        // this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
-        //   notNotify: true
-        // })
-        // this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
-        //   notNotify: true
-        // })
-        // this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
-        //   notNotify: true
-        // })
-      })
     }
+    this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
+      notNotify: true
+    })
+    this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
+      notNotify: true
+    })
+    this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
+      notNotify: true
+    })
+    this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
+      notNotify: true
+    })
+    this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
+      notNotify: true
+    })
+
+    this.setState({
+      nodePropFields,
+      nodeEventFields,
+      nodePropsValues: {
+        title: elementWrapper.config.title,
+        props: elementWrapper.config.props,
+        propsEx: elementWrapper.config.propEx,
+        styleEx: elementWrapper.config.styleEx
+      },
+      nodeEventsValues: {
+        event: elementWrapper.config.events
+      }
+    }, () => {
+      // this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
+      //   notNotify: true
+      // })
+      // this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
+      //   notNotify: true
+      // })
+      // this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
+      //   notNotify: true
+      // })
+      // this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
+      //   notNotify: true
+      // })
+      // this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
+      //   notNotify: true
+      // })
+    })
   }
 
   /**
@@ -327,12 +372,10 @@ export default class ComponentPanel extends React.Component {
 
   render () {
     const {
-      nodePropsSection,
-      nodeEventsSection,
-      nodePropsValues,
+      nodePropFields,
+      nodeEventFields,
       pageReducers,
-      pageStates,
-      nodeEventsValues
+      pageStates
     } = this.state
 
     // 回写styleApi句柄以便直接操作基础form
@@ -373,12 +416,13 @@ export default class ComponentPanel extends React.Component {
         <Tabs
           type='card'
           style={{
-            display: nodePropsSection.length === 0 ? 'none' : 'initial'
+            display: nodePropFields.length === 0 ? 'none' : 'initial'
           }}
         >
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
-              sections={nodePropsSection} getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
+              fields={nodePropFields}
+              getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
                 pageReducers,
                 pageStates
               }}
@@ -386,8 +430,7 @@ export default class ComponentPanel extends React.Component {
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
-              initValues={nodeEventsValues}
-              sections={nodeEventsSection} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
+              fields={nodeEventFields} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
                 pageReducers,
                 pageStates
               }}
@@ -397,17 +440,18 @@ export default class ComponentPanel extends React.Component {
         <Tabs
           type='card'
           style={{
-            display: nodePropsSection.length === 0 ? 'initial' : 'none'
+            display: nodePropFields.length === 0 ? 'initial' : 'none'
           }}
         >
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
+              fields={PAGE_FIELDS}
               sections={FORM_PAGE_PROPS} getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
             />
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
-              sections={nodeEventsSection} getFormApi={pageEventPropsAPI} onValueChange={componentEventValueChange} options={{
+              sections={nodeEventFields} getFormApi={pageEventPropsAPI} onValueChange={componentEventValueChange} options={{
                 pageReducers,
                 pageStates
               }}

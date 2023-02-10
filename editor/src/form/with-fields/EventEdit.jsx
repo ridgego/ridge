@@ -78,8 +78,8 @@ const EventEdit = withField(({
                 动作
               </div>
               <Select label='动作' value={action.name} size='small' onChange={(value) => actionChange('name', value, index)}>
-                <Option value='setvar'>设置页面变量</Option>
-                <Option value='setglobal'>设置全局变量</Option>
+                <Option value='setState'>设置状态</Option>
+                <Option value='doReduce'>调用函数</Option>
               </Select>
             </div>
             {action.name === 'setvar' &&

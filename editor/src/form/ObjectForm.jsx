@@ -3,6 +3,7 @@ import { Form, Button } from '@douyinfe/semi-ui'
 
 import BorderEdit from './with-fields/BorderEdit.jsx'
 import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
+import StateBindEdit from './with-fields/StateBindEdit.jsx'
 import EventEdit from './with-fields/EventEdit.jsx'
 import JSONEdit from './with-fields/JSONEdit.jsx'
 import ImageEdit from './with-fields/ImageEdit.jsx'
@@ -61,6 +62,36 @@ export default class ObjectForm extends React.Component {
     }
   }
 
+  renderField (field, index, formState, options) {
+    const hidden = (typeof field.hidden === 'function') ? field.hidden(formState.values) : field.hidden
+    if (hidden) {
+      return
+    }
+    const readonly = (typeof field.readonly === 'function') ? field.readonly(formState.values) : field.readonly
+    if (field.control == null) {
+      field.control = field.type || 'string'
+    }
+    const RenderField = this.getRenderField(field, readonly, options)
+    RenderField.props.fieldStyle = {
+      flex: 1
+    }
+    if (field.bindable === false) {
+      return (
+        <div style={{ width: field.width || '100%', marginBottom: '6px', display: 'flex' }}>
+          {RenderField}
+        </div>
+      )
+    } else {
+      // 封装动态绑定的支持
+      return (
+        <div className='with-code-expr' style={{ width: field.width || '100%', marginBottom: '6px' }}>
+          {RenderField}
+          <StateBindEdit noLabel field={field.fieldEx} options={options} />
+        </div>
+      )
+    }
+  }
+
   renderCol (col) {
     const hidden = (typeof col.hidden === 'function') ? col.hidden(this.api.getValues()) : col.hidden
 
@@ -92,6 +123,7 @@ export default class ObjectForm extends React.Component {
   render () {
     const { Section } = Form
     const renderCol = this.renderCol.bind(this)
+    const renderField = this.renderField.bind(this)
     const renderRows = (row, j) => {
       return (
         <div className='row' key={j}>
@@ -121,7 +153,7 @@ export default class ObjectForm extends React.Component {
       )
     }
 
-    const { sections, getFormApi, onValueChange, style, initValues } = this.props
+    const { fields, sections, getFormApi, onValueChange, style, initValues, options, labelPosition = 'left' } = this.props
 
     const callback = (api) => {
       this.api = api
@@ -131,13 +163,23 @@ export default class ObjectForm extends React.Component {
       <div className='object-form' style={style}>
         <Form
           size='small'
-          labelPosition='left'
+          labelPosition={labelPosition}
+          layout='horizontal'
           getFormApi={callback}
           initValues={initValues}
           onValueChange={onValueChange}
-        >
-          {sections.map(renderSection)}
-        </Form>
+          render={({ formState, formApi, values }) => {
+            return (
+              <>
+                {fields && fields.length}
+                {fields && fields.map((field, index) => {
+                  return renderField(field, index, formState, options)
+                })}
+                {sections && sections.map(renderSection)}
+              </>
+            )
+          }}
+        />
       </div>
     )
   }

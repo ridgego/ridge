@@ -29,6 +29,7 @@ export default () => {
     }
     const newState = {
       name: formRef.current.formApi.getValues().name,
+      label: formRef.current.formApi.getValues().label,
       value: ref.current.editorView.state.doc.toString()
     }
     let newStates = null
@@ -78,9 +79,11 @@ export default () => {
     if (record) {
       setStateIndex(index)
       formRef.current.formApi.setValue('name', record.name)
+      formRef.current.formApi.setValue('label', record.label)
     } else {
       setStateIndex(-1)
       formRef.current.formApi.setValue('name', '')
+      formRef.current.formApi.setValue('label', '')
     }
   }
 
@@ -98,6 +101,7 @@ export default () => {
       >
         <Form labelPosition='left' ref={formRef}>
           <Form.Input field='name' label='名称' />
+          <Form.Input field='label' label='描述' />
           <div
             style={{
               border: '1px solid var(--semi-color-border)',
@@ -114,15 +118,7 @@ export default () => {
       </Button>
       <Table size='small' dataSource={states} pagination={false}>
         <Column title='名称' dataIndex='name' key='name' />
-        <Column
-          title='默认值' dataIndex='value' width={100} key='value' render={(text, record, index) => {
-            return (
-              <Text ellipsis={{ showTooltip: true }} style={{ width: 100 }}>
-                {text}
-              </Text>
-            )
-          }}
-        />
+        <Column title='描述' dataIndex='label' width={100} key='label' />
         <Column
           width={64}
           title='-' dataIndex='operate' key='operate'
