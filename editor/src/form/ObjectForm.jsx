@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Button } from '@douyinfe/semi-ui'
+import { Form, Button, Table } from '@douyinfe/semi-ui'
 
 import BorderEdit from './with-fields/BorderEdit.jsx'
 import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
@@ -35,10 +35,10 @@ export default class ObjectForm extends React.Component {
       checkbox: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
       boolean: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
       select: (col, readonly) => {
-        if (col.required) {
-          return <Select size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
-        } else {
+        if (col.required === false) {
           return <Select placeholder='请选择' showClear size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
+        } else {
+          return <Select size='small' label={col.label} field={col.field} optionList={col.optionList} disabled={readonly} />
         }
       },
       radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
@@ -54,11 +54,14 @@ export default class ObjectForm extends React.Component {
     }
   }
 
-  getRenderField (col, readonly, options) {
-    if (this.controlGeneratorMap[col.control]) {
-      return this.controlGeneratorMap[col.control](col, readonly, options)
+  getRenderField (field, readonly, options) {
+    if (!field.control) {
+      field.control = field.type || 'string'
+    }
+    if (this.controlGeneratorMap[field.control]) {
+      return this.controlGeneratorMap[field.control](field, readonly, options)
     } else {
-      return <div>{col.label}类型不支持{col.control}</div>
+      return <div>{field.label}类型不支持{field.control}</div>
     }
   }
 
@@ -77,14 +80,14 @@ export default class ObjectForm extends React.Component {
     }
     if (field.bindable === false) {
       return (
-        <div style={{ width: field.width || '100%', marginBottom: '6px', display: 'flex' }}>
+        <div style={{ width: field.width || '100%', display: 'flex' }}>
           {RenderField}
         </div>
       )
     } else {
       // 封装动态绑定的支持
       return (
-        <div className='with-code-expr' style={{ width: field.width || '100%', marginBottom: '6px' }}>
+        <div className='with-code-expr' style={{ width: field.width || '100%' }}>
           {RenderField}
           <StateBindEdit noLabel field={field.fieldEx} options={options} />
         </div>
@@ -141,27 +144,49 @@ export default class ObjectForm extends React.Component {
         </div>
       )
     }
-    const renderSection = (section, i) => {
+
+    const { fields, tableStyle, sections, getFormApi, onValueChange, style, initValues, options, labelPosition = 'left' } = this.props
+
+    const renderFormTable = (formState) => {
+      const columns = [
+        {
+          dataIndex: 'label',
+          width: 68
+        },
+        {
+          dataIndex: 'bind',
+          render: (text, record, index) => {
+            const readonly = (typeof record.readonly === 'function') ? record.readonly(formState.values) : record.readonly
+            const field = this.getRenderField(record, readonly, options)
+            field.props.noLabel = true
+            return field
+          }
+        }, {
+          dataIndex: 'bind',
+          width: 32,
+          render: (text, record, index) => {
+            if (record.bindable === false) {
+              return null
+            } else {
+              return <StateBindEdit noLabel field={record.fieldEx} options={options} />
+            }
+          }
+        }]
       return (
-        <div key={i} className='object-section'>
-          {section.title &&
-            <Section text={section.title}>
-              {section.rows.map(renderRows)}
-            </Section>}
-          {!section.title && section.rows.map(renderRows)}
-        </div>
+        <Table
+          columns={columns}
+          dataSource={fields}
+          pagination={false}
+        />
       )
     }
-
-    const { fields, sections, getFormApi, onValueChange, style, initValues, options, labelPosition = 'left' } = this.props
-
     const callback = (api) => {
       this.api = api
       getFormApi && getFormApi(api)
     }
     return (
       <div className='object-form' style={style}>
-        <Form
+        {!tableStyle && <Form
           size='small'
           labelPosition={labelPosition}
           layout='horizontal'
@@ -178,7 +203,23 @@ export default class ObjectForm extends React.Component {
               </>
             )
           }}
-        />
+                        />}
+        {tableStyle &&
+          <Form
+            noLabel
+            labelPosition={labelPosition}
+            getFormApi={callback}
+            initValues={initValues}
+            onValueChange={onValueChange}
+            render={({ formState, formApi, values }) => {
+              return (
+                <>
+                  {fields && renderFormTable(formState, values)}
+                  {/* {sections && sections.map(renderSection)} */}
+                </>
+              )
+            }}
+          />}
       </div>
     )
   }

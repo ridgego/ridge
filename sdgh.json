@@ -1,0 +1,14 @@
+{
+    "dayGenerated": {
+        "value|1200-2400.2": 1,
+        "label": "日发电量",
+        "unit": "万KWh"
+    },
+    "dayGeneratedPercent": {
+        "value|1-120.2": 1,
+        "unit": "%"
+    },
+    "number|1-100": 100,
+    "code": "0",
+    "msg": "-"
+}

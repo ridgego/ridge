@@ -113,17 +113,39 @@ const PAGE_FIELDS = [
     field: 'name'
   },
   {
-    label: 'W',
-    width: '50%',
+    label: '运行区域',
+    bindable: false,
+    control: 'select',
+    field: 'type',
+    optionList: [{
+      label: '按设计宽高',
+      value: 'fixed'
+    }, {
+      label: '缩放适应',
+      value: 'scale-fixed'
+    }, {
+      label: '横向适应',
+      value: 'fit-w'
+    }, {
+      label: '全填充适应',
+      value: 'fit-wh'
+    }]
+  },
+  {
+    label: '设计宽度',
     bindable: false,
     control: 'number',
     field: 'width'
   }, {
-    label: 'H',
-    width: '50%',
+    label: '设计高度',
     bindable: false,
     control: 'number',
     field: 'height'
+  }, {
+    label: '背景',
+    bindable: false,
+    field: 'background',
+    type: 'string'
   }
 ]
 
@@ -168,12 +190,7 @@ const FORM_PAGE_PROPS = [{
       field: 'height'
     }]
   }, {
-    cols: [{
-      label: '背景',
-      bindable: false,
-      field: 'background',
-      type: 'string'
-    }]
+    cols: []
   }]
 }]
 
@@ -419,8 +436,10 @@ export default class ComponentPanel extends React.Component {
             display: nodePropFields.length === 0 ? 'none' : 'initial'
           }}
         >
+          {/* 组件属性配置 */}
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
+              tableStyle
               fields={nodePropFields}
               getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
                 pageReducers,
@@ -443,9 +462,11 @@ export default class ComponentPanel extends React.Component {
             display: nodePropFields.length === 0 ? 'initial' : 'none'
           }}
         >
+          {/* 页面属性配置 */}
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
               fields={PAGE_FIELDS}
+              tableStyle
               getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
             />
           </TabPane>

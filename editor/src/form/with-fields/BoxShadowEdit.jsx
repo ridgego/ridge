@@ -14,7 +14,7 @@ const BoxShadowEdit = withField(({
     onChange(`${shadow[0]}px ${shadow[1]}px ${shadow[2]}px ${shadow[3]}px ${shadow[4]}`)
   }
   return (
-    <Space spacing={2}>
+    <Space spacing={2} wrap>
       <InputNumber
         className='digit2'
         size='small'

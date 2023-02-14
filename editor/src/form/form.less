@@ -1,5 +1,5 @@
 .object-form {
-    padding: 0 8px;
+    padding: 0 3px;
     height: 100%;
     overflow-y: overlay;
 
@@ -9,6 +9,31 @@
     }
     .semi-form-horizontal .semi-form-field {
         padding-right: 2px;
+    }
+
+    .semi-table-wrapper {
+        table {
+            thead {
+                display: none;
+            }
+            .semi-table-tbody>.semi-table-row {
+                .btn-code {
+                    visibility:hidden;
+                }
+                :hover {
+                    .btn-code {
+                        visibility: visible;
+                    }
+                }
+            }
+
+            td.semi-table-row-cell {
+                padding: 4px 2px;
+                .semi-form-field {
+                    padding: 0;
+                }
+            }
+        }
     }
 
     .semi-form {

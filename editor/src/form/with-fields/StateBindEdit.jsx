@@ -1,61 +1,63 @@
 import React, { useState } from 'react'
 import { IconCode, IconChainStroked } from '@douyinfe/semi-icons'
-import { withField, Popover, Tree, Button } from '@douyinfe/semi-ui'
+import { withField, Popover, Select, Input, Button, Typography, Space, RadioGroup, Section } from '@douyinfe/semi-ui'
+
+const { Title, Text } = Typography
 
 const StateBindEdit = withField(({
   value,
   options,
   onChange
 }) => {
-  const [visible, setVisible] = useState(false)
-  const { pageStates } = options
-
-  const treeData = [{
-    label: '页面状态',
-    value: 'pageState',
-    key: 'pageState',
-    children: pageStates.map(state => {
-      return {
-        label: state.label || state.name,
-        value: state.name,
-        key: state.name
-      }
-    })
-  }, {
-    label: '应用状态',
-    value: 'appState',
-    key: 'appState'
-  }]
+  const { pageStates, appState } = options
+  const [visible, setVisible] = useState()
 
   const renderSelectState = () => {
     return (
-      <div style={{ width: '240px', height: '360px', overflow: 'overlay' }}>
-        <div>
-          设置属性数据跟随状态变化
-          <Button
-            size='small' style={{
-              margin: '5px 10px 0 10px'
-            }} onClick={() => {
-              onChange(null)
-            }}
-          >取消
-          </Button>
-        </div>
-        <Tree
-          expandAll
-          filterTreeNode
-          value={value}
-          treeData={treeData}
-          onChange={value => {
-            onChange(value)
+      <div style={{ width: '320px', padding: '0', height: '260px', overflow: 'overlay' }}>
+        <Title
+          heading={6}
+          style={{
+            margin: '10px 0'
           }}
-        />
+        >设置实时值
+        </Title>
+        <Text
+          style={{
+            margin: '10px 0'
+          }}
+          type='success'
+        >状态值改变后，组件会跟随变化
+        </Text>
+        <Select
+          style={{ width: '240px' }}
+          value={value}
+          allowCreate
+          filter
+          label='来自状态'
+          field='select'
+          onChange={onChange}
+          showClear
+          multiple={false}
+        >
+          <Select.OptGroup label='页面状态'>
+            {pageStates && pageStates.map(state => <Select.Option value={state.name} key={state.name}>{state.label || state.name}</Select.Option>)}
+          </Select.OptGroup>
+          <Select.OptGroup label='应用状态'>
+            {appState && appState.map(state => <Select.Option value={state.name} key={state.name}>{state.label || state.name}</Select.Option>)}
+          </Select.OptGroup>
+        </Select>
+        <Text>没有对应状态？去创建</Text>
       </div>
     )
   }
 
   return (
-    <Popover content={renderSelectState} trigger='click'>
+    <Popover
+      content={renderSelectState} trigger='click' showArrow visible={visible} onVisibleChange={visible => {
+        setVisible(visible)
+      }}
+    >
       <div
         style={{
           height: 24,
@@ -64,17 +66,16 @@ const StateBindEdit = withField(({
         }}
       >
         <Button
-          onClick={() => {
-            setVisible(true)
-          }}
           className='btn-code'
           placeholder='绑定表达式'
           type={value ? 'primary' : 'tertiary'}
           size='small'
           theme='borderless'
+          onClick={() => {
+            setVisible(!visible)
+          }}
           icon={<IconChainStroked style={{ margin: '0 2px', flexShrink: 0 }} />}
         />
-
       </div>
     </Popover>
   )

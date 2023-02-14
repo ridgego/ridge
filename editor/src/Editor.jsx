@@ -175,33 +175,37 @@ export default class Editor extends React.Component {
     } = state
     return (
       <>
-        <MenuBar
-          {...state} toggleVisible={name => {
-            this.setState({
-              [name]: !this.state[name]
-            })
-          }}
-          toggoleRunMode={this.toggoleRunMode.bind(this)}
-        />
-        <ComponentAddPanel
-          position={panelPosition.ADD}
-          visible={!modeRun && componentPanelVisible} onClose={() => {
-            this.setState({
-              componentPanelVisible: false
-            })
-          }}
-        />
-        <LeftBottomPanel title='页面和资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
-        <RightBottomPanel position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
-        <ConfigPanel
-          position={panelPosition.PROP}
-          ref={rightPanelRef}
-          visible={!modeRun && propPanelVisible} onClose={() => {
-            this.setState({
-              propPanelVisible: false
-            })
-          }}
-        />
+        <div class='workspace'>
+          <div class='viewport-container' />
+          <MenuBar
+            {...state} toggleVisible={name => {
+              this.setState({
+                [name]: !this.state[name]
+              })
+            }}
+            toggoleRunMode={this.toggoleRunMode.bind(this)}
+          />
+          <ComponentAddPanel
+            position={panelPosition.ADD}
+            visible={!modeRun && componentPanelVisible} onClose={() => {
+              this.setState({
+                componentPanelVisible: false
+              })
+            }}
+          />
+          <LeftBottomPanel title='页面和资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
+          <RightBottomPanel position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
+          <ConfigPanel
+            position={panelPosition.PROP}
+            ref={rightPanelRef}
+            visible={!modeRun && propPanelVisible} onClose={() => {
+              this.setState({
+                propPanelVisible: false
+              })
+            }}
+          />
+        </div>
+        <div class='ridge-runtime' />
       </>
     )
   }
@@ -236,7 +240,7 @@ export default class Editor extends React.Component {
         this.workspaceControl.disable()
 
         this.pageElementManager.unmount()
-        this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), this.pageConfig.content, 'run')
+        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, 'run')
       } else {
         this.pageElementManager.unmount()
         this.loadPage(this.pageConfig)
