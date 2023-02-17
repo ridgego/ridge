@@ -1,7 +1,7 @@
 import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
-import template from '../template'
+import template from '../utils/template'
 import lodashSet from 'lodash/set'
 const log = debug('ridge:el-wrapper')
 

@@ -35,10 +35,7 @@ class Ridge {
   }
 
   loadPage (el, pageConfig, mode) {
-    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this)
-    if (mode) {
-      pageManager.setMode(mode)
-    }
+    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, mode)
     pageManager.mount(el || document.body)
     return pageManager
   }

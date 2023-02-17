@@ -1,13 +1,14 @@
 import ElementWrapper from './ElementWrapper'
 import { trim, nanoid } from '../utils/string'
 import { pe, st } from '../utils/expr'
+import Store from '../store/Store'
 
 class PageElementManager {
-  constructor (pageConfig, ridge, wrapperClass) {
+  constructor (pageConfig, ridge, mode) {
     this.pageConfig = pageConfig
     this.ridge = ridge
     this.decorators = {}
-    this.ElementWrapper = wrapperClass || ElementWrapper
+    this.mode = mode
     this.initialize()
   }
 
@@ -34,10 +35,11 @@ class PageElementManager {
 
     this.pageElements = {}
     for (const element of this.pageConfig.elements) {
-      const elementWrapper = new this.ElementWrapper({
+      const elementWrapper = new ElementWrapper({
         pageManager: this,
         config: element
       })
+      elementWrapper.setMode(this.mode)
       this.pageElements[elementWrapper.id] = elementWrapper
     }
   }
@@ -110,45 +112,10 @@ class PageElementManager {
     this.el = el
 
     if (this.mode === 'run') {
-      this.pageStore = this.initPageStore(this.pageConfig)
+      this.pageStore = new Store(this.pageConfig)
     }
     this.updateRootElStyle()
     this.forceUpdate()
-  }
-
-  initPageStore (pageConfig) {
-    const stateList = []
-    const initStateValues = {}
-    for (const state of pageConfig.states) {
-      stateList.push(`${state.name}: ${state.value}`)
-
-      if (typeof state.value === 'function') {
-        initStateValues[state.name] = state.value(initStateValues)
-      } else {
-        initStateValues[state.name] = state.value
-      }
-    }
-
-    const reducerList = []
-    for (const reducer of pageConfig.reducers) {
-      reducerList.push(`${reducer.name}: ${reducer.value}`)
-    }
-
-    let ridgePageStore = null
-    const jsContent = `ridgePageStore = {
-      state: {
-        ${stateList.join(',\n')}
-      },
-      reducers: { 
-        ${reducerList.join(',\n')}
-      }
-    }`
-    const evaluatedObject = eval(jsContent)
-    ridgePageStore = evaluatedObject
-    console.log('evaluated', ridgePageStore, evaluatedObject)
-
-    evaluatedObject.stateValue = initStateValues
-    return evaluatedObject
   }
 
   updateRootElStyle () {
@@ -201,13 +168,6 @@ class PageElementManager {
     const variableKeys = Object.keys(variables)
     for (const element of Object.values(this.pageElements)) {
       element.reactBy(variableKeys)
-    }
-  }
-
-  setMode (mode) {
-    this.mode = mode
-    for (const element of Object.values(this.pageElements)) {
-      element.setMode(mode)
     }
   }
 

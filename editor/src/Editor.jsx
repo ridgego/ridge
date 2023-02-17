@@ -20,17 +20,14 @@ import {
   EVENT_PAGE_OUTLINE_CHANGE,
   PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN, EVENT_APP_OPEN
 } from './constant'
+import { Button } from '@douyinfe/semi-ui'
+import { IconExit } from '@douyinfe/semi-icons'
 
 const trace = debug('ridge:editor')
 
 export default class Editor extends React.Component {
   constructor (props) {
     super(props)
-    this.workspaceRef = React.createRef()
-    this.viewPortRef = React.createRef()
-    this.rightPanelRef = React.createRef()
-    this.dataPanelRef = React.createRef()
-    this.addComponentRef = React.createRef()
 
     this.state = {
       componentPanelVisible: true,
@@ -38,9 +35,7 @@ export default class Editor extends React.Component {
       outlinePanelVisible: true,
       dataPanelVisible: true,
       editorLang: null,
-      editorVisible: false,
       modeRun: false,
-      editorCode: '',
       panelPosition: PANEL_SIZE_1920
     }
     if (window.screen.width <= 1366) {
@@ -158,7 +153,6 @@ export default class Editor extends React.Component {
 
   render () {
     const {
-      rightPanelRef,
       state
     } = this
 
@@ -168,14 +162,15 @@ export default class Editor extends React.Component {
       propPanelVisible,
       outlinePanelVisible,
       modeRun,
-      editorLang,
-      editorVisible,
-      panelPosition,
-      editorCode
+      panelPosition
     } = state
     return (
       <>
-        <div class='workspace'>
+        <div
+          class='workspace' style={{
+            display: modeRun ? 'none' : ''
+          }}
+        >
           <div class='viewport-container' />
           <MenuBar
             {...state} toggleVisible={name => {
@@ -185,27 +180,31 @@ export default class Editor extends React.Component {
             }}
             toggoleRunMode={this.toggoleRunMode.bind(this)}
           />
-          <ComponentAddPanel
-            position={panelPosition.ADD}
-            visible={!modeRun && componentPanelVisible} onClose={() => {
-              this.setState({
-                componentPanelVisible: false
-              })
-            }}
-          />
+          <ComponentAddPanel position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
           <LeftBottomPanel title='页面和资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
-          <RightBottomPanel position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
-          <ConfigPanel
-            position={panelPosition.PROP}
-            ref={rightPanelRef}
-            visible={!modeRun && propPanelVisible} onClose={() => {
-              this.setState({
-                propPanelVisible: false
-              })
-            }}
-          />
+          <RightBottomPanel title='组件树' position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
+          <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
         </div>
-        <div class='ridge-runtime' />
+        <div
+          class='ridge-runtime' style={{
+            display: modeRun ? '' : 'none'
+          }}
+        />
+        <div style={{
+          display: modeRun ? '' : 'none',
+          position: 'absolute',
+          right: '10px',
+          bottom: '10px',
+          zIndex: 10
+        }}
+        >
+          <Button
+            icon={<IconExit />} onClick={() => {
+              this.toggoleRunMode()
+            }}
+          >退出运行
+          </Button>
+        </div>
       </>
     )
   }
@@ -216,34 +215,23 @@ export default class Editor extends React.Component {
     })
   }
 
-  onNodeSelected (el) {
-    if (el) {
-      this.rightPanelRef.current?.elementSelected(el)
-    } else {
-      this.rightPanelRef.current?.elementSelected(null)
-    }
-  }
-
-  pagePropertiesConfigChange (properties) {
-    this.pageElementManager.updatePageProperties(properties)
-    // this.pageElementManager.properties = properties
-    this.debouncedSaveUpdatePage()
-  }
-
   // 切换运行模式
   toggoleRunMode () {
     this.setState({
       modeRun: !this.state.modeRun
     }, async () => {
       if (this.state.modeRun) {
+        // 运行页面
         await this.saveCurrentPage()
         this.workspaceControl.disable()
 
         this.pageElementManager.unmount()
+        document.querySelector('.ridge-runtime').style.display = 'init'
         this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, 'run')
       } else {
         this.pageElementManager.unmount()
         this.loadPage(this.pageConfig)
+        document.querySelector('.ridge-runtime').style.display = 'none'
         this.workspaceControl.enable()
         // this.pageElementManager.updateVariableConfigFromValue()
         // this.pageElementManager.setMode('edit')
