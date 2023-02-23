@@ -4,8 +4,7 @@ import debug from 'debug'
 import loadjs from 'loadjs'
 
 // 组态化组件资源服务地址
-const log = debug('editor:ridge-loader')
-const important = debug('important')
+const log = debug('ridge:loader')
 
 /**
  * 组件定义（js及其依赖）加载服务类
@@ -29,7 +28,7 @@ class ElementLoader {
     // 调试服务的地址
     this.debugUrl = debugUrl
 
-    important('RidgeLoader baseUrl: ' + this.baseUrl)
+    log('RidgeLoader baseUrl: ' + this.baseUrl)
 
     /** @property 前端组件加载缓存 key: 组件lib名称或加载地址  value: 组件fcp */
     this.componentCache = {}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { IconCode, IconChainStroked } from '@douyinfe/semi-icons'
-import { withField, Popover, Select, Input, Button, Typography, Space, RadioGroup, Section } from '@douyinfe/semi-ui'
+import { withField, Popover, Select, Input, Button, Typography, Checkbox, Space, RadioGroup, Section } from '@douyinfe/semi-ui'
 
 const { Title, Text } = Typography
 
@@ -9,12 +9,16 @@ const StateBindEdit = withField(({
   options,
   onChange
 }) => {
+  // const [useExpression, setUseExpression] = useState(true)
   const { pageStates, appState } = options
   const [visible, setVisible] = useState()
 
+  // if (pageStates && pageStates.filter(state => state.name === value).length) {
+  //   setUseExpression(false)
+  // }
   const renderSelectState = () => {
     return (
-      <div style={{ width: '320px', padding: '0', height: '260px', overflow: 'overlay' }}>
+      <div style={{ width: '320px', padding: '0', height: '260px', overflow: 'overlay', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <Title
           heading={6}
           style={{
@@ -32,10 +36,7 @@ const StateBindEdit = withField(({
         <Select
           style={{ width: '240px' }}
           value={value}
-          allowCreate
-          filter
           label='来自状态'
-          field='select'
           onChange={onChange}
           showClear
           multiple={false}
@@ -47,7 +48,12 @@ const StateBindEdit = withField(({
             {appState && appState.map(state => <Select.Option value={state.name} key={state.name}>{state.label || state.name}</Select.Option>)}
           </Select.OptGroup>
         </Select>
-        <Text>没有对应状态？去创建</Text>
+        {/* <Checkbox checked={useExpression}>使用表达式</Checkbox> */}
+        <Input
+          value={value} onChange={val => {
+            onChange(val)
+          }}
+        />
       </div>
     )
   }

@@ -2,11 +2,11 @@ import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import template from '../utils/template'
-import lodashSet from 'lodash/set'
-const log = debug('ridge:el-wrapper')
+import { trim, nanoid } from '../utils/string'
+const log = debug('ridge:element')
 
 const error = debug('ridge:error')
-const log_edit = debug('ridge:editor-wrapper')
+const log_edit = debug('ridge:editor:element')
 
 /**
  * 组件封装类
@@ -14,6 +14,7 @@ const log_edit = debug('ridge:editor-wrapper')
 class ElementWrapper {
   constructor ({
     config,
+    mode,
     pageManager
   }) {
     this.config = config
@@ -21,22 +22,19 @@ class ElementWrapper {
     this.componentPath = config.path
 
     this.pageManager = pageManager
+    this.pageStore = pageManager.pageStore
+    this.mode = mode
 
     // 系统内置属性
     this.systemProperties = {
-      __ridge: pageManager.ridge,
       __pageManager: pageManager,
-      __elementWrapper: this
+      __elementWrapper: this,
+      __mode: mode
     }
     // 存放计算值、运行时配置更新值
     this.properties = {}
-    // 组件的scope值数据
-    this.scopeVariableValues = {}
-  }
-
-  setMode (mode) {
-    this.mode = mode
-    this.systemProperties.__mode = mode
+    // 局部状态
+    this.scopeState = {}
   }
 
   isRoot () {
@@ -50,8 +48,12 @@ class ElementWrapper {
   clone () {
     const cloned = new ElementWrapper({
       config: this.toJSON(),
-      pageManager: this.pageManager
+      pageManager: this.pageManager,
+      mode: this.mode
     })
+    cloned.cloneFrom = cloned.id
+    cloned.id = nanoid(10)
+
     if (this.componentDefinition) {
       cloned.componentDefinition = this.componentDefinition
       cloned.preloaded = true
@@ -65,7 +67,6 @@ class ElementWrapper {
         return clonedChild
       })
     }
-    // TODO
     return cloned
   }
 
@@ -180,6 +181,12 @@ class ElementWrapper {
     }
     if (this.mode !== 'edit') {
       this.updateExpressionedProperties()
+      // TODO 检查动态绑定的情况，按需对store变化进行响应
+      if (Object.keys(this.config.styleEx).length || Object.keys(this.config.propEx).length) {
+        this.pageStore.subscribe(this.id, () => {
+          this.forceUpdate()
+        })
+      }
     }
     delete this.config.isNew
   }
@@ -222,6 +229,9 @@ class ElementWrapper {
     if (this.el) {
       this.el.parentElement.removeChild(this.el)
       this.el = null
+    }
+    if (this.mode !== 'edit') {
+      this.pageStore.unsubscribe(this.id)
     }
   }
 
@@ -272,7 +282,7 @@ class ElementWrapper {
       if (this.mode !== 'edit') {
         this.el.style.visibility = this.config.style.visible ? 'visible' : 'hidden'
         for (const styleName of Object.keys(this.config.styleEx || {})) {
-          const value = template(this.config.styleEx[styleName], this.getVariableContext())
+          const value = template(this.config.styleEx[styleName], this.getContextState())
           if (styleName === 'width') {
             this.el.style.width = value + 'px'
           }
@@ -303,29 +313,25 @@ class ElementWrapper {
     }
   }
 
-  setScopeVariableValues (scopeVariableValues) {
-    this.scopeVariableValues = scopeVariableValues
+  setScopeStateValues (state) {
+    this.scopeState = Object.assign({}, state)
   }
 
-  updateScopeVariableValues (updated) {
-    Object.assign(this.scopeVariableValues, updated)
-  }
-
-  getScopeVariableValues () {
+  getScopeStateValues () {
     if (this.parentWrapper) {
-      return Object.assign(this.parentWrapper.getScopeVariableValues(), this.scopeVariableValues)
+      return Object.assign(this.parentWrapper.getScopeStateValues(), this.scopeState)
     } else {
-      return this.scopeVariableValues
+      return this.scopeState
     }
   }
 
   /**
      * 获取当前组件可见的上下文变量信息
      */
-  getVariableContext () {
+  getContextState () {
     return Object.assign({},
-      this.pageManager.getVariableValues(),
-      this.getScopeVariableValues()
+      this.pageManager.pageStore.getState(),
+      this.getScopeStateValues()
     )
   }
 
@@ -340,6 +346,9 @@ class ElementWrapper {
     await this.updateProperties()
   }
 
+  /**
+   * 强制更新、计算所有属性
+   */
   async forceUpdate () {
     this.forceUpdateStyle()
     this.forceUpdateProps()
@@ -349,10 +358,33 @@ class ElementWrapper {
    * 计算所有表达式值
    */
   updateExpressionedProperties () {
-    for (const propBindKey of Object.keys(this.config.propEx)) {
-      if (this.hasExpression(propBindKey)) {
-        this.properties[propBindKey] = this.pageManager.pageStore.stateValue[this.config.propEx[propBindKey]]
+    for (const [key, value] of Object.entries(this.config.propEx)) {
+      if (value == null || value === '') {
+        continue
       }
+      if (log.enabled) {
+        log('Prop Bind Update', this.id + '[' + this.config.title + ']', key, value)
+      }
+      this.properties[key] = this.getExpressionValue(value)
+    }
+  }
+
+  getExpressionValue (expression) {
+    const state = this.pageStore.ctx.state[expression]
+    if (state) {
+      // 直接绑定值
+      if (typeof state === 'function') {
+        if (log.enabled) {
+          log('computed state', state, this.getContextState())
+        }
+        return state(this.getContextState())
+      } else {
+        return this.pageManager.pageStore.ctx.stateValue[expression]
+      }
+    } else {
+      return template(expression, {
+        ...this.pageManager.pageStore.ctx.stateValue
+      })
     }
   }
 
@@ -395,8 +427,8 @@ class ElementWrapper {
     log('Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
-      if (this.config.propEx.value && Object.keys(this.getVariableContext()).indexOf(this.config.propEx.value) > -1) {
-        this.pageManager.updatePageVariableValue({
+      if (this.config.propEx.value && Object.keys(this.getContextState()).indexOf(this.config.propEx.value) > -1) {
+        this.pageStore.setState({
           [this.config.propEx.value]: payload
         })
       }
@@ -405,19 +437,13 @@ class ElementWrapper {
     if (this.config.events[eventName]) {
       // 处理input/value事件
       for (const action of this.config.events[eventName]) {
-        if (action.name === 'setvar') {
+        if (action.name === 'setState') {
           try {
-            const variableContext = this.getVariableContext()
-            const newVariableValue = template(action.value, variableContext)
-
-            if (action.target.indexOf('.') > -1) {
-              lodashSet(variableContext, action.target, newVariableValue)
-            } else {
-              log('Update Variable:', action.target, newVariableValue)
-              this.pageManager.updatePageVariableValue({
-                [action.target]: newVariableValue
-              })
-            }
+            const context = Object.assign({}, this.getContextState(), { payload })
+            const newStateValue = template(action.value, context)
+            this.pageStore.setState({
+              [action.target]: newStateValue
+            })
           } catch (e) {
             log('Event Action[setvar] Error', e)
           }

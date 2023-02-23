@@ -1,5 +1,6 @@
 import ElementLoader from './loader/ElementLoader'
 import PageElementManager from './element/PageElementManager'
+import Store from './store/Store.js'
 /**
  * The Ridge Platform Runtime
  */
@@ -9,11 +10,15 @@ class Ridge {
     const unpkgUrl = opts.unkpgUrl ?? baseUrl
     const debugUrl = opts.debugUrl
 
+    const states = opts.states || []
+    const reducers = opts.reducers || []
+
     this.loader = new ElementLoader({
       baseUrl,
       debugUrl,
       unpkgUrl
     })
+    this.store = new Store({ states, reducers })
     this.pageElementManagers = {}
   }
 

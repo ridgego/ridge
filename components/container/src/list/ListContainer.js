@@ -94,12 +94,11 @@ export default class ListContainer {
           const wrapper = existedEl.elementWrapper
 
           // 更新属性后强制更新
-          wrapper.updateScopeVariableValues({
+          wrapper.setScopeStateValues({
             $item: data,
             $index: index,
             $list: dataSource
           })
-          wrapper.forceUpdate()
         } else {
           const newEl = document.createElement('div')
           if (itemKey) {
@@ -121,17 +120,15 @@ export default class ListContainer {
           newEl.onmouseenter = (e) => {
             console.log('mouser over hover', e.target)
 
-            newWrapper.updateScopeVariableValues({
+            newWrapper.setScopeStateValues({
               $hover: true
             })
-            newWrapper.forceUpdate()
           }
           newEl.onmouseleave = (e) => {
             console.log('mouser over out', e.target)
-            newWrapper.updateScopeVariableValues({
+            newWrapper.setScopeStateValues({
               $hover: false
             })
-            newWrapper.forceUpdate()
           }
         }
       }

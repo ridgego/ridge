@@ -18,7 +18,6 @@ class PageElementManager {
    */
   initialize () {
     this.id = this.pageConfig.id
-    this.pageVariableValues = {}
 
     if (!this.pageConfig.states) {
       this.pageConfig.states = []
@@ -27,33 +26,21 @@ class PageElementManager {
       this.pageConfig.reducers = []
     }
 
-    for (const variablesConfig of this.pageConfig.variables || []) {
-      if (trim(variablesConfig.name)) {
-        this.pageVariableValues[trim(variablesConfig.name)] = pe(variablesConfig.value)
-      }
-    }
+    this.pageStore = new Store(this.pageConfig)
 
     this.pageElements = {}
     for (const element of this.pageConfig.elements) {
       const elementWrapper = new ElementWrapper({
         pageManager: this,
-        config: element
+        config: element,
+        mode: this.mode
       })
-      elementWrapper.setMode(this.mode)
       this.pageElements[elementWrapper.id] = elementWrapper
     }
   }
 
   getPageProperties () {
     return this.pageConfig.properties
-  }
-
-  getVariableConfig () {
-    return this.pageConfig.variables
-  }
-
-  getVariableValues () {
-    return this.pageVariableValues
   }
 
   /**
@@ -73,24 +60,6 @@ class PageElementManager {
     Object.assign(this.pageConfig, change)
   }
 
-  /**
-   * 更新页面变量配置
-   * @param {*} name 名称
-   * @param {*} value 变量值
-   */
-  updateVariableConfig (variablesConfig) {
-    this.pageConfig.variables = variablesConfig
-
-    this.pageVariableValues = {}
-
-    for (const pv of this.pageConfig.variables) {
-      if (trim(pv.name)) {
-        this.pageVariableValues[trim(pv.name)] = pe(pv.value)
-      }
-    }
-    this.forceUpdate()
-  }
-
   getElement (id) {
     return this.pageElements[id]
   }
@@ -104,20 +73,16 @@ class PageElementManager {
    * @param {Element} el 根元素
    */
   async mount (el) {
+    this.el = el
+    this.updateRootElStyle()
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
       const div = document.createElement('div')
       wrapper.mount(div)
       el.appendChild(div)
     }
-    this.el = el
-
-    if (this.mode === 'run') {
-      this.pageStore = new Store(this.pageConfig)
-    }
-    this.updateRootElStyle()
-    this.forceUpdate()
   }
 
+  // 配置根节点容器的样式 （可能是body）
   updateRootElStyle () {
     if (this.mode === 'run') {
       if (this.pageConfig.properties.type === 'fit-wh') {
@@ -138,6 +103,15 @@ class PageElementManager {
     }
   }
 
+  /**
+   * 整页按照变量和动态数据完全更新
+   */
+  forceUpdate () {
+    for (const element of Object.values(this.pageElements)) {
+      element.forceUpdate()
+    }
+  }
+
   async unmount () {
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
       wrapper.unmount()
@@ -153,22 +127,6 @@ class PageElementManager {
       awaitings.push(await wrapper.preload())
     }
     await Promise.allSettled(awaitings)
-  }
-
-  /**
-   * 整页按照变量和动态数据完全更新
-   */
-  forceUpdate () {
-    for (const element of Object.values(this.pageElements)) {
-      element.forceUpdate()
-    }
-  }
-
-  updateVariableRelated (variables) {
-    const variableKeys = Object.keys(variables)
-    for (const element of Object.values(this.pageElements)) {
-      element.reactBy(variableKeys)
-    }
   }
 
   /**
@@ -196,9 +154,9 @@ class PageElementManager {
 
     const wrapper = new ElementWrapper({
       config: elementConfig,
-      pageManager: this
+      pageManager: this,
+      mode: 'edit'
     })
-    wrapper.setMode('edit')
     this.pageElements[wrapper.id] = wrapper
     return wrapper
   }

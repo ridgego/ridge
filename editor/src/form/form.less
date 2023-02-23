@@ -20,7 +20,10 @@
                 .btn-code {
                     visibility:hidden;
                 }
-                :hover {
+                .btn-code.semi-button-primary {
+                    visibility: visible;
+                }
+                &:hover {
                     .btn-code {
                         visibility: visible;
                     }
@@ -118,6 +121,9 @@
             display: flex;
             .semi-button-tertiary.btn-code {
                 visibility: hidden;
+                &.semi-button-primary {
+                    visibility: initial;    
+                }
             }
             .semi-button-tertiary.is-open {
                 visibility: initial;

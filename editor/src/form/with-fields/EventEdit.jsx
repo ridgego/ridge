@@ -122,7 +122,7 @@ const EventEdit = withField(({
           <Table size='small' dataSource={actions} pagination={false}>
             <Column
               title='动作' dataIndex='name' key='name'
-              render={text => ACTION_OPTIONS.filter(a => a.value === text)[0].label}
+              render={text => ACTION_OPTIONS.filter(a => a.value === text)[0]?.label}
             />
             <Column
               title='目标' dataIndex='target' width={100} key='label'
