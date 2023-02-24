@@ -35,13 +35,15 @@ export default class Store {
     }
     evaluatedObject.stateValue = initStateValues
 
-    this.ctx = evaluatedObject
+    this.stateValue = initStateValues
+    this.reducers = evaluatedObject.reducers
+    this.state = evaluatedObject.state
     // 订阅者
     this.subscribes = []
   }
 
   getState () {
-    return this.ctx.stateValue
+    return this.stateValue
   }
 
   unsubscribe (unid) {
@@ -57,7 +59,7 @@ export default class Store {
   }
 
   setState (stateValue) {
-    this.ctx.stateValue = Object.assign({}, this.ctx.stateValue, stateValue)
+    this.stateValue = Object.assign({}, this.stateValue, stateValue)
     this.subscribes.filter(sub => {
       // 有状态按状态判断
       if (sub.states) {
@@ -71,7 +73,7 @@ export default class Store {
         return true
       }
     }).forEach(sub => {
-      sub.callback && sub.callback(this.ctx.stateValue)
+      sub.callback && sub.callback(this.stateValue)
     })
   }
 }

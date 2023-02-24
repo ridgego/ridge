@@ -39,8 +39,8 @@ class Ridge {
     return this.loader.loadComponent(componentPath)
   }
 
-  loadPage (el, pageConfig, mode) {
-    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, mode)
+  loadPage (el, pageConfig, reactive) {
+    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, reactive)
     pageManager.mount(el || document.body)
     return pageManager
   }

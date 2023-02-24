@@ -51,6 +51,8 @@ export default class ApplicationService {
     const id = nanoid(10)
     const pageContent = {
       id,
+      states: [],
+      reducers: [],
       properties: {
         type: 'fixed',
         width: 800,

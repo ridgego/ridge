@@ -41,7 +41,7 @@ export default class Editor extends React.Component {
     if (window.screen.width <= 1366) {
       this.state.panelPosition = PANEL_SIZE_1366
     }
-    this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 300)
+    this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 50)
 
     this.currentId = null
     this.initialize()
@@ -128,8 +128,11 @@ export default class Editor extends React.Component {
   loadPage (pageConfig) {
     trace('loadPage', pageConfig)
     this.pageConfig = pageConfig
+    const { content } = this.pageConfig
+    this.workspaceControl.fitToCenter(content.properties.width, content.properties.height)
+
     // 从HTML初始化页面管理器
-    this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, 'edit')
+    this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
     emit(EVENT_PAGE_LOADED, Object.assign(this.pageElementManager.pageConfig, {
@@ -137,7 +140,6 @@ export default class Editor extends React.Component {
       elements: this.pageElementManager.getPageElements()
     }))
     this.workspaceControl.setPageManager(this.pageElementManager)
-    this.workspaceControl.fitToCenter()
 
     ridge.pageElementManagers = this.pageElementManager
   }

@@ -110,7 +110,7 @@ export default class ListContainer {
             this.containerEl.appendChild(newEl)
           }
           const newWrapper = renderItem.clone()
-          newWrapper.setScopeVariableValues({
+          newWrapper.setScopeStateValues({
             $hover: false,
             $item: data,
             $index: index,
@@ -118,14 +118,11 @@ export default class ListContainer {
           })
           newWrapper.mount(newEl)
           newEl.onmouseenter = (e) => {
-            console.log('mouser over hover', e.target)
-
             newWrapper.setScopeStateValues({
               $hover: true
             })
           }
           newEl.onmouseleave = (e) => {
-            console.log('mouser over out', e.target)
             newWrapper.setScopeStateValues({
               $hover: false
             })

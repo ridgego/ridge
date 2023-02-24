@@ -52,7 +52,10 @@ export default class WorkSpaceControl {
     this.pageManager = manager
   }
 
-  fitToCenter () {
+  fitToCenter (width, height) {
+    this.viewPortEl.style.width = width + 'px'
+    this.viewPortEl.style.height = height + 'px'
+
     if (this.zoomable) {
       const containerRect = this.workspaceEl.getBoundingClientRect()
       const viewPortRect = this.viewPortEl.getBoundingClientRect()
@@ -196,7 +199,7 @@ export default class WorkSpaceControl {
       // Whether to select by click (default: true)
       selectByClick: true,
       // Whether to select from the target inside (default: true)
-      selectFromInside: false,
+      selectFromInside: true,
       // After the select, whether to select the next target with the selected target (deselected if the target is selected again).
       continueSelect: false,
       // Determines which key to continue selecting the next target via keydown and keyup.
@@ -239,6 +242,7 @@ export default class WorkSpaceControl {
       if (isDragStart) {
         inputEvent.preventDefault()
       }
+      console.log('select end')
       this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
 
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]

@@ -4,9 +4,7 @@ import VanillaRender from '../render/VanillaRenderer'
 import template from '../utils/template'
 import { trim, nanoid } from '../utils/string'
 const log = debug('ridge:element')
-
 const error = debug('ridge:error')
-const log_edit = debug('ridge:editor:element')
 
 /**
  * 组件封装类
@@ -14,7 +12,6 @@ const log_edit = debug('ridge:editor:element')
 class ElementWrapper {
   constructor ({
     config,
-    mode,
     pageManager
   }) {
     this.config = config
@@ -23,13 +20,11 @@ class ElementWrapper {
 
     this.pageManager = pageManager
     this.pageStore = pageManager.pageStore
-    this.mode = mode
 
     // 系统内置属性
     this.systemProperties = {
       __pageManager: pageManager,
-      __elementWrapper: this,
-      __mode: mode
+      __elementWrapper: this
     }
     // 存放计算值、运行时配置更新值
     this.properties = {}
@@ -179,14 +174,12 @@ class ElementWrapper {
         this.emit(event.name, ...args)
       }
     }
-    if (this.mode !== 'edit') {
-      this.updateExpressionedProperties()
-      // TODO 检查动态绑定的情况，按需对store变化进行响应
-      if (Object.keys(this.config.styleEx).length || Object.keys(this.config.propEx).length) {
-        this.pageStore.subscribe(this.id, () => {
-          this.forceUpdate()
-        })
-      }
+    this.updateExpressionedProperties()
+    // TODO 检查动态绑定的情况，按需对store变化进行响应
+    if (Object.keys(this.config.styleEx).length || Object.keys(this.config.propEx).length) {
+      this.pageStore.subscribe(this.id, () => {
+        this.forceUpdate()
+      })
     }
     delete this.config.isNew
   }
@@ -230,9 +223,8 @@ class ElementWrapper {
       this.el.parentElement.removeChild(this.el)
       this.el = null
     }
-    if (this.mode !== 'edit') {
-      this.pageStore.unsubscribe(this.id)
-    }
+
+    this.pageStore.unsubscribe(this.id)
   }
 
   /**
@@ -279,19 +271,15 @@ class ElementWrapper {
         }
       }
 
-      if (this.mode !== 'edit') {
-        this.el.style.visibility = this.config.style.visible ? 'visible' : 'hidden'
-        for (const styleName of Object.keys(this.config.styleEx || {})) {
-          const value = template(this.config.styleEx[styleName], this.getContextState())
-          if (styleName === 'width') {
-            this.el.style.width = value + 'px'
-          }
-          if (styleName === 'visible') {
-            this.el.style.visibility = value ? 'visible' : 'hidden'
-          }
+      this.el.style.visibility = this.config.style.visible ? 'visible' : 'hidden'
+      for (const styleName of Object.keys(this.config.styleEx || {})) {
+        const value = template(this.config.styleEx[styleName], this.getContextState())
+        if (styleName === 'width') {
+          this.el.style.width = value + 'px'
         }
-      } else {
-        this.el.style.visibility = 'visible'
+        if (styleName === 'visible') {
+          this.el.style.visibility = value ? 'visible' : 'hidden'
+        }
       }
     }
   }
@@ -314,7 +302,9 @@ class ElementWrapper {
   }
 
   setScopeStateValues (state) {
-    this.scopeState = Object.assign({}, state)
+    this.scopeState = Object.assign({}, this.scopeState, state)
+
+    this.forceUpdate()
   }
 
   getScopeStateValues () {
@@ -336,22 +326,13 @@ class ElementWrapper {
   }
 
   /**
-   * 强制重新计算属性并更新组件显示
-   */
-  async forceUpdateProps () {
-    if (this.mode !== 'edit') {
-      this.updateExpressionedProperties()
-    }
-    console.log('forceUpdate', this.properties)
-    await this.updateProperties()
-  }
-
-  /**
    * 强制更新、计算所有属性
    */
   async forceUpdate () {
     this.forceUpdateStyle()
-    this.forceUpdateProps()
+
+    this.updateExpressionedProperties()
+    await this.updateProperties()
   }
 
   /**
@@ -362,67 +343,31 @@ class ElementWrapper {
       if (value == null || value === '') {
         continue
       }
-      if (log.enabled) {
-        log('Prop Bind Update', this.id + '[' + this.config.title + ']', key, value)
-      }
-      this.properties[key] = this.getExpressionValue(value)
-    }
-  }
-
-  getExpressionValue (expression) {
-    const state = this.pageStore.ctx.state[expression]
-    if (state) {
-      // 直接绑定值
-      if (typeof state === 'function') {
-        if (log.enabled) {
-          log('computed state', state, this.getContextState())
-        }
-        return state(this.getContextState())
+      const state = this.pageStore.state[value]
+      if (!state) {
+        // 不存在这个状态， 可能删除、写错、或者编辑器下未启动状态
+        continue
       } else {
-        return this.pageManager.pageStore.ctx.stateValue[expression]
+        if (typeof state === 'function') {
+          if (log.enabled) {
+            log('Computed state', state, this.getContextState())
+          }
+          this.properties[key] = state(this.getContextState())
+        } else {
+          if (log.enabled) {
+            log('State Value', this.id + '[' + this.config.title + ']', key, value)
+          }
+          this.properties[key] = this.pageStore.stateValue[value]
+        }
       }
-    } else {
-      return template(expression, {
-        ...this.pageManager.pageStore.ctx.stateValue
-      })
     }
-  }
-
-  hasExpression (propBindKey) {
-    return this.config.propEx[propBindKey] !== '' && this.config.propEx[propBindKey] != null
   }
 
   invoke (method, args) {
     return this.renderer.invoke(method, args)
   }
 
-  /**
-   * 组件根据对应变量变化进而进行重新布局或渲染
-   * @param {*} variableNames 变动的变量Key
-   */
-  reactBy (variableNames) {
-    if (this.configUseVariable(this.config.propEx, variableNames)) {
-      this.forceUpdateProps()
-    }
-    if (this.configUseVariable(this.config.styleEx, variableNames)) {
-      this.forceUpdateStyle()
-    }
-  }
-
-  configUseVariable (config, variableNames) {
-    let used = false
-    for (const expression of Object.values(config)) {
-      if (used) break
-
-      for (const variableName of variableNames) {
-        if (expression.indexOf(variableName) > -1) {
-          used = true
-        }
-      }
-    }
-    return used
-  }
-
+  // 组件对外发出事件
   emit (eventName, payload) {
     log('Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
@@ -445,7 +390,18 @@ class ElementWrapper {
               [action.target]: newStateValue
             })
           } catch (e) {
-            log('Event Action[setvar] Error', e)
+            log('Event Action[setState] Error', e)
+          }
+        } else if (action.name === 'doReduce') {
+          try {
+            if (this.pageStore.reducers[action.target]) {
+              // 调用Reducer，默认为异步
+              Promise.resolve(this.pageStore.reducers[action.target](this.getContextState(), payload)).then(newState => {
+                this.pageStore.setState(newState)
+              })
+            }
+          } catch (e) {
+            log('Event Action[doReduce] Error', e)
           }
         }
       }
@@ -560,7 +516,6 @@ class ElementWrapper {
      * @param {*} field
      */
   setPropsConfig (values, field) {
-    log_edit(this, field)
     for (const keyPath of Object.keys(field)) {
       const [type, key] = keyPath.split('.')
 
@@ -593,7 +548,7 @@ class ElementWrapper {
 
     // 编辑时忽略动态配置的属性、事件
     this.applyDecorate('setPropsConfig').then(() => {
-      this.forceUpdateProps()
+      this.updateProperties()
     })
   }
 

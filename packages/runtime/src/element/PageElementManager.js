@@ -4,11 +4,11 @@ import { pe, st } from '../utils/expr'
 import Store from '../store/Store'
 
 class PageElementManager {
-  constructor (pageConfig, ridge, mode) {
+  constructor (pageConfig, ridge, reactive) {
     this.pageConfig = pageConfig
     this.ridge = ridge
     this.decorators = {}
-    this.mode = mode
+    this.reactive = reactive
     this.initialize()
   }
 
@@ -26,14 +26,17 @@ class PageElementManager {
       this.pageConfig.reducers = []
     }
 
-    this.pageStore = new Store(this.pageConfig)
+    if (this.reactive) {
+      this.pageStore = new Store(this.pageConfig)
+    } else {
+      this.pageStore = new Store({ states: [], reducers: [] })
+    }
 
     this.pageElements = {}
     for (const element of this.pageConfig.elements) {
       const elementWrapper = new ElementWrapper({
         pageManager: this,
-        config: element,
-        mode: this.mode
+        config: element
       })
       this.pageElements[elementWrapper.id] = elementWrapper
     }
@@ -48,7 +51,7 @@ class PageElementManager {
    * @param {} properties
    */
   updatePageProperties (properties) {
-    Object.assign(this.pageConfig.properties, properties)
+    this.pageConfig.properties = properties
     this.updateRootElStyle()
   }
 
@@ -84,22 +87,10 @@ class PageElementManager {
 
   // 配置根节点容器的样式 （可能是body）
   updateRootElStyle () {
-    if (this.mode === 'run') {
-      if (this.pageConfig.properties.type === 'fit-wh') {
-        this.el.style.position = 'absolute'
-        this.el.style.left = 0
-        this.el.style.right = 0
-        this.el.style.top = 0
-        this.el.style.bottom = 0
-      }
-    }
-    if (this.mode === 'edit') {
-      this.el.style.width = this.pageConfig.properties.width + 'px'
-      this.el.style.height = this.pageConfig.properties.height + 'px'
-    }
-
     if (this.pageConfig.properties.background) {
       this.el.style.background = this.pageConfig.properties.background
+    } else {
+      this.el.style.background = ''
     }
   }
 
@@ -143,6 +134,7 @@ class PageElementManager {
       path: fraction.componentPath,
       style: {
         position: 'absolute',
+        visible: true,
         width: fraction.width ?? 100,
         height: fraction.height ?? 100
       },
@@ -154,8 +146,7 @@ class PageElementManager {
 
     const wrapper = new ElementWrapper({
       config: elementConfig,
-      pageManager: this,
-      mode: 'edit'
+      pageManager: this
     })
     this.pageElements[wrapper.id] = wrapper
     return wrapper

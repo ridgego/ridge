@@ -101,6 +101,13 @@ const COMPONENT_BASIC_FIELDS = [
     control: 'number',
     field: 'style.height',
     fieldEx: 'styleEx.height'
+  },
+  {
+    label: '显示',
+    type: 'boolean',
+    control: 'checkbox',
+    field: 'style.visible',
+    fieldEx: 'styleEx.visible'
   }
 ]
 

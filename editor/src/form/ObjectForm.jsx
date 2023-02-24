@@ -1,5 +1,6 @@
 import React from 'react'
 import { Form, Button, Table } from '@douyinfe/semi-ui'
+import { IconStopwatchStroked } from '@douyinfe/semi-icons'
 
 import BorderEdit from './with-fields/BorderEdit.jsx'
 import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
@@ -13,6 +14,7 @@ import BackgroundEdit from './with-fields/BackgroundEdit.jsx'
 import ColorPicker from './with-fields/ColorPicker.jsx'
 import RadioGroupEdit from './with-fields/RadioGroupEdit.jsx'
 import BoxShadowEdit from './with-fields/BoxShadowEdit.jsx'
+import ToggleIcon from './with-fields/ToggleIcon.jsx'
 
 import './form.less'
 
@@ -165,7 +167,9 @@ export default class ObjectForm extends React.Component {
           dataIndex: 'bind',
           width: 32,
           render: (text, record, index) => {
-            if (record.bindable === false) {
+            if (record.extra === 'debug') {
+              return <ToggleIcon noLabel field='debug' icon={<IconStopwatchStroked />} />
+            } else if (record.bindable === false) {
               return null
             } else {
               return <StateBindEdit noLabel field={record.fieldEx} options={options} />

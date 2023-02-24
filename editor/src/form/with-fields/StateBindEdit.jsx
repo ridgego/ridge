@@ -9,13 +9,9 @@ const StateBindEdit = withField(({
   options,
   onChange
 }) => {
-  // const [useExpression, setUseExpression] = useState(true)
   const { pageStates, appState } = options
   const [visible, setVisible] = useState()
-
-  // if (pageStates && pageStates.filter(state => state.name === value).length) {
-  //   setUseExpression(false)
-  // }
+  
   const renderSelectState = () => {
     return (
       <div style={{ width: '320px', padding: '0', height: '260px', overflow: 'overlay', display: 'flex', flexDirection: 'column', gap: '8px' }}>
