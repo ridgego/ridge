@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { IconDelete, IconEdit, IconPlus } from '@douyinfe/semi-icons'
-import { withField, Button, Collapse, Table, Modal, Form } from '@douyinfe/semi-ui'
-const { Column } = Table
+import { withField, Button, Collapse, Table, Modal, Form, Tree, Typography } from '@douyinfe/semi-ui'
+const { Text } = Typography
 const { Select, Input } = Form
 const { Option } = Select
 
@@ -28,6 +28,47 @@ const EventEdit = withField(({
     pageStates
   } = options
   // const [actions, setActions] = useState(value || [])
+
+  const getTreeData = () => {
+    const tree = [{
+      label: options.label,
+      key: 'action-root',
+      root: true,
+      children: [...actions.map((action, index) => {
+        const leafData = {}
+        leafData.key = action.target + '.' + action.method
+        leafData.index = index
+        if (action.target === 'page') {
+          const targetReducer = pageReducers.filter(reducer => reducer.name === action.method)[0]
+          if (targetReducer) {
+            leafData.label = targetReducer.label
+          } else {
+            leafData.label = '页面方法不存在'
+          }
+        }
+        return leafData
+      }), {
+        key: '__add',
+        label: 'Add'
+      }]
+    }]
+    return tree
+  }
+
+  const treeData = getTreeData()
+
+  const renderTreeLabel = (label, data) => {
+    return (
+      <div className='node-label'>
+        {data.key !== '__add' && <Text className='label-text'>{label}</Text>}
+        {data.key === '__add' &&
+          <Button
+            size='small' theme='borderless' type='tertiary' onClick={() => {
+            }} icon={<IconEdit>增加处理函数</IconEdit>}
+          />}
+      </div>
+    )
+  }
 
   // 增加新的动作
   const editAction = (action, index) => {
@@ -105,6 +146,12 @@ const EventEdit = withField(({
 
   return (
     <div className='event-edit'>
+      <Tree
+        className='event-tree'
+        expandAll
+        renderLabel={renderTreeLabel}
+        treeData={treeData}
+      />
       <Modal
         lazyRender={false}
         onCancel={() => {
@@ -119,7 +166,7 @@ const EventEdit = withField(({
       </Modal>
       <Collapse>
         <Collapse.Panel header={options.label} itemKey='label'>
-          <Table size='small' dataSource={actions} pagination={false}>
+          {/* <Table size='small' dataSource={actions} pagination={false}>
             <Column
               title='动作' dataIndex='name' key='name'
               render={text => ACTION_OPTIONS.filter(a => a.value === text)[0]?.label}
@@ -148,7 +195,7 @@ const EventEdit = withField(({
                 )
               }}
             />
-          </Table>
+          </Table> */}
           <Button
             size='small' icon={<IconPlus />} onClick={() => {
               editAction(null, -1)
