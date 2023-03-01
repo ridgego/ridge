@@ -14,8 +14,17 @@ export default class MoveablePanel extends React.Component {
     this.ref = React.createRef()
     this.state = {
       state: 'normal',
+      errors: null,
       openSearch: false,
-      search: ''
+      search: '',
+      hasError: false
+    }
+  }
+
+  static getDerivedStateFromError (errors) {
+    return {
+      errors,
+      hasError: true
     }
   }
 
@@ -86,13 +95,18 @@ export default class MoveablePanel extends React.Component {
       }
     }
 
+    const titleStyle = {}
+    if (title) {
+      titleStyle.height = '24px'
+    }
+
     if (!visible) {
       style.display = 'none'
     }
     return (
       ReactDOM.createPortal(
         <div ref={this.ref} className='movable-panel' style={style} id={this.props.id}>
-          <div className='title-bar'>
+          <div className='title-bar' style={titleStyle}>
             <IconHandle className='icon-handle' />
             {title && <Text className='title-text'>{title}</Text>}
             {openSearch && <Input placeholder='输入查询条件' prefix={<IconSearchStroked />} suffix={<IconClose onClick={closeSearch} />} className='toggle-search' />}
@@ -113,7 +127,7 @@ export default class MoveablePanel extends React.Component {
               // borderTop: title ? '1px solid var(--semi-color-border)' : 'none'
             }}
           >
-            {this.props.children}
+            {this.state.hasError ? <div>Something went wrong. {JSON.stringify(this.state.errors)}</div> : this.props.children}
           </div>
         </div>, document.body)
     )

@@ -1,25 +1,20 @@
-.variable-value {
-    position: relative;
-    display: flex;
+.data-panel-content {
+  .store-tree {
+    .node-label {
+      display: flex;
 
-    .action-edit {
+      .label-content {
+        flex: 1;
+        height: 24px;
+      }
+      .label-action {
         display: none;
-        position: absolute;
-        right: 20px;
-        top: 4px;
-    }
-    .action-delete {
-        margin-top: 4px;
-        margin-left: 2px;
-        visibility: hidden;
-    }
-
-    &:hover {
-        .action-edit {
-            display: inherit;
+      }
+      &:hover {
+        .label-action {
+          display: initial;
         }
-        .action-delete {
-            visibility:visible
-        }
+      }
     }
+  }
 }

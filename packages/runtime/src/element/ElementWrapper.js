@@ -176,10 +176,24 @@ class ElementWrapper {
     }
     this.updateExpressionedProperties()
     // TODO 检查动态绑定的情况，按需对store变化进行响应
-    if (Object.keys(this.config.styleEx).length || Object.keys(this.config.propEx).length) {
+
+    const stateConnected = []
+    for (const [key, value] of Object.entries(this.config.styleEx)) {
+      if (this.pageStore.state[value] != null) {
+        stateConnected.push(value)
+      }
+    }
+
+    for (const [key, value] of Object.entries(this.config.propEx)) {
+      if (this.pageStore.state[value] != null) {
+        stateConnected.push(value)
+      }
+    }
+
+    if (stateConnected.length) {
       this.pageStore.subscribe(this.id, () => {
         this.forceUpdate()
-      })
+      }, stateConnected)
     }
     delete this.config.isNew
   }
@@ -344,7 +358,7 @@ class ElementWrapper {
         continue
       }
       const state = this.pageStore.state[value]
-      if (!state) {
+      if (state == null) {
         // 不存在这个状态， 可能删除、写错、或者编辑器下未启动状态
         continue
       } else {
@@ -530,14 +544,22 @@ class ElementWrapper {
         })
       }
       if (type === 'propsEx') {
-        Object.assign(this.config.propEx, {
-          [key]: field[keyPath]
-        })
+        if (field[keyPath] == null) {
+          delete this.config.propEx[key]
+        } else {
+          Object.assign(this.config.propEx, {
+            [key]: field[keyPath]
+          })
+        }
       }
       if (type === 'styleEx') {
-        Object.assign(this.config.styleEx, {
-          [key]: field[keyPath]
-        })
+        if (field[keyPath] == null) {
+          delete this.config.styleEx[key]
+        } else {
+          Object.assign(this.config.styleEx, {
+            [key]: field[keyPath]
+          })
+        }
       }
 
       if (keyPath === 'title') {

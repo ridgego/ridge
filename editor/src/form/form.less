@@ -49,76 +49,12 @@
             font-weight: normal;
             color: var( --semi-color-text-2);
         }
-       
-        .row {
-            .semi-form-field {
-                padding: 5px 0;
-                width: 100%;
-                .semi-form-field-label {
-                    width: 54px;   
-                    padding-right: 4px;
-                    .semi-form-field-label-text {
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        font-size: 12px;
-                    }
-                }
-                .event-edit {
-                    position: relative;
-                    .action-add {
-                        position: absolute;
-                        right: 5px;
-                        top: -30px;
-                    }
-
-                    .event-action-config {
-                        background-color: var( --semi-color-tertiary-light-default);
-                        border-radius: 5px;
-                        padding: 8px;
-                        margin-top: 5px;
-                        position: relative;
-                        .action-delete {
-                            position: absolute;
-                            right: 10px;
-                            cursor: pointer;
-                            color: var( --semi-color-text-2)
-                        }
-                    }
-                    .action-field {
-                        display: flex;
-                        padding: 3px 0;
-                        .action-label {
-                            width: 48px;
-                        }
-                        .semi-input-textarea-wrapper {
-                            width: auto;
-                            flex:1;
-                            textarea {
-                                height: 48px;
-                            }
-                        }
-                    }
-                }
-
-                .semi-radio-addon-buttonRadio-small {
-                    padding: 2px 10px;
-                }
-            }
-            display: flex;
-            .col-12 {
-                display: flex;
-                .semi-form-field {
-                    width: 100px;
-                }
-                .semi-form-field-label {
-                    width: 32px;   
-                }
-            }
-        }
         
-        .with-code-expr {
+        .field-block {
             display: flex;
+            padding: 4px 0;
+        }
+        .with-code-expr {
             .semi-button-tertiary.btn-code {
                 visibility: hidden;
                 &.semi-button-primary {

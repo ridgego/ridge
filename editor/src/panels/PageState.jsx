@@ -120,7 +120,7 @@ export default () => {
         <Column title='名称' dataIndex='name' key='name' />
         <Column title='描述' dataIndex='label' width={100} key='label' />
         <Column
-          width={64}
+          width={72}
           title='-' dataIndex='operate' key='operate'
           render={(text, record, index) => {
             return (

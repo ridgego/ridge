@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Button, Table } from '@douyinfe/semi-ui'
+import { Form, Button, Table, Divider } from '@douyinfe/semi-ui'
 import { IconStopwatchStroked } from '@douyinfe/semi-icons'
 
 import BorderEdit from './with-fields/BorderEdit.jsx'
@@ -31,7 +31,8 @@ export default class ObjectForm extends React.Component {
     } = Form
 
     this.controlGeneratorMap = {
-      number: (col, readonly) => <InputNumber size='small' label={col.label} disabled={readonly} field={col.field} />,
+      divider: (col) => <Divider margin='0' align='center'>{col.label}</Divider>,
+      number: (col, readonly) => <InputNumber labelPosition='inset' size='small' label={col.label} disabled={readonly} field={col.field} />,
       string: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
       text: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
       checkbox: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
@@ -80,16 +81,18 @@ export default class ObjectForm extends React.Component {
     RenderField.props.fieldStyle = {
       flex: 1
     }
-    if (field.bindable === false) {
+    if (field.type === 'divider') {
+      return <Divider margin='0' align='center'>{field.label || ''}</Divider>
+    } else if (field.bindable === false) {
       return (
-        <div style={{ width: field.width || '100%', display: 'flex' }}>
+        <div className='field-block' style={{ width: field.width || '100%' }}>
           {RenderField}
         </div>
       )
     } else {
       // 封装动态绑定的支持
       return (
-        <div className='with-code-expr' style={{ width: field.width || '100%' }}>
+        <div className='field-block with-code-expr' style={{ width: field.width || '100%' }}>
           {RenderField}
           <StateBindEdit noLabel field={field.fieldEx} options={options} />
         </div>
@@ -126,28 +129,9 @@ export default class ObjectForm extends React.Component {
   }
 
   render () {
-    const { Section } = Form
-    const renderCol = this.renderCol.bind(this)
     const renderField = this.renderField.bind(this)
-    const renderRows = (row, j) => {
-      return (
-        <div className='row' key={j}>
-          {row.cols.length > 1 &&
-            <>
-              {row.cols.map((col, k) => {
-                return (
-                  <div key={k} className={'col-' + (24 / row.cols.length)}>
-                    {renderCol(col)}
-                  </div>
-                )
-              })}
-            </>}
-          {row.cols.length === 1 && renderCol(row.cols[0])}
-        </div>
-      )
-    }
 
-    const { fields, tableStyle, sections, getFormApi, onValueChange, style, initValues, options, labelPosition = 'left' } = this.props
+    const { fields, tableStyle, getFormApi, onValueChange, style, initValues, options, labelPosition = 'left' } = this.props
 
     const renderFormTable = (formState) => {
       const columns = [

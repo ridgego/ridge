@@ -52,6 +52,7 @@ export default class ApplicationService {
     const pageContent = {
       id,
       states: [],
+      scopeStates: [],
       reducers: [],
       properties: {
         type: 'fixed',

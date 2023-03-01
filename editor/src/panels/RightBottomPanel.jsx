@@ -1,7 +1,6 @@
 import React from 'react'
 import MoveablePanel from './MoveablePanel.jsx'
 import OutLineTree from './OutLineTree.jsx'
-import { Tabs, TabPane } from '@douyinfe/semi-ui'
 
 import '../css/data-panel.less'
 

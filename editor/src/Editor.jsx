@@ -183,8 +183,8 @@ export default class Editor extends React.Component {
             toggoleRunMode={this.toggoleRunMode.bind(this)}
           />
           <ComponentAddPanel position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
-          <LeftBottomPanel title='页面和资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
-          <RightBottomPanel title='组件树' position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
+          <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
+          <RightBottomPanel title='组件大纲' position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
           <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
         </div>
         <div

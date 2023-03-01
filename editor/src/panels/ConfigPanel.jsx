@@ -291,6 +291,10 @@ export default class ComponentPanel extends React.Component {
 
     // 能加载到节点定义
     if (elementWrapper.componentDefinition) {
+      nodePropFields.push({
+        type: 'divider',
+        label: '组件属性'
+      })
       for (const prop of elementWrapper.componentDefinition.props) {
         const field = {}
         Object.assign(field, prop, {
@@ -446,7 +450,6 @@ export default class ComponentPanel extends React.Component {
           {/* 组件属性配置 */}
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
-              tableStyle
               fields={nodePropFields}
               getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
                 pageReducers,
@@ -456,7 +459,8 @@ export default class ComponentPanel extends React.Component {
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
-              fields={nodeEventFields} getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
+              fields={nodeEventFields}
+              getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
                 pageReducers,
                 pageStates
               }}

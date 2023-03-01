@@ -3,7 +3,8 @@ export default class Store {
     const stateList = []
     const initStateValues = {}
     for (const state of states) {
-      stateList.push(`${state.name}: ${state.value}`)
+      const value = state.value === '' ? '""' : state.value
+      stateList.push(`${state.name}: ${value}`)
     }
 
     const reducerList = []
