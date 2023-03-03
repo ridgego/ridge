@@ -259,7 +259,11 @@ class ElementWrapper {
   }
 
   getProperties () {
-    return Object.assign({}, this.config.props, this.systemProperties, this.properties)
+    return Object.assign({},
+      this.config.props, // 配置的静态属性
+      this.systemProperties, // 系统属性
+      this.properties // 动态计算属性
+    )
   }
 
   forceUpdateStyle () {
@@ -396,26 +400,10 @@ class ElementWrapper {
     if (this.config.events[eventName]) {
       // 处理input/value事件
       for (const action of this.config.events[eventName]) {
-        if (action.name === 'setState') {
-          try {
-            const context = Object.assign({}, this.getContextState(), { payload })
-            const newStateValue = template(action.value, context)
-            this.pageStore.setState({
-              [action.target]: newStateValue
-            })
-          } catch (e) {
-            log('Event Action[setState] Error', e)
-          }
-        } else if (action.name === 'doReduce') {
-          try {
-            if (this.pageStore.reducers[action.target]) {
-              // 调用Reducer，默认为异步
-              Promise.resolve(this.pageStore.reducers[action.target](this.getContextState(), payload)).then(newState => {
-                this.pageStore.setState(newState)
-              })
-            }
-          } catch (e) {
-            log('Event Action[doReduce] Error', e)
+        if (action.method) {
+          const [target, reducer] = action.method.split('.')
+          if (target === 'page') {
+            this.pageStore.doReducer(reducer, this.getContextState(), payload)
           }
         }
       }

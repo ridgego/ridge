@@ -96,7 +96,7 @@ export default class Editor extends React.Component {
           await this.saveCurrentPage()
           this.pageElementManager.unmount()
         }
-        this.workspaceControl.selectElements([], true)
+        this.workspaceControl && this.workspaceControl.selectElements([], true)
         this.loadPage(file)
       }
     })
@@ -106,9 +106,6 @@ export default class Editor extends React.Component {
     })
 
     this.openApp()
-    on('*', () => {
-      // this.debouncedSaveUpdatePage()
-    })
   }
 
   async saveCurrentPage () {
@@ -133,6 +130,8 @@ export default class Editor extends React.Component {
 
     // 从HTML初始化页面管理器
     this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
+
+    this.pageElementManager.mode = 'edit'
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
     emit(EVENT_PAGE_LOADED, Object.assign(this.pageElementManager.pageConfig, {
@@ -169,11 +168,11 @@ export default class Editor extends React.Component {
     return (
       <>
         <div
-          class='workspace' style={{
+          className='workspace' style={{
             display: modeRun ? 'none' : ''
           }}
         >
-          <div class='viewport-container' />
+          <div className='viewport-container' />
           <MenuBar
             {...state} toggleVisible={name => {
               this.setState({
@@ -188,7 +187,7 @@ export default class Editor extends React.Component {
           <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
         </div>
         <div
-          class='ridge-runtime' style={{
+          className='ridge-runtime' style={{
             display: modeRun ? '' : 'none'
           }}
         />

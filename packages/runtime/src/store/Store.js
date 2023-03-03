@@ -59,6 +59,17 @@ export default class Store {
     })
   }
 
+  async doReducer (name, ctx, payload) {
+    if (this.reducers[name]) {
+      try {
+        const result = await Promise.resolve(this.reducers[name](ctx, payload))
+        this.setState(result)
+      } catch (e) {
+        console.error('Reducer Execute Error', e)
+      }
+    }
+  }
+
   setState (stateValue) {
     this.stateValue = Object.assign({}, this.stateValue, stateValue)
     this.subscribes.filter(sub => {

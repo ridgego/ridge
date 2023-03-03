@@ -217,6 +217,10 @@ export default class ComponentPanel extends React.Component {
       nodePropsValues: {},
       nodeEventsValues: {}
     }
+    // this.initEvents()
+  }
+
+  componentDidMount () {
     this.initEvents()
   }
 
@@ -271,9 +275,6 @@ export default class ComponentPanel extends React.Component {
   // 按照选择的组件更新面板配置表单
   updatePanelConfig () {
     const elementWrapper = this.currentElement.elementWrapper
-    this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
-      notNotify: true
-    })
 
     // 节点基本样式 （x/y/w/h)
     const nodePropFields = JSON.parse(JSON.stringify(COMPONENT_BASIC_FIELDS))
@@ -315,6 +316,13 @@ export default class ComponentPanel extends React.Component {
         nodeEventFields.push(control)
       }
     }
+
+    this.componentPropFormApi.reset()
+    this.componentEventFormApi.reset()
+
+    this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
+      notNotify: true
+    })
     this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
       notNotify: true
     })
@@ -327,6 +335,7 @@ export default class ComponentPanel extends React.Component {
     this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
       notNotify: true
     })
+
     this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
       notNotify: true
     })
@@ -344,21 +353,7 @@ export default class ComponentPanel extends React.Component {
         event: elementWrapper.config.events
       }
     }, () => {
-      // this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
-      //   notNotify: true
-      // })
-      // this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
-      //   notNotify: true
-      // })
-      // this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
-      //   notNotify: true
-      // })
-      // this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
-      //   notNotify: true
-      // })
-      // this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
-      //   notNotify: true
-      // })
+
     })
   }
 
@@ -403,7 +398,8 @@ export default class ComponentPanel extends React.Component {
       nodePropFields,
       nodeEventFields,
       pageReducers,
-      pageStates
+      pageStates,
+      nodeEventsValues
     } = this.state
 
     // 回写styleApi句柄以便直接操作基础form
@@ -459,6 +455,7 @@ export default class ComponentPanel extends React.Component {
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
+              initValues={nodeEventsValues}
               fields={nodeEventFields}
               getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
                 pageReducers,

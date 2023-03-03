@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Popover, Input, Typography, withField } from '@douyinfe/semi-ui'
+import { Popover, Input, Typography, withField, Button } from '@douyinfe/semi-ui'
 import AppImageList from '../../panels/AppImageList.jsx'
 import { ridge } from '../../service/RidgeEditService.js'
 import { dataURLToString } from '../../utils/blob.js'
@@ -14,8 +14,8 @@ const IconEdit = withField(({
   const AppList = () => {
     return (
       <div style={{
-        width: '400px',
-        height: '320px'
+        width: '420px',
+        height: '400px'
       }}
       >
         <Text>选择图标</Text>

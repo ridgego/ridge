@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { ridge } from '../service/RidgeEditService'
+import { Typography } from '@douyinfe/semi-ui'
 import '../css/app-image-list.less'
+
+const { Text } = Typography
 export default ({
   images,
   select
@@ -18,21 +21,19 @@ export default ({
     <div
       zIndex={3001}
       className='app-image-list-icon'
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap'
-      }}
     >
       {images.map((img, index) => {
         return (
           <div
             key={index} className='image-item'
           >
-            <img
-              onClick={() => onSelect(img)}
-              src={img.src}
-            />
-            <div className='image-title'>{img.name}</div>
+            <div className='image-wrapper'>
+              <img
+                onClick={() => onSelect(img)}
+                src={img.src}
+              />
+            </div>
+            <Text type='tertiary' style={{ width: 96 }}>{img.name}</Text>
           </div>
         )
       })}

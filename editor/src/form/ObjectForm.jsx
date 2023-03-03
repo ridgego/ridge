@@ -47,7 +47,7 @@ export default class ObjectForm extends React.Component {
       radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
       boxshadow: (col, readonly) => <BoxShadowEdit label={col.label} field={col.field} disabled={readonly} />,
-      event: (col, readonly, options) => <EventEdit className='event-field' labelPosition='top' noLabel field={col.field} options={{ label: col.label, ...options }} />,
+      event: (col, readonly, options) => <EventEdit className='event-field' noLabel field={col.field} options={{ label: col.label, ...options }} />,
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
       px4: (col, readonly) => <Px4Edit label={col.label} field={col.field} disabled={readonly} />,

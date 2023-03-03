@@ -6,7 +6,11 @@ export default class ListContainer {
   }
 
   isEditMode () {
-    return this.props.__mode === 'edit'
+    if (this.props.__pageManager && this.props.__pageManager.mode === 'edit') {
+      return true
+    } else {
+      return false
+    }
   }
 
   async mount (el) {
