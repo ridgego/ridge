@@ -28,6 +28,10 @@ class ElementWrapper {
     }
     // 存放计算值、运行时配置更新值
     this.properties = {}
+
+    // 存放样式的计算值
+    this.style = {}
+
     // 局部状态
     this.scopeState = {}
   }
@@ -177,24 +181,10 @@ class ElementWrapper {
     this.updateExpressionedProperties()
     // TODO 检查动态绑定的情况，按需对store变化进行响应
 
-    const stateConnected = []
-    for (const [key, value] of Object.entries(this.config.styleEx)) {
-      if (this.pageStore.state[value] != null) {
-        stateConnected.push(value)
-      }
-    }
-
-    for (const [key, value] of Object.entries(this.config.propEx)) {
-      if (this.pageStore.state[value] != null) {
-        stateConnected.push(value)
-      }
-    }
-
-    if (stateConnected.length) {
-      this.pageStore.subscribe(this.id, () => {
-        this.forceUpdate()
-      }, stateConnected)
-    }
+    // 将所有需要连接的属性传入订阅
+    this.pageStore.subscribe(this.id, () => {
+      this.forceUpdate()
+    }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
     delete this.config.isNew
   }
 
@@ -210,8 +200,8 @@ class ElementWrapper {
     this.el.classList.add('ridge-element')
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
-    this.forceUpdateStyle()
-
+    this.updateExpressionedStyle()
+    this.updateStyle()
     if (!this.preloaded) {
       this.preload().then(() => {
         this.initPropsAndEvents()
@@ -266,9 +256,27 @@ class ElementWrapper {
     )
   }
 
-  forceUpdateStyle () {
+  // 计算随变量绑定的样式
+  updateExpressionedStyle () {
+    if (this.pageManager.mode === 'edit') return
+    for (const styleName of Object.keys(this.config.styleEx || {})) {
+      if (this.config.styleEx[styleName] == null || this.config.styleEx[styleName] === '') {
+        continue
+      }
+      this.style[styleName] = this.pageStore.getStateValue(this.config.styleEx[styleName], this.getContextState())
+    }
+  }
+
+  // 运行期直接修改样式
+  setStyle (style) {
+    Object.assign(this.style, style)
+    this.updateStyle()
+  }
+
+  updateStyle () {
+    const style = Object.assign({}, this.config.style, this.style)
     if (this.el) {
-      Object.assign(this.el.style, this.config.style)
+      Object.assign(this.el.style, style)
       if (this.config.props.coverContainer) {
         this.el.style.width = '100%'
         this.el.style.height = '100%'
@@ -277,28 +285,18 @@ class ElementWrapper {
         this.el.style.transform = ''
         this.el.style.top = 0
       } else {
-        this.el.style.width = this.config.style.width ? (this.config.style.width + 'px') : ''
-        this.el.style.height = this.config.style.height ? (this.config.style.height + 'px') : ''
-        this.el.style.position = this.config.style.position
-        if (this.config.style.position === 'absolute') {
+        this.el.style.width = style.width ? (style.width + 'px') : ''
+        this.el.style.height = style.height ? (style.height + 'px') : ''
+        this.el.style.position = style.position
+        if (style.position === 'absolute') {
           this.el.style.left = 0
           this.el.style.top = 0
-          this.el.style.transform = `translate(${this.config.style.x}px, ${this.config.style.y}px)`
+          this.el.style.transform = `translate(${style.x}px, ${style.y}px)`
         } else {
           this.el.style.transform = ''
         }
       }
-
-      this.el.style.visibility = this.config.style.visible ? 'visible' : 'hidden'
-      for (const styleName of Object.keys(this.config.styleEx || {})) {
-        const value = template(this.config.styleEx[styleName], this.getContextState())
-        if (styleName === 'width') {
-          this.el.style.width = value + 'px'
-        }
-        if (styleName === 'visible') {
-          this.el.style.visibility = value ? 'visible' : 'hidden'
-        }
-      }
+      this.el.style.visibility = style.visible ? 'visible' : 'hidden'
     }
   }
 
@@ -347,37 +345,23 @@ class ElementWrapper {
    * 强制更新、计算所有属性
    */
   async forceUpdate () {
-    this.forceUpdateStyle()
+    this.updateExpressionedStyle()
+    this.updateStyle()
 
     this.updateExpressionedProperties()
-    await this.updateProperties()
+    this.updateProperties()
   }
 
   /**
    * 计算所有表达式值
    */
   updateExpressionedProperties () {
+    if (this.pageManager.mode === 'edit') return
     for (const [key, value] of Object.entries(this.config.propEx)) {
       if (value == null || value === '') {
         continue
       }
-      const state = this.pageStore.state[value]
-      if (state == null) {
-        // 不存在这个状态， 可能删除、写错、或者编辑器下未启动状态
-        continue
-      } else {
-        if (typeof state === 'function') {
-          if (log.enabled) {
-            log('Computed state', state, this.getContextState())
-          }
-          this.properties[key] = state(this.getContextState())
-        } else {
-          if (log.enabled) {
-            log('State Value', this.id + '[' + this.config.title + ']', key, value)
-          }
-          this.properties[key] = this.pageStore.stateValue[value]
-        }
-      }
+      this.properties[key] = this.pageStore.getStateValue(value, this.getContextState())
     }
   }
 
@@ -500,19 +484,6 @@ class ElementWrapper {
   }
 
   /**
-   * 修改组件配置的样式信息
-   * @param {*} style
-   */
-  setStyle (style) {
-    if (style.hasOwnProperty('flex') && style.flex == null) {
-      style.flex = ''
-    }
-    Object.assign(this.config.style, style)
-
-    this.forceUpdateStyle()
-  }
-
-  /**
      * 组件配置信息发生改变，通过编辑器配置面板传入
      * @param {*} values
      * @param {*} field
@@ -554,7 +525,7 @@ class ElementWrapper {
         this.config.title = field[keyPath]
       }
     }
-    this.forceUpdateStyle()
+    this.updateStyle()
 
     // 编辑时忽略动态配置的属性、事件
     this.applyDecorate('setPropsConfig').then(() => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { IconCode, IconChainStroked } from '@douyinfe/semi-icons'
-import { withField, Popover, Select, Input, Button, Typography, Checkbox, Space, RadioGroup, Section, Tree } from '@douyinfe/semi-ui'
+import { IconChainStroked } from '@douyinfe/semi-icons'
+import { withField, Popover, Button, Space, Tree } from '@douyinfe/semi-ui'
 
 const StateBindEdit = withField(({
   value,
@@ -11,6 +11,9 @@ const StateBindEdit = withField(({
   const [visible, setVisible] = useState()
 
   const renderSelectState = () => {
+    if (!pageStates) {
+      console.log('Where is pageState', value, options)
+    }
     const treeData = []
     const pageStateTree = {
       label: '页面状态',
@@ -51,43 +54,6 @@ const StateBindEdit = withField(({
           </Button>
         </Space>
       </div>
-    // <div style={{ width: '320px', padding: '0', height: '260px', overflow: 'overlay', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-    //   <Title
-    //     heading={6}
-    //     style={{
-    //       margin: '10px 0'
-    //     }}
-    //   >设置实时值
-    //   </Title>
-    //   <Text
-    //     style={{
-    //       margin: '10px 0'
-    //     }}
-    //     type='success'
-    //   >状态值改变后，组件会跟随变化
-    //   </Text>
-    //   <Select
-    //     style={{ width: '240px' }}
-    //     value={value}
-    //     label='来自状态'
-    //     onChange={onChange}
-    //     showClear
-    //     multiple={false}
-    //   >
-    //     <Select.OptGroup label='页面状态'>
-    //       {pageStates && pageStates.map(state => <Select.Option value={state.name} key={state.name}>{state.label || state.name}</Select.Option>)}
-    //     </Select.OptGroup>
-    //     <Select.OptGroup label='应用状态'>
-    //       {appState && appState.map(state => <Select.Option value={state.name} key={state.name}>{state.label || state.name}</Select.Option>)}
-    //     </Select.OptGroup>
-    //   </Select>
-    //   {/* <Checkbox checked={useExpression}>使用表达式</Checkbox> */}
-    //   <Input
-    //     value={value} onChange={val => {
-    //       onChange(val)
-    //     }}
-    //   />
-    // </div>
     )
   }
 

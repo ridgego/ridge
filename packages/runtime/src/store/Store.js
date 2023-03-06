@@ -1,8 +1,32 @@
 export default class Store {
   constructor ({ states, reducers }) {
+    // 局部状态
+    this.scopedStates = states.filter(state => state.scoped).map(state => state.name)
+
+    const evaluatedObject = this.evaluatePageStore(states, reducers)
+    this.reducers = evaluatedObject.reducers
+    this.state = evaluatedObject.state
+
+    // 公共的计算状态
+    this.computedStates = states.filter(state => {
+      return !state.scoped && typeof this.state[state.name] === 'function'
+    }).map(state => state.name)
+
+    this.stateValue = {}
+    for (const key in this.state) {
+      if (typeof this.state[key] !== 'function') {
+        this.stateValue[key] = this.state[key]
+      }
+    }
+
+    // 订阅者
+    this.subscribes = []
+  }
+
+  evaluatePageStore (states, reducers) {
     const stateList = []
-    const initStateValues = {}
     for (const state of states) {
+      // 做空值判断
       const value = state.value === '' ? '""' : state.value
       stateList.push(`${state.name}: ${value}`)
     }
@@ -28,35 +52,61 @@ export default class Store {
     // const evaluatedObject = eval(jsContent)
     // ridgePageStore = evaluatedObject
     // console.log('evaluated', ridgePageStore, evaluatedObject)
-    const evaluatedObject = window.ridgePageStore
-    for (const key in evaluatedObject.state) {
-      if (typeof evaluatedObject.state[key] !== 'function') {
-        initStateValues[key] = evaluatedObject.state[key]
-      }
-    }
-    evaluatedObject.stateValue = initStateValues
-
-    this.stateValue = initStateValues
-    this.reducers = evaluatedObject.reducers
-    this.state = evaluatedObject.state
-    // 订阅者
-    this.subscribes = []
+    return window.ridgePageStore
   }
 
   getState () {
     return this.stateValue
   }
 
+  /**
+   * 获取状态值（包括计算型）
+   * @param {*} stateName
+   * @param {*} ctx
+   * @returns
+   */
+  getStateValue (stateName, ctx) {
+    const state = this.state[stateName]
+    if (typeof state === 'function') {
+      try {
+        return state(ctx)
+      } catch (e) {
+        console.error('计算属性值出错', e, state, ctx)
+      }
+    } else if (state != null) {
+      return this.stateValue[stateName]
+    }
+  }
+
   unsubscribe (unid) {
     this.subscribes = this.subscribes.filter(({ id }) => id !== unid)
   }
 
+  // 订阅组件的属性回调变动
   subscribe (id, callback, states) {
-    this.subscribes.push({
-      id,
-      callback,
-      states
-    })
+    if (states.length === 0) return
+
+    const connected = []
+    for (const stateName of states) {
+      // 公用计算状态每次都更新
+      if (this.computedStates.indexOf(stateName) > -1) {
+        this.subscribes.push({
+          id,
+          callback
+        })
+        return
+      }
+      if (Object.prototype.hasOwnProperty.call(this.stateValue, stateName)) {
+        connected.push(stateName)
+      }
+    }
+    if (connected.length) {
+      this.subscribes.push({
+        id,
+        callback,
+        connected
+      })
+    }
   }
 
   async doReducer (name, ctx, payload) {
@@ -72,6 +122,7 @@ export default class Store {
 
   setState (stateValue) {
     this.stateValue = Object.assign({}, this.stateValue, stateValue)
+
     this.subscribes.filter(sub => {
       // 有状态按状态判断
       if (sub.states) {
