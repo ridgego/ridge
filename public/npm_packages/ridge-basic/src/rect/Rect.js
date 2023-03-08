@@ -5,7 +5,9 @@ export default class DivRect {
 
   async mount (el) {
     this.el = el
-    Object.assign(el.style, this.getStyle())
+    this.div = document.createElement('div')
+    this.el.append(this.div)
+    this.render()
   }
 
   getStyle () {
@@ -18,6 +20,10 @@ export default class DivRect {
 
   update (props) {
     Object.assign(this.props, props)
-    Object.assign(this.el.style, this.getStyle())
+    Object.assign(this.div.style, this.getStyle())
+  }
+
+  render () {
+    Object.assign(this.div.style, this.getStyle())
   }
 }

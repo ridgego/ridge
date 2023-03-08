@@ -9,6 +9,7 @@ class PageElementManager {
     this.ridge = ridge
     this.decorators = {}
     this.reactive = reactive
+    this.mounted = []
     this.initialize()
   }
 
@@ -78,11 +79,16 @@ class PageElementManager {
   async mount (el) {
     this.el = el
     this.updateRootElStyle()
+
+    const promises = []
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
       const div = document.createElement('div')
-      wrapper.mount(div)
       el.appendChild(div)
+      promises.push(await wrapper.mount(div))
     }
+    this.onPageMounted && this.onPageMounted()
+    await Promise.allSettled(promises)
+    this.onPageLoaded && this.onPageLoaded()
   }
 
   // 配置根节点容器的样式 （可能是body）

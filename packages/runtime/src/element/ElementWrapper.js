@@ -105,6 +105,8 @@ class ElementWrapper {
         return null
       }
       return componentDefinition
+    } else {
+      return null
     }
   }
 
@@ -117,6 +119,10 @@ class ElementWrapper {
    */
   initPropsAndEvents () {
     this.slotProps = []
+
+    if (!this.componentDefinition) {
+      return
+    }
 
     if (this.config.parent && !this.parentWrapper) {
       this.parentWrapper = this.pageManager.getElement(this.config.parent)
@@ -195,7 +201,7 @@ class ElementWrapper {
   /**
      * 执行组件初次加载 mount到具体DOM元素
      */
-  mount (el) {
+  async mount (el) {
     this.el = el
     this.el.classList.add('ridge-element')
     this.el.setAttribute('ridge-id', this.id)
@@ -203,13 +209,12 @@ class ElementWrapper {
     this.updateExpressionedStyle()
     this.updateStyle()
     if (!this.preloaded) {
-      this.preload().then(() => {
-        this.initPropsAndEvents()
-        this.renderer = this.createRenderer()
-      })
+      await this.preload()
+      this.initPropsAndEvents()
+      this.renderer = await this.createRenderer()
     } else {
       this.initPropsAndEvents()
-      this.renderer = this.createRenderer()
+      this.renderer = await this.createRenderer()
     }
   }
 
@@ -235,12 +240,16 @@ class ElementWrapper {
    * 调用组件依托的技术框架渲染内容
    * @returns
    */
-  createRenderer () {
+  async createRenderer () {
     try {
       if (this.componentDefinition.type === 'vanilla') {
-        return new VanillaRender(this.componentDefinition.component, this.el, this.getProperties())
+        const render = new VanillaRender(this.componentDefinition.component, this.getProperties())
+        await render.mount(this.el)
+        return render
       } else {
-        return new ReactRenderer(this.componentDefinition.component, this.el, this.getProperties())
+        const render = new ReactRenderer(this.componentDefinition.component, this.getProperties())
+        await render.mount(this.el)
+        return render
       }
     } catch (e) {
       error('create render error', e)
@@ -270,6 +279,8 @@ class ElementWrapper {
   // 运行期直接修改样式
   setStyle (style) {
     Object.assign(this.style, style)
+    // 更新配置期
+    Object.assign(this.config.style, style)
     this.updateStyle()
   }
 

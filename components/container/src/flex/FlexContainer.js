@@ -26,7 +26,7 @@ export default class FlexBoxContainer {
     return containerStyle
   }
 
-  mount (el) {
+  async mount (el) {
     const containerDiv = document.createElement('div')
     containerDiv.classList.add('flex-container')
     Object.assign(containerDiv.style, this.getContainerStyle(this.props))
@@ -38,7 +38,7 @@ export default class FlexBoxContainer {
         const childDiv = document.createElement('div')
         containerDiv.appendChild(childDiv)
 
-        childWrapper.mount(childDiv)
+        await childWrapper.mount(childDiv)
 
         Object.assign(childDiv.style, this.getChildrenWrapperStyle(childWrapper))
       }

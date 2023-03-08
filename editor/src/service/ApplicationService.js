@@ -98,6 +98,7 @@ export default class ApplicationService {
      * 保存页面配置
      */
   async savePageContent (id, content) {
+    await this.collection.patch({ id }, {})
     await this.store.setItem(id, content)
   }
 

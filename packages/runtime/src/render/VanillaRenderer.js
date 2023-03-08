@@ -6,13 +6,15 @@ import Renderer from './Renderer'
  * @param initOption React初始化属性
  */
 export default class VanillaRender extends Renderer {
-  constructor (VannilaComponent, el, initOption = {}) {
+  constructor (VannilaComponent, initOption = {}) {
     super()
-    this.el = el
     this.VannilaComponent = VannilaComponent
     this.props = initOption
+  }
 
-    this.getRenderInstance().mount(el)
+  async mount (el) {
+    this.el = el
+    await this.getRenderInstance().mount(el)
   }
 
   getRenderInstance () {

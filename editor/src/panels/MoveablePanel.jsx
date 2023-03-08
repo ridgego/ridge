@@ -8,6 +8,8 @@ import '../css/movable-panel.less'
 
 const { Text } = Typography
 
+export const ThemeContext = React.createContext('light')
+
 export default class MoveablePanel extends React.Component {
   constructor () {
     super()
@@ -96,20 +98,29 @@ export default class MoveablePanel extends React.Component {
     }
 
     const titleStyle = {}
-    if (title) {
-      titleStyle.height = '24px'
-    }
 
     if (!visible) {
       style.display = 'none'
     }
+
+    const panelClass = ['movable-panel']
+    if (openSearch) {
+      panelClass.push('open-search')
+    }
     return (
       ReactDOM.createPortal(
-        <div ref={this.ref} className='movable-panel' style={style} id={this.props.id}>
+        <div ref={this.ref} className={panelClass.join(' ')} style={style} id={this.props.id}>
           <div className='title-bar' style={titleStyle}>
             <IconHandle className='icon-handle' />
             {title && <Text className='title-text'>{title}</Text>}
-            {openSearch && <Input placeholder='输入查询条件' prefix={<IconSearchStroked />} suffix={<IconClose onClick={closeSearch} />} className='toggle-search' />}
+            {openSearch && <Input
+              placeholder='输入查询条件' prefix={<IconSearchStroked />} suffix={<IconClose onClick={closeSearch} />} className='toggle-search'
+              value={search} onChange={val => {
+                this.setState({
+                  search: val
+                })
+              }}
+                           />}
             <Button
               className='icon-search' icon={<IconSearchStroked />} theme='borderless' size='small' type='tertiary' onClick={() => {
                 this.setState({
@@ -118,7 +129,6 @@ export default class MoveablePanel extends React.Component {
                 })
               }}
             />
-            {/* <Button className='icon-close' icon={<IconClose />} theme='borderless' size='small' type='tertiary' onClick={onClose} /> */}
           </div>
           <div
             className='panel-content'
@@ -127,7 +137,9 @@ export default class MoveablePanel extends React.Component {
               // borderTop: title ? '1px solid var(--semi-color-border)' : 'none'
             }}
           >
-            {this.state.hasError ? <div>Something went wrong. {JSON.stringify(this.state.errors)}</div> : this.props.children}
+            {this.state.hasError
+              ? <div>Something went wrong. {JSON.stringify(this.state.errors)}</div>
+              : <ThemeContext.Provider value={search}>{this.props.children}</ThemeContext.Provider>}
           </div>
         </div>, document.body)
     )

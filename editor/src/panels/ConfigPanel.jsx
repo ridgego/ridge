@@ -1,67 +1,13 @@
 import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../form/ObjectForm.jsx'
-import MoveablePanel from './MoveablePanel.jsx'
+import { ThemeContext } from './MoveablePanel.jsx'
 import PageDataPanel from './PageDataPanel.jsx'
 import { ridge, emit, on } from '../service/RidgeEditService.js'
 
 import {
-  EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED
+  EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
 } from '../constant.js'
-
-const FORM_COMPONENT_BASIC = [{
-  rows: [
-    {
-      cols: [{
-        label: '名称',
-        control: 'text',
-        bindable: false,
-        field: 'title'
-      }]
-    },
-    {
-      cols: [{
-        label: 'X',
-        control: 'number',
-        readonly: (values) => {
-          return !(values && values.style && values.style.position === 'absolute')
-        },
-        field: 'style.x',
-        fieldEx: 'styleEx.x'
-      }, {
-        label: 'Y',
-        control: 'number',
-        readonly: (values) => {
-          return !(values && values.style && values.style.position === 'absolute')
-        },
-        field: 'style.y',
-        fieldEx: 'styleEx.Y'
-      }]
-    },
-    {
-      cols: [{
-        label: 'W',
-        control: 'number',
-        field: 'style.width',
-        fieldEx: 'styleEx.width'
-      }, {
-        label: 'H',
-        control: 'number',
-        field: 'style.height',
-        fieldEx: 'styleEx.height'
-      }]
-    },
-    {
-      cols: [{
-        label: '显示',
-        type: 'boolean',
-        control: 'checkbox',
-        field: 'style.visible',
-        fieldEx: 'styleEx.visible'
-      }]
-    }
-  ]
-}]
 
 const COMPONENT_BASIC_FIELDS = [
   {
@@ -156,51 +102,6 @@ const PAGE_FIELDS = [
   }
 ]
 
-const FORM_PAGE_PROPS = [{
-  rows: [{
-    cols: [{
-      label: '页面名称',
-      control: 'text',
-      readonly: true,
-      bindable: false,
-      field: 'name'
-    }]
-  }, {
-    cols: [{
-      label: '页面布局',
-      control: 'select',
-      field: 'type',
-      bindable: false,
-      optionList: [{
-        label: '固定宽高',
-        value: 'fixed'
-      }, {
-        label: '宽度自适应',
-        value: 'fit-w'
-      }, {
-        label: '宽高自适应',
-        value: 'fit-wh'
-      }]
-    }]
-  }, {
-    cols: [{
-      label: 'W',
-      when: 'type === "fixed"',
-      bindable: false,
-      control: 'number',
-      field: 'width'
-    }, {
-      label: 'H',
-      when: 'type === "fixed"',
-      bindable: false,
-      control: 'number',
-      field: 'height'
-    }]
-  }, {
-    cols: []
-  }]
-}]
-
 export default class ComponentPanel extends React.Component {
   constructor (props) {
     super(props)
@@ -219,6 +120,8 @@ export default class ComponentPanel extends React.Component {
     }
     // this.initEvents()
   }
+
+  static contextType = ThemeContext
 
   componentDidMount () {
     this.initEvents()
@@ -264,11 +167,8 @@ export default class ComponentPanel extends React.Component {
         this.elementSelected(payload.element)
       }
     })
-  }
-
-  elementMoved (el) {
-    this.componentPropFormApi.setValue('style', el.elementWrapper.getStyle(), {
-      notNotify: true
+    on(EVENT_ELEMENT_DRAG_END, payload => {
+      this.elementSelected(payload.sourceElement)
     })
   }
 
@@ -436,9 +336,10 @@ export default class ComponentPanel extends React.Component {
     }
 
     return (
-      <MoveablePanel {...this.props}>
+      <>
         <Tabs
           type='card'
+          className='on-title'
           style={{
             display: nodePropFields.length === 0 ? 'none' : 'initial'
           }}
@@ -466,6 +367,7 @@ export default class ComponentPanel extends React.Component {
         </Tabs>
         <Tabs
           type='card'
+          className='on-title'
           style={{
             display: nodePropFields.length === 0 ? 'initial' : 'none'
           }}
@@ -490,7 +392,7 @@ export default class ComponentPanel extends React.Component {
             <PageDataPanel />
           </TabPane>
         </Tabs>
-      </MoveablePanel>
+      </>
     )
   }
 }

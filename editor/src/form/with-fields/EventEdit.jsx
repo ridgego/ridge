@@ -20,7 +20,6 @@ const EventEdit = withField(({
   const formRef = React.createRef()
   const [visible, setVisible] = useState(false)
 
-  console.log('render field events: ', value)
   const [actionIndexList, setActionIndexList] = useState([])
   const actions = value || []
   const {

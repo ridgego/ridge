@@ -1,11 +1,11 @@
 import React from 'react'
-import { Tabs, TabPane, Spin, List } from '@douyinfe/semi-ui'
-import MoveablePanel from './MoveablePanel.jsx'
+import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
+import { ThemeContext } from './MoveablePanel.jsx'
 import PackageManager from '../service/PackageManager'
 import '../css/component-add.less'
 const trace = require('debug')('ridge:component-panel')
-
-class ComponentAddPanel extends React.Component {
+const { Text } = Typography
+class InstalledComponents extends React.Component {
   constructor () {
     super()
     this.el = document.createElement('div')
@@ -18,9 +18,7 @@ class ComponentAddPanel extends React.Component {
     }
   }
 
-  showPanel () {
-
-  }
+  static contextType = ThemeContext
 
   renderPackageComponents () {
     const currentPackageObject = this.state.packages.filter(p => p.name === this.state.currentPackage)[0]
@@ -62,27 +60,40 @@ class ComponentAddPanel extends React.Component {
     ev.dataTransfer.setDragImage(img, 60, 60)
   }
 
+  getFilteredComponents (components) {
+    if (this.context) {
+      return components.filter(component => component.title.indexOf(this.context) > -1)
+    } else {
+      return components
+    }
+  }
+
   render () {
-    const { position } = this.props
     const { packageListingLoaded, packages } = this.state
     const { dragStart } = this
 
     const tabChange = this.tabChange.bind(this)
     return (
-      <MoveablePanel position={position} {...this.props}>
+      <>
         {!packageListingLoaded && <Spin size='large' />}
         <Tabs
           type='card'
           size='small'
+          collapsible
           onChange={key => tabChange(key)}
         >
           {packages && packages.map(pkg => {
+            const filteredComponents = this.getFilteredComponents(pkg.components)
+            if (filteredComponents.length === 0) {
+              return null
+            }
             return (
               <TabPane
                 style={{
                   padding: '4px'
                 }}
                 className='tab-title'
+                collapsible
                 tab={
                   <div className='package-tab'>
                     <span>{pkg.description}</span>
@@ -96,7 +107,7 @@ class ComponentAddPanel extends React.Component {
                     gutter: 6,
                     span: 8
                   }}
-                  dataSource={pkg.components}
+                  dataSource={filteredComponents}
                   renderItem={item => (
                     <List.Item>
                       <div
@@ -106,9 +117,14 @@ class ComponentAddPanel extends React.Component {
                         }))}
                         className='component-container'
                       >
-                        <img src={item.icon} />
+                        <div
+                          className='component-icon' style={{
+                            '-webkit-mask-image': `url("${decodeURI(item.icon)}")`,
+                            'mask-image': `url("${decodeURI(item.icon)}")`
+                          }}
+                        />
+                        <Text>{item.title} </Text>
                       </div>
-                      <div>{item.title}</div>
                     </List.Item>
                   )}
                 />
@@ -116,9 +132,9 @@ class ComponentAddPanel extends React.Component {
             )
           })}
         </Tabs>
-      </MoveablePanel>
+      </>
     )
   }
 }
 
-export default ComponentAddPanel
+export default InstalledComponents

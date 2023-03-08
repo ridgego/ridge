@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Button, Collapse, Upload, Toast, Dropdown, Modal, Form, Tree, Space, Typography, ButtonGroup } from '@douyinfe/semi-ui'
-import { IconDownloadStroked, IconCloudUploadStroked, IconPlus, IconEdit, IconDelete, IconBrackets } from '@douyinfe/semi-icons'
+import { IconDownloadStroked, IconCloudUploadStroked, IconEdit, IconDelete, IconBrackets, IconCopyAdd } from '@douyinfe/semi-icons'
 import { EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_LOADED } from '../constant'
 import { EditorView, basicSetup } from 'codemirror'
 import { tooltips } from '@codemirror/view'
@@ -9,7 +9,7 @@ import { autocompletion } from '@codemirror/autocomplete'
 
 import { saveAs } from '../utils/blob.js'
 import { emit, on } from '../service/RidgeEditService'
-
+import '../css/data-panel.less'
 const { Text } = Typography
 
 export default () => {
@@ -32,6 +32,7 @@ export default () => {
     const tree = [{
       label: '状态',
       key: 'state',
+      disabled: true,
       root: true,
       children: states.map((state, index) => ({
         label: state.label,
@@ -43,6 +44,7 @@ export default () => {
     }, {
       label: '函数',
       key: 'reducer',
+      disabled: true,
       root: true,
       children: reducers.map((state, index) => ({
         label: state.label,
@@ -166,6 +168,17 @@ export default () => {
   // 创建、更新状态
   const finishEdit = () => {
     const name = formRef.current.formApi.getValues().name
+
+    if (name == null) {
+      formRef.current.formApi.setError('name', '必须提供状态标识')
+      return
+    }
+
+    if (!/^([a-zA-Z_$])([a-zA-Z0-9_$])*$/.test(name)) {
+      formRef.current.formApi.setError('name', '标识命名以 a-zA-Z_$ 起始, 其他字符为a-zA-Z0-9_$')
+      return
+    }
+
     const sanmeNames = (type === 'state' ? states : reducers).filter((state, index) => index !== recordIndex && state.name === name)
     if (sanmeNames.length) {
       formRef.current.formApi.setError('name', '标识与[' + sanmeNames[0].label + ']相同')
@@ -195,17 +208,9 @@ export default () => {
       })
     }
     if (type === 'state') {
-      setStates(oldList)
-      emit(EVENT_PAGE_CONFIG_CHANGE, {
-        states: oldList
-      })
-      updateTree(oldList, reducers)
+      emitTreeChange(oldList)
     } else {
-      setReducers(oldList)
-      emit(EVENT_PAGE_CONFIG_CHANGE, {
-        reducers: oldList
-      })
-      updateTree(states, oldList)
+      emitTreeChange(null, oldList)
     }
     setVisible(false)
   }
@@ -213,32 +218,114 @@ export default () => {
   // 移除状态
   const remove = (type, record) => {
     if (type === 'state') {
-      const newStates = states.filter(a => a.name !== record.name)
-      setStates(newStates)
-      emit(EVENT_PAGE_CONFIG_CHANGE, {
-        states: newStates
-      })
-      updateTree(newStates, reducers)
+      emitTreeChange(states.filter(a => a.name !== record.name))
     }
     if (type === 'reducer') {
-      const newReducers = reducers.filter(a => a.name !== record.name)
-      setReducers(newReducers)
-      emit(EVENT_PAGE_CONFIG_CHANGE, {
-        reducers: newReducers
-      })
-      updateTree(states, newReducers)
+      emitTreeChange(null, reducers.filter(a => a.name !== record.name))
     }
+  }
+
+  // 复制节点
+  const duplicate = (type, record, index) => {
+    const newName = record.name + 'Copy'
+
+    const sameNames = (type === 'state' ? states : reducers).filter((state, index) => state.name === newName)
+
+    if (sameNames.length) {
+      return
+    }
+
+    const newRecord = {
+      name: newName,
+      label: record.label + '-复制',
+      value: record.value
+    }
+    if (type === 'state') {
+      const newStates = [...states]
+      newRecord.scoped = record.scoped
+      newStates.splice(index + 1, 0, newRecord)
+      emitTreeChange(newStates)
+    }
+    if (type === 'reducer') {
+      const newReducers = [...reducers]
+      newRecord.scoped = record.scoped
+      newReducers.splice(index, 0, newRecord)
+      emitTreeChange(null, newReducers)
+    }
+  }
+
+  const treeNodeDrop = ({ node, dragNode, dropPosition }) => {
+    if (node.type !== dragNode.type) {
+      return
+    }
+
+    let toPos = 0
+    if (dropPosition > -1) {
+      if (dragNode.index > node.index) {
+        toPos = dropPosition + 1
+      } else {
+        toPos = dropPosition - 1
+      }
+    }
+
+    if (dragNode.type === 'state') {
+      const newStates = arrayMoveImmutable(states, dragNode.index, toPos)
+      emitTreeChange(newStates)
+    }
+    if (dragNode.type === 'reducer') {
+      const newReducers = [...reducers]
+      newReducers.splice(dropPosition === -1 ? 0 : (dropPosition - 1), 0, dragNode)
+      emitTreeChange(null, newReducers)
+    }
+
+    console.log(node, dragNode, dropPosition)
+  }
+
+  const arrayMoveMutable = (array, fromIndex, toIndex) => {
+    const startIndex = fromIndex < 0 ? array.length + fromIndex : fromIndex
+
+    if (startIndex >= 0 && startIndex < array.length) {
+      const endIndex = toIndex < 0 ? array.length + toIndex : toIndex
+
+      const [item] = array.splice(fromIndex, 1)
+      array.splice(endIndex, 0, item)
+    }
+  }
+
+  const arrayMoveImmutable = (array, fromIndex, toIndex) => {
+    const newArray = [...array]
+    arrayMoveMutable(newArray, fromIndex, toIndex)
+    return newArray
+  }
+
+  const emitTreeChange = (newStates, newReducers) => {
+    if (newStates) {
+      setStates(newStates)
+    }
+    if (newReducers) {
+      setReducers(newReducers)
+    }
+    emit(EVENT_PAGE_CONFIG_CHANGE, {
+      states: newStates || states,
+      reducers: newReducers || reducers
+    })
+    updateTree(newStates || states, newReducers || reducers)
   }
 
   const renderTreeLabel = (label, data) => {
     return (
       <div className='node-label'>
         <Space className='label-content'>
-          <Text className='label-text'>{label}</Text>
+          <Text className='label-text'>{label || data.key}</Text>
           {data.record?.scoped && <IconBrackets style={{ color: 'var(--semi-color-success)' }} />}
         </Space>
         {!data.root &&
           <Space className='label-action'>
+            <Button
+              size='small' theme='borderless' type='tertiary' onClick={() => {
+                duplicate(data.type, data.record, data.index)
+              }} icon={<IconCopyAdd />}
+            />
             <Button
               size='small' theme='borderless' type='tertiary' onClick={() => {
                 edit(data.type, data.record, data.index)
@@ -275,10 +362,10 @@ export default () => {
       >
         <Form labelPosition='left' ref={formRef}>
           <Space>
-            <Form.Input field='label' label='名称' labelPosition='inset' />
+            <Form.Input field='name' label='标识' labelPosition='inset' />
             {type === 'state' ? <Form.Checkbox noLabel field='scoped'>用于局部</Form.Checkbox> : null}
           </Space>
-          <Form.Input field='name' label='标识' labelPosition='inset' />
+          <Form.Input field='label' label='名称' labelPosition='inset' />
           <div>默认值/代码</div>
           <div
             style={{
@@ -291,8 +378,10 @@ export default () => {
       </Modal>
       <Tree
         className='store-tree'
+        draggable
         expandAll
         renderLabel={renderTreeLabel}
+        onDrop={treeNodeDrop}
         treeData={treeData}
       />
 

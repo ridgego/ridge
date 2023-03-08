@@ -11,9 +11,6 @@ const StateBindEdit = withField(({
   const [visible, setVisible] = useState()
 
   const renderSelectState = () => {
-    if (!pageStates) {
-      console.log('Where is pageState', value, options)
-    }
     const treeData = []
     const pageStateTree = {
       label: '页面状态',
@@ -37,13 +34,19 @@ const StateBindEdit = withField(({
           filterTreeNode
           expandAll
           treeData={treeData}
+          onSelect={val => {
+            if (value === val) {
+              onChange(null)
+            }
+          }}
           onChange={onChange}
         />
         <Space>
-          <Button onClick={() => {
-            setVisible(false)
-          }}
-          >关闭
+          <Button
+            theme='solid' onClick={() => {
+              setVisible(false)
+            }}
+          >确定
           </Button>
           <Button
             theme='solid' type='warn' onClick={() => {

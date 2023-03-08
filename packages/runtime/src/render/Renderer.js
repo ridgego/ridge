@@ -2,6 +2,9 @@
  * 页面渲染抽象类，提供界面渲染、数据获取等方面操作的统一接口
  */
 export default class Renderer {
+  // 渲染内容
+  async mount () {}
+
   /**
    * 更新属性，使渲染器重新渲染
    * @param option

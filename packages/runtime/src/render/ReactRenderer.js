@@ -5,20 +5,6 @@
 // React hook 使用时报错 因此，React一定要使用window全局的React对象
 import Renderer from './Renderer'
 
-const contextProviders = [
-  // antd ConfigProvider 上下文
-  (jsx) => {
-    if (window.antd) {
-      return React.createElement(window.antd.ConfigProvider, {
-        prefixCls: (window.top.fdreConfig && window.top.fdreConfig.antdPrefixCls) || 'ant'
-      }, [jsx])
-    } else {
-      return jsx
-    }
-  },
-  ...(window.top.fdreConfig && window.top.fdreConfig.reactContextProviders) || []
-]
-
 /**
  * 渲染及React组件到图元层
  * @param JSXComponent  React组件实例
@@ -26,9 +12,8 @@ const contextProviders = [
  * @param initOption React初始化属性
  */
 export default class ReactRenderer extends Renderer {
-  constructor (JSXComponent, el, initOption = {}) {
+  constructor (JSXComponent, initOption = {}) {
     super()
-    this.el = el
     this.JSXComponent = JSXComponent
     this.props = initOption
 
@@ -44,8 +29,11 @@ export default class ReactRenderer extends Renderer {
       this.props.ref = React.createRef()
     }
     this.renderRef = this.props.ref
-    this.root = ReactDOM.createRoot(el)
+  }
 
+  async mount (el) {
+    this.el = el
+    this.root = ReactDOM.createRoot(el)
     this.root.render(this.getRenderInstance())
   }
 

@@ -18,8 +18,8 @@ export const EVENT_ELEMENT_REMOVED = 'elementRemoved'
 export const EVENT_ELEMENT_PARENT_CHANGE = 'elementParentChanged'
 
 export const PANEL_SIZE_1920 = {
-  ADD: [45, 5, 0, 0, 320, 450],
-  LEFT_BOTTOM: [45, 460, 0, 8, 320, 0],
+  ADD: [45, 5, 0, 0, 250, 450],
+  LEFT_BOTTOM: [45, 460, 0, 8, 250, 0],
   PROP: [0, 5, 5, 0, 320, 540],
   DATA: [0, 550, 5, 5, 320, 0]
 }

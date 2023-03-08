@@ -1,4 +1,4 @@
-import ElementLoader from './loader/ElementLoader'
+import ComponentLoader from './loader/ComponentLoader'
 import PageElementManager from './element/PageElementManager'
 import Store from './store/Store.js'
 /**
@@ -13,7 +13,7 @@ class Ridge {
     const states = opts.states || []
     const reducers = opts.reducers || []
 
-    this.loader = new ElementLoader({
+    this.loader = new ComponentLoader({
       baseUrl,
       debugUrl,
       unpkgUrl

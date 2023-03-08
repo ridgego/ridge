@@ -1,6 +1,7 @@
 import React from 'react'
 import { Tree } from '@douyinfe/semi-ui'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE } from '../constant.js'
+import { EVENT_PAGE_LOADED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED } from '../constant.js'
+import RawSvgIcon from '../utils/RawSvgIcon.jsx'
 import { ridge, emit, on } from '../service/RidgeEditService.js'
 
 class OutLineTree extends React.Component {
@@ -19,7 +20,8 @@ class OutLineTree extends React.Component {
       })
     })
 
-    on(EVENT_ELEMENT_DRAG_END, ({
+    on(EVENT_ELEMENT_CREATED, ({
+      element,
       elements
     }) => {
       this.setState({
@@ -72,6 +74,9 @@ class OutLineTree extends React.Component {
       element,
       children: []
     }
+    if (element.componentDefinition && element.componentDefinition.icon) {
+      treeNodeObject.icon = (<RawSvgIcon svg={element.componentDefinition.icon} />)
+    }
     if (element.config.props.children && element.config.props.children.length) {
       for (const childWrapper of element.config.props.children.filter(n => n)) {
         if (childWrapper.id) {
@@ -97,6 +102,10 @@ class OutLineTree extends React.Component {
     const treeData = this.buildElementTree(elements)
     return (
       <Tree
+        style={{
+          height: '100%',
+          overflow: 'auto'
+        }}
         value={selected}
         onChange={(value) => {
           this.onNodeSelected(value)

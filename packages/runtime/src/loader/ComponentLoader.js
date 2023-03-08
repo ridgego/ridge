@@ -2,6 +2,7 @@ import webpackExternals from 'ridge-externals'
 import ky from 'ky'
 import debug from 'debug'
 import loadjs from 'loadjs'
+import _ from 'lodash'
 
 // 组态化组件资源服务地址
 const log = debug('ridge:loader')
@@ -10,7 +11,7 @@ const log = debug('ridge:loader')
  * 组件定义（js及其依赖）加载服务类
  * @class
  */
-class ElementLoader {
+class ComponentLoader {
   /**
    * 构造器
    * @param {string} baseUrl  元素下载基础地址
@@ -65,6 +66,9 @@ class ElementLoader {
 
     // 组件加载中的Map
     this.componentLoading = new Map()
+
+    this.getPackageJSON = _.memoize(this.getPackageJSONOnce)
+    this.loadComponent = _.memoize(this.loadComponentOnce)
   }
 
   async getDebugPackage () {
@@ -148,15 +152,19 @@ class ElementLoader {
   }
 
   /**
-   * Load Component By Id：
+   * 加载组件， 支持2种参数
+   * 1、对象
    * {
-   *   packageName: '@gw/wind-pels-standard',
+   *   packageName: 'ridge-basic',
    *   path: './build/container1.pel.js'
    * }
-   * @param {String} packageName Npm package from which component belongs to
-   * @param {String} path Component path
+   * 2、全路径
+   * ridge-basic/build/container1.pel.js 或 ridge-basic@ridge/build/container1.pel.js
+   *
+   * @param {String} packageName Npm包名
+   * @param {String} path 相对于包的组件路径
    */
-  async loadComponent (componentPath) {
+  async loadComponentOnce (componentPath) {
     let packageName, path
     if (typeof componentPath === 'object') {
       packageName = componentPath.packageName
@@ -172,38 +180,10 @@ class ElementLoader {
         path = paths.join('/')
       }
     }
-
     const componentUrl = this.getComponentUrl({ packageName, path })
-    const cache = this.getComponent(componentUrl)
 
-    if (cache) {
-      return cache
-    }
-
-    // 对于正在加载中的， 监听成功、失败的回调
-    if (this.componentLoading.get(componentUrl) === 'loading') {
-      return new Promise((resolve, reject) => {
-        this.on('component-ready', (url, fcp) => {
-          if (url === componentUrl) {
-            resolve(fcp)
-          }
-        })
-        this.on('component-fail', url => {
-          if (url === componentUrl) {
-            resolve(null)
-          }
-        })
-      })
-    } else if (this.componentLoading.get(componentUrl) === 'fail') {
-      return null
-    }
-
-    this.componentLoading.set(componentUrl, 'loading')
     try {
       const fcp = await this.doLoadComponent({ packageName, path })
-      this.notifyComponentLoaded(componentUrl, fcp)
-
-      this.componentCache[componentUrl] = fcp
       return fcp
     } catch (e) {
       this.setPelLoadFail(componentUrl)
@@ -215,11 +195,11 @@ class ElementLoader {
   async doLoadComponent ({
     packageName, path
   }) {
-    await this.confirmPackageDependencies(packageName)
+    const packageJSONObject = await this.confirmPackageDependencies(packageName)
     // Load Dependecies in package.json
     const fcp = await this.loadComponentScript({ packageName, path })
     if (fcp) {
-      await this.prepareComponent(fcp, { packageName, path })
+      await this.prepareComponent(fcp, { packageName, path }, packageJSONObject)
     } else {
       throw new Error()
     }
@@ -229,7 +209,7 @@ class ElementLoader {
   async prepareComponent (fcp, {
     packageName,
     path
-  }) {
+  }, packageJSONObject) {
     fcp.packageName = packageName
     fcp.path = path
 
@@ -237,13 +217,10 @@ class ElementLoader {
       await this.loadExternals(fcp.requires)
     }
 
-    // 对于icon定义中含有图片名后缀，认为是预览图元，设置previewUrl
-    const imageNameRegex = /\.(jpg|gif|png|jpeg|svg)$/i
-    if (fcp.icon && imageNameRegex.test(fcp.icon)) {
-      if (this.debugPackageName === packageName && this.debugUrl) {
-        fcp.previewUrl = `${this.debugUrl}${fcp.icon}`
-      } else {
-        fcp.previewUrl = `/npm_packages/${packageName}/${fcp.icon}`
+    if (packageJSONObject.components) {
+      const filtered = packageJSONObject.components.filter(component => component.path === path)
+      if (filtered.length === 1) {
+        fcp.icon = filtered[0].icon
       }
     }
 
@@ -259,28 +236,6 @@ class ElementLoader {
       }
     } else {
       log('组件 Component定义未加载到', fcp)
-    }
-  }
-
-  notifyComponentLoaded (url, fcp) {
-    this.componentLoading.set(url, 'loaded')
-    try {
-      this.eventCallbacks.filter(item => item.eventName === 'component-ready').forEach(item => {
-        item.callback(url, fcp)
-      })
-    } catch (e) {
-      // callback error ignored
-    }
-  }
-
-  setPelLoadFail (url) {
-    this.componentLoading.set(url, 'fail')
-    try {
-      this.eventCallbacks.filter(item => item.eventName === 'component-fail').forEach(item => {
-        item.callback(url)
-      })
-    } catch (e) {
-      // callback error ignored
     }
   }
 
@@ -508,7 +463,7 @@ class ElementLoader {
    * @param {*} packageName
    * @returns
    */
-  async getPackageJSON (packageName) {
+  async getPackageJSONOnce (packageName) {
     if (this.packageJSONCache[packageName]) {
       return this.packageJSONCache[packageName]
     }
@@ -536,12 +491,12 @@ class ElementLoader {
   }
 
   prefixPackageJSON (packageObject, prefix) {
-    if (packageObject.icon) {
+    if (packageObject.icon && !packageObject.icon.startsWith('data:image')) {
       packageObject.icon = `${prefix}/${packageObject.icon}`
     }
 
     for (const com of packageObject.components ?? []) {
-      if (com.icon) {
+      if (com.icon && !com.icon.startsWith('data:image')) {
         com.icon = `${prefix}/${com.icon}`
       }
     }
@@ -556,6 +511,7 @@ class ElementLoader {
     if (packageObject && packageObject.dependencies) {
       await this.loadExternals(Object.keys(packageObject.dependencies))
     }
+    return packageObject
   }
 
   async loadJSON (path) {
@@ -563,4 +519,4 @@ class ElementLoader {
   }
 }
 
-export default ElementLoader
+export default ComponentLoader

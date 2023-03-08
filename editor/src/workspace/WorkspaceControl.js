@@ -5,6 +5,9 @@ import Mousetrap from 'mousetrap'
 import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
 import { emit, on } from '../service/RidgeEditService'
 
+import debug from 'debug'
+
+const trace = debug('ridge:workspace')
 /**
  * 控制工作区组件的Drag/Resize/New等动作
  * 控制编辑器的工作区缩放/平移
@@ -163,9 +166,13 @@ export default class WorkSpaceControl {
         }
       })
     })
-    this.moveable.on('dragGroupEnd', () => {
-      emit(EVENT_ELEMENT_DRAG_END, {
-        elements: this.pageManager.getPageElements()
+    this.moveable.on('dragGroupEnd', (payload) => {
+      payload.events.forEach(({ target }) => {
+        // TODO 目前仅支持根节点？？
+        if (!target.elementWrapper.config.parent) {
+          const bcr = target.getBoundingClientRect()
+          this.putElementToRoot(target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
+        }
       })
     })
 
@@ -182,6 +189,18 @@ export default class WorkSpaceControl {
         target.style.transform = transform
         delta[0] && (target.style.width = `${width}px`)
         delta[1] && (target.style.height = `${height}px`)
+      })
+    })
+
+    this.moveable.on('resizeGroupEnd', payload => {
+      payload.events.forEach(({ target }) => {
+        if (!target.elementWrapper.config.parent) {
+          const bcr = target.getBoundingClientRect()
+          target.elementWrapper.setStyle({
+            x: bcr.left + bcr.width / 2,
+            y: bcr.top + bcr.height / 2
+          })
+        }
       })
     })
   }
@@ -203,7 +222,7 @@ export default class WorkSpaceControl {
       // After the select, whether to select the next target with the selected target (deselected if the target is selected again).
       continueSelect: false,
       // Determines which key to continue selecting the next target via keydown and keyup.
-      toggleContinueSelect: 'shift',
+      toggleContinueSelect: 'ctrl',
       preventDefault: true,
       // The container for keydown and keyup events
       keyContainer: window,
@@ -242,7 +261,6 @@ export default class WorkSpaceControl {
       if (isDragStart) {
         inputEvent.preventDefault()
       }
-      console.log('select end')
       this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
 
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
@@ -310,37 +328,41 @@ export default class WorkSpaceControl {
     const sourceElement = el.elementWrapper
     const sourceParentElement = sourceElement.config.parent ? this.pageManager.getElement(sourceElement.config.parent) : null
     const targetParentElement = targetEl ? targetEl.elementWrapper : null
-
+    trace('Element Drag End', el, { x, y })
     if (sourceParentElement == null && targetParentElement == null) {
       // 根上移动： 只更新配置
+      trace('页面上移动')
       this.putElementToRoot(el, x, y)
-      return
+    } else {
+      if (sourceParentElement === targetParentElement && targetParentElement != null) {
+        trace('同容器内移动')
+        // 1.在同一个父容器内移动
+        targetParentElement.invoke('updateChild', [sourceElement])
+
+        // 有的容器会包含次序，因此重新更新children属性
+        targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
+      } else if (sourceParentElement && targetParentElement == null) {
+        trace('从父容器到页面')
+        // 2. 从父容器到根
+        // DOM操作，放置到ViewPort上
+        this.putElementToRoot(el, x, y)
+
+        this.pageManager.detachChildElement(sourceParentElement, sourceElement)
+      } else if (sourceParentElement == null && targetParentElement) {
+        // 3. 放入一个容器
+        trace('从页面到父容器')
+        const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
+        this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
+      } else if (sourceParentElement !== targetParentElement) {
+        trace('从一个父容器到另一个父容器')
+        // 4. 一个父容器到另一个父容器
+        const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
+        this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
+        this.pageManager.detachChildElement(sourceParentElement, sourceElement)
+      }
+      sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
+      targetParentElement && targetParentElement.removeStatus('drag-over', targetEl)
     }
-    if (sourceParentElement === targetParentElement && targetParentElement != null) {
-      // 1.在同一个父容器内移动
-      targetParentElement.invoke('updateChild', [sourceElement])
-
-      // 有的容器会包含次序，因此重新更新children属性
-      targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
-    } else if (sourceParentElement && targetParentElement == null) {
-      // 2. 从父容器到根
-      // DOM操作，放置到ViewPort上
-      this.putElementToRoot(el, x, y)
-
-      this.pageManager.detachChildElement(sourceParentElement, sourceElement)
-    } else if (sourceParentElement == null && targetParentElement) {
-      // 3. 放入一个容器
-      const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
-      this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
-    } else if (sourceParentElement !== targetParentElement) {
-      // 4. 一个父容器到另一个父容器
-      const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
-      this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
-      this.pageManager.detachChildElement(sourceParentElement, sourceElement)
-    }
-
-    sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
-    targetParentElement && targetParentElement.removeStatus('drag-over', targetEl)
 
     emit(EVENT_ELEMENT_DRAG_END, {
       sourceElement,
@@ -359,12 +381,12 @@ export default class WorkSpaceControl {
    * @param {*} y
    */
   putElementToRoot (el, x, y) {
-    // 修改父子关系
-    this.viewPortEl.appendChild(el)
     // 计算位置
     const rbcr = this.viewPortEl.getBoundingClientRect()
     const bcr = el.getBoundingClientRect()
 
+    // 修改父子关系
+    this.viewPortEl.appendChild(el)
     el.elementWrapper.setStyle({
       position: 'absolute',
       x: x - rbcr.x - bcr.width / 2,
@@ -404,11 +426,14 @@ export default class WorkSpaceControl {
     const div = document.createElement('div')
 
     const wrapper = this.pageManager.createElement(fraction)
-    wrapper.mount(div)
+    wrapper.mount(div).then(() => {
+      emit(EVENT_ELEMENT_CREATED, {
+        elements: this.pageManager.getPageElements(),
+        element: wrapper
+      })
+    })
 
     this.onElementDragEnd(div, ev.pageX, ev.pageY)
-
-    emit(EVENT_ELEMENT_CREATED, [wrapper])
   }
 
   /**

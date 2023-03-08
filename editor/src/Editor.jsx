@@ -1,8 +1,8 @@
 import React from 'react'
 import debug from 'debug'
-import ConfigPanel from './panels/ConfigPanel.jsx'
+import RightTopPanel from './panels/RightTopPanel.jsx'
 import RightBottomPanel from './panels/RightBottomPanel.jsx'
-import ComponentAddPanel from './panels/ComponentAddPanel.jsx'
+import LeftTopPanel from './panels/LeftTopPanel.jsx'
 import LeftBottomPanel from './panels/LeftBottomPanel.jsx'
 import MenuBar from './panels/MenuBar.jsx'
 import debounce from 'lodash/debounce'
@@ -134,13 +134,22 @@ export default class Editor extends React.Component {
     this.pageElementManager.mode = 'edit'
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
-    emit(EVENT_PAGE_LOADED, Object.assign(this.pageElementManager.pageConfig, {
-      name: pageConfig.name,
-      elements: this.pageElementManager.getPageElements()
-    }))
+    this.pageElementManager.onPageLoaded = () => {
+      emit(EVENT_PAGE_LOADED, Object.assign(this.pageElementManager.pageConfig, {
+        name: pageConfig.name,
+        elements: this.pageElementManager.getPageElements()
+      }))
+    }
     this.workspaceControl.setPageManager(this.pageElementManager)
 
     ridge.pageElementManagers = this.pageElementManager
+
+    if (this.saveTaskInterval) {
+      clearInterval(this.saveTaskInterval)
+    }
+    this.saveTaskInterval = setInterval(() => {
+      this.saveCurrentPage()
+    }, 3000)
   }
 
   componentDidMount () {
@@ -181,10 +190,10 @@ export default class Editor extends React.Component {
             }}
             toggoleRunMode={this.toggoleRunMode.bind(this)}
           />
-          <ComponentAddPanel position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
+          <LeftTopPanel title='组件' position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
           <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
           <RightBottomPanel title='组件大纲' position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
-          <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
+          <RightTopPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
         </div>
         <div
           className='ridge-runtime' style={{
