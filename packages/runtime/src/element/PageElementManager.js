@@ -1,16 +1,19 @@
 import ElementWrapper from './ElementWrapper'
-import { trim, nanoid } from '../utils/string'
-import { pe, st } from '../utils/expr'
+import { nanoid } from '../utils/string'
 import Store from '../store/Store'
 
 class PageElementManager {
   constructor (pageConfig, ridge, reactive) {
     this.pageConfig = pageConfig
     this.ridge = ridge
-    this.decorators = {}
     this.reactive = reactive
+    this.decorators = {}
     this.mounted = []
     this.initialize()
+  }
+
+  setMode (mode) {
+    this.mode = mode
   }
 
   /**
@@ -29,8 +32,6 @@ class PageElementManager {
 
     if (this.reactive) {
       this.pageStore = new Store(this.pageConfig)
-    } else {
-      this.pageStore = new Store({ states: [], reducers: [] })
     }
 
     this.pageElements = {}
@@ -62,6 +63,8 @@ class PageElementManager {
    */
   updatePageConfig (change) {
     Object.assign(this.pageConfig, change)
+    this.el.style.width = this.pageConfig.properties.width + 'px'
+    this.el.style.height = this.pageConfig.properties.height + 'px'
   }
 
   getElement (id) {
@@ -97,6 +100,26 @@ class PageElementManager {
       this.el.style.background = this.pageConfig.properties.background
     } else {
       this.el.style.background = ''
+    }
+
+    if (this.mode === 'edit') {
+      this.el.style.width = this.pageConfig.properties.width + 'px'
+      this.el.style.height = this.pageConfig.properties.height + 'px'
+    } else {
+      switch (this.pageConfig.properties.type) {
+        case 'fixed':
+          this.el.style.width = this.pageConfig.properties.width + 'px'
+          this.el.style.height = this.pageConfig.properties.height + 'px'
+          break
+        case 'fit-wh':
+          this.el.style.width = '100%'
+          this.el.style.height = '100%'
+          break
+        default:
+          this.el.style.width = '100%'
+          this.el.style.height = '100%'
+          break
+      }
     }
   }
 
@@ -239,17 +262,6 @@ class PageElementManager {
       this.decorators[type] = []
     }
     this.decorators[type].push(decorator)
-  }
-
-  /**
-     * 从当前页面变量实例值复原
-     */
-  updateVariableConfigFromValue () {
-    for (const pv of this.pageConfig.variables) {
-      if (this.pageConfig.variables[trim(pv.name)]) {
-        pv.value = st(this.pageConfig.variables[trim(pv.name)])
-      }
-    }
   }
 }
 

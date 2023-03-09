@@ -67,7 +67,7 @@ export default class Editor extends React.Component {
       this.debouncedSaveUpdatePage()
     })
     on(EVENT_PAGE_PROP_CHANGE, ({ from, properties }) => {
-      this.pageElementManager.updatePageProperties(properties)
+      this.pageElementManager.updatePageConfig({ properties })
       this.debouncedSaveUpdatePage()
     })
     on(EVENT_ELEMENT_PROP_CHANGE, ({ el, values, field }) => {
@@ -129,10 +129,13 @@ export default class Editor extends React.Component {
     this.workspaceControl.fitToCenter(content.properties.width, content.properties.height)
 
     // 从HTML初始化页面管理器
-    this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
+    // this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
 
-    this.pageElementManager.mode = 'edit'
+    this.pageElementManager = this.ridge.createPageManager(content, false)
+    this.pageElementManager.setMode('edit')
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
+
+    this.pageElementManager.mount(document.querySelector('.viewport-container'))
 
     this.pageElementManager.onPageLoaded = () => {
       emit(EVENT_PAGE_LOADED, Object.assign(this.pageElementManager.pageConfig, {

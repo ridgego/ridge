@@ -45,8 +45,8 @@ class Ridge {
     return pageManager
   }
 
-  createPageManager (pageConfig) {
-    const pageManager = new PageElementManager(pageConfig, this)
+  createPageManager (pageConfig, reactive) {
+    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, reactive)
 
     return pageManager
   }

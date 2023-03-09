@@ -31,7 +31,9 @@ class AppFileList extends React.Component {
 
   getFileTree (files) {
     const roots = files.filter(file => file.parent === -1).map(file => this.buildFileTree(file, files)).sort((a, b) => {
-      return a.label > b.label ? 1 : -1
+      const lA = a.type === 'directory' ? '0-' : '1-'
+      const lB = b.type === 'directory' ? '0-' : '1-'
+      return lA > lB ? 1 : -1
     })
     return roots
   }

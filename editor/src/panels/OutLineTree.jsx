@@ -1,8 +1,12 @@
 import React from 'react'
-import { Tree } from '@douyinfe/semi-ui'
+import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
+import { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } from '@douyinfe/semi-icons'
 import { EVENT_PAGE_LOADED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED } from '../constant.js'
 import RawSvgIcon from '../utils/RawSvgIcon.jsx'
-import { ridge, emit, on } from '../service/RidgeEditService.js'
+import { emit, on } from '../service/RidgeEditService.js'
+import { ThemeContext } from './MoveablePanel.jsx'
+
+const { Text } = Typography
 
 class OutLineTree extends React.Component {
   constructor () {
@@ -12,6 +16,8 @@ class OutLineTree extends React.Component {
       selected: null
     }
   }
+
+  static contextType = ThemeContext
 
   componentDidMount () {
     on(EVENT_PAGE_LOADED, ({ elements }) => {
@@ -97,8 +103,40 @@ class OutLineTree extends React.Component {
     return treeNodeObject
   }
 
+  toggleLock (data) {
+    data.element.setConfigLocked(!data.element.config.style.locked)
+  }
+
+  toggleVisible (data) {
+
+  }
+
+  renderFullLabel = (label, data) => {
+    const { toggleLock, toggleVisible } = this
+    return (
+      <div className='tree-label'>
+        <Space className='label-content'>
+          <Text className='label-text'>{label || data.key}</Text>
+        </Space>
+        <Space className='label-action' gap='4'>
+          <Button
+            size='small' theme='borderless' type='tertiary' onClick={() => {
+              toggleLock(data)
+            }} icon={data.element.config.style.locked ? <IconUnlock /> : <IconLock />}
+          />
+          <Button
+            size='small' theme='borderless' type='tertiary' onClick={() => {
+              toggleVisible(data)
+            }} icon={<IconEyeOpened />}
+          />
+        </Space>
+      </div>
+    )
+  }
+
   render () {
     const { selected, elements } = this.state
+    const { renderFullLabel } = this
     const treeData = this.buildElementTree(elements)
     return (
       <Tree
@@ -107,6 +145,7 @@ class OutLineTree extends React.Component {
           overflow: 'auto'
         }}
         value={selected}
+        renderLabel={renderFullLabel}
         onChange={(value) => {
           this.onNodeSelected(value)
         }}

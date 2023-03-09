@@ -81,7 +81,8 @@ export default class WorkSpaceControl {
     })
 
     this.workspaceMovable.on('drag', ev => {
-      if (ev.inputEvent.ctrlKey) {
+      if (ev.inputEvent.ctrlKey && this.selected.length === 0) {
+        console.log('workspace drag', ev)
         ev.target.style.transform = ev.transform
       }
     })
@@ -239,7 +240,7 @@ export default class WorkSpaceControl {
       }
       const closestRidgeNode = target.closest('.ridge-element')
 
-      if (closestRidgeNode) {
+      if (closestRidgeNode && !closestRidgeNode.classList.contains('locked')) {
         this.moveable.target = closestRidgeNode
 
         this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => el !== closestRidgeNode)]
@@ -264,7 +265,9 @@ export default class WorkSpaceControl {
       this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
 
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
-      this.selectElements(selected)
+      this.selectElements(selected.filter(el => {
+        return !el.classList.contains('locked')
+      }))
     })
   }
 

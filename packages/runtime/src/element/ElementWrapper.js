@@ -1,7 +1,6 @@
 import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
-import template from '../utils/template'
 import { trim, nanoid } from '../utils/string'
 const log = debug('ridge:element')
 const error = debug('ridge:error')
@@ -188,7 +187,7 @@ class ElementWrapper {
     // TODO 检查动态绑定的情况，按需对store变化进行响应
 
     // 将所有需要连接的属性传入订阅
-    this.pageStore.subscribe(this.id, () => {
+    this.pageStore && this.pageStore.subscribe(this.id, () => {
       this.forceUpdate()
     }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
     delete this.config.isNew
@@ -204,6 +203,12 @@ class ElementWrapper {
   async mount (el) {
     this.el = el
     this.el.classList.add('ridge-element')
+    if (!this.config.style.visible) {
+      this.el.classList.add('hidden')
+    }
+    if (this.config.style.locked) {
+      this.el.classList.add('locked')
+    }
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
     this.updateExpressionedStyle()
@@ -233,7 +238,7 @@ class ElementWrapper {
       this.el = null
     }
 
-    this.pageStore.unsubscribe(this.id)
+    this.pageStore && this.pageStore.unsubscribe(this.id)
   }
 
   /**
@@ -382,6 +387,10 @@ class ElementWrapper {
 
   // 组件对外发出事件
   emit (eventName, payload) {
+    // 无store 不处理事件
+    if (!this.pageStore) {
+      return
+    }
     log('Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
@@ -542,6 +551,14 @@ class ElementWrapper {
     this.applyDecorate('setPropsConfig').then(() => {
       this.updateProperties()
     })
+  }
+
+  setConfigLocked (locked) {
+    this.config.style.locked = locked
+
+    if (locked) {
+      this.el.classList.add('locked')
+    }
   }
 
   setEventsConfig (values, update) {

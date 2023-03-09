@@ -180,13 +180,10 @@ class ComponentLoader {
         path = paths.join('/')
       }
     }
-    const componentUrl = this.getComponentUrl({ packageName, path })
-
     try {
       const fcp = await this.doLoadComponent({ packageName, path })
       return fcp
     } catch (e) {
-      this.setPelLoadFail(componentUrl)
       log('组件加载异常', e)
       return null
     }
