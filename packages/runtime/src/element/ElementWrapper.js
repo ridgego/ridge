@@ -46,8 +46,7 @@ class ElementWrapper {
   clone () {
     const cloned = new ElementWrapper({
       config: this.toJSON(),
-      pageManager: this.pageManager,
-      mode: this.mode
+      pageManager: this.pageManager
     })
     cloned.cloneFrom = cloned.id
     cloned.id = nanoid(10)
@@ -216,9 +215,11 @@ class ElementWrapper {
     if (!this.preloaded) {
       await this.preload()
       this.initPropsAndEvents()
+      await this.applyDecorate('setPropsConfig')
       this.renderer = await this.createRenderer()
     } else {
       this.initPropsAndEvents()
+      await this.applyDecorate('setPropsConfig')
       this.renderer = await this.createRenderer()
     }
   }
@@ -558,7 +559,14 @@ class ElementWrapper {
 
     if (locked) {
       this.el.classList.add('locked')
+    } else {
+      this.el.classList.remove('locked')
     }
+  }
+
+  setConfigVisible (visible) {
+    this.config.style.visible = visible
+    this.el.style.visibility = visible ? 'visible' : 'hidden'
   }
 
   setEventsConfig (values, update) {

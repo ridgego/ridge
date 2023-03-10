@@ -38,11 +38,8 @@ export default class ReactRenderer extends Renderer {
   }
 
   getRenderInstance () {
-    let reactInstance = React.createElement(this.JSXComponent, this.props)
+    const reactInstance = React.createElement(this.JSXComponent, this.props)
 
-    for (let i = 0; i < contextProviders.length; i++) {
-      reactInstance = contextProviders[i](reactInstance)
-    }
     return reactInstance
   }
 

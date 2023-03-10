@@ -159,8 +159,7 @@ export default class Editor extends React.Component {
     this.workspaceControl = new WorkSpaceControl({
       workspaceEl: document.querySelector('.workspace'),
       viewPortEl: document.querySelector('.viewport-container'),
-      ridge: this.ridge,
-      zoomable: true
+      ridge: this.ridge
     })
   }
 

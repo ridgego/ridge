@@ -1,8 +1,7 @@
 import Selecto from 'selecto'
-import { fitRectIntoBounds } from '../utils/rectUtils.js'
 import { createMoveable } from '../utils/moveable'
 import Mousetrap from 'mousetrap'
-import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
+import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_ELEMENT_UNSELECT, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
 import { emit, on } from '../service/RidgeEditService'
 
 import debug from 'debug'
@@ -16,20 +15,21 @@ export default class WorkSpaceControl {
   constructor ({
     ridge,
     workspaceEl,
-    viewPortEl,
-    zoomable
+    viewPortEl
   }) {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
-    this.zoomable = zoomable
 
     this.ridge = ridge
     this.selectorDropableTarget = ['.ridge-element.container', 'slot']
 
     on(EVENT_ELEMENT_SELECTED, payload => {
-      if (payload.from === 'outline') {
+      if (payload.from === 'outline' && !payload.element.classList.contains('locked')) {
         this.selectElements([payload.element])
       }
+    })
+    on(EVENT_ELEMENT_UNSELECT, ({ element }) => {
+      this.selectElements([])
     })
     this.enable()
     this.initComponentDrop()
@@ -59,14 +59,9 @@ export default class WorkSpaceControl {
     this.viewPortEl.style.width = width + 'px'
     this.viewPortEl.style.height = height + 'px'
 
-    if (this.zoomable) {
-      const containerRect = this.workspaceEl.getBoundingClientRect()
-      const viewPortRect = this.viewPortEl.getBoundingClientRect()
-      const fit = fitRectIntoBounds(viewPortRect, containerRect)
+    const containerRect = this.workspaceEl.getBoundingClientRect()
 
-      this.viewPortEl.style.transform = `translate(${(containerRect.width - fit.width) / 2}px, ${(containerRect.height - fit.height) / 2}px) scale(${fit.width / viewPortRect.width})`
-      this.viewPortEl.style.transformOrigin = 'center'
-    }
+    this.viewPortEl.style.transform = `translate(${(containerRect.width - width) / 2}px, ${(containerRect.height - height) / 2}px)`
   }
 
   setZoom (zoom) {
@@ -299,6 +294,18 @@ export default class WorkSpaceControl {
         this.selectElements([])
       }
     })
+
+    Mousetrap.bind('ctrl+c', () => {
+      if (this.selected) {
+        this.copied = this.selected
+      }
+    })
+    Mousetrap.bind('ctrl+v', () => {
+      if (this.copied) {
+        this.copy(this.copied)
+      }
+    })
+
     Mousetrap.bind('ctrl+s', () => {
       this.ridge.saveCurrentPage()
       return false
@@ -405,7 +412,7 @@ export default class WorkSpaceControl {
    */
   selectElements (elements, notNotify) {
     this.moveable.target = elements
-
+    this.moveable.updateTarget()
     if (!notNotify && elements.length <= 1) {
       emit(EVENT_ELEMENT_SELECTED, {
         from: 'workspace',
@@ -437,6 +444,13 @@ export default class WorkSpaceControl {
     })
 
     this.onElementDragEnd(div, ev.pageX, ev.pageY)
+  }
+
+  copy (divs) {
+    for (const div of divs) {
+      const newWrapper = this.pageManager.cloneElement(div.elementWrapper)
+      this.pageManager.putElementToRoot(newWrapper)
+    }
   }
 
   /**

@@ -28,7 +28,10 @@ const ImageEdit = withField(({
   const visibleChange = visible => {
     if (visible) {
       const { appService } = ridge
-      appService.getByMimeType('image').then(files => {
+      appService.getByMimeType('image').then(async files => {
+        for (const file of files) {
+          file.src = await appService.store.getItem(file.id)
+        }
         setImages(files)
       })
     }

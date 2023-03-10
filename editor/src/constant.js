@@ -16,6 +16,7 @@ export const EVENT_ELEMENT_EVENT_CHANGE = 'componentEventChange'
 export const EVENT_ELEMENT_CREATED = 'elementCreated'
 export const EVENT_ELEMENT_REMOVED = 'elementRemoved'
 export const EVENT_ELEMENT_PARENT_CHANGE = 'elementParentChanged'
+export const EVENT_ELEMENT_UNSELECT = 'elementUnSelect'
 
 export const PANEL_SIZE_1920 = {
   ADD: [45, 5, 0, 0, 250, 450],

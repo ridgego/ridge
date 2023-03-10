@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
 import { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } from '@douyinfe/semi-icons'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED } from '../constant.js'
+import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED } from '../constant.js'
 import RawSvgIcon from '../utils/RawSvgIcon.jsx'
 import { emit, on } from '../service/RidgeEditService.js'
 import { ThemeContext } from './MoveablePanel.jsx'
@@ -103,12 +103,30 @@ class OutLineTree extends React.Component {
     return treeNodeObject
   }
 
-  toggleLock (data) {
-    data.element.setConfigLocked(!data.element.config.style.locked)
+  toggleLock = (data) => {
+    const lockStatus = !data.element.config.style.locked
+    data.element.setConfigLocked(lockStatus)
+    this.setState({
+      elements: { ...this.state.elements }
+    })
+    if (lockStatus) {
+      emit(EVENT_ELEMENT_UNSELECT, {
+        element: data.element.el
+      })
+    }
   }
 
-  toggleVisible (data) {
-
+  toggleVisible = (data) => {
+    const visible = !data.element.config.style.visible
+    data.element.setConfigVisible(visible)
+    this.setState({
+      elements: { ...this.state.elements }
+    })
+    if (!visible) {
+      emit(EVENT_ELEMENT_UNSELECT, {
+        element: data.element.el
+      })
+    }
   }
 
   renderFullLabel = (label, data) => {
@@ -118,16 +136,18 @@ class OutLineTree extends React.Component {
         <Space className='label-content'>
           <Text className='label-text'>{label || data.key}</Text>
         </Space>
-        <Space className='label-action' gap='4'>
+        <Space spacing={0}>
           <Button
+            className={data.element.config.style.locked ? '' : 'hover-show'}
             size='small' theme='borderless' type='tertiary' onClick={() => {
               toggleLock(data)
-            }} icon={data.element.config.style.locked ? <IconUnlock /> : <IconLock />}
+            }} icon={data.element.config.style.locked ? <IconLock /> : <IconUnlock />}
           />
           <Button
+            className={data.element.config.style.visible ? 'hover-show' : ''}
             size='small' theme='borderless' type='tertiary' onClick={() => {
               toggleVisible(data)
-            }} icon={<IconEyeOpened />}
+            }} icon={data.element.config.style.visible ? <IconEyeOpened /> : <IconEyeClosedSolid />}
           />
         </Space>
       </div>

@@ -181,6 +181,27 @@ class PageElementManager {
     return wrapper
   }
 
+  cloneElement (sourceWrapper) {
+    const newWrapper = sourceWrapper.clone()
+
+    newWrapper.setStyle({
+      x: sourceWrapper.style.x + 20,
+      y: sourceWrapper.style.y + 20
+    })
+    this.pushElement(newWrapper)
+
+    return newWrapper
+  }
+
+  pushElement (wrapper) {
+    this.pageElements[wrapper.id] = wrapper
+    if (wrapper.config.props.children) {
+      for (const cw of wrapper.config.props.children) {
+        this.pushElement(cw)
+      }
+    }
+  }
+
   /**
    * 移出一个元素（递归进行）
    * @param {*} id
@@ -243,6 +264,13 @@ class PageElementManager {
       targetParentElement.invoke('appendChild', [sourceElement])
       targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
     }
+  }
+
+  putElementToRoot (element) {
+    const div = document.createElement('div')
+    this.el.appendChild(div)
+    element.mount(div)
+    return element
   }
 
   /**
