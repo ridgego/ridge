@@ -75,15 +75,16 @@ export default class BackUpService {
     }
   }
 
-  async exportAppArchive (coll) {
+  async exportAppArchive (coll, store) {
     const zip = new JSZip()
     const documents = await coll.find({})
     for (let i = 0; i < documents.length; i++) {
+      documents[i].content = await store.getItem(documents[i].id)
       zip.file(i + '.json', JSON.stringify(documents[i]))
     }
-    zip.generateAsync({ type: 'blob' }).then(blob => {
-      saveAs(blob, 'app.zip')
-    })
+    const blob  = await zip.generateAsync({ type: 'blob' })
+
+    saveAs(blob, 'app.zip')
   }
 
   /**
@@ -91,15 +92,16 @@ export default class BackUpService {
    * @param {*} file 选择的文件
    * @param {*} appService 应用管理服务
    */
-  async importAppArchive (file, coll) {
+  async importAppArchive (file, coll, store) {
     await coll.clean()
     const zip = new JSZip()
     await zip.loadAsync(file)
 
     zip.forEach(async (filePath, zipObject) => {
-      await coll.insert(JSON.parse(await zipObject.async('string')))
+      const doc = JSON.parse(await zipObject.async('string'))
+      await store.setItem(doc.id, doc.content)
+      delete doc.content
+      await coll.insert(doc)
     })
-
-    zip.folder()
   }
 }

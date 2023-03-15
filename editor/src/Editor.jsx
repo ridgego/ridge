@@ -239,7 +239,8 @@ export default class Editor extends React.Component {
 
         this.pageElementManager.unmount()
         document.querySelector('.ridge-runtime').style.display = 'init'
-        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, 'run')
+        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, true)
+        this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
       } else {
         this.pageElementManager.unmount()
         this.loadPage(this.pageConfig)

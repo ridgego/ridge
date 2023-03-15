@@ -282,11 +282,14 @@ class ElementWrapper {
     }
   }
 
-  // 运行期直接修改样式
-  setStyle (style) {
-    Object.assign(this.style, style)
-    // 更新配置期
+  setConfigStyle (style) {
     Object.assign(this.config.style, style)
+    Object.assign(this.style, style)
+
+    if (this.config.props.coverContainer) {
+      this.config.style.width = this.el.parentElement.getBoundingClientRect().width
+      this.config.style.height = this.el.parentElement.getBoundingClientRect().height
+    }
     this.updateStyle()
   }
 
@@ -306,8 +309,6 @@ class ElementWrapper {
         this.el.style.height = style.height ? (style.height + 'px') : ''
         this.el.style.position = style.position
         if (style.position === 'absolute') {
-          this.el.style.left = 0
-          this.el.style.top = 0
           this.el.style.transform = `translate(${style.x}px, ${style.y}px)`
         } else {
           this.el.style.transform = ''
@@ -501,7 +502,7 @@ class ElementWrapper {
       layer.style.zIndex = zIndex
     }
     layer.innerHTML = content || text || ''
-    el.appendChild(layer)
+    el.insertBefore(layer, el.firstChild)
   }
 
   /**
@@ -519,7 +520,7 @@ class ElementWrapper {
         })
       }
       if (type === 'style') {
-        this.setStyle({
+        Object.assign(this.config.style, {
           [key]: field[keyPath]
         })
       }
@@ -547,7 +548,6 @@ class ElementWrapper {
       }
     }
     this.updateStyle()
-
     // 编辑时忽略动态配置的属性、事件
     this.applyDecorate('setPropsConfig').then(() => {
       this.updateProperties()

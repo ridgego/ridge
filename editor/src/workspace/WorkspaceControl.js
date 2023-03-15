@@ -137,7 +137,7 @@ export default class WorkSpaceControl {
       if (delta[1]) {
         style.height = height
       }
-      target.elementWrapper.setStyle(style)
+      target.elementWrapper.setConfigStyle(style)
     })
 
     this.moveable.on('resizeEnd', ({
@@ -192,7 +192,7 @@ export default class WorkSpaceControl {
       payload.events.forEach(({ target }) => {
         if (!target.elementWrapper.config.parent) {
           const bcr = target.getBoundingClientRect()
-          target.elementWrapper.setStyle({
+          target.elementWrapper.setConfigStyle({
             x: bcr.left + bcr.width / 2,
             y: bcr.top + bcr.height / 2
           })
@@ -238,8 +238,14 @@ export default class WorkSpaceControl {
       if (closestRidgeNode && !closestRidgeNode.classList.contains('locked')) {
         this.moveable.target = closestRidgeNode
 
-        this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => el !== closestRidgeNode)]
+        this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
+          return el !== closestRidgeNode && el.closest('.ridge-element') !== closestRidgeNode
+        })]
         this.moveable.elementGuidelines = this.guidelines
+
+        this.moveable.elementSnapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
+        this.moveable.snapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
+
         this.moveable.dragStart(inputEvent)
 
         this.selectElements([closestRidgeNode])
@@ -397,7 +403,7 @@ export default class WorkSpaceControl {
 
     // 修改父子关系
     this.viewPortEl.appendChild(el)
-    el.elementWrapper.setStyle({
+    el.elementWrapper.setConfigStyle({
       position: 'absolute',
       x: x - rbcr.x - bcr.width / 2,
       y: y - rbcr.y - bcr.height / 2

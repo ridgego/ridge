@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Upload, Modal, Input, Table } from '@douyinfe/semi-ui'
+import { Button, Upload, Modal, Input, Table, Toast } from '@douyinfe/semi-ui'
 import { IconDelete, IconUndo } from '@douyinfe/semi-icons'
 import { ridge } from '../../service/RidgeEditService'
 const { Column } = Table
@@ -8,8 +8,23 @@ export default () => {
   const [tag, setTag] = useState('')
   const [tagShow, setTagShow] = useState(false)
   const [data, setData] = useState([])
-  const exportApp = () => {
-    ridge.appService.exportAppArchive()
+  const [toastId, setToastId] = useState()
+
+  const exportApp = async () => {
+    if (toastId) {
+      return
+    }
+    const id = Toast.info({
+      content: '正在导出应用，请稍侯...',
+      duration: 0,
+      onClose: () => {
+        setToastId(null)
+      }
+    })
+    setToastId(id)
+    await ridge.appService.exportAppArchive()
+    Toast.close(id)
+    setToastId(null)
   }
 
   useEffect(() => {

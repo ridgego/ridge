@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Popover, Input, withField } from '@douyinfe/semi-ui'
-import { IconChainStroked } from '@douyinfe/semi-icons'
+import { IconChainStroked, IconFolderOpen } from '@douyinfe/semi-icons'
 import AppImageList from '../../panels/AppImageList.jsx'
 import { ridge } from '../../service/RidgeEditService.js'
 
@@ -54,9 +54,7 @@ const ImageEdit = withField(({
             <AppList />
           }
         >
-          <IconChainStroked
-            style={{ cursor: 'pointer' }}
-          />
+          <IconFolderOpen style={{ cursor: 'pointer' }}/>
         </Popover>
       }
     />

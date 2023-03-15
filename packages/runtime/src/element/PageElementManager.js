@@ -244,6 +244,13 @@ class PageElementManager {
     if (!isSlot) {
       sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
     }
+    if (childElement.config.parent === sourceParentElement.id) {
+      delete childElement.config.parent
+    }
+
+    if (childElement.parentWrapper === sourceParentElement) {
+      delete childElement.parentWrapper
+    }
   }
 
   /**
@@ -264,6 +271,9 @@ class PageElementManager {
       targetParentElement.invoke('appendChild', [sourceElement])
       targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
     }
+
+    sourceElement.config.parent = targetParentElement.id
+    sourceElement.parentWrapper = targetParentElement
   }
 
   putElementToRoot (element) {

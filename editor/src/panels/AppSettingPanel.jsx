@@ -6,26 +6,36 @@ import '../css/setting-panel.less'
 import BackUp from './app/BackUp.jsx'
 
 import { ridge } from '../service/RidgeEditService.js'
-const FORM_DEBUG_SECTION = [{
-  rows: [
-    {
-      cols: [{
-        label: '启用',
-        type: 'boolean',
-        field: 'debug',
-        bindable: false
-      }]
-    },
-    {
-      cols: [{
-        label: '本地地址',
-        type: 'string',
-        field: 'debugUrl',
-        bindable: false
-      }]
-    }
-  ]
-}]
+const FORM_DEBUG_SECTION = [
+  {
+    label: '启用',
+    type: 'boolean',
+    field: 'debug',
+    bindable: false
+  }, {
+    label: '本地地址',
+    type: 'string',
+    field: 'debugUrl',
+    bindable: false
+  }, {
+    label: '控制台调试输出',
+    type: 'array',
+    field: 'console',
+    control: 'checkboxgroup',
+    optionList: [{
+      label: '编辑器整体',
+      value: 'ridge:editor'
+    }, {
+      label: '数据库存取',
+      value: 'db:nedb'
+    }, {
+      label: '应用资源',
+      value: 'ridge:file-list'
+    }],
+    selectAll: true,
+    bindable: false
+  }
+]
 
 export default () => {
   const { Title } = Typography
@@ -82,7 +92,7 @@ export default () => {
           >
             <ObjectForm
               initValues={debugConfig}
-              sections={FORM_DEBUG_SECTION} getFormApi={debugFormCallback} onValueChange={(values) => {
+              fields={FORM_DEBUG_SECTION} getFormApi={debugFormCallback} onValueChange={(values) => {
                 ridge.configService.updateConfig(values)
               }}
             />

@@ -73,6 +73,30 @@
         .semi-form-field-main>.semi-checkbox {
             padding: 2px;
         }
+
+        // 对semi样式的重写
+        .semi-form-field {
+            // 复选框组样式
+            .semi-checkboxGroup-horizontal-cardType {
+                padding-top: 0;
+                padding-bottom: 0;
+                gap: 4px;
+                .semi-checkbox {
+                    padding: 2px 4px;
+
+                    .semi-checkbox-addon {
+                        font-weight: normal;
+                    }
+                }
+            }
+            .semi-checkboxGroup-horizontal-pureCardType {
+                .semi-checkbox {
+                    column-gap: 0;
+                    align-items: center;
+                    padding: 2px 5px;
+                }
+            }
+        }
     }
 
 
@@ -80,7 +104,7 @@
         width: 46px;
     }
     
-  // 对semi样式的重写
+  
   .semi-input-wrapper {
     .semi-input {
       padding-left: 6px;
@@ -100,4 +124,7 @@
   .semi-input-number-suffix-btns {
     margin-left: 1px;
   }
+
+ 
 }
+

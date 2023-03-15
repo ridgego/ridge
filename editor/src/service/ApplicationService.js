@@ -312,7 +312,7 @@ export default class ApplicationService {
   }
 
   async exportAppArchive () {
-    this.backUpService.exportAppArchive(this.collection, this.store)
+    await this.backUpService.exportAppArchive(this.collection, this.store)
   }
 
   async importAppArchive (file) {
