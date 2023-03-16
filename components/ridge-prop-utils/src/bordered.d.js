@@ -19,11 +19,13 @@ export default {
     name: 'border',
     label: '边框',
     type: 'string',
+    width: '50%',
     control: 'border',
     value: '1px solid #ccc'
   }, {
     name: 'radius',
     label: '圆角',
+    wdith: '50%',
     type: 'string',
     control: 'px4'
   }, {

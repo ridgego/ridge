@@ -31,6 +31,9 @@ const FORM_DEBUG_SECTION = [
     }, {
       label: '应用资源',
       value: 'ridge:file-list'
+    }, {
+      label: '页面组件',
+      value: 'ridge:element'
     }],
     selectAll: true,
     bindable: false

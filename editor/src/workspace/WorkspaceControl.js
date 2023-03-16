@@ -241,6 +241,8 @@ export default class WorkSpaceControl {
         this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
           return el !== closestRidgeNode && el.closest('.ridge-element') !== closestRidgeNode
         })]
+
+        console.log('guidlines', this.guidelines)
         this.moveable.elementGuidelines = this.guidelines
 
         this.moveable.elementSnapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }

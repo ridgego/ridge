@@ -19,19 +19,21 @@ export default {
   props: [{
     name: 'border',
     label: '边框',
-    type: 'string',
+    type: 'object',
     control: 'border',
     value: '1px solid #ccc'
   }, {
     name: 'radius',
     label: '圆角',
     type: 'string',
-    control: 'px4'
+    control: 'px4',
+    value: '3px'
   }, {
     name: 'padding',
     label: '内边',
     type: 'string',
-    control: 'px4'
+    control: 'px4',
+    value: '2px'
   }, {
     name: 'background',
     label: '背景',

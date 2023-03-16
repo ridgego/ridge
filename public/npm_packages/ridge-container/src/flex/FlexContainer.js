@@ -95,7 +95,7 @@ export default class FlexBoxContainer {
       this.containerEl.appendChild(el)
     }
 
-    wrapper.setStyle(style)
+    wrapper.setConfigStyle(style)
   }
 
   getAfterNode (dropped, siblings, row) {

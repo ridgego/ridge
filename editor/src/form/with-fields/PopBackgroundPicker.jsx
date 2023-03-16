@@ -1,17 +1,13 @@
 import React from 'react'
+import { Popover, Button } from '@douyinfe/semi-ui'
 import { SketchPicker } from 'react-color'
-import { Select, Space, withField, Button, InputNumber, Popover } from '@douyinfe/semi-ui'
 
-const BackgroundEdit = withField(({
+const PopColorPicker = ({
   value,
   onChange
 }) => {
-  const renderPopContent = () => {
-
-  }
   return (
     <Popover content={
-
       <SketchPicker
         color={value} onChangeComplete={val => {
           onChange(val.hex + parseInt(val.rgb.a * 255).toString(16))
@@ -30,6 +26,6 @@ const BackgroundEdit = withField(({
       />
     </Popover>
   )
-})
+}
 
-export default BackgroundEdit
+export default PopColorPicker

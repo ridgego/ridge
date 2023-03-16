@@ -219,7 +219,7 @@ class PageElementManager {
         }
       }
       if (element.config.parent) {
-        this.detachChildElement(this.pageElements[element.config.parent], id)
+        this.detachChildElement(this.pageElements[element.config.parent], element)
       }
       element.unmount()
       delete this.pageElements[id]
@@ -243,6 +243,7 @@ class PageElementManager {
     }
     if (!isSlot) {
       sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
+      sourceParentElement.updateProperties()
     }
     if (childElement.config.parent === sourceParentElement.id) {
       delete childElement.config.parent
@@ -270,6 +271,7 @@ class PageElementManager {
       // 这里容器会提供 appendChild 方法，并提供放置位置
       targetParentElement.invoke('appendChild', [sourceElement])
       targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
+      targetParentElement.updateProperties()
     }
 
     sourceElement.config.parent = targetParentElement.id

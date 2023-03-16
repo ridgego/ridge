@@ -26,3 +26,243 @@
 .workspace-movable .moveable-line {
   opacity: 0;
 }
+
+.rCSwd26qe .moveable-line.moveable-vertical.moveable-bold {
+  width: 0.5px!important;
+  background-color: var(--semi-color-warning)!important;
+}
+.rCSwd26qe .moveable-line.moveable-horizontal.moveable-bold {
+  height: 1px!important;
+  background-color: var(--semi-color-warning)!important;
+}
+
+/*
+.rCSwd26qe {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	left: 0;
+	top: 0;
+    z-index: 3000;
+    --moveable-color: #4af;
+    --zoom: 1;
+    --zoompx: 1px;
+    will-change: transform;
+}
+.rCSwd26qe .moveable-control-box {
+    z-index: 0;
+}
+.rCSwd26qe .moveable-line, .rCSwd26qe .moveable-control {
+    position: absolute;
+	left: 0;
+    top: 0;
+    will-change: transform;
+}
+.rCSwd26qe .moveable-control {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	box-sizing: border-box;
+    background: #4af;
+    background: var(--moveable-color);
+	margin-top: -7px;
+    margin-left: -7px;
+    border: 2px solid #fff;
+    z-index: 10;
+}
+.rCSwd26qe .moveable-padding {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100px;
+    height: 100px;
+    transform-origin: 0 0;
+}
+.rCSwd26qe .moveable-line {
+	width: 1px;
+    height: 1px;
+    background: #4af;
+    background: var(--moveable-color);
+	transform-origin: 0px 50%;
+}
+.rCSwd26qe .moveable-line.moveable-edge {
+    z-index: 1;
+    background: transparent;
+}
+.rCSwd26qe .moveable-line.moveable-dashed {
+    box-sizing: border-box;
+    background: transparent;
+}
+.rCSwd26qe .moveable-line.moveable-dashed.moveable-horizontal {
+    border-top: 1px dashed #4af;
+    border-top-color: #4af;
+    border-top-color: var(--moveable-color);
+}
+.rCSwd26qe .moveable-line.moveable-dashed.moveable-vertical {
+    border-left: 1px dashed #4af;
+    border-left-color: #4af;
+    border-left-color: var(--moveable-color);
+}
+.rCSwd26qe .moveable-line.moveable-vertical {
+    transform: translateX(-50%);
+}
+.rCSwd26qe .moveable-line.moveable-horizontal {
+    transform: translateY(-50%);
+}
+.rCSwd26qe .moveable-line.moveable-vertical.moveable-bold {
+    width: 2px;
+}
+.rCSwd26qe .moveable-line.moveable-horizontal.moveable-bold {
+    height: 2px;
+}
+
+.rCSwd26qe .moveable-control.moveable-origin {
+	border-color: #f55;
+	background: #fff;
+	width: 12px;
+	height: 12px;
+	margin-top: -6px;
+    margin-left: -6px;
+	pointer-events: none;
+}
+
+.rCSwd26qe .moveable-direction[data-rotation="0"],  .moveable-view-control-rotation0 {
+	cursor:ns-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(0deg);transform-origin: 16px 16px"></path></svg>') 16 16, ns-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="15"],  .moveable-view-control-rotation15 {
+	cursor:ns-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(15deg);transform-origin: 16px 16px"></path></svg>') 16 16, ns-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="30"],  .moveable-view-control-rotation30 {
+	cursor:nesw-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(30deg);transform-origin: 16px 16px"></path></svg>') 16 16, nesw-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="45"],  .moveable-view-control-rotation45 {
+	cursor:nesw-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(45deg);transform-origin: 16px 16px"></path></svg>') 16 16, nesw-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="60"],  .moveable-view-control-rotation60 {
+	cursor:nesw-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(60deg);transform-origin: 16px 16px"></path></svg>') 16 16, nesw-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="75"],  .moveable-view-control-rotation75 {
+	cursor:ew-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(75deg);transform-origin: 16px 16px"></path></svg>') 16 16, ew-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="90"],  .moveable-view-control-rotation90 {
+	cursor:ew-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(90deg);transform-origin: 16px 16px"></path></svg>') 16 16, ew-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="105"],  .moveable-view-control-rotation105 {
+	cursor:ew-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(105deg);transform-origin: 16px 16px"></path></svg>') 16 16, ew-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="120"],  .moveable-view-control-rotation120 {
+	cursor:nwse-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(120deg);transform-origin: 16px 16px"></path></svg>') 16 16, nwse-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="135"],  .moveable-view-control-rotation135 {
+	cursor:nwse-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(135deg);transform-origin: 16px 16px"></path></svg>') 16 16, nwse-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="150"],  .moveable-view-control-rotation150 {
+	cursor:nwse-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(150deg);transform-origin: 16px 16px"></path></svg>') 16 16, nwse-resize;
+}
+
+
+.rCSwd26qe .moveable-direction[data-rotation="165"],  .moveable-view-control-rotation165 {
+	cursor:ns-resize;cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32" ><path d="M 16,5 L 12,10 L 14.5,10 L 14.5,22 L 12,22 L 16,27 L 20,22 L 17.5,22 L 17.5,10 L 20, 10 L 16,5 Z" stroke-linejoin="round" stroke-width="1.2" fill="black" stroke="white" style="transform:rotate(165deg);transform-origin: 16px 16px"></path></svg>') 16 16, ns-resize;
+}
+
+.rCSwd26qe .moveable-group {
+    z-index: -1;
+}
+.rCSwd26qe .moveable-area {
+    position: absolute;
+}
+.rCSwd26qe .moveable-area-pieces {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+}
+.rCSwd26qe .moveable-area.moveable-avoid, .rCSwd26qe .moveable-area.moveable-pass {
+    pointer-events: none;
+}
+.rCSwd26qe .moveable-area.moveable-avoid+.moveable-area-pieces {
+    display: block;
+}
+.rCSwd26qe .moveable-area-piece {
+    position: absolute;
+}
+
+
+.rCSwd26qe {
+    --bounds-color: #d66;
+}
+.rCSwd26qe .moveable-guideline {
+    pointer-events: none;
+    z-index: 2;
+}
+.rCSwd26qe .moveable-guideline.moveable-bounds {
+    background: #d66;
+    background: var(--bounds-color);
+}
+.rCSwd26qe .moveable-guideline-group {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.rCSwd26qe .moveable-guideline-group .moveable-size-value {
+    position: absolute;
+    color: #f55;
+    font-size: 12px;
+    font-weight: bold;
+}
+.rCSwd26qe .moveable-guideline-group.moveable-horizontal .moveable-size-value {
+    transform-origin: 50% 100%;
+    transform: translateX(-50%);
+    left: 50%;
+    bottom: 5px;
+}
+.rCSwd26qe .moveable-guideline-group.moveable-vertical .moveable-size-value {
+    transform-origin: 0% 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 5px;
+}
+.rCSwd26qe .moveable-guideline.moveable-gap {
+    background: #f55;
+}
+.rCSwd26qe .moveable-size-value.moveable-gap {
+    color: #f55;
+}
+
+.rCSwd26qe .moveable-edge.moveable-edgeDraggable.moveable-line {
+    cursor: move;
+}
+.rCSwd26qe .moveable-rotation {
+    position: absolute;
+    height: 40px;
+    width: 1px;
+    transform-origin: 50% 100%;
+    height: calc(40px * var(--zoom));
+    top: auto;
+    left: 0;
+    bottom: 100%;
+    will-change: transform;
+}
+
+*/

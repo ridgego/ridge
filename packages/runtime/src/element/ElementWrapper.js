@@ -3,7 +3,7 @@ import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import { trim, nanoid } from '../utils/string'
 const log = debug('ridge:element')
-const error = debug('ridge:error')
+const error = debug('error:element')
 
 /**
  * 组件封装类
@@ -202,14 +202,9 @@ class ElementWrapper {
   async mount (el) {
     this.el = el
     this.el.classList.add('ridge-element')
-    if (!this.config.style.visible) {
-      this.el.classList.add('hidden')
-    }
-    if (this.config.style.locked) {
-      this.el.classList.add('locked')
-    }
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
+    Object.assign(this.style, this.config.style)
     this.updateExpressionedStyle()
     this.updateStyle()
     if (!this.preloaded) {
@@ -294,9 +289,9 @@ class ElementWrapper {
   }
 
   updateStyle () {
-    const style = Object.assign({}, this.config.style, this.style)
+    const style = this.style
     if (this.el) {
-      Object.assign(this.el.style, style)
+      // Object.assign(this.el.style, style)
       if (this.config.props.coverContainer) {
         this.el.style.width = '100%'
         this.el.style.height = '100%'
@@ -315,9 +310,22 @@ class ElementWrapper {
         }
       }
       this.el.style.visibility = style.visible ? 'visible' : 'hidden'
+
+      if (style.visible) {
+        this.el.classList.add('hidden')
+      }
+      if (style.locked) {
+        this.el.classList.add('locked')
+      }
     }
+
+    this.invoke('updateStyle', [style])
   }
 
+  /**
+   * 更新动态属性
+   * @param {*} props 要更改的属性
+   */
   updateProperties (props) {
     if (props) {
       Object.assign(this.properties, props)
@@ -384,7 +392,9 @@ class ElementWrapper {
   }
 
   invoke (method, args) {
-    return this.renderer.invoke(method, args)
+    if (this.renderer) {
+      return this.renderer.invoke(method, args)
+    }
   }
 
   // 组件对外发出事件
@@ -547,6 +557,10 @@ class ElementWrapper {
         this.config.title = field[keyPath]
       }
     }
+
+    Object.assign(this.style, this.config.style)
+    Object.assign(this.properties, this.config.props)
+
     this.updateStyle()
     // 编辑时忽略动态配置的属性、事件
     this.applyDecorate('setPropsConfig').then(() => {
