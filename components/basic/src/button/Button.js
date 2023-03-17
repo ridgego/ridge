@@ -14,6 +14,22 @@ export default class Button {
     this.button.onclick = (e) => {
       this.props.onClick && this.props.onClick()
     }
+    this.button.onmouseover = () => {
+      this.button.style.background = this.props.hoverBg
+    }
+    this.button.onmouseout = () => {
+      this.button.style.background = this.props.background
+    }
+    this.button.onmousedown = () => {
+      this.button.style.background = this.props.downBg
+    }
+    this.button.onmouseup = () => {
+      this.button.style.background = this.props.hoverBg
+    }
+
+    this.button.onclick = () => {
+      this.props.onClick && this.props.onClick(this.props.data || this.props.text)
+    }
     this.render()
   }
 

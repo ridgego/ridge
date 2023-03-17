@@ -12,7 +12,7 @@ export default {
     name: 'children',
     hidden: true,
     type: 'children'
-  }, ...border.props],
+  }, ...border.props.filter(prop => prop.name !== 'padding')],
   childStyle: [{
     name: 'relative',
     type: 'array',

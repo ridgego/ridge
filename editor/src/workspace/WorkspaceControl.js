@@ -236,6 +236,11 @@ export default class WorkSpaceControl {
       const closestRidgeNode = target.closest('.ridge-element')
 
       if (closestRidgeNode && !closestRidgeNode.classList.contains('locked')) {
+        if (inputEvent.ctrlKey) {
+          const rect = closestRidgeNode.getBoundingClientRect()
+          const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
+          this.onElementDragEnd(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
+        }
         this.moveable.target = closestRidgeNode
 
         this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
@@ -254,8 +259,7 @@ export default class WorkSpaceControl {
         e.inputEvent && e.inputEvent.stopPropagation()
         e.inputEvent && e.inputEvent.preventDefault()
         e.stop()
-      }
-      if (inputEvent.ctrlKey) {
+      } else if (inputEvent.ctrlKey) {
         // movableManager.current.getMoveable().dragStart(inputEvent)
         e.stop()
       }
@@ -303,20 +307,46 @@ export default class WorkSpaceControl {
       }
     })
 
-    Mousetrap.bind('ctrl+c', () => {
+    Mousetrap.bind('right', () => {
       if (this.selected) {
-        this.copied = this.selected
-      }
-    })
-    Mousetrap.bind('ctrl+v', () => {
-      if (this.copied) {
-        this.copy(this.copied)
+        for (const el of this.selected) {
+          el.elementWrapper.setConfigStyle({
+            x: el.elementWrapper.config.style.x + 1
+          })
+        }
+        this.moveable.updateTarget()
       }
     })
 
-    Mousetrap.bind('ctrl+s', () => {
-      this.ridge.saveCurrentPage()
-      return false
+    Mousetrap.bind('left', () => {
+      if (this.selected) {
+        for (const el of this.selected) {
+          el.elementWrapper.setConfigStyle({
+            x: el.elementWrapper.config.style.x - 1
+          })
+        }
+        this.moveable.updateTarget()
+      }
+    })
+    Mousetrap.bind('up', () => {
+      if (this.selected) {
+        for (const el of this.selected) {
+          el.elementWrapper.setConfigStyle({
+            y: el.elementWrapper.config.style.y - 1
+          })
+        }
+        this.moveable.updateTarget()
+      }
+    })
+    Mousetrap.bind('down', () => {
+      if (this.selected) {
+        for (const el of this.selected) {
+          el.elementWrapper.setConfigStyle({
+            y: el.elementWrapper.config.style.y + 1
+          })
+        }
+        this.moveable.updateTarget()
+      }
     })
   }
 
@@ -370,12 +400,16 @@ export default class WorkSpaceControl {
         // 3. 放入一个容器
         trace('从页面到父容器')
         const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
-        this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
+        this.pageManager.attachToParent(targetParentElement, sourceElement, slotName, {
+          x, y
+        })
       } else if (sourceParentElement !== targetParentElement) {
         trace('从一个父容器到另一个父容器')
         // 4. 一个父容器到另一个父容器
         const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
-        this.pageManager.attachToParent(targetParentElement, sourceElement, slotName)
+        this.pageManager.attachToParent(targetParentElement, sourceElement, slotName, {
+          x, y
+        })
         this.pageManager.detachChildElement(sourceParentElement, sourceElement)
       }
       sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
@@ -401,10 +435,9 @@ export default class WorkSpaceControl {
   putElementToRoot (el, x, y) {
     // 计算位置
     const rbcr = this.viewPortEl.getBoundingClientRect()
-    const bcr = el.getBoundingClientRect()
-
     // 修改父子关系
     this.viewPortEl.appendChild(el)
+    const bcr = el.getBoundingClientRect()
     el.elementWrapper.setConfigStyle({
       position: 'absolute',
       x: x - rbcr.x - bcr.width / 2,

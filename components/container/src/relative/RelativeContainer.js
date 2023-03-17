@@ -1,3 +1,4 @@
+import { words } from 'lodash'
 import { border } from 'ridge-prop-utils'
 
 export default class RelativeContainer {
@@ -161,11 +162,18 @@ export default class RelativeContainer {
     })
   }
 
-  appendChild (wrapper) {
+  appendChild (wrapper, x, y) {
     const el = wrapper.el
-    const childbc = el.getBoundingClientRect()
-    this.containerEl.appendChild(el)
-    this.updateChild(wrapper, childbc)
+    if (el.parentElement !== this.containerEl) {
+      const containerbc = this.containerEl.getBoundingClientRect()
+      this.containerEl.appendChild(el)
+      const childbc = el.getBoundingClientRect()
+      wrapper.setConfigStyle({
+        position: 'absolute',
+        x: x - containerbc.x - (childbc.width) / 2,
+        y: y - containerbc.y - (childbc.height) / 2
+      })
+    }
   }
 
   getChildren () {

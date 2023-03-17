@@ -34,6 +34,9 @@ const FORM_DEBUG_SECTION = [
     }, {
       label: '页面组件',
       value: 'ridge:element'
+    }, {
+      label: '拖拽动作',
+      value: 'ridge:workspace'
     }],
     selectAll: true,
     bindable: false

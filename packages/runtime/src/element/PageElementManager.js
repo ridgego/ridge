@@ -183,13 +183,17 @@ class PageElementManager {
 
   cloneElement (sourceWrapper) {
     const newWrapper = sourceWrapper.clone()
+    console.log('mounted', newWrapper, newWrapper.config.style)
 
-    newWrapper.setStyle({
-      x: sourceWrapper.style.x + 20,
-      y: sourceWrapper.style.y + 20
-    })
+    const div = document.createElement('div')
+    newWrapper.mount(div)
+    // if (sourceWrapper.parentWrapper) {
+    //   this.attachToParent(sourceWrapper.parentWrapper, newWrapper)
+    //   console.log('attached', newWrapper, newWrapper.config.style)
+    // } else {
+    //   this.putElementToRoot(newWrapper)
+    // }
     this.pushElement(newWrapper)
-
     return newWrapper
   }
 
@@ -260,7 +264,7 @@ class PageElementManager {
    * @param {*} sourceElement
    * @param {*} targetEl
    */
-  attachToParent (targetParentElement, sourceElement, slotName) {
+  attachToParent (targetParentElement, sourceElement, slotName, { x, y }) {
     if (slotName) { // 放置到slot中
       // 设置slot属性值为组件id
       // 父组件需要执行DOM操作
@@ -269,7 +273,7 @@ class PageElementManager {
       })
     } else {
       // 这里容器会提供 appendChild 方法，并提供放置位置
-      targetParentElement.invoke('appendChild', [sourceElement])
+      targetParentElement.invoke('appendChild', [sourceElement, x, y])
       targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
       targetParentElement.updateProperties()
     }

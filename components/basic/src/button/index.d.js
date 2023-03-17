@@ -9,7 +9,21 @@ export default {
     name: 'text',
     label: '文本',
     type: 'string'
-  }, ...border.props, ...text.props],
+  }, {
+    name: 'data',
+    label: '数据',
+    type: 'object'
+  }, ...border.props, ...text.props, {
+    name: 'hoverBg',
+    label: '悬浮背景',
+    type: 'string',
+    control: 'background'
+  }, {
+    name: 'downBg',
+    label: '点击背景',
+    type: 'string',
+    control: 'background'
+  }],
   events: [{
     label: '点击事件',
     name: 'onClick'

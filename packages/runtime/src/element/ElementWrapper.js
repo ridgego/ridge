@@ -49,7 +49,9 @@ class ElementWrapper {
       pageManager: this.pageManager
     })
     cloned.cloneFrom = cloned.id
-    cloned.id = nanoid(10)
+    cloned.config.id = nanoid(5)
+    cloned.id = cloned.config.id
+    delete cloned.config.parent
 
     if (this.componentDefinition) {
       cloned.componentDefinition = this.componentDefinition
@@ -570,6 +572,7 @@ class ElementWrapper {
 
   setConfigLocked (locked) {
     this.config.style.locked = locked
+    this.style.locked = locked
 
     if (locked) {
       this.el.classList.add('locked')

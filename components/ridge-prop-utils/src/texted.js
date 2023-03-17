@@ -2,8 +2,8 @@ export default {
   style: (props) => {
     const style = {
       color: props.color,
-      fontSize: props.fontSize,
-      lineHeight: props.lineHeight,
+      fontSize: props.fontSize + 'px',
+      lineHeight: props.lineHeight + 'px',
       fontWeight: props.fontWeight,
       fontFamilly: props.fontFamilly
     }
