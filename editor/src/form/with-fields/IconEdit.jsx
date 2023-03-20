@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Popover, Input, Typography, withField, Button } from '@douyinfe/semi-ui'
-import AppImageList from '../../panels/AppImageList.jsx'
+import AppImageList from '../../panels/files/AppImageList.jsx'
 import { ridge } from '../../service/RidgeEditService.js'
 import { dataURLToString } from '../../utils/blob.js'
 

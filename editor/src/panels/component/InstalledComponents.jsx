@@ -1,8 +1,8 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
-import { ThemeContext } from './MoveablePanel.jsx'
-import PackageManager from '../service/PackageManager'
-import '../css/component-add.less'
+import { ThemeContext } from '../movable/MoveablePanel.jsx'
+import PackageManager from '../../service/PackageManager'
+
 const trace = require('debug')('ridge:component-panel')
 const { Text } = Typography
 class InstalledComponents extends React.Component {

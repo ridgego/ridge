@@ -3,7 +3,6 @@ import { Form, Button, Table, Divider } from '@douyinfe/semi-ui'
 import { IconStopwatchStroked } from '@douyinfe/semi-icons'
 
 import BorderEdit from './with-fields/BorderEdit.jsx'
-import PopCodeEdit from './with-fields/PopCodeEdit.jsx'
 import StateBindEdit from './with-fields/StateBindEdit.jsx'
 import EventEdit from './with-fields/EventEdit.jsx'
 import JSONEdit from './with-fields/JSONEdit.jsx'
@@ -18,6 +17,11 @@ import BoxShadowEdit from './with-fields/BoxShadowEdit.jsx'
 import ToggleIcon from './with-fields/ToggleIcon.jsx'
 
 import './form.less'
+
+const TYPE_CONTROL_MAP = {
+  object: 'json',
+  array: 'json'
+}
 
 export default class ObjectForm extends React.Component {
   constructor (props) {
@@ -60,9 +64,6 @@ export default class ObjectForm extends React.Component {
   }
 
   getRenderField (field, readonly, options) {
-    if (!field.control) {
-      field.control = field.type || 'string'
-    }
     if (this.controlGeneratorMap[field.control]) {
       return this.controlGeneratorMap[field.control](field, readonly, options)
     } else {
@@ -77,7 +78,7 @@ export default class ObjectForm extends React.Component {
     }
     const readonly = (typeof field.readonly === 'function') ? field.readonly(formState.values) : field.readonly
     if (field.control == null) {
-      field.control = field.type || 'string'
+      field.control = TYPE_CONTROL_MAP[field.type] || field.type || 'string'
     }
     const RenderField = this.getRenderField(field, readonly, options)
     RenderField.props.fieldStyle = {
@@ -97,34 +98,6 @@ export default class ObjectForm extends React.Component {
         <div className='field-block with-code-expr' style={{ width: field.width || '100%' }}>
           {RenderField}
           <StateBindEdit noLabel field={field.fieldEx} options={options} />
-        </div>
-      )
-    }
-  }
-
-  renderCol (col) {
-    const hidden = (typeof col.hidden === 'function') ? col.hidden(this.api.getValues()) : col.hidden
-
-    if (hidden) {
-      return
-    }
-
-    const {
-      options
-    } = this.props
-    const readonly = (typeof col.readonly === 'function') ? col.readonly(this.api.getValues()) : col.readonly
-    if (col.control == null) {
-      col.control = col.type
-    }
-    const RenderField = this.getRenderField(col, readonly, options)
-    if (col.bindable === false) {
-      return RenderField
-    } else {
-      // 封装动态绑定的支持
-      return (
-        <div className='with-code-expr'>
-          {RenderField}
-          <PopCodeEdit noLabel fieldStyle={{ width: '36px' }} field={col.fieldEx} options={options} />
         </div>
       )
     }

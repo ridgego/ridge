@@ -1,6 +1,8 @@
 import React from 'react'
-import MoveablePanel from './MoveablePanel.jsx'
+import MoveablePanel from '../movable/MoveablePanel.jsx'
 import InstalledComponents from './InstalledComponents.jsx'
+
+import './index.less'
 
 class LeftTopPanel extends React.Component {
   render () {

@@ -1,4 +1,4 @@
-import { border } from 'ridge-prop-utils'
+import { border, text } from 'ridge-prop-utils'
 export default class Button {
   constructor (props) {
     this.props = props
@@ -8,10 +8,27 @@ export default class Button {
     this.el = el
     // <input class="task-status" type="checkbox" checked="true" data-id="-1">
     this.button = document.createElement('button')
+    this.button.setAttribute('type', 'button')
 
     this.el.append(this.button)
     this.button.onclick = (e) => {
       this.props.onClick && this.props.onClick()
+    }
+    this.button.onmouseover = () => {
+      this.button.style.background = this.props.hoverBg
+    }
+    this.button.onmouseout = () => {
+      this.button.style.background = this.props.background
+    }
+    this.button.onmousedown = () => {
+      this.button.style.background = this.props.downBg
+    }
+    this.button.onmouseup = () => {
+      this.button.style.background = this.props.hoverBg
+    }
+
+    this.button.onclick = () => {
+      this.props.onClick && this.props.onClick(this.props.data || this.props.text)
     }
     this.render()
   }
@@ -38,7 +55,7 @@ export default class Button {
     if (this.props.fontSize) {
       style.fontSize = this.props.fontSize + 'px'
     }
-    Object.assign(style, border.style(this.props))
+    Object.assign(style, border.style(this.props), text.style(this.props))
 
     return style
   }

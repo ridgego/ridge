@@ -1,7 +1,7 @@
 import React from 'react'
-import { ridge } from '../service/RidgeEditService'
+import { ridge } from '../../service/RidgeEditService'
 import { Typography } from '@douyinfe/semi-ui'
-import '../css/app-image-list.less'
+import './app-image-list.less'
 
 const { Text } = Typography
 export default ({

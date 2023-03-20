@@ -206,7 +206,9 @@ class ElementWrapper {
     this.el.classList.add('ridge-element')
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
-    Object.assign(this.style, this.config.style)
+
+    //
+    this.style = Object.assign({}, this.config.style, this.style)
     this.updateExpressionedStyle()
     this.updateStyle()
     if (!this.preloaded) {

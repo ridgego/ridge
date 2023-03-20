@@ -1,13 +1,13 @@
 import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
-import ObjectForm from '../form/ObjectForm.jsx'
-import { ThemeContext } from './MoveablePanel.jsx'
+import ObjectForm from '../../form/ObjectForm.jsx'
+import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import PageDataPanel from './PageDataPanel.jsx'
-import { ridge, emit, on } from '../service/RidgeEditService.js'
+import { ridge, emit, on } from '../../service/RidgeEditService.js'
 
 import {
   EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
-} from '../constant.js'
+} from '../../constant.js'
 
 const COMPONENT_BASIC_FIELDS = [
   {
@@ -341,7 +341,7 @@ export default class ComponentPanel extends React.Component {
           type='card'
           className='on-title'
           style={{
-            display: nodePropFields.length === 0 ? 'none' : 'initial'
+            display: nodePropFields.length === 0 ? 'none' : 'block'
           }}
         >
           {/* 组件属性配置 */}
@@ -369,7 +369,7 @@ export default class ComponentPanel extends React.Component {
           type='card'
           className='on-title'
           style={{
-            display: nodePropFields.length === 0 ? 'initial' : 'none'
+            display: nodePropFields.length === 0 ? 'block' : 'none'
           }}
         >
           {/* 页面属性配置 */}

@@ -1,10 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Button, Input, Typography } from '@douyinfe/semi-ui'
-import { createMoveable } from '../utils/moveable'
+import { createMoveable } from '../../workspace/moveable'
 import { IconClose, IconSearchStroked, IconHandle } from '@douyinfe/semi-icons'
 
-import '../css/movable-panel.less'
+import './movable-panel.less'
 
 const { Text } = Typography
 

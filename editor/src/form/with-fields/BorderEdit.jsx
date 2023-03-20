@@ -1,9 +1,8 @@
 import React from 'react'
 import PopColorPicker from './PopColorPicker.jsx'
-import { IconChevronDown, IconChevronUp } from '@douyinfe/semi-icons'
-import { Select, Space, withField, Button, InputNumber, Popover, Input, Typography } from '@douyinfe/semi-ui'
+import { IconMinusStroked, IconIndependentCornersStroked } from '@douyinfe/semi-icons'
+import { Select, Space, withField, Button, InputNumber } from '@douyinfe/semi-ui'
 
-const { Text } = Typography
 const BorderEdit = withField(({
   value,
   onChange
@@ -22,7 +21,7 @@ const BorderEdit = withField(({
     return (
       <Button
         theme='borderless' type='tertiary' size='small' icon={
-          <IconChevronDown />
+          <IconIndependentCornersStroked />
       } onClick={() => {
         onChange([value, value, value, value])
       }}
@@ -33,7 +32,7 @@ const BorderEdit = withField(({
     return (
       <Button
         theme='borderless' type='tertiary' size='small' icon={
-          <IconChevronUp />
+          <IconMinusStroked />
       } onClick={() => {
         onChange(value[0])
       }}

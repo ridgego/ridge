@@ -3,9 +3,9 @@ import trim from 'lodash/trim'
 import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin } from '@douyinfe/semi-ui'
 import { IconTick, IconFolderOpen, IconImage, IconEditStroked, IconFont, IconPlusStroked, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
-import { ridge, emit, on } from '../service/RidgeEditService.js'
-import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED } from '../constant'
-import '../css/app-file-panel.less'
+import { ridge, emit, on } from '../../service/RidgeEditService.js'
+import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED } from '../../constant'
+import './file-list.less'
 
 const trace = debug('ridge:file-list')
 const { Text } = Typography

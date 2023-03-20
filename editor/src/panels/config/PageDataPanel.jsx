@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { Button, Collapse, Upload, Toast, Dropdown, Modal, Form, Tree, Space, Typography, ButtonGroup } from '@douyinfe/semi-ui'
 import { IconDownloadStroked, IconCloudUploadStroked, IconEdit, IconDelete, IconBrackets, IconCopyAdd } from '@douyinfe/semi-icons'
-import { EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_LOADED } from '../constant'
+import { EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_LOADED } from '../../constant'
 import { EditorView, basicSetup } from 'codemirror'
 import { tooltips } from '@codemirror/view'
 import { javascript } from '@codemirror/lang-javascript'
 import { autocompletion } from '@codemirror/autocomplete'
 
-import { saveAs } from '../utils/blob.js'
-import { emit, on } from '../service/RidgeEditService'
-import '../css/data-panel.less'
+import { saveAs } from '../../utils/blob.js'
+import { emit, on } from '../../service/RidgeEditService'
+import './data-panel.less'
 const { Text } = Typography
 
 export default () => {
@@ -60,26 +60,35 @@ export default () => {
 
   // 导出页面数据配置
   const exportDataSetting = () => {
-    const pageConfig = ridge.pageElementManagers.pageConfig
-
     const stateList = []
-    for (const state of pageConfig.states) {
+    const stateLabels = {}
+    for (const state of states) {
       stateList.push(`${state.name}: ${state.value}`)
+      stateLabels[state.name] = {
+        label: state.label
+      }
     }
 
     const reducerList = []
-    for (const reducer of pageConfig.reducers) {
+    const reducerLabels = {}
+    for (const reducer of reducers) {
       reducerList.push(`${reducer.name}: ${reducer.value}`)
+      reducerLabels[reducer.name] = reducer.label
     }
 
-    const jsContent = `export default {
-      state: {
-        ${stateList.join(',\n')}
-      },
-      reducers: { 
-        ${reducerList.join(',\n')}
-      }
-    }`
+    const jsContent =
+`export default {
+  state: {
+    ${stateList.join(',\n')}
+  },
+  reducers: { 
+    ${reducerList.join(',\n')}
+  },
+  config: {
+    state: ${JSON.stringify(stateLabels)},
+    reducers: ${JSON.stringify(reducerLabels)}
+  }
+}`
     saveAs(jsContent, 'page-store.js')
   }
 
@@ -133,6 +142,34 @@ export default () => {
     }
   }
 
+  const variableCompletions = (states || []).map(v => {
+    return {
+      label: v.name,
+      type: 'variable'
+    }
+  })
+  variableCompletions.push({
+    label: '$scope',
+    type: 'variable'
+  })
+  const methodCompletions = (reducers || []).map(v => {
+    return {
+      label: v.name,
+      type: 'method'
+    }
+  })
+  const myCompletions = (context) => {
+    const before = context.matchBefore(/[\w.\\$]+/)
+    // If completion wasn't explicitly started and there
+    // is no word before the cursor, don't open completions.
+    if (!context.explicit && !before) return null
+    return {
+      from: before ? before.from : context.pos,
+      options: [...variableCompletions, ...methodCompletions],
+      validFor: /^\w*$/
+    }
+  }
+
   // 编辑条目
   const edit = (type, record, index) => {
     setType(type)
@@ -149,7 +186,7 @@ export default () => {
       doc: record ? record.value : '',
       extensions: [basicSetup, javascript(), tooltips({
         position: 'absolute'
-      }), autocompletion({ override: [] })],
+      }), autocompletion({ override: [myCompletions] })],
       parent: ref.current
     })
 
@@ -351,6 +388,7 @@ export default () => {
   return (
     <div className='data-panel-content'>
       <Modal
+        closeOnEsc={false}
         lazyRender={false}
         onCancel={() => {
           setVisible(false)
@@ -370,6 +408,7 @@ export default () => {
           <div
             style={{
               border: '1px solid var(--semi-color-border)',
+              overflow: 'auto',
               height: '300px',
               width: '100%'
             }} className='code-editor-container' ref={ref}

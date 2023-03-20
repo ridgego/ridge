@@ -1,8 +1,6 @@
 import React from 'react'
-import MoveablePanel from './MoveablePanel.jsx'
+import MoveablePanel from '../movable/MoveablePanel.jsx'
 import OutLineTree from './OutLineTree.jsx'
-
-import '../css/data-panel.less'
 
 export default class DataPanel extends React.Component {
   constructor () {

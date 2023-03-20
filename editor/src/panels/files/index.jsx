@@ -1,5 +1,5 @@
 import React from 'react'
-import MoveablePanel from './MoveablePanel.jsx'
+import MoveablePanel from '../movable/MoveablePanel.jsx'
 import AppFileList from './AppFileList.jsx'
 
 class LeftBottomPanel extends React.Component {

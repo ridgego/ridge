@@ -1,4 +1,3 @@
-import { words } from 'lodash'
 import { border } from 'ridge-prop-utils'
 
 export default class RelativeContainer {
@@ -39,6 +38,7 @@ export default class RelativeContainer {
       }
     }
 
+    /*
     this.resizeObserver = new window.ResizeObserver((entries) => {
       console.log('resize', entries, this)
 
@@ -53,6 +53,7 @@ export default class RelativeContainer {
     })
 
     this.resizeObserver.observe(this.containerEl)
+    */
   }
 
   updateStyle (style) {

@@ -1,10 +1,10 @@
 import React from 'react'
 import debug from 'debug'
-import RightTopPanel from './panels/RightTopPanel.jsx'
-import RightBottomPanel from './panels/RightBottomPanel.jsx'
-import LeftTopPanel from './panels/LeftTopPanel.jsx'
-import LeftBottomPanel from './panels/LeftBottomPanel.jsx'
-import MenuBar from './panels/MenuBar.jsx'
+import ConfigPanel from './panels/config/index.jsx'
+import RightBottomPanel from './panels/outline/index.jsx'
+import ComponentPanel from './panels/component/index.jsx'
+import LeftBottomPanel from './panels/files/index.jsx'
+import MenuBar from './menu/MenuBar.jsx'
 import debounce from 'lodash/debounce'
 
 import WorkSpaceControl from './workspace/WorkspaceControl.js'
@@ -12,7 +12,7 @@ import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
 
 import { ridge, emit, on } from './service/RidgeEditService.js'
 
-import './css/editor.less'
+import './editor.less'
 
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
@@ -192,10 +192,10 @@ export default class Editor extends React.Component {
             }}
             toggoleRunMode={this.toggoleRunMode.bind(this)}
           />
-          <LeftTopPanel title='组件' position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
+          <ComponentPanel title='组件' position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
           <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
           <RightBottomPanel title='组件大纲' position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
-          <RightTopPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
+          <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
         </div>
         <div
           className='ridge-runtime' style={{

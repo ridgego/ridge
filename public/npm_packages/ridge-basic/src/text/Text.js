@@ -1,3 +1,5 @@
+import { text } from 'ridge-prop-utils'
+
 export default class Text {
   constructor (props) {
     this.props = props
@@ -17,15 +19,9 @@ export default class Text {
       width: '100%',
       height: '100%',
       boxSizing: 'border-box',
-      ...this.props
+      textAlign: this.props.textAlign,
+      ...text.style(this.props)
     }
-    if (this.props.fontSize) {
-      style.fontSize = this.props.fontSize + 'px'
-    }
-    if (this.props.lineHeight) {
-      style.lineHeight = this.props.lineHeight + 'px'
-    }
-
     return style
   }
 

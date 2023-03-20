@@ -1,10 +1,10 @@
 import React from 'react'
 import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
 import { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } from '@douyinfe/semi-icons'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED } from '../constant.js'
-import RawSvgIcon from '../utils/RawSvgIcon.jsx'
-import { emit, on } from '../service/RidgeEditService.js'
-import { ThemeContext } from './MoveablePanel.jsx'
+import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED } from '../../constant.js'
+import RawSvgIcon from '../../utils/RawSvgIcon.jsx'
+import { emit, on } from '../../service/RidgeEditService.js'
+import { ThemeContext } from '../movable/MoveablePanel.jsx'
 
 const { Text } = Typography
 

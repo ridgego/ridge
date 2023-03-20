@@ -26,6 +26,7 @@
     "react-color": "^2.19.3",
     "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",
+    "react-json-tree": "^0.18.0",
     "selecto": "^1.20.2"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import Selecto from 'selecto'
-import { createMoveable } from '../utils/moveable'
+import { createMoveable } from './moveable'
 import Mousetrap from 'mousetrap'
 import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_ELEMENT_UNSELECT, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
 import { emit, on } from '../service/RidgeEditService'

@@ -1,4 +1,4 @@
-import '../css/moveable.css'
+import './moveable.css'
 import Moveable from 'moveable'
 
 export const createMoveable = (opts) => {

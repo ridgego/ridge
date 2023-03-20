@@ -1,5 +1,5 @@
 import Button from './Button'
-import { border } from 'ridge-prop-utils'
+import { border, text } from 'ridge-prop-utils'
 
 export default {
   name: 'button',
@@ -10,11 +10,20 @@ export default {
     label: '文本',
     type: 'string'
   }, {
-    name: 'color',
-    label: '颜色',
+    name: 'data',
+    label: '数据',
+    type: 'object'
+  }, ...border.props, ...text.props, {
+    name: 'hoverBg',
+    label: '悬浮背景',
     type: 'string',
-    control: 'colorpicker'
-  }, ...border.props],
+    control: 'background'
+  }, {
+    name: 'downBg',
+    label: '点击背景',
+    type: 'string',
+    control: 'background'
+  }],
   events: [{
     label: '点击事件',
     name: 'onClick'

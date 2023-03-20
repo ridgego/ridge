@@ -1,5 +1,5 @@
 import React from 'react'
-import MoveablePanel from './MoveablePanel.jsx'
+import MoveablePanel from '../movable/MoveablePanel.jsx'
 import ConfigPanel from './ConfigPanel.jsx'
 
 export default class DataPanel extends React.Component {

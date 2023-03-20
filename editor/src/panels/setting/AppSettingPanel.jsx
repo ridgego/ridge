@@ -1,11 +1,11 @@
 import React from 'react'
 import { Tabs, TabPane, Typography } from '@douyinfe/semi-ui'
 import { IconInheritStroked, IconFillStroked, IconUserCircleStroked, IconHistory } from '@douyinfe/semi-icons'
-import ObjectForm from '../form/ObjectForm.jsx'
-import '../css/setting-panel.less'
-import BackUp from './app/BackUp.jsx'
+import ObjectForm from '../../form/ObjectForm.jsx'
+import './setting-panel.less'
+import BackUp from './BackUp.jsx'
 
-import { ridge } from '../service/RidgeEditService.js'
+import { ridge } from '../../service/RidgeEditService.js'
 const FORM_DEBUG_SECTION = [
   {
     label: '启用',

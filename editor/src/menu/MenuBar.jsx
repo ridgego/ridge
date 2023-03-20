@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Dropdown, Popover } from '@douyinfe/semi-ui'
 import { IconPlus, IconTemplate, IconTick, IconSetting, IconPause, IconMinus, IconPlay } from '@douyinfe/semi-icons'
-import AppSettingPanel from './AppSettingPanel.jsx'
+import AppSettingPanel from '../panels/setting/AppSettingPanel.jsx'
 
 const EmptyIcon = () => <span style={{ width: '21px' }} />
 export default props => {
