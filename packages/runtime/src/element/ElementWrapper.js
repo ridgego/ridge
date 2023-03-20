@@ -400,7 +400,7 @@ class ElementWrapper {
   }
 
   // 组件对外发出事件
-  emit (eventName, payload) {
+  async emit (eventName, payload) {
     // 无store 不处理事件
     if (!this.pageStore) {
       return
@@ -421,7 +421,7 @@ class ElementWrapper {
         if (action.method) {
           const [target, reducer] = action.method.split('.')
           if (target === 'page') {
-            this.pageStore.doReducer(reducer, this.getContextState(), payload)
+            await this.pageStore.doReducer(reducer, this.getContextState(), payload)
           }
         }
       }

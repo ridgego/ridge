@@ -109,10 +109,16 @@ export default class Store {
     }
   }
 
-  async doReducer (name, ctx, payload) {
+  /**
+   * 执行reducer函数
+   * @param {string} name 函数名称
+   * @param {object} state 上下文状态
+   * @param {object} payload 事件负载
+   */
+  async doReducer (name, state, payload) {
     if (this.reducers[name]) {
       try {
-        const result = await Promise.resolve(this.reducers[name](ctx, payload))
+        const result = await Promise.resolve(this.reducers[name]({ ...state, payload }, this.reducers))
         this.setState(result)
       } catch (e) {
         console.error('Reducer Execute Error', e)
@@ -120,6 +126,10 @@ export default class Store {
     }
   }
 
+  /**
+   * 更新状态值，同时通知所有订阅者值改变
+   * @param {*} stateValue
+   */
   setState (stateValue) {
     this.stateValue = Object.assign({}, this.stateValue, stateValue)
 

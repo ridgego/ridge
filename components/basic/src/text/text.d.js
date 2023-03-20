@@ -1,5 +1,5 @@
 import Text from './Text.js'
-
+import { text } from 'ridge-prop-utils'
 export default {
   name: 'text',
   type: 'vanilla',
@@ -10,48 +10,21 @@ export default {
     type: 'string',
     value: '文本'
   }, {
-    name: 'color',
-    label: '颜色',
+    label: '对齐',
+    name: 'textAlign',
     type: 'string',
-    control: 'colorpicker'
-  }, {
-    label: '字号',
-    name: 'fontSize',
-    party: true,
-    type: 'number',
-    value: 14
-  }, {
-    label: '行高',
-    name: 'lineHeight',
-    type: 'number',
-    value: 14
-  }, {
-    name: 'fontWeight',
-    label: '粗细',
-    type: 'string',
+    value: 'left',
     control: 'radiogroup',
+    bindable: false,
     optionList: [{
-      label: '细',
-      style: {
-        fontWeight: 'lighter'
-      },
-      value: 'lighter'
+      label: '靠左',
+      value: 'left'
     }, {
-      label: '正常',
-      style: {
-        fontWeight: 'normal'
-      },
-      value: 'normal'
+      label: '居中',
+      value: 'center'
     }, {
-      label: '加粗',
-      style: {
-        fontWeight: 'bold'
-      },
-      value: 'bold'
+      label: '靠右',
+      value: 'right'
     }]
-  }, {
-    label: '字体',
-    name: 'fontFamilly',
-    type: 'font'
-  }]
+  }, ...text.props]
 }
