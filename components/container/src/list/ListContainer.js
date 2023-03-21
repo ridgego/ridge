@@ -184,7 +184,7 @@ export default class ListContainer {
   }
 
   updateChild (elementWrapper) {
-    elementWrapper.setStyle({
+    elementWrapper.setConfigStyle({
       x: 0,
       y: 0
     })

@@ -63,8 +63,7 @@ class PageElementManager {
    */
   updatePageConfig (change) {
     Object.assign(this.pageConfig, change)
-    this.el.style.width = this.pageConfig.properties.width + 'px'
-    this.el.style.height = this.pageConfig.properties.height + 'px'
+    this.updateRootElStyle()
   }
 
   getElement (id) {

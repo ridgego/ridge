@@ -254,7 +254,11 @@ export default () => {
 
   const renderTreeLabel = (label, data) => {
     return (
-      <div className='node-label'>
+      <div
+        className='node-label' onDoubleClick={() => {
+          edit(data.type, data.record, data.index)
+        }}
+      >
         <Space className='label-content'>
           <Text className='label-text'>{label || data.key}</Text>
           {data.record?.scoped && <IconBrackets style={{ color: 'var(--semi-color-success)' }} />}
@@ -292,6 +296,7 @@ export default () => {
     <div className='data-panel-content'>
       <Modal
         closeOnEsc={false}
+        maskClosable={false}
         lazyRender={false}
         onCancel={() => {
           setVisible(false)

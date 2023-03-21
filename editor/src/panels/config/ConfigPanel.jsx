@@ -2,8 +2,8 @@ import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../../form/ObjectForm.jsx'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import PageDataPanel from './PageDataPanel.jsx'
-import { ridge, emit, on } from '../../service/RidgeEditService.js'
+import PageDataConfig from './PageDataConfig.jsx'
+import { emit, on } from '../../service/RidgeEditService.js'
 
 import {
   EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
@@ -98,6 +98,7 @@ const PAGE_FIELDS = [
     label: '背景',
     bindable: false,
     field: 'background',
+    control: 'background',
     type: 'string'
   }
 ]
@@ -389,7 +390,7 @@ export default class ComponentPanel extends React.Component {
             />
           </TabPane>
           <TabPane tab='数据' itemKey='data'>
-            <PageDataPanel />
+            <PageDataConfig />
           </TabPane>
         </Tabs>
       </>
