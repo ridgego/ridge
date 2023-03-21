@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import { Button, Collapse, Upload, Toast, Dropdown, Modal, Form, Tree, Space, Typography, ButtonGroup } from '@douyinfe/semi-ui'
+import React, { useState } from 'react'
+import { Button, Upload, Toast, Modal, Form, Tree, Space, Typography } from '@douyinfe/semi-ui'
 import { IconDownloadStroked, IconCloudUploadStroked, IconEdit, IconDelete, IconBrackets, IconCopyAdd } from '@douyinfe/semi-icons'
 import { EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_LOADED } from '../../constant'
-import { EditorView, basicSetup } from 'codemirror'
-import { tooltips } from '@codemirror/view'
-import { javascript } from '@codemirror/lang-javascript'
-import { autocompletion } from '@codemirror/autocomplete'
+import { exportDataSetting } from './export'
+import { importDataSetting } from './import'
+import { unionBy } from 'lodash'
 
-import { saveAs } from '../../utils/blob.js'
 import { emit, on } from '../../service/RidgeEditService'
 import './data-panel.less'
+import { initCodeEditor } from './codeEditor'
 const { Text } = Typography
 
 export default () => {
@@ -58,116 +57,21 @@ export default () => {
     setTreeData(tree)
   }
 
-  // 导出页面数据配置
-  const exportDataSetting = () => {
-    const stateList = []
-    const stateLabels = {}
-    for (const state of states) {
-      stateList.push(`${state.name}: ${state.value}`)
-      stateLabels[state.name] = {
-        label: state.label
-      }
-    }
+  const onImportClick = (file) => {
+    Modal.confirm({
+      title: '导入页面数据模型',
+      content: '您要导入页面数据模型。导入后，页面原有同名的状态和函数将被替换',
+      onOk: async () => {
+        try {
+          const imported = await importDataSetting(file)
+          emitTreeChange(unionBy(imported.states, states, 'name'), unionBy(imported.reducers, reducers, 'name'))
 
-    const reducerList = []
-    const reducerLabels = {}
-    for (const reducer of reducers) {
-      reducerList.push(`${reducer.name}: ${reducer.value}`)
-      reducerLabels[reducer.name] = reducer.label
-    }
-
-    const jsContent =
-`export default {
-  state: {
-    ${stateList.join(',\n')}
-  },
-  reducers: { 
-    ${reducerList.join(',\n')}
-  },
-  config: {
-    state: ${JSON.stringify(stateLabels)},
-    reducers: ${JSON.stringify(reducerLabels)}
-  }
-}`
-    saveAs(jsContent, 'page-store.js')
-  }
-
-  // 导入页面数据配置
-  const importDataSetting = async (file) => {
-    const text = await file.text()
-
-    const startPos = text.indexOf('{')
-
-    // 增加个模拟量才能eval出来（不知道为啥）
-    let ridgeImported = null
-    const toBeEvaluated = `ridgeImported = ${text.substring(startPos)}`
-    ridgeImported = 6
-
-    console.log(toBeEvaluated, ridgeImported)
-    try {
-      const evaluatedObject = eval(toBeEvaluated)
-
-      const states = []
-      // 导入状态，包括计算型
-      for (const key in evaluatedObject.state) {
-        if (typeof evaluatedObject.state[key] === 'function') {
-          states.push({
-            name: key,
-            value: evaluatedObject.state[key].toString()
-          })
-        } else {
-          states.push({
-            name: key,
-            value: JSON.stringify(evaluatedObject.state[key])
-          })
+          Toast.success('页面数据配置导入成功')
+        } catch (e) {
+          Toast.error('页面数据配置异常', e)
         }
       }
-      // 导入函数
-      const reducers = []
-      for (const key in evaluatedObject.reducers) {
-        reducers.push({
-          name: key,
-          value: evaluatedObject.reducers[key].toString()
-        })
-      }
-      emit(EVENT_PAGE_CONFIG_CHANGE, {
-        states,
-        reducers
-      })
-
-      Toast.success('页面数据配置导入成功')
-    } catch (e) {
-      Toast.error('页面数据配置异常', e)
-      console.log(e)
-    }
-  }
-
-  const variableCompletions = (states || []).map(v => {
-    return {
-      label: v.name,
-      type: 'variable'
-    }
-  })
-  variableCompletions.push({
-    label: '$scope',
-    type: 'variable'
-  })
-  const methodCompletions = (reducers || []).map(v => {
-    return {
-      label: v.name,
-      type: 'method'
-    }
-  })
-  const myCompletions = (context) => {
-    const before = context.matchBefore(/[\w.\\$]+/)
-    // If completion wasn't explicitly started and there
-    // is no word before the cursor, don't open completions.
-    if (!context.explicit && !before) return null
-    return {
-      from: before ? before.from : context.pos,
-      options: [...variableCompletions, ...methodCompletions],
-      validFor: /^\w*$/
-    }
+    })
   }
 
   // 编辑条目
@@ -182,13 +86,7 @@ export default () => {
       ref.current.editorView.destroy()
     }
 
-    ref.current.editorView = new EditorView({
-      doc: record ? record.value : '',
-      extensions: [basicSetup, javascript(), tooltips({
-        position: 'absolute'
-      }), autocompletion({ override: [myCompletions] })],
-      parent: ref.current
-    })
+    ref.current.editorView = initCodeEditor(ref.current, record ? record.value : '', states, reducers)
 
     if (record) {
       formRef.current.formApi.setValue('name', record.name)
@@ -202,7 +100,7 @@ export default () => {
     }
   }
 
-  // 创建、更新状态
+  // 创建或者更新状态
   const finishEdit = () => {
     const name = formRef.current.formApi.getValues().name
 
@@ -216,9 +114,9 @@ export default () => {
       return
     }
 
-    const sanmeNames = (type === 'state' ? states : reducers).filter((state, index) => index !== recordIndex && state.name === name)
-    if (sanmeNames.length) {
-      formRef.current.formApi.setError('name', '标识与[' + sanmeNames[0].label + ']相同')
+    const sameNames = (type === 'state' ? states : reducers).filter((state, index) => index !== recordIndex && state.name === name)
+    if (sameNames.length) {
+      formRef.current.formApi.setError('name', '标识与[' + sameNames[0].label + ']相同')
       return
     }
 
@@ -335,6 +233,11 @@ export default () => {
     return newArray
   }
 
+  /**
+   * 确认状态或者函数的修改，发出事件
+   * @param {*} newStates
+   * @param {*} newReducers
+   */
   const emitTreeChange = (newStates, newReducers) => {
     if (newStates) {
       setStates(newStates)
@@ -425,10 +328,15 @@ export default () => {
       />
 
       <div style={{ display: 'flex', marginTop: '5px' }}>
-        <Button size='small' theme='borderless' type='t' icon={<IconDownloadStroked />} onClick={exportDataSetting}>导出</Button>
+        <Button
+          size='small' theme='borderless' type='t' icon={<IconDownloadStroked />} onClick={() => {
+            exportDataSetting(states, reducers)
+          }}
+        >导出
+        </Button>
         <Upload
           accept='.js' showUploadList={false} uploadTrigger='custom' onFileChange={files => {
-            importDataSetting(files[0])
+            onImportClick(files[0])
           }}
         >
           <Button size='small' theme='borderless' type='t' icon={<IconCloudUploadStroked />}>导入</Button>

@@ -56,7 +56,7 @@ export default class ListContainer {
         renderItem.mount(el)
       }
       // 每次放入都要设置到固定位置
-      renderItem.setStyle({
+      renderItem.setConfigStyle({
         position: 'relative',
         x: 0,
         y: 0
