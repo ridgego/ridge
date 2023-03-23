@@ -31,23 +31,26 @@ export default class WorkSpaceControl {
     on(EVENT_ELEMENT_UNSELECT, ({ element }) => {
       this.selectElements([])
     })
-    this.enable()
-    this.initComponentDrop()
     this.initKeyBind()
+    this.initComponentDrop()
   }
 
   enable () {
     this.initSelecto()
     this.initMoveable()
     this.setWorkSpaceMovable()
+    this.enabled = true
   }
 
   disable () {
-    this.selecto.destroy()
-    this.moveable.destroy()
-    if (this.workspaceMovable) {
-      this.workspaceMovable.destroy()
-      this.workspaceMovable = null
+    if (this.enabled) {
+      this.selecto.destroy()
+      this.moveable.destroy()
+      if (this.workspaceMovable) {
+        this.workspaceMovable.destroy()
+        this.workspaceMovable = null
+      }
+      this.enabled = false
     }
   }
 
@@ -284,6 +287,9 @@ export default class WorkSpaceControl {
 
   initComponentDrop () {
     this.workspaceEl.addEventListener('dragover', ev => {
+      if (!this.enabled) {
+        return
+      }
       ev.preventDefault()
       ev.dataTransfer.dropEffect = 'move'
       this.checkDropTargetStatus({
@@ -292,13 +298,14 @@ export default class WorkSpaceControl {
       })
     })
 
-    this.workspaceEl.addEventListener('drop', ev => {
-      this.workspaceDrop(ev)
-    })
+    this.workspaceEl.addEventListener('drop', this.workspaceDrop.bind(this))
   }
 
   initKeyBind () {
     Mousetrap.bind('del', () => {
+      if (!this.enabled) {
+        return
+      }
       if (this.selected) {
         for (const el of this.selected) {
           this.pageManager.removeElement(el.elementWrapper.id)
@@ -469,6 +476,9 @@ export default class WorkSpaceControl {
    * @param {*} ev
    */
   workspaceDrop (ev) {
+    if (!this.enabled) {
+      return
+    }
     ev.preventDefault()
 
     const data = ev.dataTransfer.getData('text/plain')

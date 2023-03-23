@@ -1,4 +1,6 @@
 export const EVENT_APP_OPEN = 'appOpen'
+export const EVENT_APP_RESET = 'appReset'
+export const EVENT_WORKSPACE_RESET = 'workspaceReset'
 
 export const EVENT_PAGE_LOADED = 'pageLoaded'
 export const EVENT_PAGE_RENAMED = 'pageRenamed'

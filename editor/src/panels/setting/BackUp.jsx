@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Upload, Modal, Input, Table, Toast } from '@douyinfe/semi-ui'
 import { IconDelete, IconUndo } from '@douyinfe/semi-icons'
-import { ridge } from '../../service/RidgeEditService'
+import { emit, ridge } from '../../service/RidgeEditService'
+import { EVENT_WORKSPACE_RESET, EVENT_APP_OPEN } from '../../constant'
 const { Column } = Table
 
 export default () => {
@@ -87,10 +88,13 @@ export default () => {
           showUploadList={false} uploadTrigger='custom' onFileChange={files => {
             Modal.confirm({
               zIndex: 10001,
-              title: 'Are you sure ?',
-              content: 'bla bla bla...',
-              onOk: () => {
-                ridge.appService.importAppArchive(files[0])
+              title: '确认导入应用',
+              content: '导入应用会首先覆盖现有应用，如果有需要的工作，建议您首先导出备份。 是否继续?',
+              onOk: async () => {
+                const result = await ridge.backUpService.importAppArchive(files[0])
+                Toast.info('成功导入应用，共' + result.length + '个文件')
+                emit(EVENT_WORKSPACE_RESET)
+                emit(EVENT_APP_OPEN)
               }
             })
           }} accept='.zip'

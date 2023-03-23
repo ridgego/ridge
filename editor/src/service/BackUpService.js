@@ -1,23 +1,29 @@
+/* global Blob File */
 import JSZip from 'jszip'
 import NeCollection from './NeCollection.js'
 import { dataURLtoBlob, saveAs } from '../utils/blob'
-import { formateDate } from '../utils/string.js'
+import { basename, dirname, extname, formateDate } from '../utils/string.js'
+import { getFileTree } from '../panels/files/buildFileTree.js'
+import { getByMimeType } from '../utils/mimeTypes.js'
 
 export default class BackUpService {
-  constructor () {
-    this.collection = new NeCollection('ridge.backup.db')
+  constructor (appService) {
+    this.appService = appService
+    this.coll = appService.collection
+    this.store = appService.store
+    this.archiveColl = new NeCollection('ridge.backup.db')
   }
 
   async createHistory (coll, name) {
-    const mill = new Date().getTime()
-    const dbname = 'ridge.backup-store-' + mill + '.db'
+    const date = formateDate()
+    const dbname = 'ridge.backup-store-' + date + '.db'
     const historyObject = {
-      created: formateDate(mill),
+      created: date,
       name,
       pageCount: await coll.count({ type: 'page' }),
       dbname
     }
-    await this.collection.insert(historyObject)
+    await this.archiveColl.insert(historyObject)
 
     const hisColl = new NeCollection(dbname)
 
@@ -34,20 +40,20 @@ export default class BackUpService {
   }
 
   async listAllHistory () {
-    return await this.collection.find({})
+    return await this.archiveColl.find({})
   }
 
   async deleteHistory (id) {
-    const historyObject = await this.collection.findOne(id)
+    const historyObject = await this.archiveColl.findOne(id)
     if (historyObject) {
       const hisColl = new NeCollection(historyObject.dbname)
       await hisColl.clean()
-      await this.collection.remove(id)
+      await this.archiveColl.remove(id)
     }
   }
 
   async recover (id, coll) {
-    const historyObject = await this.collection.findOne(id)
+    const historyObject = await this.archiveColl.findOne(id)
     if (historyObject) {
       const hisColl = new NeCollection(historyObject.dbname)
       await coll.clean()
@@ -58,33 +64,79 @@ export default class BackUpService {
     }
   }
 
-  async folderSubFile (folder, coll, parentId) {
-    const childNodes = await coll.find({ parent: parentId })
+  /**
+   * 导出一个文件归档
+   * @param {*} coll
+   * @param {*} key
+   * @param {*} store
+   */
+  async exportFileArchive (id) {
+    const document = await this.coll.findOne({
+      id
+    })
+    const content = await this.store.getItem(id)
 
-    for (const node of childNodes) {
-      if (node.type === 'directory') {
-        const currentFolder = folder.folder(node.name)
-        await this.folderSubFile(currentFolder, coll, node.id)
+    if (content) {
+      if (document.type === 'page') {
+        saveAs(new Blob([JSON.stringify(content)]), document.name + '.json')
       } else {
-        if (node.type === 'page') {
-          folder.file(node.name + '.json', JSON.stringify(node))
-        } else {
-          folder.file(node.name, await dataURLtoBlob(node.dataUrl))
-        }
+        saveAs(await dataURLtoBlob(content), document.name)
       }
     }
   }
 
-  async exportAppArchive (coll, store) {
-    const zip = new JSZip()
-    const documents = await coll.find({})
-    for (let i = 0; i < documents.length; i++) {
-      documents[i].content = await store.getItem(documents[i].id)
-      zip.file(i + '.json', JSON.stringify(documents[i]))
+  async importFileArchive (parent, file) {
+    const { appService } = this
+    if (file.name.endsWith('.json')) { // 对json文件判断是否为图纸，是图纸则导入
+      const jsonObject = JSON.parse(await file.text())
+      if (jsonObject.elements) {
+        await appService.createPage(parent, basename(file.name, '.json'), jsonObject)
+      } else {
+        await appService.createFile(parent, new File([JSON.stringify(jsonObject)], file.name, {
+          type: 'text/json'
+        }))
+      }
+    } else {
+      await appService.createFile(parent, file)
     }
-    const blob  = await zip.generateAsync({ type: 'blob' })
+  }
 
-    saveAs(blob, 'app.zip')
+  /**
+   * 导出应用归档
+   * @param {*} coll
+   * @param {*} store
+   */
+  async exportAppArchive () {
+    const zip = new JSZip()
+    const files = await this.coll.find({})
+
+    const treeData = getFileTree(files)
+
+    await this.zipFolder(zip, treeData)
+    const blob = await zip.generateAsync({ type: 'blob' })
+    saveAs(blob, '应用归档' + formateDate() + '.zip')
+  }
+
+  /**
+   * 递归将目录压缩到zip包中
+   * @param {*} zip
+   * @param {*} files
+   */
+  async zipFolder (zip, files) {
+    for (const file of files) {
+      if (file.type === 'directory') {
+        const zipFolder = zip.folder(file.label)
+        await this.zipFolder(zipFolder, file.children)
+      } else {
+        const content = await this.store.getItem(file.key)
+        if (file.type === 'page') {
+          zip.file(file.label + '.json', JSON.stringify(content))
+        } else {
+          zip.file(file.label, await dataURLtoBlob(content))
+        }
+        // zip.file(file.label, JSON.stringify(file.raw))
+      }
+    }
   }
 
   /**
@@ -92,16 +144,44 @@ export default class BackUpService {
    * @param {*} file 选择的文件
    * @param {*} appService 应用管理服务
    */
-  async importAppArchive (file, coll, store) {
-    await coll.clean()
+  async importAppArchive (file) {
     const zip = new JSZip()
     await zip.loadAsync(file)
+    const { appService } = this
 
+    await this.coll.clean()
+    await this.store.clear()
+    const fileMap = []
     zip.forEach(async (filePath, zipObject) => {
-      const doc = JSON.parse(await zipObject.async('string'))
-      await store.setItem(doc.id, doc.content)
-      delete doc.content
-      await coll.insert(doc)
+      fileMap.push({
+        filePath,
+        zipObject
+      })
     })
+
+    for (const { filePath, zipObject } of fileMap) {
+      if (!zipObject.dir) {
+        const dirNode = await appService.ensureDir(dirname(filePath))
+        const parentId = dirNode ? dirNode.id : -1
+        if (filePath.endsWith('.json')) { // 对json文件判断是否为图纸，是图纸则导入
+          const jsonObject = JSON.parse(await zipObject.async('text'))
+          if (jsonObject.elements) {
+            await appService.createPage(parentId, basename(filePath, '.json'), jsonObject)
+          } else {
+            await appService.createFile(parentId, new File([JSON.stringify(jsonObject)], basename(zipObject.name), {
+              type: 'text/plain'
+            }))
+          }
+        } else {
+          await appService.createFile(parentId, new File([await zipObject.async('blob')], basename(zipObject.name), {
+            type: getByMimeType(extname(zipObject.name))
+          }))
+        }
+      } else {
+        await appService.ensureDir(filePath)
+      }
+    }
+
+    return fileMap
   }
 }

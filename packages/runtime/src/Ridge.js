@@ -6,6 +6,7 @@ import Store from './store/Store.js'
  */
 class Ridge {
   constructor (opts = {}) {
+    this.VERSION = '1.0.0'
     const baseUrl = opts.baseUrl ?? '/npm_packages'
     const unpkgUrl = opts.unkpgUrl ?? baseUrl
     const debugUrl = opts.debugUrl

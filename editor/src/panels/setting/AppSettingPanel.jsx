@@ -29,8 +29,8 @@ const FORM_DEBUG_SECTION = [
       label: '数据库存取',
       value: 'db:nedb'
     }, {
-      label: '应用资源',
-      value: 'ridge:file-list'
+      label: '文件日志',
+      value: 'ridge:file'
     }, {
       label: '页面组件',
       value: 'ridge:element'

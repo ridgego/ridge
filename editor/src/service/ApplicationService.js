@@ -3,19 +3,16 @@ import NeCollection from './NeCollection.js'
 // import LowCollection from './LowCollection.js'
 import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
-import { emit } from './RidgeEditService.js'
+import { ridge, emit } from './RidgeEditService.js'
 import { EVENT_APP_OPEN } from '../constant.js'
+import { blobToDataUrl } from '../utils/blob.js'
 const { nanoid } = require('../utils/string')
 
 export default class ApplicationService {
   constructor () {
     this.collection = new NeCollection('ridge.app.db')
-    // this.trashColl = new NeCollection('ridge.trash.db')
-
-    this.store = Localforge.createInstance({
-      name: 'ridge-store'
-    })
-    this.backUpService = new BackUpService()
+    this.store = Localforge.createInstance({ name: 'ridge-store' })
+    this.backUpService = new BackUpService(this)
     this.dataUrls = {}
   }
 
@@ -44,22 +41,26 @@ export default class ApplicationService {
       name: await this.getNewFileName(parent, name || '新建文件夹', n => `(${n})`),
       type: 'directory'
     }
-    await this.collection.insert(dirObject)
+    return await this.collection.insert(dirObject)
   }
 
-  async createPage (parentId, name) {
+  /**
+   * 增加图纸
+   * @param {*} parentId
+   * @param {*} name
+   * @param {*} content
+   */
+  async createPage (parentId, name, content) {
     const id = nanoid(10)
-    const pageContent = {
-      id,
+    const pageContent = content || {
+      version: ridge.VERSION,
       states: [],
-      scopeStates: [],
       reducers: [],
       properties: {
         type: 'fixed',
         width: 800,
         height: 600
       },
-      variables: [],
       elements: []
     }
     const pageObject = {
@@ -79,17 +80,17 @@ export default class ApplicationService {
    * @param {*} dir
    * @returns
    */
-  async createFile (file, dir) {
+  async createFile (parentId, blob, name, mimeType) {
     const id = nanoid(10)
-    const dataUrl = await this.blobToDataUrl(file)
+    const dataUrl = await blobToDataUrl(blob)
 
     await this.store.setItem(id, dataUrl)
     await this.collection.insert({
       id,
-      mimeType: file.type,
-      size: await this.getNewFileName(dir, file.name, n => `(${n})`),
-      name: file.name,
-      parent: dir
+      mimeType: blob.type || mimeType,
+      size: blob.size,
+      name: await this.getNewFileName(parentId, blob.name || name, n => `(${n})`),
+      parent: parentId
     })
     return true
   }
@@ -191,18 +192,6 @@ export default class ApplicationService {
     }
   }
 
-  async blobToDataUrl (file) {
-    return new Promise((resolve) => {
-      const reader = new FileReader()
-
-      reader.addEventListener('load', () => {
-        // convert image file to base64 string
-        resolve(reader.result)
-      }, false)
-      reader.readAsDataURL(file)
-    })
-  }
-
   async getFiles (filter) {
     const query = {}
     if (filter) {
@@ -229,13 +218,39 @@ export default class ApplicationService {
     let currentFile = null
 
     for (const fileName of parentNames) {
-      currentFile = await this.collection.findOne({
-        parent: parentId,
-        name: fileName
-      })
-      if (currentFile == null) {
-        return null
-      } else {
+      if (fileName) {
+        currentFile = await this.collection.findOne({
+          parent: parentId,
+          name: fileName
+        })
+        if (currentFile == null) {
+          return null
+        } else {
+          parentId = currentFile.id
+        }
+      }
+    }
+    return currentFile
+  }
+
+  /**
+   * 确保当前目录存在
+   * @param {*} filePath
+   */
+  async ensureDir (filePath) {
+    const parentNames = filePath.split('/')
+    let parentId = -1
+    let currentFile = null
+
+    for (const fileName of parentNames) {
+      if (fileName) {
+        currentFile = await this.collection.findOne({
+          parent: parentId,
+          name: fileName
+        })
+        if (currentFile == null) {
+          currentFile = await this.createDirectory(parentId, fileName)
+        }
         parentId = currentFile.id
       }
     }
@@ -315,9 +330,12 @@ export default class ApplicationService {
     await this.backUpService.exportAppArchive(this.collection, this.store)
   }
 
+  async exportPage (id) {
+    await this.backUpService.exportFileArchive(this.collection, id, this.store)
+  }
+
   async importAppArchive (file) {
     await this.backUpService.importAppArchive(file, this.collection, this.store)
-    emit(EVENT_APP_OPEN)
   }
 
   async backUpAppArchive (tag) {

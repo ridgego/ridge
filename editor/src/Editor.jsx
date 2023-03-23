@@ -18,7 +18,7 @@ import {
   EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
   EVENT_ELEMENT_CREATED,
   EVENT_PAGE_OUTLINE_CHANGE,
-  PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN, EVENT_APP_OPEN
+  PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN, EVENT_WORKSPACE_RESET
 } from './constant'
 import { Button } from '@douyinfe/semi-ui'
 import { IconExit } from '@douyinfe/semi-icons'
@@ -45,14 +45,6 @@ export default class Editor extends React.Component {
 
     this.currentId = null
     this.initialize()
-  }
-
-  async openApp () {
-    // await this.ridge.appService.updateDataUrl()
-    // 应用管理器初始化
-    trace('open App')
-    // const pageObject = await this.ridge.appService.getRecentPage()
-    // this.loadPage(pageObject)
   }
 
   /**
@@ -96,16 +88,17 @@ export default class Editor extends React.Component {
           await this.saveCurrentPage()
           this.pageElementManager.unmount()
         }
-        this.workspaceControl && this.workspaceControl.selectElements([], true)
+        if (!this.workspaceControl.enabled) {
+          this.workspaceControl.enable()
+        }
+        this.workspaceControl.selectElements([], true)
         this.loadPage(file)
       }
     })
 
-    on(EVENT_APP_OPEN, () => {
-      this.openApp()
+    on(EVENT_WORKSPACE_RESET, () => {
+      this.saveCloseCurrentPage()
     })
-
-    this.openApp()
   }
 
   async saveCurrentPage () {
@@ -115,6 +108,13 @@ export default class Editor extends React.Component {
       trace('Save Page', this.pageConfig.id, pageJSONObject)
       await this.ridge.appService.savePageContent(this.pageConfig.id, pageJSONObject)
     }
+  }
+
+  async saveCloseCurrentPage () {
+    await this.saveCurrentPage()
+    this.workspaceControl.disable()
+    this.pageElementManager.unmount()
+    this.pageElementManager = null
   }
 
   /**
@@ -153,6 +153,32 @@ export default class Editor extends React.Component {
     this.saveTaskInterval = setInterval(() => {
       this.saveCurrentPage()
     }, 3000)
+  }
+
+  togglePanel (panel) {
+    this.setState({
+      [panel]: !this.state[panel]
+    })
+  }
+
+  // 切换运行模式
+  toggoleRunMode () {
+    this.setState({
+      modeRun: !this.state.modeRun
+    }, async () => {
+      if (this.state.modeRun) {
+        // 运行页面
+        await this.saveCloseCurrentPage()
+        document.querySelector('.ridge-runtime').style.display = 'init'
+        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, true)
+        this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
+      } else {
+        this.pageElementManager.unmount()
+        this.loadPage(this.pageConfig)
+        document.querySelector('.ridge-runtime').style.display = 'none'
+        this.workspaceControl.enable()
+      }
+    })
   }
 
   componentDidMount () {
@@ -219,48 +245,5 @@ export default class Editor extends React.Component {
         </div>
       </>
     )
-  }
-
-  togglePanel (panel) {
-    this.setState({
-      [panel]: !this.state[panel]
-    })
-  }
-
-  // 切换运行模式
-  toggoleRunMode () {
-    this.setState({
-      modeRun: !this.state.modeRun
-    }, async () => {
-      if (this.state.modeRun) {
-        // 运行页面
-        await this.saveCurrentPage()
-        this.workspaceControl.disable()
-
-        this.pageElementManager.unmount()
-        document.querySelector('.ridge-runtime').style.display = 'init'
-        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, true)
-        this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
-      } else {
-        this.pageElementManager.unmount()
-        this.loadPage(this.pageConfig)
-        document.querySelector('.ridge-runtime').style.display = 'none'
-        this.workspaceControl.enable()
-        // this.pageElementManager.updateVariableConfigFromValue()
-        // this.pageElementManager.setMode('edit')
-        // this.workspaceControl.init()
-      }
-    })
-  }
-
-  zoomChange (zoom) {
-    if (zoom) {
-      this.setState({
-        zoom
-      })
-      this.selectMove.setZoom(1 / zoom)
-    } else {
-      this.fitToCenter()
-    }
   }
 }

@@ -135,6 +135,10 @@ class PageElementManager {
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
       wrapper.unmount()
     }
+    if (this.mode === 'edit') {
+      this.el.style.width = 0
+      this.el.style.height = 0
+    }
   }
 
   /**

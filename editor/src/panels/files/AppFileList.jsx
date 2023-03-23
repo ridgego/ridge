@@ -2,15 +2,16 @@ import React from 'react'
 import trim from 'lodash/trim'
 import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin } from '@douyinfe/semi-ui'
-import { IconTick, IconFolderOpen, IconImage, IconEditStroked, IconFont, IconPlusStroked, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
+import { IconTick, IconFolderOpen, IconImage, IconExport, IconCloudUploadStroked, IconImport, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on } from '../../service/RidgeEditService.js'
-import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED } from '../../constant'
+import { getFileTree } from './buildFileTree.js'
+import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_APP_OPEN, EVENT_WORKSPACE_RESET } from '../../constant'
 import './file-list.less'
 
-const trace = debug('ridge:file-list')
+const trace = debug('ridge:file')
 const { Text } = Typography
 
-const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg'
+const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg,.json'
 class AppFileList extends React.Component {
   constructor () {
     super()
@@ -29,49 +30,11 @@ class AppFileList extends React.Component {
     }
   }
 
-  getFileTree (files) {
-    const roots = files.filter(file => file.parent === -1).map(file => this.buildFileTree(file, files)).sort((a, b) => {
-      const lA = a.type === 'directory' ? '0-' : '1-'
-      const lB = b.type === 'directory' ? '0-' : '1-'
-      return lA > lB ? 1 : -1
-    })
-    return roots
-  }
-
-  buildFileTree (file, files) {
-    const treeNode = {
-      key: file.id,
-      label: file.name,
-      type: file.type,
-      parent: file.parent,
-      value: file.id
-    }
-    if (file.mimeType) {
-      treeNode.mimeType = file.mimeType
-      treeNode.dataUrl = file.dataUrl
-      if (file.mimeType === 'application/font-woff') {
-        treeNode.icon = (<IconFont />)
-      }
-      if (file.mimeType.indexOf('image/') > -1) {
-        treeNode.icon = (<IconImage />)
-      }
-    }
-
-    if (treeNode.type === 'directory') {
-      const children = files.filter(item => item.parent === file.id)
-
-      treeNode.children = children.map(child => this.buildFileTree(child, files)).sort((a, b) => {
-        return a.label > b.label ? 1 : -1
-      })
-      if (treeNode.children.length === 0) {
-        treeNode.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-      }
-    }
-    return treeNode
-  }
-
   componentDidMount () {
-    this.openAppFileTree()
+    this.updateFileTree()
+    on(EVENT_APP_OPEN, () => {
+      this.updateFileTree()
+    })
   }
 
   async openAppFileTree () {
@@ -82,13 +45,11 @@ class AppFileList extends React.Component {
     }
 
     await this.updateFileTree()
-
     const sorted = this.files.filter(a => a.type === 'page').sort((a, b) => b.updatedAt - a.updatedAt)
 
     this.setState({
       currentOpenId: sorted[0].id
     })
-
     emit(EVENT_PAGE_OPEN, sorted[0].id)
   }
 
@@ -99,7 +60,22 @@ class AppFileList extends React.Component {
     const files = await appService.getFiles(this.props.filter)
     this.files = files
     trace('FileList  files Loaded', files)
-    const treeData = this.getFileTree(files)
+    const treeData = getFileTree(files, (file) => {
+      // 处理更新图标
+      if (file.mimeType) {
+        if (file.mimeType === 'application/font-woff') {
+          file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
+        } else if (file.mimeType.indexOf('image/') > -1) {
+          file.icon = (<IconImage style={{ color: 'var(--semi-color-text-2)' }} />)
+        }
+      }
+      if (file.type === 'directory') {
+        file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
+      }
+      if (file.children && file.children.length === 0) {
+        file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
+      }
+    })
     this.setState({
       treeData,
       files
@@ -166,6 +142,11 @@ class AppFileList extends React.Component {
     }
   }
 
+  exportPage = (data) => {
+    trace('导出页面', data)
+    ridge.backUpService.exportFileArchive(data.key)
+  }
+
   /**
    * 更新并保存命名修改
    */
@@ -191,18 +172,24 @@ class AppFileList extends React.Component {
     await this.updateFileTree()
   }
 
+  /**
+   * 删除指定的资源
+   */
   remove = async (data) => {
     const { appService } = ridge
-    if (data.key === this.state.currentOpenId) {
-      Toast.warning('无法删除正打开的文件')
-      return
+
+    if (this.state.currentOpenId &&
+      (
+        data.key === this.state.currentOpenId ||
+        (data.type === 'directory' && await appService.isParent(data.key, this.state.currentOpenId))
+      )
+    ) {
+      emit(EVENT_WORKSPACE_RESET)
+      this.setState({
+        currentOpenId: null
+      })
     }
-    if (data.type === 'directory') {
-      if (await appService.isParent(data.key, this.state.currentOpenId)) {
-        Toast.warning('目录包含当前正打开的文件')
-        return
-      }
-    }
+
     await appService.trash(data.key)
     await this.updateFileTree()
   }
@@ -283,10 +270,10 @@ class AppFileList extends React.Component {
   }
 
   fileUpload = async (files, dir) => {
-    const { appService } = window.Ridge
+    const { backUpService } = window.Ridge
     const errors = []
     for (const file of files) {
-      const result = await appService.createFile(file, dir || this.getCurrentDir())
+      const result = await backUpService.importFileArchive(dir || this.getCurrentDir(), file)
       if (!result) {
         errors.push(file)
       }
@@ -332,18 +319,17 @@ class AppFileList extends React.Component {
       )
       MORE_MENUS.push(
         <Dropdown.Item
-          icon={<IconPaperclip />}
+          icon={<IconCloudUploadStroked />}
         >
           <Upload
             multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
               this.fileUpload(files, data.key)
             }} accept={ACCEPT_FILES}
           >
-            上传图片/资源
+            导入资源
           </Upload>
         </Dropdown.Item>
       )
-
       MORE_MENUS.push(<Dropdown.Divider />)
     } else {
       MORE_MENUS.push(
@@ -356,21 +342,30 @@ class AppFileList extends React.Component {
       )
       MORE_MENUS.push(
         <Dropdown.Item
-          icon={<IconFolderOpen />} onClick={() => {
+          icon={<IconCopy />} onClick={() => {
             this.copy(data)
           }}
         >复制页面
         </Dropdown.Item>
       )
+      MORE_MENUS.push(
+        <Dropdown.Item
+          icon={<IconExport />} onClick={() => {
+            this.exportPage(data)
+          }}
+        >导出
+        </Dropdown.Item>
+      )
     }
     MORE_MENUS.push(
       <Dropdown.Item
-        icon={<IconEditStroked />} onClick={() => {
+        icon={<IconEdit />} onClick={() => {
           this.rename(data)
         }}
       >重命名
       </Dropdown.Item>
     )
+    MORE_MENUS.push(<Dropdown.Divider />)
     MORE_MENUS.push(
       <Dropdown.Item
         type='danger'
@@ -393,7 +388,7 @@ class AppFileList extends React.Component {
           />}
         {data.key !== currentEditKey &&
           <div className={'tree-label' + (currentOpenId === data.key ? ' opened' : '')}>
-            <Text className='label-content'>{label}</Text>
+            <Text ellipsis={{ showTooltip: true }} style={{ width: 'calc(100% - 48px)' }} className='label-content'>{label}</Text>
             <Dropdown
               clickToHide
               trigger='click' showTick
@@ -420,7 +415,7 @@ class AppFileList extends React.Component {
                 this.fileUpload(files)
               }} accept={ACCEPT_FILES}
             >
-              <Button icon={<IconPaperclip />} size='small' theme='borderless' type='tertiary' />
+              <Button icon={<IconCloudUploadStroked />} size='small' theme='borderless' type='tertiary' />
             </Upload>
             <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={() => createDirectory()} />
           </div>
