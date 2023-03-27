@@ -72,13 +72,16 @@ const PAGE_FIELDS = [
     field: 'type',
     optionList: [{
       label: '按设计宽高',
-      value: 'fixed'
+      value: 'static'
     }, {
       label: '缩放适应',
-      value: 'scale-fixed'
+      value: 'static-scale'
     }, {
       label: '横向适应',
       value: 'fit-w'
+    }, {
+      label: '宽度固定',
+      value: 'fix-w'
     }, {
       label: '全填充适应',
       value: 'fit-wh'

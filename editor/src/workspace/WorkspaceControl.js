@@ -64,7 +64,10 @@ export default class WorkSpaceControl {
 
     const containerRect = this.workspaceEl.getBoundingClientRect()
 
-    this.viewPortEl.style.transform = `translate(${(containerRect.width - width) / 2}px, ${(containerRect.height - height) / 2}px)`
+    this.workspaceX = (containerRect.width - width) / 2
+    this.workspaceY = (containerRect.height - height) / 2
+
+    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${(this.workspaceY) / 2}px)`
   }
 
   setZoom (zoom) {
@@ -73,6 +76,37 @@ export default class WorkSpaceControl {
   }
 
   setWorkSpaceMovable () {
+    const that = this
+    this.workspaceEl.addEventListener('mousedown', event => {
+      if (event.ctrlKey && this.enabled) {
+        that.startDrag = true
+        that.startX = event.pageX
+        that.startY = event.pageY
+
+        const wbc = that.workspaceEl.getBoundingClientRect()
+        const vbc = that.viewPortEl.getBoundingClientRect()
+
+        that.workspaceX = vbc.x - wbc.x
+        that.workspaceY = vbc.y - wbc.y
+      }
+    })
+    this.workspaceEl.addEventListener('mousemove', event => {
+      if (!event.ctrlKey) {
+        that.startDrag = false
+      }
+      if (that.startDrag) {
+        const deltaX = event.pageX - that.startX
+        const deltaY = event.pageY - that.startY
+
+        that.viewPortEl.style.transform = `translate(${that.workspaceX + deltaX}px, ${that.workspaceY + deltaY}px)`
+        console.log('move', `translate(${that.workspaceX + deltaX}px, ${that.workspaceY + deltaY}px)`)
+      }
+    })
+
+    this.workspaceEl.addEventListener('mouseup', event => {
+      that.startDrag = false
+    })
+
     this.workspaceMovable = createMoveable({
       target: this.viewPortEl,
       className: 'workspace-movable'
@@ -80,7 +114,6 @@ export default class WorkSpaceControl {
 
     this.workspaceMovable.on('drag', ev => {
       if (ev.inputEvent.ctrlKey && this.selected.length === 0) {
-        console.log('workspace drag', ev)
         ev.target.style.transform = ev.transform
       }
     })
@@ -236,10 +269,14 @@ export default class WorkSpaceControl {
       if (target.className && target.className.indexOf && (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1)) {
         e.stop()
       }
+      if (inputEvent.ctrlKey) {
+        e.stop()
+        return
+      }
       const closestRidgeNode = target.closest('.ridge-element')
 
       if (closestRidgeNode && !closestRidgeNode.classList.contains('locked')) {
-        if (inputEvent.ctrlKey) {
+        if (inputEvent.shiftKey) {
           const rect = closestRidgeNode.getBoundingClientRect()
           const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
           this.onElementDragEnd(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
