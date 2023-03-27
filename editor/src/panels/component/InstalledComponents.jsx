@@ -77,9 +77,9 @@ class InstalledComponents extends React.Component {
       <>
         {!packageListingLoaded && <Spin size='large' />}
         <Tabs
-          type='card'
+          type='line'
           size='small'
-          collapsible
+          tabPosition='left'
           onChange={key => tabChange(key)}
         >
           {packages && packages.map(pkg => {
@@ -95,9 +95,12 @@ class InstalledComponents extends React.Component {
                 className='tab-title'
                 collapsible
                 tab={
-                  <div className='package-tab'>
-                    <span>{pkg.description}</span>
-                  </div>
+                  <div
+                    className='package-icon' style={{
+                      '-webkit-mask-image': `url("${decodeURI(pkg.icon)}")`,
+                      'mask-image': `url("${decodeURI(pkg.icon)}")`
+                    }}
+                  />
                 }
                 key={pkg.name}
                 itemKey={pkg.name}

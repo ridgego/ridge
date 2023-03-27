@@ -7,7 +7,7 @@ import './index.less'
 class LeftTopPanel extends React.Component {
   render () {
     return (
-      <MoveablePanel {...this.props}>
+      <MoveablePanel {...this.props} className='component-panel'>
         <InstalledComponents />
       </MoveablePanel>
     )

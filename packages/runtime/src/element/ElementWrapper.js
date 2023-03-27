@@ -313,6 +313,9 @@ class ElementWrapper {
           this.el.style.transform = ''
         }
       }
+      if (style.flex) {
+        this.el.style.flex = style.flex
+      }
       this.el.style.visibility = style.visible ? 'visible' : 'hidden'
 
       if (style.visible) {

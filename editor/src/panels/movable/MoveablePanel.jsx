@@ -62,7 +62,7 @@ export default class MoveablePanel extends React.Component {
   }
 
   render () {
-    const { onClose, position, visible, title, padding = '0' } = this.props
+    const { onClose, position, visible, title, padding = '0', className = 'default-panel' } = this.props
     const { state, openSearch, search } = this.state
 
     const style = {}
@@ -103,7 +103,7 @@ export default class MoveablePanel extends React.Component {
       style.display = 'none'
     }
 
-    const panelClass = ['movable-panel']
+    const panelClass = ['movable-panel', className]
     if (openSearch) {
       panelClass.push('open-search')
     }

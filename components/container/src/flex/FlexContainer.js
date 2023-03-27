@@ -56,8 +56,8 @@ export default class FlexBoxContainer {
     } else {
       style.margin = 0
     }
-    if (wrapper.config.props.flex) {
-      style.flex = wrapper.config.props.flex
+    if (wrapper.config.style.flex) {
+      style.flex = wrapper.config.style.flex
     } else {
       style.flex = ''
     }

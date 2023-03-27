@@ -21,15 +21,15 @@ export const EVENT_ELEMENT_PARENT_CHANGE = 'elementParentChanged'
 export const EVENT_ELEMENT_UNSELECT = 'elementUnSelect'
 
 export const PANEL_SIZE_1920 = {
-  ADD: [45, 5, 0, 0, 250, 450],
-  LEFT_BOTTOM: [45, 460, 0, 8, 250, 0],
+  ADD: [5, 5, 0, 0, 280, 450],
+  LEFT_BOTTOM: [5, 460, 0, 8, 280, 0],
   PROP: [0, 5, 5, 0, 320, 540],
   DATA: [0, 550, 5, 5, 320, 0]
 }
 
 export const PANEL_SIZE_1366 = {
-  ADD: [45, 5, 0, 0, 280, 360],
-  LEFT_BOTTOM: [45, 370, 0, 5, 280, 0],
+  ADD: [5, 5, 0, 0, 280, 360],
+  LEFT_BOTTOM: [5, 370, 0, 5, 280, 0],
   PROP: [0, 5, 5, 0, 280, 400],
   DATA: [0, 410, 5, 5, 280, 0]
 }

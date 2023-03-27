@@ -1,22 +1,39 @@
-.component-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  width: 100%;
-  border-radius: 4px;
-  height: 70px;
-  background-color: var(--semi-color-tertiary-light-default);
-
-  .component-icon {
-    width: 36px;
-    height: 36px;
-    -webkit-mask-size: 36px auto;
-    background: linear-gradient(145deg, #8cb8ff, #1c85ff);
+.component-panel {
+  .package-icon {
+    width: 18px;
+    height: 18px;
+    -webkit-mask-size: 18px auto;
+    background: var(--semi-color-text-2);
     background-size: cover;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat; 
+  }
+  
+  .semi-tabs-bar-left {
+    .semi-tabs-tab {
+      padding: 6px;
+    }
+  }
+  .component-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    border-radius: 4px;
+    height: 70px;
+    background-color: var(--semi-color-tertiary-light-default);
+    
+    .component-icon {
+      width: 36px;
+      height: 36px;
+      -webkit-mask-size: 36px auto;
+      background: linear-gradient(145deg, #8cb8ff, #1c85ff);
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
   }
 }
+
 
 
 .component-add-panel .package-tab {
