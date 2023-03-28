@@ -2,7 +2,7 @@ import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import PackageManager from '../../service/PackageManager'
-
+import { ridge } from '../../service/RidgeEditService.js'
 const trace = require('debug')('ridge:component-panel')
 const { Text } = Typography
 class InstalledComponents extends React.Component {
@@ -21,10 +21,16 @@ class InstalledComponents extends React.Component {
   static contextType = ThemeContext
 
   renderPackageComponents () {
-    const currentPackageObject = this.state.packages.filter(p => p.name === this.state.currentPackage)[0]
-    currentPackageObject.components.forEach(({
-      path
-    }) => {
+    ridge.loader.loadPackageAndComponents(this.state.currentPackage).then(packageObject => {
+      this.setState({
+        packages: this.state.packages.map(p => {
+          if (p.name === this.state.currentPackage) {
+            return packageObject
+          } else {
+            return p
+          }
+        })
+      })
     })
   }
 
@@ -61,6 +67,9 @@ class InstalledComponents extends React.Component {
   }
 
   getFilteredComponents (components) {
+    if (!components) {
+      return null
+    }
     if (this.context) {
       return components.filter(component => component.title.indexOf(this.context) > -1)
     } else {
@@ -83,10 +92,7 @@ class InstalledComponents extends React.Component {
           onChange={key => tabChange(key)}
         >
           {packages && packages.map(pkg => {
-            const filteredComponents = this.getFilteredComponents(pkg.components)
-            if (filteredComponents.length === 0) {
-              return null
-            }
+            const filteredComponents = this.getFilteredComponents(pkg.componentLoaded)
             return (
               <TabPane
                 style={{
@@ -105,32 +111,36 @@ class InstalledComponents extends React.Component {
                 key={pkg.name}
                 itemKey={pkg.name}
               >
-                <List
-                  grid={{
-                    gutter: 6,
-                    span: 8
-                  }}
-                  dataSource={filteredComponents}
-                  renderItem={item => (
-                    <List.Item>
-                      <div
-                        draggable
-                        onDragStart={ev => dragStart(ev, Object.assign(item, {
-                          componentPath: pkg.name + '/' + item.path
-                        }))}
-                        className='component-container'
-                      >
+                {
+                filteredComponents &&
+                  <List
+                    grid={{
+                      gutter: 6,
+                      span: 8
+                    }}
+                    dataSource={filteredComponents}
+                    renderItem={item => (
+                      <List.Item>
                         <div
-                          className='component-icon' style={{
-                            '-webkit-mask-image': `url("${decodeURI(item.icon)}")`,
-                            'mask-image': `url("${decodeURI(item.icon)}")`
-                          }}
-                        />
-                        <Text>{item.title} </Text>
-                      </div>
-                    </List.Item>
-                  )}
-                />
+                          draggable
+                          onDragStart={ev => dragStart(ev, Object.assign(item, {
+                            componentPath: pkg.name + '/' + item.path
+                          }))}
+                          className='component-container'
+                        >
+                          <div
+                            className='component-icon' style={{
+                              '-webkit-mask-image': `url("${decodeURI(item.icon)}")`,
+                              'mask-image': `url("${decodeURI(item.icon)}")`
+                            }}
+                          />
+                          <Text>{item.title} </Text>
+                        </div>
+                      </List.Item>
+                    )}
+                  />
+                  }
+                {!filteredComponents && <Spin size='large' />}
               </TabPane>
             )
           })}

@@ -4,6 +4,9 @@ export default {
   name: 'icon',
   component: Icon,
   type: 'vanilla',
+  "title": "图标",
+  "width": 64,
+  "height": 64,
   props: [{
     name: 'src',
     type: 'icon',

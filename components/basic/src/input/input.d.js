@@ -5,6 +5,9 @@ export default {
   name: 'input',
   component: Input,
   type: 'vanilla',
+  "title": "输入框",
+  "width": 160,
+  "height": 28,
   props: [{
     label: '内容',
     name: 'value',

@@ -60,7 +60,6 @@ args.option('dir', 'The Front Component Project Root Path', './')
         }
 
         const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.d.js'),
-
             entry = {};
 
         if (targetFiles.length === 0) {
@@ -69,12 +68,20 @@ args.option('dir', 'The Front Component Project Root Path', './')
 
         log(chalk.green('编译打包以下图元文件:'));
 
+        const elementPaths = []
         for (let i = 0; i < targetFiles.length; i++) {
             const file = targetFiles[i];
 
             log(chalk.green(file));
+            const jsName = path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')
+            elementPaths.push(BUILD_PATH + '/' + jsName + '.js');
             entry[path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')] = file;
         }
+
+        packageJson.components = elementPaths
+
+        fs.writeFileSync(path.resolve(packagePath, './package.json'), JSON.stringify(packageJson, null, 2))
+
         // 读取配置好的external目录
         const externals = {};
 

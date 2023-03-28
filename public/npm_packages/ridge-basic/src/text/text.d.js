@@ -1,8 +1,13 @@
 import Text from './Text.js'
 import { text } from 'ridge-prop-utils'
+import Icon from './textarea-t.svg'
 export default {
   name: 'text',
+  title: '文本',
   type: 'vanilla',
+  icon: Icon,
+  width: 100,
+  height: 32,
   component: Text,
   props: [{
     label: '内容',

@@ -7,10 +7,9 @@ import LeftBottomPanel from './panels/files/index.jsx'
 import MenuBar from './menu/MenuBar.jsx'
 import debounce from 'lodash/debounce'
 
-import WorkSpaceControl from './workspace/WorkspaceControl.js'
 import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
 
-import { ridge, emit, on } from './service/RidgeEditService.js'
+import { ridge, emit, on, workspaceControl } from './service/RidgeEditService.js'
 
 import './editor.less'
 
@@ -69,7 +68,7 @@ export default class Editor extends React.Component {
           elements: this.pageElementManager.getPageElements()
         })
       }
-      this.workspaceControl.updateMovable()
+      workspaceControl.updateMovable()
       this.debouncedSaveUpdatePage()
     })
     on(EVENT_ELEMENT_EVENT_CHANGE, ({ el, values }) => {
@@ -88,10 +87,10 @@ export default class Editor extends React.Component {
           await this.saveCurrentPage()
           this.pageElementManager.unmount()
         }
-        if (!this.workspaceControl.enabled) {
-          this.workspaceControl.enable()
+        if (!workspaceControl.enabled) {
+          workspaceControl.enable()
         }
-        this.workspaceControl.selectElements([], true)
+        workspaceControl.selectElements([], true)
         this.loadPage(file)
       }
     })
@@ -112,7 +111,7 @@ export default class Editor extends React.Component {
 
   async saveCloseCurrentPage () {
     await this.saveCurrentPage()
-    this.workspaceControl.disable()
+    workspaceControl.disable()
     this.pageElementManager.unmount()
     this.pageElementManager = null
   }
@@ -126,7 +125,7 @@ export default class Editor extends React.Component {
     trace('loadPage', pageConfig)
     this.pageConfig = pageConfig
     const { content } = this.pageConfig
-    this.workspaceControl.fitToCenter(content.properties.width, content.properties.height)
+    workspaceControl.fitToCenter(content.properties.width, content.properties.height)
 
     // 从HTML初始化页面管理器
     // this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
@@ -143,7 +142,7 @@ export default class Editor extends React.Component {
         elements: this.pageElementManager.getPageElements()
       }))
     }
-    this.workspaceControl.setPageManager(this.pageElementManager)
+    workspaceControl.setPageManager(this.pageElementManager)
 
     ridge.pageElementManagers = this.pageElementManager
 
@@ -176,16 +175,15 @@ export default class Editor extends React.Component {
         this.pageElementManager.unmount()
         this.loadPage(this.pageConfig)
         document.querySelector('.ridge-runtime').style.display = 'none'
-        this.workspaceControl.enable()
+        workspaceControl.enable()
       }
     })
   }
 
   componentDidMount () {
-    this.workspaceControl = new WorkSpaceControl({
+    workspaceControl.init({
       workspaceEl: document.querySelector('.workspace'),
-      viewPortEl: document.querySelector('.viewport-container'),
-      ridge: this.ridge
+      viewPortEl: document.querySelector('.viewport-container')
     })
   }
 

@@ -71,20 +71,20 @@ const PAGE_FIELDS = [
     control: 'select',
     field: 'type',
     optionList: [{
-      label: '按设计宽高',
+      label: '固定宽高',
       value: 'static'
     }, {
       label: '缩放适应',
-      value: 'static-scale'
+      value: 'static-scaled'
     }, {
-      label: '横向适应',
-      value: 'fit-w'
+      label: '宽度填充',
+      value: 'responsive-width'
     }, {
       label: '宽度固定',
-      value: 'fix-w'
+      value: 'fixed-width'
     }, {
       label: '全填充适应',
-      value: 'fit-wh'
+      value: 'full-responsive'
     }]
   },
   {

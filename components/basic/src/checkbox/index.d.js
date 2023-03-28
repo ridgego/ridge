@@ -4,6 +4,9 @@ export default {
   name: 'checkbox',
   component: CheckBox,
   type: 'vanilla',
+  title: '单选框',
+  width: 24,
+  height: 24,
   props: [{
     label: '选中',
     name: 'value',

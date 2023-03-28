@@ -1,10 +1,14 @@
 import Button from './Button'
 import { border, text } from 'ridge-prop-utils'
-
+import Icon from './button.svg'
 export default {
   name: 'button',
   component: Button,
+  icon: Icon,
   type: 'vanilla',
+  title: '按钮',
+  width: 64,
+  height: 28,
   props: [{
     name: 'text',
     label: '文本',

@@ -3,6 +3,7 @@ import ky from 'ky'
 import debug from 'debug'
 import loadjs from 'loadjs'
 import _ from 'lodash'
+import externals from 'ridge-externals'
 
 // 组态化组件资源服务地址
 const log = debug('ridge:loader')
@@ -505,10 +506,35 @@ class ComponentLoader {
    */
   async confirmPackageDependencies (packageName) {
     const packageObject = await this.getPackageJSON(packageName)
-    if (packageObject && packageObject.dependencies) {
-      await this.loadExternals(Object.keys(packageObject.dependencies))
+    if (packageObject) {
+      if (packageObject.dependencies) {
+        await this.loadExternals(Object.keys(packageObject.dependencies))
+      }
+      if (packageObject.externals) {
+        for (const external of packageObject.externals) {
+          await this.loadScript(`${this.baseUrl}/${packageName}/${external}`)
+        }
+      }
     }
+
     return packageObject
+  }
+
+  /**
+   * 全加载组件包
+   */
+  async loadPackageAndComponents (pkgName) {
+    const packageJSON = await this.getPackageJSON(pkgName)
+
+    const components = []
+    if (packageJSON.components && packageJSON.components.length) {
+      for (const componentPath of packageJSON.components) {
+        components.push(await this.loadComponent(pkgName + '/' + componentPath))
+      }
+      await Promise.allSettled(components)
+    }
+    packageJSON.componentLoaded = components
+    return packageJSON
   }
 
   async loadJSON (path) {

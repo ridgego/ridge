@@ -19,6 +19,7 @@ class ElementWrapper {
 
     this.pageManager = pageManager
     this.pageStore = pageManager.pageStore
+    this.ridge = pageManager.ridge
 
     // 系统内置属性
     this.systemProperties = {
@@ -119,7 +120,6 @@ class ElementWrapper {
    */
   initPropsAndEvents () {
     this.slotProps = []
-
     if (!this.componentDefinition) {
       return
     }
@@ -127,6 +127,8 @@ class ElementWrapper {
     if (this.config.parent && !this.parentWrapper) {
       this.parentWrapper = this.pageManager.getElement(this.config.parent)
     }
+
+    this.adjustSize = this.componentDefinition.adjustSize
 
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
@@ -221,6 +223,7 @@ class ElementWrapper {
       await this.applyDecorate('setPropsConfig')
       this.renderer = await this.createRenderer()
     }
+    this.updateSize()
   }
 
   unmount () {
@@ -257,7 +260,7 @@ class ElementWrapper {
         return render
       }
     } catch (e) {
-      error('create render error', e)
+      console.error('组件初始化渲染异常', this.componentDefinition, e)
     }
     return null
   }
@@ -268,6 +271,23 @@ class ElementWrapper {
       this.systemProperties, // 系统属性
       this.properties // 动态计算属性
     )
+  }
+
+  /**
+   * 根据配置更新组件大小
+   */
+  updateSize () {
+    if (this.adjustSize && this.el) {
+      const contentEl = this.el.querySelector(':not(.ridge-overlay)')
+
+      this.setConfigStyle({
+        width: contentEl.getBoundingClientRect().width,
+        height: contentEl.getBoundingClientRect().height
+      })
+      if (this.ridge.workspaceControl) {
+        this.ridge.workspaceControl.updateMovable()
+      }
+    }
   }
 
   // 计算随变量绑定的样式
@@ -342,6 +362,8 @@ class ElementWrapper {
         log('updateProps', this.id, this.properties)
 
         this.renderer.updateProps(this.getProperties())
+
+        this.updateSize()
       } catch (e) {
         log('用属性渲染组件出错', e)
       }
@@ -504,7 +526,7 @@ class ElementWrapper {
 
     layer.setAttribute('name', name)
 
-    layer.classList.add('layer')
+    layer.classList.add('ridge-overlay')
 
     layer.style.position = 'absolute'
     layer.style.left = 0

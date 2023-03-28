@@ -12,15 +12,13 @@ const trace = debug('ridge:workspace')
  * 控制编辑器的工作区缩放/平移
  */
 export default class WorkSpaceControl {
-  constructor ({
-    ridge,
+  init ({
     workspaceEl,
     viewPortEl
   }) {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
 
-    this.ridge = ridge
     this.selectorDropableTarget = ['.ridge-element.container', 'slot']
 
     on(EVENT_ELEMENT_SELECTED, payload => {
