@@ -1,5 +1,6 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
+import * as SemiIcon from '@douyinfe/semi-icons'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import PackageManager from '../../service/PackageManager'
 import { ridge } from '../../service/RidgeEditService.js'
@@ -78,7 +79,7 @@ class InstalledComponents extends React.Component {
   }
 
   render () {
-    const { packageListingLoaded, packages } = this.state
+    const { packageListingLoaded, packages, currentPackage } = this.state
     const { dragStart } = this
 
     const tabChange = this.tabChange.bind(this)
@@ -86,9 +87,10 @@ class InstalledComponents extends React.Component {
       <>
         {!packageListingLoaded && <Spin size='large' />}
         <Tabs
-          type='line'
+          type='button'
           size='small'
           tabPosition='left'
+          activeKey={currentPackage}
           onChange={key => tabChange(key)}
         >
           {packages && packages.map(pkg => {
@@ -103,10 +105,12 @@ class InstalledComponents extends React.Component {
                 tab={
                   <div
                     className='package-icon' style={{
-                      '-webkit-mask-image': `url("${decodeURI(pkg.icon)}")`,
-                      'mask-image': `url("${decodeURI(pkg.icon)}")`
+                      // '-webkit-mask-image': `url("${decodeURI(pkg.icon)}")`,
+                      // 'mask-image': `url("${decodeURI(pkg.icon)}")`
                     }}
-                  />
+                  >
+                    <img src={decodeURI(pkg.icon)} />
+                  </div>
                 }
                 key={pkg.name}
                 itemKey={pkg.name}
@@ -119,25 +123,37 @@ class InstalledComponents extends React.Component {
                       span: 8
                     }}
                     dataSource={filteredComponents}
-                    renderItem={item => (
-                      <List.Item>
-                        <div
-                          draggable
-                          onDragStart={ev => dragStart(ev, Object.assign(item, {
-                            componentPath: pkg.name + '/' + item.path
-                          }))}
-                          className='component-container'
-                        >
+                    renderItem={item => {
+                      const Icon = SemiIcon[item.icon]
+                      return (
+                        <List.Item>
                           <div
-                            className='component-icon' style={{
-                              '-webkit-mask-image': `url("${decodeURI(item.icon)}")`,
-                              'mask-image': `url("${decodeURI(item.icon)}")`
-                            }}
-                          />
-                          <Text>{item.title} </Text>
-                        </div>
-                      </List.Item>
-                    )}
+                            draggable
+                            onDragStart={ev => dragStart(ev, Object.assign(item, {
+                              componentPath: pkg.name + '/' + item.path
+                            }))}
+                            className='component-container'
+                          >
+                            {
+                            item.icon && item.icon.startsWith('data:image') &&
+                              <div
+                                className='component-icon' style={{
+                                  '-webkit-mask-image': `url("${decodeURI(item.icon)}")`,
+                                  'mask-image': `url("${decodeURI(item.icon)}")`
+                                }}
+                              />
+                            }
+                            {Icon &&
+                              <Icon
+                                style={{
+                                  color: item.iconColor || 'var( --semi-color-secondary)'
+                                }}
+                              />}
+                            <Text>{item.title} </Text>
+                          </div>
+                        </List.Item>
+                      )
+                    }}
                   />
                   }
                 {!filteredComponents && <Spin size='large' />}

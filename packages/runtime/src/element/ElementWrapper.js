@@ -11,18 +11,21 @@ const error = debug('error:element')
 class ElementWrapper {
   constructor ({
     config,
+    mode,
     pageManager
   }) {
     this.config = config
     this.id = config.id
     this.componentPath = config.path
 
+    this.mode = mode
     this.pageManager = pageManager
     this.pageStore = pageManager.pageStore
     this.ridge = pageManager.ridge
 
     // 系统内置属性
     this.systemProperties = {
+      __mode: this.mode,
       __pageManager: pageManager,
       __elementWrapper: this
     }
@@ -46,6 +49,7 @@ class ElementWrapper {
    */
   clone () {
     const cloned = new ElementWrapper({
+      mode: this.mode,
       config: this.toJSON(),
       pageManager: this.pageManager
     })
@@ -129,9 +133,12 @@ class ElementWrapper {
     }
 
     this.adjustSize = this.componentDefinition.adjustSize
+    this.resizable = this.componentDefinition.resizable
 
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
+      if (!prop) continue
+
       // 编辑器初始化创建时给一次默认值
       if (this.config.isNew) {
         if (this.config.props[prop.name] == null && prop.value != null) {
@@ -209,7 +216,9 @@ class ElementWrapper {
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
 
-    //
+    if (this.resizable === false) {
+      this.el.classList.add('no-resize')
+    }
     this.style = Object.assign({}, this.config.style, this.style)
     this.updateExpressionedStyle()
     this.updateStyle()
@@ -223,7 +232,9 @@ class ElementWrapper {
       await this.applyDecorate('setPropsConfig')
       this.renderer = await this.createRenderer()
     }
-    this.updateSize()
+    if (this.mode === 'edit') {
+      this.updateSize()
+    }
   }
 
   unmount () {
@@ -363,7 +374,9 @@ class ElementWrapper {
 
         this.renderer.updateProps(this.getProperties())
 
-        this.updateSize()
+        if (this.mode === 'edit') {
+          this.updateSize()
+        }
       } catch (e) {
         log('用属性渲染组件出错', e)
       }

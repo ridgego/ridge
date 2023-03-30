@@ -1,13 +1,14 @@
 import Input from './Input'
 import { border } from 'ridge-prop-utils'
-
+import icon from './input.svg'
 export default {
   name: 'input',
   component: Input,
+  icon,
   type: 'vanilla',
-  "title": "输入框",
-  "width": 160,
-  "height": 28,
+  title: '输入框',
+  width: 160,
+  height: 28,
   props: [{
     label: '内容',
     name: 'value',

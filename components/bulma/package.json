@@ -18,6 +18,9 @@
   "author": "",
   "license": "ISC",
   "components": [
-    "build/button-index.d.js"
+    "build/button-index.d.js",
+    "build/delete-index.d.js",
+    "build/image-index.d.js",
+    "build/progress-index.d.js"
   ]
 }

@@ -130,8 +130,7 @@ export default class Editor extends React.Component {
     // 从HTML初始化页面管理器
     // this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
 
-    this.pageElementManager = this.ridge.createPageManager(content, false)
-    this.pageElementManager.setMode('edit')
+    this.pageElementManager = this.ridge.createPageManager(content, 'edit')
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
     this.pageElementManager.mount(document.querySelector('.viewport-container'))
@@ -169,7 +168,7 @@ export default class Editor extends React.Component {
         // 运行页面
         await this.saveCloseCurrentPage()
         document.querySelector('.ridge-runtime').style.display = 'init'
-        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, true)
+        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, 'run')
         this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
       } else {
         this.pageElementManager.unmount()

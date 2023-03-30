@@ -1,10 +1,10 @@
 import Button from './Button'
 import { border, text } from 'ridge-prop-utils'
-import Icon from './button.svg'
+import icon from './button.svg'
 export default {
   name: 'button',
   component: Button,
-  icon: Icon,
+  icon,
   type: 'vanilla',
   title: '按钮',
   width: 64,

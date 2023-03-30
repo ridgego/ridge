@@ -40,14 +40,27 @@ class Ridge {
     return this.loader.loadComponent(componentPath)
   }
 
-  loadPage (el, pageConfig, reactive) {
-    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, reactive)
+  /**
+   * 加载、显示页面到某个页面el
+   * @param {*} el 页面元素
+   * @param {*} pageConfig 页面配置
+   * @param {*} mode 模式 edit/run
+   * @returns
+   */
+  loadPage (el, pageConfig, mode) {
+    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, mode)
     pageManager.mount(el || document.body)
     return pageManager
   }
 
-  createPageManager (pageConfig, reactive) {
-    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, reactive)
+  /**
+   * 从页面配置创建页面管理器。主要用于预加载场景，管理器可以先不mount
+   * @param {*} pageConfig 页面配置
+   * @param {*} mode 模式 edit/run
+   * @returns
+   */
+  createPageManager (pageConfig, mode) {
+    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, mode)
 
     return pageManager
   }

@@ -1,5 +1,5 @@
 import Button from './Button'
-import Icon from './tv.svg'
+import Icon from './button.svg'
 export default {
   name: 'button',
   title: '按钮',

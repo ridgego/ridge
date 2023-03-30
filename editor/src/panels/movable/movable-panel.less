@@ -14,7 +14,7 @@
         position: relative;
         height: 1px;
         z-index: 1;
-        height: 28px;
+        height: 32px;
         .title-text {
             position: absolute;
             left: 33px;
@@ -46,7 +46,7 @@
     }
 
     .panel-content {
-        height: calc(100% - 28px);
+        height: calc(100% - 32px);
     }
 
     .semi-tabs-top {
@@ -55,7 +55,7 @@
         &.on-title {
             .semi-tabs-bar {
                 position: absolute;
-                top: -26px;
+                top: -30px;
                 left: 36px;
                 right: 10px;
                 z-index: 9;
@@ -63,9 +63,9 @@
         }
         .semi-tabs-bar {
             .semi-tabs-tab {
-                padding: 5px 8px;
+                padding: 3px 5px;
                 &.semi-tabs-tab-active {
-                    padding: 5px 8px;
+                    padding: 3px 5px;
                 }
             }
         }
@@ -85,6 +85,9 @@
         }
     }
 
+    .semi-tabs-left {
+        height: 100%;
+    }
     &.open-search {
         .semi-tabs {
             &.on-title {

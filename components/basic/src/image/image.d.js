@@ -1,11 +1,13 @@
 import Image from './Image.jsx'
+import icon from './image.svg'
 
 export default {
   name: 'image',
   component: Image,
-  "title": "图片",
-  "width": 120,
-  "height": 90,
+  icon,
+  title: '图片',
+  width: 120,
+  height: 90,
   props: [{
     name: 'src',
     type: 'image',

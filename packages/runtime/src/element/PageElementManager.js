@@ -3,10 +3,10 @@ import { nanoid } from '../utils/string'
 import Store from '../store/Store'
 
 class PageElementManager {
-  constructor (pageConfig, ridge, reactive) {
+  constructor (pageConfig, ridge, mode) {
     this.pageConfig = pageConfig
     this.ridge = ridge
-    this.reactive = reactive
+    this.mode = mode
     this.decorators = {}
     this.mounted = []
     this.initialize()
@@ -30,7 +30,7 @@ class PageElementManager {
       this.pageConfig.reducers = []
     }
 
-    if (this.reactive) {
+    if (this.mode === 'run') {
       this.pageStore = new Store(this.pageConfig)
     }
 
@@ -38,6 +38,7 @@ class PageElementManager {
     for (const element of this.pageConfig.elements) {
       const elementWrapper = new ElementWrapper({
         pageManager: this,
+        mode: this.mode,
         config: element
       })
       this.pageElements[elementWrapper.id] = elementWrapper
@@ -177,6 +178,7 @@ class PageElementManager {
     }
 
     const wrapper = new ElementWrapper({
+      mode: this.mode,
       config: elementConfig,
       pageManager: this
     })
