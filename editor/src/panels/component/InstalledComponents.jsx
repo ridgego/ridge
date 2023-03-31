@@ -74,7 +74,7 @@ class InstalledComponents extends React.Component {
     if (this.context) {
       return components.filter(component => component.title.indexOf(this.context) > -1)
     } else {
-      return components
+      return components.filter(component => component != null)
     }
   }
 

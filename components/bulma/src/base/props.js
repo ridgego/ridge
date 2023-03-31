@@ -5,6 +5,7 @@ export const color = {
   control: 'select',
   bindable: false,
   value: 'is-primary',
+  width: '50%',
   optionList: [{
     label: '白色',
     value: 'is-white'
@@ -50,6 +51,14 @@ export const color = {
 export const light = {
   name: 'light',
   label: '浅色',
+  width: '50%',
+  type: 'boolean'
+}
+
+export const isDelete = {
+  name: 'isDelete',
+  label: '删除',
+  width: '50%',
   type: 'boolean'
 }
 
@@ -60,6 +69,7 @@ export const size = {
   control: 'select',
   bindable: false,
   value: 'is-normal',
+  width: '50%',
   optionList: [{
     label: '小号',
     value: 'is-small'

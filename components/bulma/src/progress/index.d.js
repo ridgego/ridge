@@ -1,5 +1,4 @@
 import Progress from './Progress'
-import Icon from './button.svg'
 import { color, size, light } from '../base/props'
 export default {
   name: 'progress',

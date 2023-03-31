@@ -1,11 +1,12 @@
 import React from 'react'
 import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
-import { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } from '@douyinfe/semi-icons'
+import * as SemiIcons from '@douyinfe/semi-icons'
 import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED } from '../../constant.js'
 import RawSvgIcon from '../../utils/RawSvgIcon.jsx'
 import { emit, on } from '../../service/RidgeEditService.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 
+const { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } = SemiIcons
 const { Text } = Typography
 
 class OutLineTree extends React.Component {
@@ -81,7 +82,12 @@ class OutLineTree extends React.Component {
       children: []
     }
     if (element.componentDefinition && element.componentDefinition.icon) {
-      treeNodeObject.icon = (<RawSvgIcon svg={element.componentDefinition.icon} />)
+      if (SemiIcons[element.componentDefinition.icon]) {
+        const Icon = SemiIcons[element.componentDefinition.icon]
+        treeNodeObject.icon = <Icon />
+      } else {
+        treeNodeObject.icon = (<RawSvgIcon svg={element.componentDefinition.icon} />)
+      }
     }
     if (element.config.props.children && element.config.props.children.length) {
       for (const childWrapper of element.config.props.children.filter(n => n)) {
