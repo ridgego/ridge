@@ -1,5 +1,4 @@
 import Button from './Button'
-import Icon from './button.svg'
 import { color, size, light } from '../base/props'
 export default {
   name: 'button',

@@ -149,7 +149,7 @@ class InstalledComponents extends React.Component {
                                   color: item.iconColor || 'var( --semi-color-secondary)'
                                 }}
                               />}
-                            <Text>{item.title} </Text>
+                            <Text>{item.title || item.label} </Text>
                           </div>
                         </List.Item>
                       )

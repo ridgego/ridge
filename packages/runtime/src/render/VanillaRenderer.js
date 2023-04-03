@@ -45,6 +45,10 @@ export default class VanillaRender extends Renderer {
     }
   }
 
+  hasMethod (method) {
+    return this.getRenderInstance()[method] != null
+  }
+
   setOption (option) {
     this.updateProps(option)
   }

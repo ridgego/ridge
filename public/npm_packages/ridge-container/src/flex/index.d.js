@@ -1,11 +1,12 @@
 import FlexBoxContainer from './FlexContainer'
 import { border } from 'ridge-prop-utils'
 
-console.log('border', border)
 export default {
   name: 'flex-container',
   component: FlexBoxContainer,
+  label: '弹性容器',
   type: 'vanilla',
+  icon: 'IconKanban',
   props: [{
     name: 'direction',
     label: '排列方向',

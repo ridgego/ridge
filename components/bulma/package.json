@@ -20,7 +20,7 @@
   "components": [
     "build/button-index.d.js",
     "build/checkbox-index.d.js",
-    "build/delete-index.d.js",
+    "build/deleteBtn-index.d.js",
     "build/dropdown-index.d.js",
     "build/image-index.d.js",
     "build/input-index.d.js",

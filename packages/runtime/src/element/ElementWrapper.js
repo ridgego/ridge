@@ -312,44 +312,50 @@ class ElementWrapper {
     }
   }
 
+  // 供容器调用更改容器内布局方式
   setConfigStyle (style) {
     Object.assign(this.config.style, style)
-    Object.assign(this.style, style)
 
-    if (this.config.props.coverContainer) {
-      this.config.style.width = this.el.parentElement.getBoundingClientRect().width
-      this.config.style.height = this.el.parentElement.getBoundingClientRect().height
-    }
+    this.style = this.config.style
+
     this.updateStyle()
   }
 
   updateStyle () {
     const style = this.style
+
+    // reset style
+    this.el.style.position = ''
+    this.el.style.display = ''
+    this.el.style.transform = ''
     if (this.el) {
-      // Object.assign(this.el.style, style)
       if (this.config.props.coverContainer) {
         this.el.style.width = '100%'
         this.el.style.height = '100%'
+        this.el.style.position = 'static'
+      } else if (style.position === 'absolute') {
+        // 绝对定位： 固定宽高
         this.el.style.position = 'absolute'
-        this.el.style.left = 0
-        this.el.style.transform = ''
-        this.el.style.top = 0
-      } else {
+        this.el.style.transform = `translate(${style.x}px, ${style.y}px)`
         this.el.style.width = style.width ? (style.width + 'px') : ''
         this.el.style.height = style.height ? (style.height + 'px') : ''
+      } else {
+        // 非绝对定位，宽度和高度由容器给定
         this.el.style.position = style.position
-        if (style.position === 'absolute') {
-          this.el.style.transform = `translate(${style.x}px, ${style.y}px)`
-        } else {
-          this.el.style.transform = ''
+        this.el.style.display = style.display
+        if (typeof style.width === 'number') {
+          this.el.style.width = style.width + 'px'
+        }
+        if (typeof style.height === 'number') {
+          this.el.style.height = style.height + 'px'
         }
       }
+
       if (style.flex) {
         this.el.style.flex = style.flex
       }
       this.el.style.visibility = style.visible ? 'visible' : 'hidden'
-
-      if (style.visible) {
+      if (!style.visible) {
         this.el.classList.add('hidden')
       }
       if (style.locked) {
@@ -437,6 +443,10 @@ class ElementWrapper {
     if (this.renderer) {
       return this.renderer.invoke(method, args)
     }
+  }
+
+  hasMethod (method) {
+    return this.renderer.hasMethod(method)
   }
 
   // 组件对外发出事件

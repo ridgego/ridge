@@ -3,6 +3,8 @@ import { border } from 'ridge-prop-utils'
 export default {
   name: 'list-container',
   component: ListContainer,
+  label: '列表容器',
+  icon: 'IconListView',
   type: 'vanilla',
   props: [{
     name: 'dataSource',
@@ -40,5 +42,9 @@ export default {
     name: 'renderItem',
     label: '单项模板',
     type: 'slot'
+  }, {
+    name: 'coverContainer',
+    label: '填充',
+    type: 'boolean'
   }, ...border.props]
 }

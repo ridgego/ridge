@@ -4,7 +4,9 @@ import { border } from 'ridge-prop-utils'
 export default {
   name: 'flex-container',
   component: FlexBoxContainer,
+  label: '弹性容器',
   type: 'vanilla',
+  icon: 'IconKanban',
   props: [{
     name: 'direction',
     label: '排列方向',

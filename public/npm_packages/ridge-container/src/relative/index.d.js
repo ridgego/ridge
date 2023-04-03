@@ -3,7 +3,9 @@ import { border } from 'ridge-prop-utils'
 export default {
   name: 'relative-container',
   component: RelativeContainer,
+  label: '绝对容器',
   type: 'vanilla',
+  icon: 'IconMarginStroked',
   props: [{
     name: 'coverContainer',
     label: '填充',

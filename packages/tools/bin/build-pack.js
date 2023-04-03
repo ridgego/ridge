@@ -59,28 +59,52 @@ args.option('dir', 'The Front Component Project Root Path', './')
             }
         }
 
-        const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.d.js'),
-            entry = {};
-
+        const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.d.js');
         if (targetFiles.length === 0) {
             log(chalk.green('未找到图元 ' + ridgeConfig.pattern ?? './src/**/*.d.js'));
         }
-
+        
         log(chalk.green('编译打包以下图元文件:'));
+        
+        let entry = null;
+        if (ridgeConfig.concat) {
+            
+            const imports = []
+            const names = []
+            for (let i = 0; i < targetFiles.length; i++) {
+                const file = targetFiles[i];
+                log(chalk.green(file));
+                const folderName = path.basename(path.dirname(file))
+                imports.push(`import ${folderName} from '${file}'`)
+                names.push(folderName)
+            }
+            
+            const concatJsContent = 
+`${imports.join('\n')} 
+export {
+    ${names.join(',')}
+}`
+            console.log(concatJsContent)
 
-        const elementPaths = []
-        for (let i = 0; i < targetFiles.length; i++) {
-            const file = targetFiles[i];
-
-            log(chalk.green(file));
-            const jsName = path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')
-            elementPaths.push(BUILD_PATH + '/' + jsName + '.js');
-            entry[path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')] = file;
+            fs.writeFileSync(path.resolve(packagePath, './concat.js'), concatJsContent)
+            
+            entry = './concat.js'
+        } else {
+            entry = {}
+            const elementPaths = []
+            for (let i = 0; i < targetFiles.length; i++) {
+                const file = targetFiles[i];
+    
+                log(chalk.green(file));
+                const jsName = path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')
+                elementPaths.push(BUILD_PATH + '/' + jsName + '.js');
+                entry[path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')] = file;
+            }
+    
+            packageJson.components = elementPaths
+    
+            fs.writeFileSync(path.resolve(packagePath, './package.json'), JSON.stringify(packageJson, null, 2))
         }
-
-        packageJson.components = elementPaths
-
-        fs.writeFileSync(path.resolve(packagePath, './package.json'), JSON.stringify(packageJson, null, 2))
 
         // 读取配置好的external目录
         const externals = {};

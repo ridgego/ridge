@@ -1,6 +1,5 @@
 module.exports = {
-  copy: '../../public/npm_packages/ridge-bulma',
-  concat: ''
+  copy: '../../public/npm_packages/ridge-bulma'
 }
 
 const nodes = new Set()
