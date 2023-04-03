@@ -1,7 +1,6 @@
 import FlexBoxContainer from './FlexContainer'
 import { border } from 'ridge-prop-utils'
 
-console.log('border', border)
 export default {
   name: 'flex-container',
   component: FlexBoxContainer,

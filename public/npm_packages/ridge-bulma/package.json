@@ -18,6 +18,18 @@
   "author": "",
   "license": "ISC",
   "components": [
-    "build/button-index.d.js"
+    "build/button-index.d.js",
+    "build/checkbox-index.d.js",
+    "build/delete-index.d.js",
+    "build/dropdown-index.d.js",
+    "build/image-index.d.js",
+    "build/input-index.d.js",
+    "build/notification-index.d.js",
+    "build/progress-index.d.js",
+    "build/radio-index.d.js",
+    "build/select-index.d.js",
+    "build/tabs-index.d.js",
+    "build/tag-index.d.js",
+    "build/textarea-index.d.js"
   ]
 }

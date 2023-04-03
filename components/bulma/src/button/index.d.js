@@ -1,5 +1,4 @@
 import Button from './Button'
-import Icon from './button.svg'
 import { color, size, light } from '../base/props'
 export default {
   name: 'button',
@@ -14,6 +13,11 @@ export default {
     label: '文本',
     type: 'string',
     value: '按钮'
+  }, {
+    name: 'icon',
+    label: '图标',
+    type: 'icon',
+    value: ''
   }, color, size, light],
   events: [{
     label: '点击事件',
