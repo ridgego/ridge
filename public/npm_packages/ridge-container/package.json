@@ -17,6 +17,7 @@
   ],
   "components": [
     "build/flex-index.d.js",
+    "build/flow-index.d.js",
     "build/list-index.d.js",
     "build/relative-index.d.js"
   ],

@@ -97,7 +97,6 @@ export default class WorkSpaceControl {
         const deltaY = event.pageY - that.startY
 
         that.viewPortEl.style.transform = `translate(${that.workspaceX + deltaX}px, ${that.workspaceY + deltaY}px)`
-        console.log('move', `translate(${that.workspaceX + deltaX}px, ${that.workspaceY + deltaY}px)`)
       }
     })
 
@@ -139,17 +138,24 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragStart', ev => {
-      // sm.moveable.elementGuidelines = this.guidelines
+      if (this.selected.indexOf(ev.target) > -1) {
+        this.onElementDragStart(ev.target, ev)
+        this.moveable.updateTarget()
+      }
     })
 
     this.moveable.on('drag', ev => {
-      ev.target.style.transform = ev.transform
+      const config = ev.target.elementWrapper.config
+      ev.target.style.transform = `translate(${config.style.x + ev.dist[0]}px,${config.style.y + ev.dist[1]}px)`
       sm.checkDropTargetStatus(ev)
     })
 
     this.moveable.on('dragEnd', ev => {
+      // if (ev.isDrag) {
       const bcr = ev.target.getBoundingClientRect()
       sm.onElementDragEnd(ev.target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
+      // sm.onElementDragEnd(ev.target, ev.clientX, ev.clientY)
+      // }
     })
 
     this.moveable.on('resize', ({
@@ -285,15 +291,14 @@ export default class WorkSpaceControl {
           return el !== closestRidgeNode && el.closest('.ridge-element') !== closestRidgeNode
         })]
 
-        console.log('guidlines', this.guidelines)
         this.moveable.elementGuidelines = this.guidelines
-
         this.moveable.elementSnapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
         this.moveable.snapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
 
+        this.onElementDragStart(closestRidgeNode, inputEvent)
         this.moveable.dragStart(inputEvent)
-
         this.selectElements([closestRidgeNode])
+
         e.inputEvent && e.inputEvent.stopPropagation()
         e.inputEvent && e.inputEvent.preventDefault()
         e.stop()
@@ -437,7 +442,7 @@ export default class WorkSpaceControl {
         // DOM操作，放置到ViewPort上
         this.putElementToRoot(el, x, y)
 
-        this.pageManager.detachChildElement(sourceParentElement, sourceElement)
+        this.pageManager.detachChildElement(sourceElement)
       } else if (sourceParentElement == null && targetParentElement) {
         // 3. 放入一个容器
         trace('从页面到父容器')
@@ -452,7 +457,7 @@ export default class WorkSpaceControl {
         this.pageManager.attachToParent(targetParentElement, sourceElement, slotName, {
           x, y
         })
-        this.pageManager.detachChildElement(sourceParentElement, sourceElement)
+        this.pageManager.detachChildElement(sourceElement)
       }
       sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
       targetParentElement && targetParentElement.removeStatus('drag-over', targetEl)
@@ -486,6 +491,30 @@ export default class WorkSpaceControl {
       y: y - rbcr.y - bcr.height / 2
     })
     this.moveable.updateTarget()
+  }
+
+  onElementDragStart (el, event) {
+    const beforeRect = el.getBoundingClientRect()
+    // 计算位置
+    const rbcr = this.viewPortEl.getBoundingClientRect()
+    this.pageManager.detachChildElement(el.elementWrapper)
+
+    this.viewPortEl.appendChild(el)
+
+    el.elementWrapper.setConfigStyle({
+      position: 'absolute',
+      x: beforeRect.x - rbcr.x,
+      y: beforeRect.y - rbcr.y,
+      width: beforeRect.width,
+      height: beforeRect.height
+    })
+
+    this.checkDropTargetStatus({
+      target: el,
+      clientX: event.clientX,
+      clientY: event.clientY
+    })
+    // this.moveable.updateTarget()
   }
 
   /**
@@ -581,11 +610,14 @@ export default class WorkSpaceControl {
       })
       target = sorted[0]
     }
+
+    if (target && target.elementWrapper && target.elementWrapper.hasMethod('onDragOver')) {
+      target.elementWrapper.invoke('onDragOver', [dragEl.elementWrapper])
+    }
+
     droppableElements.forEach(el => {
       if (el !== target) {
-        el.elementWrapper.removeStatus('drag-over', el)
-      } else {
-        el.elementWrapper.setStatus('drag-over', el)
+        el.elementWrapper.invoke('onDragOut')
       }
     })
     return target

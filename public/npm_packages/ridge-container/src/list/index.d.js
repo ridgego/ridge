@@ -42,5 +42,9 @@ export default {
     name: 'renderItem',
     label: '单项模板',
     type: 'slot'
+  }, {
+    name: 'coverContainer',
+    label: '填充',
+    type: 'boolean'
   }, ...border.props]
 }

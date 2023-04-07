@@ -6,7 +6,7 @@ import PackageManager from '../../service/PackageManager'
 import { ridge } from '../../service/RidgeEditService.js'
 const trace = require('debug')('ridge:component-panel')
 const { Text } = Typography
-class InstalledComponents extends React.Component {
+class ComponentListing extends React.Component {
   constructor () {
     super()
     this.el = document.createElement('div')
@@ -72,7 +72,7 @@ class InstalledComponents extends React.Component {
       return null
     }
     if (this.context) {
-      return components.filter(component => component.title.indexOf(this.context) > -1)
+      return components.filter(component => (component.title || component.label).indexOf(this.context) > -1)
     } else {
       return components.filter(component => component != null)
     }
@@ -103,12 +103,7 @@ class InstalledComponents extends React.Component {
                 className='tab-title'
                 collapsible
                 tab={
-                  <div
-                    className='package-icon' style={{
-                      // '-webkit-mask-image': `url("${decodeURI(pkg.icon)}")`,
-                      // 'mask-image': `url("${decodeURI(pkg.icon)}")`
-                    }}
-                  >
+                  <div className='package-icon'>
                     <img src={decodeURI(pkg.icon)} />
                   </div>
                 }
@@ -166,4 +161,4 @@ class InstalledComponents extends React.Component {
   }
 }
 
-export default InstalledComponents
+export default ComponentListing

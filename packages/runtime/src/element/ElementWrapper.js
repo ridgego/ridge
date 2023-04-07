@@ -232,9 +232,6 @@ class ElementWrapper {
       await this.applyDecorate('setPropsConfig')
       this.renderer = await this.createRenderer()
     }
-    if (this.mode === 'edit') {
-      this.updateSize()
-    }
   }
 
   unmount () {
@@ -316,54 +313,48 @@ class ElementWrapper {
   setConfigStyle (style) {
     Object.assign(this.config.style, style)
 
-    this.style = this.config.style
-
     this.updateStyle()
   }
 
+  getResetStyle () {
+    return {
+      left: '',
+      top: '',
+      flex: '',
+      position: '',
+      display: '',
+      transform: ''
+    }
+  }
+
   updateStyle () {
-    const style = this.style
+    if (this.parentWrapper && this.parentWrapper.hasMethod('updateChildStyle')) {
+      this.parentWrapper.invoke('updateChildStyle', [this])
+    } else {
+      const configStyle = this.config.style
 
-    // reset style
-    this.el.style.position = ''
-    this.el.style.display = ''
-    this.el.style.transform = ''
-    if (this.el) {
-      if (this.config.props.coverContainer) {
-        this.el.style.width = '100%'
-        this.el.style.height = '100%'
-        this.el.style.position = 'static'
-      } else if (style.position === 'absolute') {
-        // 绝对定位： 固定宽高
-        this.el.style.position = 'absolute'
-        this.el.style.transform = `translate(${style.x}px, ${style.y}px)`
-        this.el.style.width = style.width ? (style.width + 'px') : ''
-        this.el.style.height = style.height ? (style.height + 'px') : ''
-      } else {
-        // 非绝对定位，宽度和高度由容器给定
-        this.el.style.position = style.position
-        this.el.style.display = style.display
-        if (typeof style.width === 'number') {
-          this.el.style.width = style.width + 'px'
-        }
-        if (typeof style.height === 'number') {
-          this.el.style.height = style.height + 'px'
-        }
-      }
+      const style = Object.assign({}, this.getResetStyle())
 
-      if (style.flex) {
-        this.el.style.flex = style.flex
-      }
-      this.el.style.visibility = style.visible ? 'visible' : 'hidden'
-      if (!style.visible) {
-        this.el.classList.add('hidden')
-      }
-      if (style.locked) {
-        this.el.classList.add('locked')
+      if (this.el) {
+        if (this.config.props.coverContainer) {
+          style.width = '100%'
+          style.height = '100%'
+          style.position = 'static'
+        } else {
+          // 绝对定位： 固定宽高
+          style.position = 'absolute'
+          style.left = 0
+          style.top = 0
+          style.transform = `translate(${configStyle.x}px, ${configStyle.y}px)`
+          style.width = configStyle.width ? (configStyle.width + 'px') : ''
+          style.height = configStyle.height ? (configStyle.height + 'px') : ''
+        }
+        style.visibility = configStyle.visible ? 'visible' : 'hidden'
+        Object.assign(this.el.style, style)
+
       }
     }
-
-    this.invoke('updateStyle', [style])
+    this.invoke('updateStyle', [this.el])
   }
 
   /**
@@ -436,6 +427,12 @@ class ElementWrapper {
         continue
       }
       this.properties[key] = this.pageStore.getStateValue(value, this.getContextState())
+    }
+  }
+
+  removeChild (wrapper) {
+    if (this.renderer) {
+      return this.renderer.invoke('removeChild', [wrapper])
     }
   }
 
@@ -610,14 +607,17 @@ class ElementWrapper {
       }
     }
 
-    Object.assign(this.style, this.config.style)
     Object.assign(this.properties, this.config.props)
 
-    this.updateStyle()
+    if (this.parentWrapper && this.parentWrapper.hasMethod('updateChildStyle')) {
+      this.parentWrapper.invoke('updateChildStyle', [this])
+    } else {
+      this.updateStyle()
+    }
     // 编辑时忽略动态配置的属性、事件
-    this.applyDecorate('setPropsConfig').then(() => {
-      this.updateProperties()
-    })
+    // this.applyDecorate('setPropsConfig').then(() => {
+    this.updateProperties()
+    // })
   }
 
   setConfigLocked (locked) {

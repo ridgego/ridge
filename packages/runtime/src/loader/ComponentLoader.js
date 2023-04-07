@@ -190,11 +190,16 @@ class ComponentLoader {
     }
   }
 
+  /**
+   * 进行网络传输、加载组件内容
+   * @param {*} param0
+   * @returns
+   */
   async doLoadComponent ({
     packageName, path
   }) {
+    // 加载包依赖的js （必须首先加载否则组件加载会出错）
     const packageJSONObject = await this.confirmPackageDependencies(packageName)
-    // Load Dependecies in package.json
     const fcp = await this.loadComponentScript({ packageName, path })
     if (fcp) {
       await this.prepareComponent(fcp, { packageName, path }, packageJSONObject)
@@ -204,6 +209,12 @@ class ComponentLoader {
     return fcp
   }
 
+  /**
+   * 预处理组件定义，定义前后变更的兼容性问题解决
+   * @param {} fcp 组件定义
+   * @param {*} param1
+   * @param {*} packageJSONObject
+   */
   async prepareComponent (fcp, {
     packageName,
     path
@@ -211,16 +222,19 @@ class ComponentLoader {
     fcp.packageName = packageName
     fcp.path = path
 
+    // 标题统一是title
+    fcp.title = fcp.title || fcp.label
+    // 加载单独的依赖
     if (fcp.requires && fcp.requires.length) {
       await this.loadExternals(fcp.requires)
     }
 
-    if (packageJSONObject.components) {
-      const filtered = packageJSONObject.components.filter(component => component.path === path)
-      if (filtered.length === 1) {
-        fcp.icon = filtered[0].icon
-      }
-    }
+    // if (packageJSONObject.components) {
+    //   const filtered = packageJSONObject.components.filter(component => component.path === path)
+    //   if (filtered.length === 1) {
+    //     fcp.icon = filtered[0].icon
+    //   }
+    // }
 
     // 处理渲染器，加载渲染器依赖
     if (fcp.component) {

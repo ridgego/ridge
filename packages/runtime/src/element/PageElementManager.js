@@ -240,27 +240,31 @@ class PageElementManager {
      * @param {*} sourceParentElement 父节点
      * @param {*} childElementId 子节点
      */
-  detachChildElement (sourceParentElement, childElement) {
+  detachChildElement (childElement) {
+    const sourceParentElement = childElement.parentWrapper
+    if (!sourceParentElement) {
+      return
+    }
+
+    // 判断子节点是插槽子节点还是普通子节点
     let isSlot = false
     for (const slotProp of sourceParentElement.componentDefinition.props.filter(prop => prop.type === 'slot')) {
       if (sourceParentElement.config.props[slotProp.name] === childElement) {
+        // 设置插槽属性为null
         sourceParentElement.setPropsConfig(null, {
           ['props.' + slotProp.name]: null
         })
         isSlot = true
       }
     }
-    if (!isSlot) {
-      sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
-      sourceParentElement.updateProperties()
-    }
-    if (childElement.config.parent === sourceParentElement.id) {
-      delete childElement.config.parent
-    }
 
-    if (childElement.parentWrapper === sourceParentElement) {
-      delete childElement.parentWrapper
+    // 非插槽重新计算children
+    if (!isSlot) {
+      sourceParentElement.removeChild(childElement)
+      sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
     }
+    delete childElement.config.parent
+    delete childElement.parentWrapper
   }
 
   /**
@@ -280,7 +284,6 @@ class PageElementManager {
       // 这里容器会提供 appendChild 方法，并提供放置位置
       targetParentElement.invoke('appendChild', [sourceElement, x, y])
       targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
-      targetParentElement.updateProperties()
     }
 
     sourceElement.config.parent = targetParentElement.id

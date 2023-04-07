@@ -3,7 +3,7 @@ import { border } from 'ridge-prop-utils'
 /**
  * 流式容器，HTML默认的布局方式
  */
-export default class FlowContainer {
+export default class AbsoluteContainer {
   constructor (props) {
     this.props = props
   }
@@ -46,23 +46,20 @@ export default class FlowContainer {
   updateChildStyle (wrapper) {
     const style = Object.assign({}, wrapper.getResetStyle())
     style.position = 'static'
-    const configStyle = wrapper.config.style
 
-    if (configStyle.maxWidth) {
+    if (wrapper.config.style.maxWidth) {
       style.maxWidth = wrapper.config.style.maxWidth + 'px'
     }
 
-    if (configStyle.center) {
+    if (wrapper.config.style.center) {
       style.margin = '0 auto'
     } else {
       style.margin = ''
     }
 
     // block && inline-block
-    style.display = configStyle.display
+    style.display = wrapper.config.style.display
 
-    style.width = configStyle.width ? (configStyle.width + 'px') : ''
-    style.height = configStyle.height ? (configStyle.height + 'px') : ''
     Object.assign(wrapper.el.style, style)
   }
 

@@ -40,7 +40,7 @@ export default class FlexBoxContainer {
 
         await childWrapper.mount(childDiv)
 
-        Object.assign(childDiv.style, this.getChildrenWrapperStyle(childWrapper))
+        this.updateChildStyle(childWrapper)
       }
     }
   }
@@ -65,37 +65,73 @@ export default class FlexBoxContainer {
     return style
   }
 
-  appendChild (wrapper) {
+  appendChild (wrapper, x, y) {
     const el = wrapper.el
     const {
       // 相关系统变量
-      direction = 'row',
-      alignItems = 'stretch'
+      direction = 'row'
     } = this.props
 
+    if (this.containerEl.querySelector('.drop-shadow')) {
+      this.containerEl.insertBefore(el, this.containerEl.querySelector('.drop-shadow'))
+      this.containerEl.removeChild(this.containerEl.querySelector('.drop-shadow'))
+    }
     // 获取当前放置的次序
-    const afterNode = this.getAfterNode(el, this.containerEl.childNodes, direction)
-    const style = {
-      position: 'relative',
-      left: 0,
-      top: 0
-    }
+    // const afterNode = this.getAfterNode(el, this.containerEl.childNodes, direction)
 
-    if (direction === 'row' && alignItems === 'stretch') {
-      style.height = ''
-    }
-    if (direction === 'column' && alignItems === 'stretch') {
-      style.width = ''
-    }
+    // if (afterNode) {
+    //   this.containerEl.insertBefore(el, afterNode)
+    // } else {
+    //   this.containerEl.appendChild(el)
+    // }
 
-    Object.assign(style, this.getChildrenWrapperStyle(wrapper))
-    if (afterNode) {
-      this.containerEl.insertBefore(el, afterNode)
+    this.updateChildStyle(wrapper)
+  }
+
+  removeChild (wrapper) {
+    this.containerEl.insertBefore(this.createDropShadowEl(wrapper), wrapper.el)
+    this.containerEl.removeChild(wrapper.el)
+  }
+
+  createDropShadowEl (wrapper) {
+    const shadowNode = document.createElement('div')
+    shadowNode.classList.add('drop-shadow')
+    shadowNode.style.width = wrapper.el.style.width
+    shadowNode.style.height = wrapper.el.style.height
+
+    shadowNode.style.borderRadius = 'var(--semi-border-radius-small)'
+    shadowNode.style.border = '2px dashed var(--semi-color-primary)'
+    shadowNode.style.backgroundColor = 'var(--semi-color-primary-light-default)'
+
+    if (this.containerEl.querySelector(':scope > .drop-shadow')) {
+      this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
+    }
+    return shadowNode
+  }
+
+  onDragOver (wrapper) {
+    // 获取当前放置的次序
+    const {
+      direction = 'row'
+    } = this.props
+
+    const afterNode = this.getAfterNode(wrapper.el, this.containerEl.childNodes, direction)
+    // 最后一个
+    if (afterNode == null) {
+      if (this.containerEl.lastChild && !this.containerEl.lastChild.classList.contains('drop-shadow')) {
+        this.containerEl.appendChild(this.createDropShadowEl(wrapper))
+      }
     } else {
-      this.containerEl.appendChild(el)
+      // if (afterNode.previousSibling && !afterNode.previousSibling.classList.contains('drop-shadow')) {
+      this.containerEl.insertBefore(this.createDropShadowEl(wrapper), afterNode)
+      // }
     }
+  }
 
-    wrapper.setConfigStyle(style)
+  onDragOut () {
+    if (this.containerEl.querySelector(':scope > .drop-shadow')) {
+      this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
+    }
   }
 
   getAfterNode (dropped, siblings, row) {
@@ -104,6 +140,9 @@ export default class FlexBoxContainer {
     let last = 10000000000
     let result = null
     for (const sibling of siblings) {
+      if (sibling.classList.contains('drop-shadow')) {
+        continue
+      }
       const siblingRect = sibling.getBoundingClientRect()
       const siblingpos = (row === 'row') ? (siblingRect.x + siblingRect.width / 2) : (siblingRect.y + siblingRect.height / 2)
       if (pos < siblingpos && siblingpos < last) {
@@ -129,5 +168,25 @@ export default class FlexBoxContainer {
     return Array.from(this.containerEl.childNodes).map(el => {
       return el.elementWrapper
     }).filter(e => e != null)
+  }
+
+  /**
+   * 计算并更新子节点样式
+   * @param  {ElementWrapper} wrapper 封装类
+   */
+  updateChildStyle (wrapper) {
+    const style = Object.assign({}, wrapper.getResetStyle())
+
+    const configStyle = wrapper.config.style
+    if (configStyle.styleMargin) {
+      style.margin = configStyle.styleMargin
+    } else {
+      style.margin = 0
+    }
+
+    style.flex = configStyle.flex
+    style.width = configStyle.width ? (configStyle.width + 'px') : ''
+    style.height = configStyle.height ? (configStyle.height + 'px') : ''
+    Object.assign(wrapper.el.style, style)
   }
 }
