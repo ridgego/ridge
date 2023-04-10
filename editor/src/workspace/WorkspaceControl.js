@@ -532,6 +532,8 @@ export default class WorkSpaceControl {
         elements: this.pageManager.getPageElements()
       })
     }
+
+    window.sl = elements.map(e => e.elementWrapper)
     this.selected = elements
   }
 
