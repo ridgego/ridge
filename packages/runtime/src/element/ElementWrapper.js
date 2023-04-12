@@ -166,7 +166,7 @@ class ElementWrapper {
       if (prop.name === 'children') {
         this.children = []
         this.isContainer = true
-        this.el.classList.add('container')
+        this.el.classList.add('ridge-container')
 
         // 写入子级的具体包装类
         if (Array.isArray(this.config.props.children)) {
@@ -311,8 +311,8 @@ class ElementWrapper {
 
   // 供容器调用更改容器内布局方式
   setConfigStyle (style) {
+    console.log('set config style', style)
     Object.assign(this.config.style, style)
-
     this.updateStyle()
   }
 
@@ -351,7 +351,6 @@ class ElementWrapper {
         }
         style.visibility = configStyle.visible ? 'visible' : 'hidden'
         Object.assign(this.el.style, style)
-
       }
     }
     this.invoke('updateStyle', [this.el])

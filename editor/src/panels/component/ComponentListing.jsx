@@ -60,6 +60,7 @@ class ComponentListing extends React.Component {
   }
 
   dragStart (ev, info) {
+    window.dragComponent = info
     ev.dataTransfer.setData('text/plain', JSON.stringify(info))
 
     const img = new window.Image()

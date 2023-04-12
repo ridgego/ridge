@@ -72,9 +72,9 @@ export default class FlexBoxContainer {
       direction = 'row'
     } = this.props
 
-    if (this.containerEl.querySelector('.drop-shadow')) {
-      this.containerEl.insertBefore(el, this.containerEl.querySelector('.drop-shadow'))
-      this.containerEl.removeChild(this.containerEl.querySelector('.drop-shadow'))
+    if (this.containerEl.querySelector(':scope > .drop-shadow')) {
+      this.containerEl.insertBefore(el, this.containerEl.querySelector(':scope > .drop-shadow'))
+      this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
     }
     // 获取当前放置的次序
     // const afterNode = this.getAfterNode(el, this.containerEl.childNodes, direction)
@@ -103,8 +103,8 @@ export default class FlexBoxContainer {
     shadowNode.style.border = '2px dashed var(--semi-color-primary)'
     shadowNode.style.backgroundColor = 'var(--semi-color-primary-light-default)'
 
-    if (this.containerEl.querySelector('.drop-shadow')) {
-      this.containerEl.removeChild(this.containerEl.querySelector('.drop-shadow'))
+    if (this.containerEl.querySelector(':scope > .drop-shadow')) {
+      this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
     }
     return shadowNode
   }
@@ -129,8 +129,8 @@ export default class FlexBoxContainer {
   }
 
   onDragOut () {
-    if (this.containerEl.querySelector('.drop-shadow')) {
-      this.containerEl.removeChild(this.containerEl.querySelector('.drop-shadow'))
+    if (this.containerEl.querySelector(':scope > .drop-shadow')) {
+      this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
     }
   }
 

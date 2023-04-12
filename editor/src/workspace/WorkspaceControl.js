@@ -19,7 +19,7 @@ export default class WorkSpaceControl {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
 
-    this.selectorDropableTarget = ['.ridge-element.container', 'slot']
+    this.selectorDropableTarget = ['.ridge-container', 'slot']
 
     on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'outline' && !payload.element.classList.contains('locked')) {
@@ -81,7 +81,7 @@ export default class WorkSpaceControl {
         that.startX = event.pageX
         that.startY = event.pageY
 
-        const wbc = that.workspaceEl.getBoundingClientRect()
+        const wbc = that.workspaceEl.getBoundingClienect()
         const vbc = that.viewPortEl.getBoundingClientRect()
 
         that.workspaceX = vbc.x - wbc.x
@@ -281,6 +281,7 @@ export default class WorkSpaceControl {
 
       if (closestRidgeNode && !closestRidgeNode.classList.contains('locked')) {
         if (inputEvent.shiftKey) {
+          // shift时，原地复制一个节点，选中节点继续拖拽
           const rect = closestRidgeNode.getBoundingClientRect()
           const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
           this.onElementDragEnd(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
@@ -331,8 +332,13 @@ export default class WorkSpaceControl {
         return
       }
       ev.preventDefault()
+      if (this.selected.length) {
+        this.selectElements([])
+      }
       ev.dataTransfer.dropEffect = 'move'
       this.checkDropTargetStatus({
+        width: window.dragComponent.width,
+        height: window.dragComponent.height,
         clientX: ev.clientX,
         clientY: ev.clientY
       })
@@ -397,11 +403,13 @@ export default class WorkSpaceControl {
     })
   }
 
-  checkDropTargetStatus ({ target, clientX, clientY }) {
+  checkDropTargetStatus ({ target, clientX, clientY, width, height }) {
     this.getDroppableTarget(target, {
       x: clientX,
-      y: clientY
-    })
+      y: clientY,
+      width,
+      height
+    }, true)
   }
 
   /**
@@ -419,7 +427,7 @@ export default class WorkSpaceControl {
     const targetEl = this.getDroppableTarget(el, {
       x,
       y
-    })
+    }, false)
     const sourceElement = el.elementWrapper
     const sourceParentElement = sourceElement.config.parent ? this.pageManager.getElement(sourceElement.config.parent) : null
     const targetParentElement = targetEl ? targetEl.elementWrapper : null
@@ -469,7 +477,7 @@ export default class WorkSpaceControl {
       targetParentElement,
       elements: this.pageManager.getPageElements()
     })
-    this.selectElements([el])
+    // this.selectElements([el])
     this.moveable.updateTarget()
   }
 
@@ -493,6 +501,11 @@ export default class WorkSpaceControl {
     this.moveable.updateTarget()
   }
 
+  /**
+   * 处理开始拖拽事件, 处理当前节点从父容器脱离放置到根上
+   * @param {*} el
+   * @param {*} event
+   */
   onElementDragStart (el, event) {
     const beforeRect = el.getBoundingClientRect()
     // 计算位置
@@ -523,9 +536,14 @@ export default class WorkSpaceControl {
    * @param {*} notNotify
    */
   selectElements (elements, notNotify) {
+    if (elements === this.selected) {
+      return
+    }
+    this.selected = elements
     this.moveable.target = elements
     this.moveable.updateTarget()
     if (!notNotify && elements.length <= 1) {
+      console.log('emit EVENT_ELEMENT_SELECTED', elements)
       emit(EVENT_ELEMENT_SELECTED, {
         from: 'workspace',
         element: elements[0],
@@ -534,7 +552,6 @@ export default class WorkSpaceControl {
     }
 
     window.sl = elements.map(e => e.elementWrapper)
-    this.selected = elements
   }
 
   /**
@@ -574,9 +591,10 @@ export default class WorkSpaceControl {
    * 判断正拖拽的节点是否在容器内部区域。（存在嵌套、重叠情况下取最顶层那个）
    * @param {Element} dragEl 被拖拽的DOM Element
    * @param {{x, y}} pointPos 鼠标位置
+   * @param {boolean} updateDragOver 是否更新dragOver状态
    * @returns {Element} 可放置的容器DOM Element
    */
-  getDroppableTarget (dragEl, pointPos) {
+  getDroppableTarget (dragEl, pointPos, updateDragOver) {
     let droppableElements = []
     for (const selector of this.selectorDropableTarget) {
       droppableElements = droppableElements.concat(Array.from(document.querySelectorAll(selector)))
@@ -591,9 +609,12 @@ export default class WorkSpaceControl {
         if (el.tagName === 'SLOT' && el.getAttribute('tpl') && el.getAttribute('tpl') !== dragEl.getAttribute('ridge-id')) {
           return false
         }
+        const { x, y, width, height } = el.getBoundingClientRect()
+        return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height) && el !== dragEl && el.closest('[ridge-id]') !== dragEl
+      } else {
+        const { x, y, width, height } = el.getBoundingClientRect()
+        return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height)
       }
-      const { x, y, width, height } = el.getBoundingClientRect()
-      return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height) && el !== dragEl && el.closest('[ridge-id]') !== dragEl
     })
 
     let target = null
@@ -613,15 +634,17 @@ export default class WorkSpaceControl {
       target = sorted[0]
     }
 
-    if (target && target.elementWrapper && target.elementWrapper.hasMethod('onDragOver')) {
-      target.elementWrapper.invoke('onDragOver', [dragEl.elementWrapper])
-    }
-
-    droppableElements.forEach(el => {
-      if (el !== target) {
-        el.elementWrapper.invoke('onDragOut')
+    if (updateDragOver) {
+      if (target && target.elementWrapper && target.elementWrapper.hasMethod('onDragOver')) {
+        target.elementWrapper.invoke('onDragOver', dragEl ? [dragEl.elementWrapper || {}] : [pointPos])
       }
-    })
+
+      droppableElements.forEach(el => {
+        if (el !== target) {
+          el.elementWrapper.invoke('onDragOut')
+        }
+      })
+    }
     return target
   }
 }

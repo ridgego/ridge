@@ -266,6 +266,10 @@ export default class ComponentPanel extends React.Component {
    * @param {DOM} el
    */
   elementSelected (el) {
+    if (el.el) {
+      console.log('elementSelected', el)
+    }
+    console.log('elementSelected', el)
     this.currentElement = el
     if (this.interval) {
       window.clearInterval(this.interval)
@@ -308,6 +312,7 @@ export default class ComponentPanel extends React.Component {
 
     // 回写styleApi句柄以便直接操作基础form
     const basicPropsAPI = (formApi) => {
+      window.componentPropFormApi = this.componentEventFormApi
       this.componentPropFormApi = formApi
     }
 

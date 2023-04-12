@@ -141,7 +141,8 @@ export default class MoveablePanel extends React.Component {
               ? <div>Something went wrong. {JSON.stringify(this.state.errors)}</div>
               : <ThemeContext.Provider value={search}>{this.props.children}</ThemeContext.Provider>}
           </div>
-        </div>, document.body)
+        </div>
+        , document.body)
     )
   }
 }

@@ -1,14 +1,11 @@
-import { drop, dropRight } from 'lodash'
 import { border } from 'ridge-prop-utils'
+
+import ColumnContainer from './ColumnContainer.js'
 
 /**
  * 流式容器，HTML默认的布局方式
  */
-export default class FlowContainer {
-  constructor (props) {
-    this.props = props
-  }
-
+export default class RowContainer extends ColumnContainer {
   getContainerStyle (props) {
     const containerStyle = {
       width: '100%',
@@ -20,7 +17,7 @@ export default class FlowContainer {
 
   async mount (el) {
     const containerDiv = document.createElement('div')
-    containerDiv.classList.add('flow-container')
+    containerDiv.classList.add('flow-row-container')
     el.appendChild(containerDiv)
 
     this.containerEl = containerDiv
@@ -49,18 +46,8 @@ export default class FlowContainer {
     style.position = 'static'
     const configStyle = wrapper.config.style
 
-    if (configStyle.maxWidth) {
-      style.maxWidth = wrapper.config.style.maxWidth + 'px'
-    }
-
-    if (configStyle.center) {
-      style.margin = '0 auto'
-    } else {
-      style.margin = ''
-    }
-
     // block && inline-block
-    style.display = configStyle.display
+    style.display = 'inline-block'
 
     style.width = configStyle.width ? (configStyle.width + 'px') : ''
     style.height = configStyle.height ? (configStyle.height + 'px') : ''
@@ -124,15 +111,16 @@ export default class FlowContainer {
         continue
       }
       const sbrect = sibling.getBoundingClientRect()
-      if (sibling.style.display === 'block') {
+      const siblingDspl = sibling.style.display
+      const elDspl = el.elementWrapper ? el.elementWrapper.style.display : 'block'
+
+      if (siblingDspl === 'block' || elDspl === 'block') {
+        // 被对比节点是整行
         if (droppedRect.y < sbrect.y) {
           return sibling
         }
       } else {
-        const display = el.elementWrapper ? el.elementWrapper.style.display : 'block'
-        if (display === 'block' && droppedRect.y < sbrect.y) {
-          return sibling
-        } else if (droppedRect.y < sbrect.y + sbrect.height && droppedRect.x < sbrect.x) {
+        if (droppedRect.y < sbrect.y + sbrect.height && droppedRect.x < sbrect.x) {
           return sibling
         }
       }
@@ -142,13 +130,13 @@ export default class FlowContainer {
   onDragOver (wrapper) {
     // 获取当前放置的次序
     const afterNode = this.getAfterNode(wrapper.el, this.containerEl.childNodes)
+
+    console.log('flowContainer onDragOver', afterNode)
     // 最后一个
     if (afterNode == null) {
       this.containerEl.appendChild(this.createDropShadowEl(wrapper))
     } else {
-      // if (afterNode.previousSibling && !afterNode.previousSibling.classList.contains('drop-shadow')) {
       this.containerEl.insertBefore(this.createDropShadowEl(wrapper), afterNode)
-      // }
     }
   }
 

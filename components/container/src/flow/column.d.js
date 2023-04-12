@@ -1,11 +1,11 @@
-import FlowContainer from './FlowContainer.js'
+import ColumnContainer from './ColumnContainer.js'
 import { border } from 'ridge-prop-utils'
 export default {
-  name: 'flow-container',
-  component: FlowContainer,
-  label: '流式容器',
+  name: 'column-container',
+  component: ColumnContainer,
+  label: '多行容器',
   type: 'vanilla',
-  icon: 'IconTemplateStroked',
+  icon: 'IconSectionStroked',
   props: [{
     name: 'coverContainer',
     label: '填充',
