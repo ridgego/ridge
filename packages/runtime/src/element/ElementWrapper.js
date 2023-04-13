@@ -311,7 +311,6 @@ class ElementWrapper {
 
   // 供容器调用更改容器内布局方式
   setConfigStyle (style) {
-    console.log('set config style', style)
     Object.assign(this.config.style, style)
     this.updateStyle()
   }

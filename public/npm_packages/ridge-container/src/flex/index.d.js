@@ -14,10 +14,10 @@ export default {
     control: 'radiogroup',
     optionList: [{
       icon: 'IconSortStroked',
+      rotate: 90,
       value: 'row'
     }, {
       icon: 'IconSortStroked',
-      rotate: 90,
       value: 'column'
     }],
     value: 'row'

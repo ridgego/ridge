@@ -16,26 +16,14 @@ export default {
     type: 'children'
   }, ...border.props],
   childStyle: [{
-    name: 'maxWidth',
-    type: 'number',
-    label: '最大宽度'
-  }, {
-    name: 'display',
-    type: 'string',
-    label: '显示',
-    control: 'select',
-    optionList: [{
-      value: 'block',
-      label: '整行'
-    }, {
-      value: 'inline-block',
-      label: '行内'
-    }],
-    value: 'block'
-  }, {
     name: 'center',
     type: 'boolean',
     value: true,
     label: '居中'
+  }, {
+    name: 'fullwidth',
+    type: 'boolean',
+    value: true,
+    label: '横向占满'
   }]
 }

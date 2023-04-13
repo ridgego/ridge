@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED } from '../../constant.js'
+import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED,EVENT_ELEMENT_DRAG_END } from '../../constant.js'
 import RawSvgIcon from '../../utils/RawSvgIcon.jsx'
 import { emit, on } from '../../service/RidgeEditService.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
@@ -53,6 +53,12 @@ class OutLineTree extends React.Component {
           })
         }
       }
+    })
+
+    on(EVENT_ELEMENT_DRAG_END, payload => {
+      this.setState({
+        elements: payload.elements
+      })
     })
   }
 

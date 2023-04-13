@@ -286,6 +286,11 @@ export default class WorkSpaceControl {
           const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
           this.onElementDragEnd(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
         }
+
+        if (this.moveable.target && this.moveable.target.length) {
+          const bcr = this.moveable.target[0].getBoundingClientRect()
+          this.onElementDragEnd(this.moveable.target[0], bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
+        }
         this.moveable.target = closestRidgeNode
 
         this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
@@ -472,7 +477,7 @@ export default class WorkSpaceControl {
     }
 
     emit(EVENT_ELEMENT_DRAG_END, {
-      sourceElement,
+      sourceElement: el,
       sourceParentElement,
       targetParentElement,
       elements: this.pageManager.getPageElements()
@@ -543,7 +548,6 @@ export default class WorkSpaceControl {
     this.moveable.target = elements
     this.moveable.updateTarget()
     if (!notNotify && elements.length <= 1) {
-      console.log('emit EVENT_ELEMENT_SELECTED', elements)
       emit(EVENT_ELEMENT_SELECTED, {
         from: 'workspace',
         element: elements[0],

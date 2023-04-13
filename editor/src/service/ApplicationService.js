@@ -8,6 +8,9 @@ import { EVENT_APP_OPEN } from '../constant.js'
 import { blobToDataUrl } from '../utils/blob.js'
 const { nanoid } = require('../utils/string')
 
+/**
+ * 应用管理服务，用于创建、修改、查询应用下资源（包括页面、图片、音视频等）
+ */
 export default class ApplicationService {
   constructor () {
     this.collection = new NeCollection('ridge.app.db')
