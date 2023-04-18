@@ -25,5 +25,7 @@ export default {
     type: 'boolean',
     value: true,
     label: '横向占满'
-  }]
+  }],
+  width: 180,
+  height: 60
 }

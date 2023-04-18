@@ -12,11 +12,13 @@ class ElementWrapper {
   constructor ({
     config,
     mode,
-    pageManager
+    pageManager,
+    isCreate
   }) {
     this.config = config
     this.id = config.id
     this.componentPath = config.path
+    this.isCreate = isCreate
 
     this.mode = mode
     this.pageManager = pageManager
@@ -140,7 +142,7 @@ class ElementWrapper {
       if (!prop) continue
 
       // 编辑器初始化创建时给一次默认值
-      if (this.config.isNew) {
+      if (this.isCreate) {
         if (this.config.props[prop.name] == null && prop.value != null) {
           this.config.props[prop.name] = prop.value
         }
@@ -193,14 +195,19 @@ class ElementWrapper {
         this.emit(event.name, ...args)
       }
     }
-    this.updateExpressionedProperties()
-    // TODO 检查动态绑定的情况，按需对store变化进行响应
 
-    // 将所有需要连接的属性传入订阅
-    this.pageStore && this.pageStore.subscribe(this.id, () => {
-      this.forceUpdate()
-    }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
-    delete this.config.isNew
+    if (!this.isCreate) {
+      this.updateAssetsProperties()
+      this.updateExpressionedProperties()
+      // TODO 检查动态绑定的情况，按需对store变化进行响应
+    }
+
+    if (this.mode !== 'edit') {
+      // 将所有需要连接的属性传入订阅
+      this.pageStore && this.pageStore.subscribe(this.id, () => {
+        this.forceUpdate()
+      }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
+    }
   }
 
   isMounted () {
@@ -216,22 +223,15 @@ class ElementWrapper {
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
 
-    if (this.resizable === false) {
-      this.el.classList.add('no-resize')
-    }
     this.style = Object.assign({}, this.config.style, this.style)
     this.updateExpressionedStyle()
     this.updateStyle()
     if (!this.preloaded) {
+      // 加载定义
       await this.preload()
-      this.initPropsAndEvents()
-      await this.applyDecorate('setPropsConfig')
-      this.renderer = await this.createRenderer()
-    } else {
-      this.initPropsAndEvents()
-      await this.applyDecorate('setPropsConfig')
-      this.renderer = await this.createRenderer()
     }
+    this.initPropsAndEvents()
+    this.renderer = await this.createRenderer()
   }
 
   unmount () {
@@ -326,40 +326,52 @@ class ElementWrapper {
     }
   }
 
+  // 更新布局样式
   updateStyle () {
-    if (this.parentWrapper && this.parentWrapper.hasMethod('updateChildStyle')) {
+    // 页面根上更新布局
+    const configStyle = this.config.style
+    this.el.classList.remove('is-full')
+    this.el.classList.remove('is-locked')
+    this.el.classList.remove('is-hidden')
+    if (this.parentWrapper) {
+      // 在容器范围内：按容器规则更新布局
       this.parentWrapper.invoke('updateChildStyle', [this])
     } else {
-      const configStyle = this.config.style
-
       const style = Object.assign({}, this.getResetStyle())
 
+      style.position = 'absolute'
+      style.left = 0
+      style.top = 0
       if (this.el) {
-        if (this.config.props.coverContainer) {
+        if (this.config.style.full) {
           style.width = '100%'
           style.height = '100%'
-          style.position = 'static'
+          this.el.classList.add('is-full')
         } else {
           // 绝对定位： 固定宽高
           style.position = 'absolute'
-          style.left = 0
-          style.top = 0
           style.transform = `translate(${configStyle.x}px, ${configStyle.y}px)`
           style.width = configStyle.width ? (configStyle.width + 'px') : ''
           style.height = configStyle.height ? (configStyle.height + 'px') : ''
         }
-        style.visibility = configStyle.visible ? 'visible' : 'hidden'
         Object.assign(this.el.style, style)
       }
     }
-    this.invoke('updateStyle', [this.el])
+
+    if (configStyle.visible === false) {
+      this.el.classList.add('is-hidden')
+    }
+    if (configStyle.locked === true) {
+      this.el.classList.add('is-locked')
+    }
+    this.invoke('onUpdateStyle', [this.el])
   }
 
   /**
    * 更新动态属性
    * @param {*} props 要更改的属性
    */
-  updateProperties (props) {
+  renderUpdate (props) {
     if (props) {
       Object.assign(this.properties, props)
     }
@@ -367,11 +379,8 @@ class ElementWrapper {
       try {
         log('updateProps', this.id, this.properties)
 
+        this.updateAssetsProperties()
         this.renderer.updateProps(this.getProperties())
-
-        if (this.mode === 'edit') {
-          this.updateSize()
-        }
       } catch (e) {
         log('用属性渲染组件出错', e)
       }
@@ -412,7 +421,7 @@ class ElementWrapper {
     this.updateStyle()
 
     this.updateExpressionedProperties()
-    this.updateProperties()
+    this.renderUpdate()
   }
 
   /**
@@ -425,6 +434,20 @@ class ElementWrapper {
         continue
       }
       this.properties[key] = this.pageStore.getStateValue(value, this.getContextState())
+    }
+  }
+
+  // 处理本地模式下，图片地址换为本地dataUrl
+  updateAssetsProperties () {
+    if (this.pageManager.mode === 'edit' || this.pageManager.mode === 'preview') {
+      const imageProps = this.componentDefinition.props.filter(prop => prop.type === 'image')
+      for (const imgProp of imageProps) {
+        if (this.config.props[imgProp.name]) {
+          this.properties[imgProp.name] = this.ridge.appService.getDataUrl(this.config.props[imgProp.name])
+        } else {
+          this.properties[imgProp.name] = ''
+        }
+      }
     }
   }
 
@@ -612,10 +635,7 @@ class ElementWrapper {
     } else {
       this.updateStyle()
     }
-    // 编辑时忽略动态配置的属性、事件
-    // this.applyDecorate('setPropsConfig').then(() => {
-    this.updateProperties()
-    // })
+    this.renderUpdate()
   }
 
   setConfigLocked (locked) {

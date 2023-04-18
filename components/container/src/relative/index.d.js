@@ -48,5 +48,7 @@ export default {
       icon: 'IconAlignVCenterStroked',
       value: 'vcenter'
     }]
-  }]
+  }],
+  width: 180,
+  height: 60
 }

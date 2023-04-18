@@ -168,7 +168,7 @@ export default class Editor extends React.Component {
         // 运行页面
         await this.saveCloseCurrentPage()
         document.querySelector('.ridge-runtime').style.display = 'init'
-        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, 'run')
+        this.pageElementManager = this.ridge.loadPage(document.querySelector('.ridge-runtime'), this.pageConfig.content, 'preview')
         this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
       } else {
         this.pageElementManager.unmount()

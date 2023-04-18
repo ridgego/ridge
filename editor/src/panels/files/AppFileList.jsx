@@ -196,8 +196,13 @@ class AppFileList extends React.Component {
 
   createPage = async (dir) => {
     const { appService } = ridge
-    await appService.createPage(dir || this.getCurrentDir())
+    const newPage = await appService.createPage(dir || this.getCurrentDir())
     await this.updateFileTree()
+    this.setState({
+      currentEditKey: newPage.id,
+      currentEditValue: newPage.name,
+      currentEditValid: true
+    })
   }
 
   rename = async (node) => {

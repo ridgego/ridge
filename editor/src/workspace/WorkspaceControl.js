@@ -75,6 +75,8 @@ export default class WorkSpaceControl {
 
   setWorkSpaceMovable () {
     const that = this
+
+    /*
     this.workspaceEl.addEventListener('mousedown', event => {
       if (event.ctrlKey && this.enabled) {
         that.startDrag = true
@@ -104,13 +106,25 @@ export default class WorkSpaceControl {
       that.startDrag = false
     })
 
+    */
     this.workspaceMovable = createMoveable({
       target: this.viewPortEl,
       className: 'workspace-movable'
     })
 
+    this.workspaceMovable.on('dragStart', ev => {
+      trace('viewPortEl dragStart')
+      if (ev.inputEvent.ctrlKey) {
+        this.workspaceMovable.dragWorkSpace = true
+      } else {
+        this.workspaceMovable.dragWorkSpace = false
+      }
+    })
+
     this.workspaceMovable.on('drag', ev => {
-      if (ev.inputEvent.ctrlKey && this.selected.length === 0) {
+      trace('viewPortEl drag')
+      if (ev.inputEvent.ctrlKey && this.workspaceMovable.dragWorkSpace) {
+        this.moveable.target = null
         ev.target.style.transform = ev.transform
       }
     })
@@ -138,19 +152,28 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragStart', ev => {
-      if (this.selected.indexOf(ev.target) > -1) {
-        this.onElementDragStart(ev.target, ev)
-        this.moveable.updateTarget()
-      }
+      trace('movable dragStart', ev.target)
+      // if (this.selected.indexOf(ev.target) > -1) {
+      //   this.onElementDragStart(ev.target, ev)
+      //   this.moveable.updateTarget()
+      // }
     })
 
     this.moveable.on('drag', ev => {
+      trace('movable drag', ev)
       const config = ev.target.elementWrapper.config
+
+      if (config.parent) {
+        sm.onElementDragStart(ev.target, ev.inputEvent)
+      } else {
+        sm.checkDropTargetStatus(ev)
+      }
+
       ev.target.style.transform = `translate(${config.style.x + ev.dist[0]}px,${config.style.y + ev.dist[1]}px)`
-      sm.checkDropTargetStatus(ev)
     })
 
     this.moveable.on('dragEnd', ev => {
+      trace('movable dragEnd')
       // if (ev.isDrag) {
       const bcr = ev.target.getBoundingClientRect()
       sm.onElementDragEnd(ev.target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
@@ -267,6 +290,7 @@ export default class WorkSpaceControl {
     })
 
     this.selecto.on('dragStart', e => {
+      trace('selecto dragStart')
       const inputEvent = e.inputEvent
       const target = inputEvent.target
       // Group Selected for resize or move
@@ -301,7 +325,7 @@ export default class WorkSpaceControl {
         this.moveable.elementSnapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
         this.moveable.snapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
 
-        this.onElementDragStart(closestRidgeNode, inputEvent)
+        // this.onElementDragStart(closestRidgeNode, inputEvent)
         this.moveable.dragStart(inputEvent)
         this.selectElements([closestRidgeNode])
 
@@ -336,7 +360,6 @@ export default class WorkSpaceControl {
       if (!this.enabled) {
         return
       }
-      ev.preventDefault()
       if (this.selected.length) {
         this.selectElements([])
       }
@@ -347,6 +370,7 @@ export default class WorkSpaceControl {
         clientX: ev.clientX,
         clientY: ev.clientY
       })
+      ev.preventDefault()
     })
 
     this.workspaceEl.addEventListener('drop', this.workspaceDrop.bind(this))
@@ -409,6 +433,7 @@ export default class WorkSpaceControl {
   }
 
   checkDropTargetStatus ({ target, clientX, clientY, width, height }) {
+    trace('checkDropTargetStatus')
     this.getDroppableTarget(target, {
       x: clientX,
       y: clientY,

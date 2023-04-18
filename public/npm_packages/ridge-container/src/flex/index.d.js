@@ -87,5 +87,7 @@ export default {
     name: 'margin',
     label: '外边距',
     type: 'string'
-  }]
+  }],
+  width: 180,
+  height: 60
 }

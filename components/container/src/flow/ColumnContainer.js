@@ -27,11 +27,9 @@ export default class ColumnContainer extends BaseContainer {
     }
 
     if (configStyle.fullwidth) {
-      shadowStyle.maxWidth = ''
       shadowStyle.width = '100%'
     } else {
-      shadowStyle.width = ''
-      shadowStyle.maxWidth = configStyle.width + 'px'
+      shadowStyle.width = configStyle.width + 'px'
     }
     return shadowStyle
   }
@@ -46,5 +44,6 @@ export default class ColumnContainer extends BaseContainer {
         return sibling
       }
     }
+    return null
   }
 }

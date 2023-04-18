@@ -80,19 +80,27 @@ export default class BaseContainer {
   // 删除子节点
   removeChild (wrapper) {
     // 原地阴影
-    this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), wrapper.el, wrapper.config.style)
-    this.containerEl.removeChild(wrapper.el)
+    if (wrapper.el.parentElement === this.containerEl) {
+      this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), wrapper.el, wrapper.config.style)
+      this.containerEl.removeChild(wrapper.el)
+    } else {
+      console.warn('not children ')
+    }
   }
 
   // 检测
   checkInsertDropShadowEl (rect, afterNode, configStyle) {
+    console.log('checkInsertDropShadowEl', rect, afterNode, configStyle)
     const existedNode = this.containerEl.querySelector(':scope > .drop-shadow')
-    if (existedNode && existedNode.nextSibling === afterNode) {
+
+    console.log(existedNode, afterNode)
+    if (existedNode && existedNode.nextElementSibling === afterNode) {
       return
     }
     if (existedNode) {
       this.containerEl.removeChild(existedNode)
     }
+    console.log('checkInsertDropShadowEl Create New')
 
     const shadowNode = document.createElement('div')
     shadowNode.classList.add('drop-shadow')
@@ -120,7 +128,7 @@ export default class BaseContainer {
       this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), afterNode, wrapper.config.style)
     } else { // 新增组件放置, 这种情况下 Wrapper只是一个含有width/height的rect对象
       const afterNode = this.getAfterNode(wrapper, this.containerEl.childNodes)
-      this.checkInsertDropShadowEl(wrapper, afterNode)
+      this.checkInsertDropShadowEl(wrapper, afterNode, wrapper)
     }
   }
 

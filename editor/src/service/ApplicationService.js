@@ -5,7 +5,8 @@ import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
 import { ridge, emit } from './RidgeEditService.js'
 import { EVENT_APP_OPEN } from '../constant.js'
-import { blobToDataUrl } from '../utils/blob.js'
+import { blobToDataUrl, dataURLtoBlob } from '../utils/blob.js'
+import { getFileTree } from '../panels/files/buildFileTree.js'
 const { nanoid } = require('../utils/string')
 
 /**
@@ -16,7 +17,12 @@ export default class ApplicationService {
     this.collection = new NeCollection('ridge.app.db')
     this.store = Localforge.createInstance({ name: 'ridge-store' })
     this.backUpService = new BackUpService(this)
+    this.dataUrlByPath = {}
     this.dataUrls = {}
+  }
+
+  getFileTree () {
+    return this.fileTree
   }
 
   /**
@@ -37,6 +43,20 @@ export default class ApplicationService {
     return n === 0 ? baseName : (baseName + nextNameFunc(n))
   }
 
+  async updateAppFileTree (updateBlob) {
+    const files = await this.getFiles()
+    this.fileTree = getFileTree(files, file => {
+      if (updateBlob && file.mimeType && file.mimeType.indexOf('image/') > -1) {
+        this.store.getItem(file.key).then(async dataUrl => {
+          const blob = await dataURLtoBlob(dataUrl)
+          this.dataUrlByPath[file.path] = window.URL.createObjectURL(blob)
+          // this.dataUrlByPath[file.path] = dataUrl
+        })
+      }
+    })
+    return this.fileTree
+  }
+
   async createDirectory (parent, name) {
     const dirObject = {
       parent,
@@ -44,7 +64,9 @@ export default class ApplicationService {
       name: await this.getNewFileName(parent, name || '新建文件夹', n => `(${n})`),
       type: 'directory'
     }
-    return await this.collection.insert(dirObject)
+    const dir = await this.collection.insert(dirObject)
+    await this.updateAppFileTree()
+    return dir
   }
 
   /**
@@ -75,6 +97,8 @@ export default class ApplicationService {
     }
     await this.store.setItem(id, pageContent)
     await this.collection.insert(pageObject)
+
+    return pageObject
   }
 
   /**
@@ -322,11 +346,8 @@ export default class ApplicationService {
     }
   }
 
-  async getDataUrl (path) {
-    const file = await this.getFileByPath(path)
-    if (file) {
-      return await this.store.getItem(file.id)
-    }
+  getDataUrl (path) {
+    return this.dataUrlByPath[path]
   }
 
   async exportAppArchive () {

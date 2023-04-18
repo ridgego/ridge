@@ -1,4 +1,5 @@
 import BaseContainer from '../BaseContainer'
+import { border } from 'ridge-prop-utils'
 
 export default class FlexBoxContainer extends BaseContainer {
   getContainerStyle () {
@@ -16,6 +17,8 @@ export default class FlexBoxContainer extends BaseContainer {
       alignItems,
       gap: gap + 'px'
     }
+
+    Object.assign(containerStyle, border.style(this.props))
     return containerStyle
   }
 
@@ -23,7 +26,6 @@ export default class FlexBoxContainer extends BaseContainer {
     const style = {}
     const configStyle = wrapper.config.style
 
-    console.log('update child style ', configStyle)
     if (wrapper.config.props.styleMargin) {
       style.margin = wrapper.config.props.styleMargin
     } else {

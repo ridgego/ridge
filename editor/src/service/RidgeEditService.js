@@ -20,6 +20,8 @@ ridge.appService = appService
 ridge.backUpService = backUpService
 ridge.workspaceControl = workspaceControl
 
+appService.updateAppFileTree(true)
+
 window.Ridge = ridge
 
 const ee = new EventEmitter()

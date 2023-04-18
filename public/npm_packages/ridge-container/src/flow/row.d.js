@@ -37,5 +37,7 @@ export default {
     type: 'boolean',
     value: true,
     label: '居中'
-  }]
+  }],
+  width: 180,
+  height: 60
 }

@@ -178,6 +178,7 @@ class PageElementManager {
     }
 
     const wrapper = new ElementWrapper({
+      isCreate: true,
       mode: this.mode,
       config: elementConfig,
       pageManager: this

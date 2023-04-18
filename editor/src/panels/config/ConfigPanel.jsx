@@ -47,6 +47,11 @@ const COMPONENT_BASIC_FIELDS = [
     control: 'number',
     field: 'style.height',
     fieldEx: 'styleEx.height'
+  }, {
+    label: '填满页面',
+    type: 'boolean',
+    field: 'style.full',
+    fieldEx: 'styleEx.full'
   },
   {
     label: '显示',
@@ -179,6 +184,7 @@ export default class ComponentPanel extends React.Component {
   // 按照选择的组件更新面板配置表单
   updatePanelConfig () {
     const elementWrapper = this.currentElement.elementWrapper
+    console.log('updatePanelConfig', elementWrapper)
 
     // 节点基本样式 （x/y/w/h)
     const nodePropFields = JSON.parse(JSON.stringify(COMPONENT_BASIC_FIELDS))
@@ -266,6 +272,9 @@ export default class ComponentPanel extends React.Component {
    * @param {DOM} el
    */
   elementSelected (el) {
+    if (this.currentElement === el) {
+      return
+    }
     this.currentElement = el
     if (this.interval) {
       window.clearInterval(this.interval)

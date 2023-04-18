@@ -46,5 +46,7 @@ export default {
     name: 'coverContainer',
     label: '填充',
     type: 'boolean'
-  }, ...border.props]
+  }, ...border.props],
+  width: 180,
+  height: 60
 }
