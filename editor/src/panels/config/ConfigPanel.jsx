@@ -4,10 +4,13 @@ import ObjectForm from '../../form/ObjectForm.jsx'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import PageDataConfig from './PageDataConfig.jsx'
 import { emit, on } from '../../service/RidgeEditService.js'
+import debug from 'debug'
 
 import {
   EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
 } from '../../constant.js'
+
+const trace = debug('editor:config-panel')
 
 const COMPONENT_BASIC_FIELDS = [
   {
@@ -15,7 +18,10 @@ const COMPONENT_BASIC_FIELDS = [
     control: 'text',
     bindable: false,
     field: 'title'
-  },
+  }
+]
+
+const COMPONENT_ROOT_FIELDS = [
   {
     label: 'X',
     control: 'number',
@@ -49,12 +55,12 @@ const COMPONENT_BASIC_FIELDS = [
     fieldEx: 'styleEx.height'
   }, {
     label: '填满页面',
+    width: '50%',
     type: 'boolean',
-    field: 'style.full',
-    fieldEx: 'styleEx.full'
-  },
-  {
+    field: 'style.full'
+  }, {
     label: '显示',
+    width: '50%',
     type: 'boolean',
     control: 'checkbox',
     field: 'style.visible',
@@ -93,21 +99,17 @@ const PAGE_FIELDS = [
     }]
   },
   {
-    label: '设计宽度',
+    label: '宽度',
     bindable: false,
     control: 'number',
+    width: '50%',
     field: 'width'
   }, {
-    label: '设计高度',
+    label: '高度',
     bindable: false,
+    width: '50%',
     control: 'number',
     field: 'height'
-  }, {
-    label: '背景',
-    bindable: false,
-    field: 'background',
-    control: 'background',
-    type: 'string'
   }
 ]
 
@@ -172,9 +174,9 @@ export default class ComponentPanel extends React.Component {
       }
     })
     on(EVENT_ELEMENT_SELECTED, payload => {
-      if (payload.from === 'workspace') {
-        this.elementSelected(payload.element)
-      }
+      // if (payload.from === 'workspace') {
+      this.elementSelected(payload.element)
+      // }
     })
     on(EVENT_ELEMENT_DRAG_END, payload => {
       this.elementSelected(payload.sourceElement)
@@ -184,22 +186,29 @@ export default class ComponentPanel extends React.Component {
   // 按照选择的组件更新面板配置表单
   updatePanelConfig () {
     const elementWrapper = this.currentElement.elementWrapper
-    console.log('updatePanelConfig', elementWrapper)
 
-    // 节点基本样式 （x/y/w/h)
-    const nodePropFields = JSON.parse(JSON.stringify(COMPONENT_BASIC_FIELDS))
-    const nodeEventFields = []
+    trace('updatePanelConfig', elementWrapper)
 
-    // 放置到容器中，有容器赋予的样式配置的
-    for (const style of elementWrapper.parentWrapper?.componentDefinition?.childStyle || []) {
-      const field = {}
-      Object.assign(field, style, {
-        field: 'style.' + style.name,
-        fieldEx: 'styleEl.' + style.name
-      })
-      nodePropFields.push(field)
+    // 节点基本样式 （title/visible)
+    const nodePropFields = []
+
+    nodePropFields.push(...COMPONENT_BASIC_FIELDS)
+
+    if (elementWrapper.parentWrapper) {
+      // 放置到容器中，有容器赋予的样式配置的
+      for (const style of elementWrapper.parentWrapper?.componentDefinition?.childStyle || []) {
+        const field = {}
+        Object.assign(field, style, {
+          field: 'style.' + style.name,
+          fieldEx: 'styleEl.' + style.name
+        })
+        nodePropFields.push(field)
+      }
+    } else {
+      nodePropFields.push(...COMPONENT_ROOT_FIELDS)
     }
 
+    const nodeEventFields = []
     // 能加载到节点定义
     if (elementWrapper.componentDefinition) {
       nodePropFields.push({
@@ -390,7 +399,6 @@ export default class ComponentPanel extends React.Component {
           <TabPane tab='属性' itemKey='style'>
             <ObjectForm
               fields={PAGE_FIELDS}
-              tableStyle
               getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
             />
           </TabPane>

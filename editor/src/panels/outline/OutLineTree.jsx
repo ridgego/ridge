@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED,EVENT_ELEMENT_DRAG_END } from '../../constant.js'
+import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
 import RawSvgIcon from '../../utils/RawSvgIcon.jsx'
 import { emit, on } from '../../service/RidgeEditService.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
@@ -63,6 +63,9 @@ class OutLineTree extends React.Component {
   }
 
   onNodeSelected (val) {
+    this.setState({
+      selected: val
+    })
     emit(EVENT_ELEMENT_SELECTED, {
       from: 'outline',
       element: this.state.elements[val].el
@@ -117,7 +120,9 @@ class OutLineTree extends React.Component {
 
   toggleLock = (data) => {
     const lockStatus = !data.element.config.style.locked
-    data.element.setConfigLocked(lockStatus)
+    data.element.setPropsConfig({}, {
+      'style.locked': lockStatus
+    })
     this.setState({
       elements: { ...this.state.elements }
     })

@@ -1,7 +1,7 @@
 import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
-import { trim, nanoid } from '../utils/string'
+import { nanoid } from '../utils/string'
 const log = debug('ridge:element')
 const error = debug('error:element')
 
@@ -223,6 +223,10 @@ class ElementWrapper {
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
 
+    this.el.hasMethod = this.hasMethod.bind(this)
+    this.el.invoke = this.invoke.bind(this)
+    this.el.forceUpdate = this.forceUpdate.bind(this)
+
     this.style = Object.assign({}, this.config.style, this.style)
     this.updateExpressionedStyle()
     this.updateStyle()
@@ -361,8 +365,15 @@ class ElementWrapper {
     if (configStyle.visible === false) {
       this.el.classList.add('is-hidden')
     }
-    if (configStyle.locked === true) {
-      this.el.classList.add('is-locked')
+
+    // 设置编辑器的属性
+    if (this.mode === 'edit') {
+      if (configStyle.locked === true) {
+        this.el.classList.add('is-locked')
+      }
+      if (configStyle.full === true) {
+        this.el.classList.add('is-full')
+      }
     }
     this.invoke('onUpdateStyle', [this.el])
   }
@@ -586,7 +597,7 @@ class ElementWrapper {
   }
 
   /**
-     * 组件配置信息发生改变，通过编辑器配置面板传入
+     * 组件配置信息发生改变
      * @param {*} values
      * @param {*} field
      */
@@ -604,6 +615,8 @@ class ElementWrapper {
           [key]: field[keyPath]
         })
       }
+
+      // 动态属性
       if (type === 'propsEx') {
         if (field[keyPath] == null) {
           delete this.config.propEx[key]
@@ -613,6 +626,7 @@ class ElementWrapper {
           })
         }
       }
+      // 动态样式
       if (type === 'styleEx') {
         if (field[keyPath] == null) {
           delete this.config.styleEx[key]
@@ -643,13 +657,14 @@ class ElementWrapper {
     this.style.locked = locked
 
     if (locked) {
-      this.el.classList.add('locked')
+      this.el.classList.add('is-locked')
     } else {
-      this.el.classList.remove('locked')
+      this.el.classList.remove('is-locked')
     }
   }
 
   setConfigVisible (visible) {
+    this.set
     this.config.style.visible = visible
     this.el.style.visibility = visible ? 'visible' : 'hidden'
   }

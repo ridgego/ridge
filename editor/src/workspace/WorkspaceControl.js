@@ -5,7 +5,6 @@ import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, 
 import { emit, on } from '../service/RidgeEditService'
 
 import debug from 'debug'
-
 const trace = debug('ridge:workspace')
 /**
  * 控制工作区组件的Drag/Resize/New等动作
@@ -19,10 +18,13 @@ export default class WorkSpaceControl {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
 
-    this.selectorDropableTarget = ['.ridge-container', 'slot']
+    this.selectorDropableTarget = ['.ridge-container']
 
     on(EVENT_ELEMENT_SELECTED, payload => {
-      if (payload.from === 'outline' && !payload.element.classList.contains('locked')) {
+      if (payload.from === 'outline' &&
+        !payload.element.classList.contains('is-locked') &&
+        !payload.element.classList.contains('is-hidden') &&
+        !payload.element.classList.contains('is-full')) {
         this.selectElements([payload.element])
       }
     })
@@ -75,7 +77,6 @@ export default class WorkSpaceControl {
 
   setWorkSpaceMovable () {
     const that = this
-
     /*
     this.workspaceEl.addEventListener('mousedown', event => {
       if (event.ctrlKey && this.enabled) {
@@ -160,6 +161,10 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('drag', ev => {
+      const target = ev.target
+      if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
+        return
+      }
       trace('movable drag', ev)
       const config = ev.target.elementWrapper.config
 
@@ -173,12 +178,12 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragEnd', ev => {
-      trace('movable dragEnd')
-      // if (ev.isDrag) {
-      const bcr = ev.target.getBoundingClientRect()
-      sm.onElementDragEnd(ev.target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
-      // sm.onElementDragEnd(ev.target, ev.clientX, ev.clientY)
-      // }
+      if (ev.isDrag) {
+        trace('movable dragEnd')
+        // if (ev.isDrag) {
+        const bcr = ev.target.getBoundingClientRect()
+        sm.placeElementAt(ev.target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
+      }
     })
 
     this.moveable.on('resize', ({
@@ -289,70 +294,76 @@ export default class WorkSpaceControl {
       hitRate: 0
     })
 
-    this.selecto.on('dragStart', e => {
-      trace('selecto dragStart')
-      const inputEvent = e.inputEvent
-      const target = inputEvent.target
-      // Group Selected for resize or move
-      if (target.className && target.className.indexOf && (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1)) {
-        e.stop()
-      }
-      if (inputEvent.ctrlKey) {
-        e.stop()
-        return
-      }
-      const closestRidgeNode = target.closest('.ridge-element')
-
-      if (closestRidgeNode && !closestRidgeNode.classList.contains('locked')) {
-        if (inputEvent.shiftKey) {
-          // shift时，原地复制一个节点，选中节点继续拖拽
-          const rect = closestRidgeNode.getBoundingClientRect()
-          const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
-          this.onElementDragEnd(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
-        }
-
-        if (this.moveable.target && this.moveable.target.length) {
-          const bcr = this.moveable.target[0].getBoundingClientRect()
-          this.onElementDragEnd(this.moveable.target[0], bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
-        }
-        this.moveable.target = closestRidgeNode
-
-        this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
-          return el !== closestRidgeNode && el.closest('.ridge-element') !== closestRidgeNode
-        })]
-
-        this.moveable.elementGuidelines = this.guidelines
-        this.moveable.elementSnapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
-        this.moveable.snapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
-
-        // this.onElementDragStart(closestRidgeNode, inputEvent)
-        this.moveable.dragStart(inputEvent)
-        this.selectElements([closestRidgeNode])
-
-        e.inputEvent && e.inputEvent.stopPropagation()
-        e.inputEvent && e.inputEvent.preventDefault()
-        e.stop()
-      } else if (inputEvent.ctrlKey) {
-        // movableManager.current.getMoveable().dragStart(inputEvent)
-        e.stop()
-      }
-    })
+    this.selecto.on('dragStart', this.onSelectoDragStart.bind(this))
 
     this.selecto.on('selectEnd', ({ isDragStart, selected, inputEvent, rect }) => {
       if (isDragStart) {
         inputEvent.preventDefault()
       }
       this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
-
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
       this.selectElements(selected.filter(el => {
-        return !el.classList.contains('locked')
+        return !el.classList.contains('is-locked') && !el.classList.contains('is-hidden') && !el.classList.contains('is-full')
       }))
     })
   }
 
   updateMovable () {
     this.moveable.updateTarget()
+  }
+
+  onSelectoDragStart (e) {
+    const inputEvent = e.inputEvent
+    const target = inputEvent.target
+    // Group Selected for resize or move
+    if (target.className && target.className.indexOf && (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1)) {
+      e.stop()
+    }
+    if (inputEvent.ctrlKey) {
+      e.stop()
+      return
+    }
+    trace('selecto dragStart')
+    const closestRidgeNode = target.closest('.ridge-element')
+
+    if (closestRidgeNode && !closestRidgeNode.classList.contains('is-locked') &&
+    !closestRidgeNode.classList.contains('is-full') &&
+    !closestRidgeNode.classList.contains('is-hidden')) {
+      if (inputEvent.shiftKey) {
+        // shift时，原地复制一个节点，选中节点继续拖拽
+        const rect = closestRidgeNode.getBoundingClientRect()
+        const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
+        this.placeElementAt(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
+      }
+
+      // 清除既有选中
+      if (this.moveable.target && this.moveable.target.length) {
+        // const bcr = this.moveable.target[0].getBoundingClientRect()
+        // this.selectElements([])
+        this.moveable.target = null
+        // this.moveable.updateTarget()
+        // this.placeElementAt(this.moveable.target[0], bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
+      }
+      this.moveable.target = closestRidgeNode
+
+      this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
+        return el !== closestRidgeNode && el.closest('.ridge-element') !== closestRidgeNode
+      })]
+      this.moveable.elementGuidelines = this.guidelines
+      this.moveable.elementSnapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
+      this.moveable.snapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
+
+      // this.onElementDragStart(closestRidgeNode, inputEvent)
+      this.moveable.dragStart(inputEvent)
+      this.selectElements([closestRidgeNode])
+
+      e.inputEvent && e.inputEvent.stopPropagation()
+      e.inputEvent && e.inputEvent.preventDefault()
+      e.stop()
+    } else if (inputEvent.ctrlKey) {
+      // movableManager.current.getMoveable().dragStart(inputEvent)
+      e.stop()
+    }
   }
 
   initComponentDrop () {
@@ -443,71 +454,35 @@ export default class WorkSpaceControl {
   }
 
   /**
-   * 鼠标拖拽元素（新增/既有）到页面区域， 存在以下三种情况：
-   * 1. 在同一个父容器内移动
-   * 2. 从父容器到根
-   * 3. 从根到父容器
-   * 4. 一个父容器到另一个父容器
+   * 页面元素（el）释放到工作区某个位置结束
    * @param {Element} el 元素DOM对象
    * @param {number} x 鼠标当前位置X
    * @param {number} y 鼠标位置Y
    */
-  onElementDragEnd (el, x, y) {
+  placeElementAt (el, x, y) {
+    trace('Element Drag End', el, { x, y })
     // 获取可放置的容器
     const targetEl = this.getDroppableTarget(el, {
       x,
       y
     }, false)
+    trace('Drop target', targetEl)
     const sourceElement = el.elementWrapper
-    const sourceParentElement = sourceElement.config.parent ? this.pageManager.getElement(sourceElement.config.parent) : null
     const targetParentElement = targetEl ? targetEl.elementWrapper : null
-    trace('Element Drag End', el, { x, y })
-    if (sourceParentElement == null && targetParentElement == null) {
+    if (targetParentElement == null) {
       // 根上移动： 只更新配置
       trace('页面上移动')
       this.putElementToRoot(el, x, y)
     } else {
-      if (sourceParentElement === targetParentElement && targetParentElement != null) {
-        trace('同容器内移动')
-        // 1.在同一个父容器内移动
-        targetParentElement.invoke('updateChild', [sourceElement])
-
-        // 有的容器会包含次序，因此重新更新children属性
-        targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
-      } else if (sourceParentElement && targetParentElement == null) {
-        trace('从父容器到页面')
-        // 2. 从父容器到根
-        // DOM操作，放置到ViewPort上
-        this.putElementToRoot(el, x, y)
-
-        this.pageManager.detachChildElement(sourceElement)
-      } else if (sourceParentElement == null && targetParentElement) {
-        // 3. 放入一个容器
-        trace('从页面到父容器')
-        const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
-        this.pageManager.attachToParent(targetParentElement, sourceElement, slotName, {
-          x, y
-        })
-      } else if (sourceParentElement !== targetParentElement) {
-        trace('从一个父容器到另一个父容器')
-        // 4. 一个父容器到另一个父容器
-        const slotName = targetEl.tagName === 'SLOT' ? (targetEl.getAttribute('name') || 'slot') : null
-        this.pageManager.attachToParent(targetParentElement, sourceElement, slotName, {
-          x, y
-        })
-        this.pageManager.detachChildElement(sourceElement)
-      }
-      sourceElement.config.parent = targetParentElement ? targetParentElement.id : null
-      targetParentElement && targetParentElement.removeStatus('drag-over', targetEl)
+      // 放入一个容器
+      trace('从页面到父容器')
+      this.pageManager.attachToParent(targetParentElement, sourceElement, { x, y })
     }
-
     emit(EVENT_ELEMENT_DRAG_END, {
       sourceElement: el,
-      sourceParentElement,
       targetParentElement,
       elements: this.pageManager.getPageElements()
     })
-    // this.selectElements([el])
     this.moveable.updateTarget()
   }
 
@@ -572,7 +547,7 @@ export default class WorkSpaceControl {
     this.selected = elements
     this.moveable.target = elements
     this.moveable.updateTarget()
-    if (!notNotify && elements.length <= 1) {
+    if (!notNotify && elements && elements.length <= 1) {
       emit(EVENT_ELEMENT_SELECTED, {
         from: 'workspace',
         element: elements[0],
@@ -580,7 +555,9 @@ export default class WorkSpaceControl {
       })
     }
 
-    window.sl = elements.map(e => e.elementWrapper)
+    if (elements) {
+      window.sl = elements.map(e => e.elementWrapper)
+    }
   }
 
   /**
@@ -619,7 +596,7 @@ export default class WorkSpaceControl {
   /**
    * 判断正拖拽的节点是否在容器内部区域。（存在嵌套、重叠情况下取最顶层那个）
    * @param {Element} dragEl 被拖拽的DOM Element
-   * @param {{x, y}} pointPos 鼠标位置
+   * @param {{x, y}} pointPos 鼠标位置（不存在则取dragEl正中坐标）
    * @param {boolean} updateDragOver 是否更新dragOver状态
    * @returns {Element} 可放置的容器DOM Element
    */
@@ -629,19 +606,23 @@ export default class WorkSpaceControl {
       droppableElements = droppableElements.concat(Array.from(document.querySelectorAll(selector)))
     }
     const filtered = Array.from(droppableElements).filter(el => {
+      const { x, y, width, height } = el.getBoundingClientRect()
       // Exclude: droppables in the dragging element
-      if (dragEl) {
-        if (dragEl.contains(el)) {
+      if (dragEl) { // 现有元素拖拽
+        if (dragEl.contains(el)) { // 拖拽节点包含了可放置容器
+          return false
+        }
+
+        // 容器判断 isDroppable为false
+        if (el.invoke('isDroppable', [dragEl]) === false) {
           return false
         }
         // Exclude: slot el with element dropped
-        if (el.tagName === 'SLOT' && el.getAttribute('tpl') && el.getAttribute('tpl') !== dragEl.getAttribute('ridge-id')) {
-          return false
-        }
-        const { x, y, width, height } = el.getBoundingClientRect()
+        // if (el.tagName === 'SLOT' && el.getAttribute('tpl') && el.getAttribute('tpl') !== dragEl.getAttribute('ridge-id')) {
+        //   return false
+        // }
         return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height) && el !== dragEl && el.closest('[ridge-id]') !== dragEl
-      } else {
-        const { x, y, width, height } = el.getBoundingClientRect()
+      } else { // 新元素拖拽放置
         return pointPos.x > x && pointPos.x < (x + width) && pointPos.y > y && pointPos.y < (y + height)
       }
     })
@@ -663,14 +644,17 @@ export default class WorkSpaceControl {
       target = sorted[0]
     }
 
+    // 拖拽更新位置
     if (updateDragOver) {
-      if (target && target.elementWrapper && target.elementWrapper.hasMethod('onDragOver')) {
-        target.elementWrapper.invoke('onDragOver', dragEl ? [dragEl.elementWrapper || {}] : [pointPos])
+      try {
+        target && target.invoke('onDragOver', dragEl ? [dragEl.elementWrapper || {}] : [pointPos])
+      } catch (e) {
+        console.error('Container dragOver Error', target)
       }
 
       droppableElements.forEach(el => {
         if (el !== target) {
-          el.elementWrapper.invoke('onDragOut')
+          el.invoke('onDragOut')
         }
       })
     }

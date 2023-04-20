@@ -37,6 +37,9 @@ const FORM_DEBUG_SECTION = [
     }, {
       label: '拖拽动作',
       value: 'ridge:workspace'
+    }, {
+      label: '配置面板',
+      value: 'ridge:config-panel'
     }],
     selectAll: true,
     bindable: false

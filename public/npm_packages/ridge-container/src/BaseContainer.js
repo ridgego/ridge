@@ -80,8 +80,12 @@ export default class BaseContainer {
   // 删除子节点
   removeChild (wrapper) {
     // 原地阴影
-    this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), wrapper.el, wrapper.config.style)
-    this.containerEl.removeChild(wrapper.el)
+    if (wrapper.el.parentElement === this.containerEl) {
+      this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), wrapper.el, wrapper.config.style)
+      this.containerEl.removeChild(wrapper.el)
+    } else {
+      console.warn('not children ')
+    }
   }
 
   // 检测

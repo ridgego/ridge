@@ -30,19 +30,18 @@ export default class Editor extends React.Component {
 
     this.state = {
       componentPanelVisible: true,
-      propPanelVisible: true,
-      outlinePanelVisible: true,
-      dataPanelVisible: true,
+      propPanelVisible: false,
+      outlinePanelVisible: false,
+      appFilePanelVisible: true,
       editorLang: null,
       modeRun: false,
+      currentPageId: null,
       panelPosition: PANEL_SIZE_1920
     }
     if (window.screen.width <= 1366) {
       this.state.panelPosition = PANEL_SIZE_1366
     }
     this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 50)
-
-    this.currentId = null
     this.initialize()
   }
 
@@ -123,6 +122,11 @@ export default class Editor extends React.Component {
    */
   loadPage (pageConfig) {
     trace('loadPage', pageConfig)
+    this.setState({
+      currentPageId: pageConfig.id,
+      propPanelVisible: true,
+      outlinePanelVisible: true
+    })
     this.pageConfig = pageConfig
     const { content } = this.pageConfig
     workspaceControl.fitToCenter(content.properties.width, content.properties.height)
@@ -193,7 +197,7 @@ export default class Editor extends React.Component {
 
     const {
       componentPanelVisible,
-      dataPanelVisible,
+      appFilePanelVisible,
       propPanelVisible,
       outlinePanelVisible,
       modeRun,
@@ -216,8 +220,8 @@ export default class Editor extends React.Component {
             toggoleRunMode={this.toggoleRunMode.bind(this)}
           />
           <ComponentPanel title='组件' position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
-          <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && outlinePanelVisible} />
-          <RightBottomPanel title='组件大纲' position={panelPosition.DATA} visible={!modeRun && dataPanelVisible} />
+          <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && appFilePanelVisible} />
+          <RightBottomPanel title='布局导航' position={panelPosition.DATA} visible={!modeRun && outlinePanelVisible} />
           <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
         </div>
         <div
