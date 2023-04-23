@@ -15,7 +15,7 @@ export const createMoveable = (opts) => {
     rotatable: false,
     warpable: false,
     // can be used in draggable, resizable, scalable, and rotateable.
-    pinchable: true, // ["resizable", "scalable", "rotatable"]
+    pinchable: false, // ["resizable", "scalable", "rotatable"]
     origin: true,
     keepRatio: false,
     // Resize, Scale Events at edges.

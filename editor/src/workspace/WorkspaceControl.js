@@ -58,6 +58,10 @@ export default class WorkSpaceControl {
     this.pageManager = manager
   }
 
+  updateMovable () {
+    this.moveable.updateTarget()
+  }
+
   fitToCenter (width, height) {
     this.viewPortEl.style.width = width + 'px'
     this.viewPortEl.style.height = height + 'px'
@@ -147,9 +151,7 @@ export default class WorkSpaceControl {
 
     this.moveable = createMoveable({
       target: [],
-      snappable: true,
-      warpable: true,
-      scalable: true
+      snappable: true
     })
 
     this.moveable.on('dragStart', ev => {
@@ -183,6 +185,8 @@ export default class WorkSpaceControl {
         // if (ev.isDrag) {
         const bcr = ev.target.getBoundingClientRect()
         sm.placeElementAt(ev.target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
+      } else {
+        sm.selectElements([ev.target])
       }
     })
 
@@ -293,42 +297,23 @@ export default class WorkSpaceControl {
       // The rate at which the target overlaps the drag area to be selected. (default: 100)
       hitRate: 0
     })
-
     this.selecto.on('dragStart', this.onSelectoDragStart.bind(this))
-
-    this.selecto.on('selectEnd', ({ isDragStart, selected, inputEvent, rect }) => {
-      if (isDragStart) {
-        inputEvent.preventDefault()
-      }
-      this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
-      this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
-      this.selectElements(selected.filter(el => {
-        return !el.classList.contains('is-locked') && !el.classList.contains('is-hidden') && !el.classList.contains('is-full')
-      }))
-    })
-  }
-
-  updateMovable () {
-    this.moveable.updateTarget()
+    this.selecto.on('selectEnd', this.onSelectoDragEnd.bind(this))
   }
 
   onSelectoDragStart (e) {
     const inputEvent = e.inputEvent
     const target = inputEvent.target
-    // Group Selected for resize or move
-    if (target.className && target.className.indexOf && (target.className.indexOf('moveable-area') > -1 || target.className.indexOf('moveable-control') > -1)) {
+    if (target.classList && (target.classList.contains('moveable-area') || target.classList.contains('moveable-control'))) {
       e.stop()
     }
     if (inputEvent.ctrlKey) {
       e.stop()
       return
     }
-    trace('selecto dragStart')
     const closestRidgeNode = target.closest('.ridge-element')
 
-    if (closestRidgeNode && !closestRidgeNode.classList.contains('is-locked') &&
-    !closestRidgeNode.classList.contains('is-full') &&
-    !closestRidgeNode.classList.contains('is-hidden')) {
+    if (closestRidgeNode) {
       if (inputEvent.shiftKey) {
         // shift时，原地复制一个节点，选中节点继续拖拽
         const rect = closestRidgeNode.getBoundingClientRect()
@@ -344,8 +329,10 @@ export default class WorkSpaceControl {
         // this.moveable.updateTarget()
         // this.placeElementAt(this.moveable.target[0], bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
       }
-      this.moveable.target = closestRidgeNode
 
+      this.moveable.target = closestRidgeNode
+      // this.moveable.resizable = false
+      // this.selectElements([closestRidgeNode])
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
         return el !== closestRidgeNode && el.closest('.ridge-element') !== closestRidgeNode
       })]
@@ -355,7 +342,6 @@ export default class WorkSpaceControl {
 
       // this.onElementDragStart(closestRidgeNode, inputEvent)
       this.moveable.dragStart(inputEvent)
-      this.selectElements([closestRidgeNode])
 
       e.inputEvent && e.inputEvent.stopPropagation()
       e.inputEvent && e.inputEvent.preventDefault()
@@ -364,6 +350,15 @@ export default class WorkSpaceControl {
       // movableManager.current.getMoveable().dragStart(inputEvent)
       e.stop()
     }
+  }
+
+  onSelectoDragEnd ({ isDragStart, selected, inputEvent, rect }) {
+    if (isDragStart) {
+      inputEvent.preventDefault()
+    }
+    this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
+    this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
+    this.selectElements(selected)
   }
 
   initComponentDrop () {
@@ -387,64 +382,7 @@ export default class WorkSpaceControl {
     this.workspaceEl.addEventListener('drop', this.workspaceDrop.bind(this))
   }
 
-  initKeyBind () {
-    Mousetrap.bind('del', () => {
-      if (!this.enabled) {
-        return
-      }
-      if (this.selected) {
-        for (const el of this.selected) {
-          this.pageManager.removeElement(el.elementWrapper.id)
-        }
-        this.selectElements([])
-      }
-    })
-
-    Mousetrap.bind('right', () => {
-      if (this.selected) {
-        for (const el of this.selected) {
-          el.elementWrapper.setConfigStyle({
-            x: el.elementWrapper.config.style.x + 1
-          })
-        }
-        this.moveable.updateTarget()
-      }
-    })
-
-    Mousetrap.bind('left', () => {
-      if (this.selected) {
-        for (const el of this.selected) {
-          el.elementWrapper.setConfigStyle({
-            x: el.elementWrapper.config.style.x - 1
-          })
-        }
-        this.moveable.updateTarget()
-      }
-    })
-    Mousetrap.bind('up', () => {
-      if (this.selected) {
-        for (const el of this.selected) {
-          el.elementWrapper.setConfigStyle({
-            y: el.elementWrapper.config.style.y - 1
-          })
-        }
-        this.moveable.updateTarget()
-      }
-    })
-    Mousetrap.bind('down', () => {
-      if (this.selected) {
-        for (const el of this.selected) {
-          el.elementWrapper.setConfigStyle({
-            y: el.elementWrapper.config.style.y + 1
-          })
-        }
-        this.moveable.updateTarget()
-      }
-    })
-  }
-
   checkDropTargetStatus ({ target, clientX, clientY, width, height }) {
-    trace('checkDropTargetStatus')
     this.getDroppableTarget(target, {
       x: clientX,
       y: clientY,
@@ -544,8 +482,19 @@ export default class WorkSpaceControl {
     if (elements === this.selected) {
       return
     }
-    this.selected = elements
-    this.moveable.target = elements
+
+    this.moveable.resizable = true
+    if (elements.length === 1) {
+      if (elements[0].classList.contains('is-locked')) {
+        this.moveable.resizable = false
+      }
+      this.selected = elements
+      this.moveable.target = elements
+    } else {
+      this.selected = elements.filter(el => !el.classList.contains('is-locked'))
+      this.moveable.target = elements.filter(el => !el.classList.contains('is-locked'))
+    }
+
     this.moveable.updateTarget()
     if (!notNotify && elements && elements.length <= 1) {
       emit(EVENT_ELEMENT_SELECTED, {
@@ -558,6 +507,12 @@ export default class WorkSpaceControl {
     if (elements) {
       window.sl = elements.map(e => e.elementWrapper)
     }
+  }
+
+  unSelectElements (elements) {
+    this.selected = this.selected.filter(el => elements.indexOf(el) === -1)
+    this.moveable.target = this.selected
+    this.moveable.updateTarget()
   }
 
   /**
@@ -659,5 +614,61 @@ export default class WorkSpaceControl {
       })
     }
     return target
+  }
+
+  initKeyBind () {
+    Mousetrap.bind('del', () => {
+      if (!this.enabled) {
+        return
+      }
+      if (this.selected) {
+        for (const el of this.selected) {
+          this.pageManager.removeElement(el.elementWrapper.id)
+        }
+        this.selectElements([])
+      }
+    })
+
+    Mousetrap.bind('right', () => {
+      if (this.selected) {
+        for (const el of this.selected) {
+          el.elementWrapper.setConfigStyle({
+            x: el.elementWrapper.config.style.x + 1
+          })
+        }
+        this.moveable.updateTarget()
+      }
+    })
+
+    Mousetrap.bind('left', () => {
+      if (this.selected) {
+        for (const el of this.selected) {
+          el.elementWrapper.setConfigStyle({
+            x: el.elementWrapper.config.style.x - 1
+          })
+        }
+        this.moveable.updateTarget()
+      }
+    })
+    Mousetrap.bind('up', () => {
+      if (this.selected) {
+        for (const el of this.selected) {
+          el.elementWrapper.setConfigStyle({
+            y: el.elementWrapper.config.style.y - 1
+          })
+        }
+        this.moveable.updateTarget()
+      }
+    })
+    Mousetrap.bind('down', () => {
+      if (this.selected) {
+        for (const el of this.selected) {
+          el.elementWrapper.setConfigStyle({
+            y: el.elementWrapper.config.style.y + 1
+          })
+        }
+        this.moveable.updateTarget()
+      }
+    })
   }
 }

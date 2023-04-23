@@ -3,7 +3,7 @@ import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
 import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
 import RawSvgIcon from '../../utils/RawSvgIcon.jsx'
-import { emit, on } from '../../service/RidgeEditService.js'
+import { workspaceControl, on, emit } from '../../service/RidgeEditService.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 
 const { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } = SemiIcons
@@ -66,10 +66,7 @@ class OutLineTree extends React.Component {
     this.setState({
       selected: val
     })
-    emit(EVENT_ELEMENT_SELECTED, {
-      from: 'outline',
-      element: this.state.elements[val].el
-    })
+    workspaceControl.selectElements([this.state.elements[val].el])
   }
 
   buildElementTree (elements) {
@@ -126,24 +123,23 @@ class OutLineTree extends React.Component {
     this.setState({
       elements: { ...this.state.elements }
     })
-    if (lockStatus) {
-      emit(EVENT_ELEMENT_UNSELECT, {
-        element: data.element.el
-      })
-    }
+    workspaceControl.selectElements([data.element.el])
   }
 
   toggleVisible = (data) => {
     const visible = !data.element.config.style.visible
-    data.element.setConfigVisible(visible)
+    if (!visible) {
+      workspaceControl.selectElements([])
+    }
+    data.element.setPropsConfig({}, {
+      'style.visible': visible
+    })
+    if (visible) {
+      workspaceControl.selectElements([data.element.el])
+    }
     this.setState({
       elements: { ...this.state.elements }
     })
-    if (!visible) {
-      emit(EVENT_ELEMENT_UNSELECT, {
-        element: data.element.el
-      })
-    }
   }
 
   renderFullLabel = (label, data) => {

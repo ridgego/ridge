@@ -59,7 +59,7 @@ const COMPONENT_ROOT_FIELDS = [
     type: 'boolean',
     field: 'style.full'
   }, {
-    label: '显示',
+    label: '隐藏',
     width: '50%',
     type: 'boolean',
     control: 'checkbox',
