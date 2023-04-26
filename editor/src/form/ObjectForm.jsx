@@ -86,18 +86,18 @@ export default class ObjectForm extends React.Component {
     }
     if (field.type === 'divider') {
       return <Divider margin='0' align='center'>{field.label || ''}</Divider>
-    } else if (field.bindable === false) {
-      return (
-        <div className='field-block' style={{ width: field.width || '100%' }}>
-          {RenderField}
-        </div>
-      )
-    } else {
+    } else if (field.fieldEx) {
       // 封装动态绑定的支持
       return (
         <div className='field-block with-code-expr' style={{ width: field.width || '100%' }}>
           {RenderField}
           <StateBindEdit noLabel field={field.fieldEx} options={options} />
+        </div>
+      )
+    } else {
+      return (
+        <div className='field-block' style={{ width: field.width || '100%' }}>
+          {RenderField}
         </div>
       )
     }

@@ -264,6 +264,8 @@ class PageElementManager {
       sourceParentElement.removeChild(childElement)
       sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
     }
+
+
     delete childElement.config.parent
     delete childElement.parentWrapper
   }
@@ -274,18 +276,11 @@ class PageElementManager {
    * @param {*} sourceElement
    * @param {*} targetEl
    */
-  attachToParent (targetParentElement, sourceElement, slotName, { x, y }) {
-    if (slotName) { // 放置到slot中
-      // 设置slot属性值为组件id
-      // 父组件需要执行DOM操作
-      targetParentElement.setPropsConfig(null, {
-        ['props.' + slotName]: sourceElement
-      })
-    } else {
-      // 这里容器会提供 appendChild 方法，并提供放置位置
-      targetParentElement.invoke('appendChild', [sourceElement, x, y])
-      targetParentElement.config.props.children = targetParentElement.invoke('getChildren')
-    }
+  attachToParent (targetParentElement, sourceElement, { x, y }) {
+    // 这里容器会提供 appendChild 方法，并提供放置位置
+    const result = targetParentElement.invoke('appendChild', [sourceElement, x, y])
+
+    Object.assign(targetParentElement.config.props, result)
 
     sourceElement.config.parent = targetParentElement.id
     sourceElement.parentWrapper = targetParentElement

@@ -16,14 +16,28 @@ export default class BaseContainer {
   getContainerStyle () {}
 
   /**
-     * @abstract
-     */
+   * 子节点style信息
+   * @abstract
+   */
   getChildStyle (wrapper) {}
 
   /**
-     * @abstract
-     */
+   * 获取shadow样式
+   * @abstract
+   */
   getShadowStyle () {}
+
+  /**
+   * 判断元素是否属于插槽节点
+   * @abstract
+   */
+  isSlot (el) { return false }
+
+  /**
+   * 获取插槽属性
+   * @abstract
+   */
+  getSlotProps () { return {} }
 
   /**
      * 拖拽一个矩形到容器上，判断将其插入到哪个位置
@@ -75,10 +89,18 @@ export default class BaseContainer {
       }
       this.updateChildStyle(wrapper)
     }
+    if (this.isSlot(el)) {
+      return this.getSlotProps()
+    } else {
+      return {
+        children: this.getChildren()
+      }
+    }
   }
 
   // 删除子节点
   removeChild (wrapper) {
+    const el = wrapper.el
     // 原地阴影
     if (wrapper.el.parentElement === this.containerEl) {
       this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), wrapper.el, wrapper.config.style)
@@ -86,11 +108,19 @@ export default class BaseContainer {
     } else {
       console.warn('not children ')
     }
+    if (this.isSlot(wrapper.el)) {
+      return {
+
+      }
+    } else {
+      return {
+        children: this.getChildren()
+      }
+    }
   }
 
-  // 检测
+  // 在指定位置创建或确认现有放置阴影层
   checkInsertDropShadowEl (rect, afterNode, configStyle) {
-    console.log('checkInsertDropShadowEl', rect, afterNode, configStyle)
     const existedNode = this.containerEl.querySelector(':scope > .drop-shadow')
 
     console.log(existedNode, afterNode)
@@ -100,7 +130,6 @@ export default class BaseContainer {
     if (existedNode) {
       this.containerEl.removeChild(existedNode)
     }
-    console.log('checkInsertDropShadowEl Create New')
 
     const shadowNode = document.createElement('div')
     shadowNode.classList.add('drop-shadow')

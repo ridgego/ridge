@@ -59,7 +59,7 @@ const COMPONENT_ROOT_FIELDS = [
     type: 'boolean',
     field: 'style.full'
   }, {
-    label: '隐藏',
+    label: '显示',
     width: '50%',
     type: 'boolean',
     control: 'checkbox',
@@ -196,14 +196,7 @@ export default class ComponentPanel extends React.Component {
 
     if (elementWrapper.parentWrapper) {
       // 放置到容器中，有容器赋予的样式配置的
-      for (const style of elementWrapper.parentWrapper?.componentDefinition?.childStyle || []) {
-        const field = {}
-        Object.assign(field, style, {
-          field: 'style.' + style.name,
-          fieldEx: 'styleEl.' + style.name
-        })
-        nodePropFields.push(field)
-      }
+      nodePropFields.push(...(elementWrapper.parentWrapper?.componentDefinition?.childStyle || []))
     } else {
       nodePropFields.push(...COMPONENT_ROOT_FIELDS)
     }
@@ -217,10 +210,16 @@ export default class ComponentPanel extends React.Component {
       })
       for (const prop of elementWrapper.componentDefinition.props) {
         const field = {}
-        Object.assign(field, prop, {
-          field: 'props.' + prop.name,
-          fieldEx: 'propsEx.' + prop.name
-        })
+        if (prop.bindable === false) {
+          Object.assign(field, prop, {
+            field: 'props.' + prop.name,
+            fieldEx: 'propsEx.' + prop.name
+          })
+        } else {
+          Object.assign(field, prop, {
+            field: 'props.' + prop.name
+          })
+        }
         nodePropFields.push(field)
       }
 
@@ -235,30 +234,6 @@ export default class ComponentPanel extends React.Component {
         nodeEventFields.push(control)
       }
     }
-
-    this.componentPropFormApi.reset()
-    this.componentEventFormApi.reset()
-
-    this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
-      notNotify: true
-    })
-    this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
-      notNotify: true
-    })
-    this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
-      notNotify: true
-    })
-    this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
-      notNotify: true
-    })
-    this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
-      notNotify: true
-    })
-
-    this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
-      notNotify: true
-    })
-
     this.setState({
       nodePropFields,
       nodeEventFields,
@@ -272,7 +247,28 @@ export default class ComponentPanel extends React.Component {
         event: elementWrapper.config.events
       }
     }, () => {
-
+      this.componentPropFormApi.reset()
+      this.componentEventFormApi.reset()
+  
+      this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
+        notNotify: true
+      })
+      this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
+        notNotify: true
+      })
+      this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
+        notNotify: true
+      })
+      this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
+        notNotify: true
+      })
+      this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
+        notNotify: true
+      })
+  
+      this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
+        notNotify: true
+      })
     })
   }
 

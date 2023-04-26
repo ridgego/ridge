@@ -223,6 +223,7 @@ class ElementWrapper {
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
 
+    this.el.componentPath = this.componentPath
     this.el.hasMethod = this.hasMethod.bind(this)
     this.el.invoke = this.invoke.bind(this)
     this.el.forceUpdate = this.forceUpdate.bind(this)
@@ -337,12 +338,11 @@ class ElementWrapper {
     this.el.classList.remove('is-full')
     this.el.classList.remove('is-locked')
     this.el.classList.remove('is-hidden')
-    if (this.parentWrapper) {
-      // 在容器范围内：按容器规则更新布局
+    if (this.parentWrapper && this.parentWrapper.hasMethod('updateChildStyle')) {
       this.parentWrapper.invoke('updateChildStyle', [this])
+      this.invoke('updateStyle', [this])
     } else {
       const style = Object.assign({}, this.getResetStyle())
-
       style.position = 'absolute'
       style.left = 0
       style.top = 0
@@ -368,14 +368,11 @@ class ElementWrapper {
 
     // 设置编辑器的属性
     if (this.mode === 'edit') {
+      // 编辑器特有：锁定
       if (configStyle.locked === true) {
         this.el.classList.add('is-locked')
       }
-      if (configStyle.full === true) {
-        this.el.classList.add('is-full')
-      }
     }
-    this.invoke('onUpdateStyle', [this.el])
   }
 
   /**
@@ -464,8 +461,11 @@ class ElementWrapper {
 
   removeChild (wrapper) {
     if (this.renderer) {
-      return this.renderer.invoke('removeChild', [wrapper])
+      const result =  this.renderer.invoke('removeChild', [wrapper])
+      Object.assign(this.config.props, result)
     }
+    delete wrapper.config.parent
+    delete wrapper.parentWrapper
   }
 
   invoke (method, args) {
@@ -644,11 +644,7 @@ class ElementWrapper {
 
     Object.assign(this.properties, this.config.props)
 
-    if (this.parentWrapper && this.parentWrapper.hasMethod('updateChildStyle')) {
-      this.parentWrapper.invoke('updateChildStyle', [this])
-    } else {
-      this.updateStyle()
-    }
+    this.updateStyle()
     this.renderUpdate()
   }
 

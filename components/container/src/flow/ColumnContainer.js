@@ -24,6 +24,8 @@ export default class ColumnContainer extends BaseContainer {
     shadowStyle.height = configStyle.height ? (configStyle.height + 'px') : ''
     if (configStyle.center) {
       shadowStyle.margin = '0 auto'
+    } else {
+      shadowStyle.margin = ''
     }
 
     if (configStyle.fullwidth) {

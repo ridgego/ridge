@@ -1,17 +1,12 @@
-import Button from './Button'
+import Icon from './Icon'
 import { color, size, light } from '../base/props'
 export default {
-  name: 'button',
-  title: '按钮',
-  component: Button,
+  name: 'icon',
+  title: '图标',
+  component: Icon,
   icon: 'IconStop',
   type: 'vanilla',
   props: [{
-    name: 'text',
-    label: '文本',
-    type: 'string',
-    value: '按钮'
-  }, {
     name: 'icon',
     label: '图标',
     type: 'icon',

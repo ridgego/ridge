@@ -70,23 +70,32 @@ export default {
     type: 'number',
     value: 0
   }, {
-    name: 'coverContainer',
-    label: '填充',
-    type: 'boolean'
-  }, {
     name: 'children',
     hidden: true,
     type: 'children'
   }, ...border.props],
   childStyle: [{
-    name: 'flex',
-    label: '弹性',
-    party: true,
-    type: 'string'
+    label: 'W',
+    width: '50%',
+    control: 'number',
+    field: 'style.width',
+    fieldEx: 'styleEx.width'
   }, {
-    name: 'margin',
+    label: 'H',
+    width: '50%',
+    control: 'number',
+    field: 'style.height',
+    fieldEx: 'styleEx.height'
+  }, {
+    field: 'style.flex',
+    label: '弹性',
+    type: 'string',
+    width: '50%'
+  }, {
+    field: 'style.margin',
     label: '外边距',
-    type: 'string'
+    type: 'string',
+    width: '50%'
   }],
   width: 180,
   height: 60

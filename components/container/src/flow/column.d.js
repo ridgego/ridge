@@ -16,16 +16,30 @@ export default {
     type: 'children'
   }, ...border.props],
   childStyle: [{
-    name: 'center',
-    type: 'boolean',
-    value: true,
-    label: '居中'
+    label: 'W',
+    width: '50%',
+    control: 'number',
+    field: 'style.width',
+    fieldEx: 'styleEx.width'
   }, {
-    name: 'fullwidth',
+    label: 'H',
+    width: '50%',
+    control: 'number',
+    field: 'style.height',
+    fieldEx: 'styleEx.height'
+  }, {
+    label: '居中',
+    field: 'style.center',
     type: 'boolean',
-    value: true,
-    label: '横向占满'
+    width: '50%',
+    value: true
+  }, {
+    label: '横向占满',
+    field: 'style.fullwidth',
+    type: 'boolean',
+    width: '50%',
+    value: true
   }],
   width: 180,
-  height: 60
+  height: 60 
 }

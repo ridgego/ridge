@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Divider, Dropdown, Popover, Space } from '@douyinfe/semi-ui'
-import { IconPlus, IconTemplate, IconTick, IconSetting, IconPause, IconMinus, IconPlay } from '@douyinfe/semi-icons'
-import AppSettingPanel from '../panels/setting/AppSettingPanel.jsx'
+import { IconPlus, IconTemplate, IconTick, IconSetting, IconPause, IconMinus, IconGift, IconPlay } from '@douyinfe/semi-icons'
+import AppSettingPanel from './setting/AppSettingPanel.jsx'
 import './style.less'
 
 const EmptyIcon = () => <span style={{ width: '21px' }} />
@@ -13,6 +13,7 @@ export default props => {
     outlinePanelVisible,
     pagesPanelVisible,
     modeRun,
+    currentPageId,
     toggleVisible,
     toggoleRunMode
   } = props
@@ -22,15 +23,6 @@ export default props => {
       className='menu-bar'
     >
       <Space className='bar-content'>
-        <Button
-          size='small'
-          disabled={modeRun}
-          icon={<IconPlus />}
-          type={componentPanelVisible ? 'primary' : 'tertiary'}
-          theme={componentPanelVisible ? 'solid' : 'borderless'}
-          onClick={() => toggleVisible('componentPanelVisible')}
-        />
-
         <Divider layout='vertical' />
         <Dropdown
           trigger='click'
@@ -56,11 +48,18 @@ export default props => {
           <Button disabled={modeRun} icon={<IconSetting />} theme='borderless' size='small' type='tertiary' />
         </Popover>
         <Button
+          disabled={!currentPageId}
           type={modeRun ? 'primary' : 'tertiary'}
           theme={modeRun ? 'solid' : 'borderless'}
-          icon={modeRun ? <IconPause /> : <IconPlay />} size='small' onClick={toggoleRunMode}
-        />
-
+          icon={modeRun ? <IconPause /> : <IconPlay />} onClick={toggoleRunMode}
+        >预览
+        </Button>
+        <Button
+          type='warning'
+          theme='solid'
+          icon={<IconGift />}
+        >组件商店
+        </Button>
       </Space>
     </div>
   )

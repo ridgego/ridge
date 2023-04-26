@@ -27,7 +27,6 @@ const trace = debug('ridge:editor')
 export default class Editor extends React.Component {
   constructor (props) {
     super(props)
-
     this.state = {
       componentPanelVisible: true,
       propPanelVisible: false,

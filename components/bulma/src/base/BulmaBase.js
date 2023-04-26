@@ -3,6 +3,14 @@ export default class BulmaBase {
     this.props = props
   }
 
+  isDroppable () {
+    return false
+  }
+
+  onDragOver () {
+
+  }
+
   random (length = 8) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 

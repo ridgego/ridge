@@ -80,38 +80,6 @@ export default class WorkSpaceControl {
   }
 
   setWorkSpaceMovable () {
-    const that = this
-    /*
-    this.workspaceEl.addEventListener('mousedown', event => {
-      if (event.ctrlKey && this.enabled) {
-        that.startDrag = true
-        that.startX = event.pageX
-        that.startY = event.pageY
-
-        const wbc = that.workspaceEl.getBoundingClienect()
-        const vbc = that.viewPortEl.getBoundingClientRect()
-
-        that.workspaceX = vbc.x - wbc.x
-        that.workspaceY = vbc.y - wbc.y
-      }
-    })
-    this.workspaceEl.addEventListener('mousemove', event => {
-      if (!event.ctrlKey) {
-        that.startDrag = false
-      }
-      if (that.startDrag) {
-        const deltaX = event.pageX - that.startX
-        const deltaY = event.pageY - that.startY
-
-        that.viewPortEl.style.transform = `translate(${that.workspaceX + deltaX}px, ${that.workspaceY + deltaY}px)`
-      }
-    })
-
-    this.workspaceEl.addEventListener('mouseup', event => {
-      that.startDrag = false
-    })
-
-    */
     this.workspaceMovable = createMoveable({
       target: this.viewPortEl,
       className: 'workspace-movable'
@@ -146,6 +114,16 @@ export default class WorkSpaceControl {
     })
   }
 
+  isElementMovable (el) {
+    if (this.moveable.target == null) {
+      return false
+    }
+    if (this.moveable.target.length === 1 && this.moveable.target[0] == el) {
+      return true
+    }
+    return false
+  }
+
   initMoveable () {
     const sm = this
 
@@ -156,10 +134,6 @@ export default class WorkSpaceControl {
 
     this.moveable.on('dragStart', ev => {
       trace('movable dragStart', ev.target)
-      // if (this.selected.indexOf(ev.target) > -1) {
-      //   this.onElementDragStart(ev.target, ev)
-      //   this.moveable.updateTarget()
-      // }
     })
 
     this.moveable.on('drag', ev => {
@@ -306,14 +280,23 @@ export default class WorkSpaceControl {
     const target = inputEvent.target
     if (target.classList && (target.classList.contains('moveable-area') || target.classList.contains('moveable-control'))) {
       e.stop()
+      return
     }
     if (inputEvent.ctrlKey) {
       e.stop()
       return
     }
+
+    // 拖拽起始位置位于元素内
     const closestRidgeNode = target.closest('.ridge-element')
 
+    if (this.isElementMovable(closestRidgeNode)) {
+      e.stop()
+      return
+    }
+
     if (closestRidgeNode) {
+      // 变框选为选择单个节点并拖拽开始
       if (inputEvent.shiftKey) {
         // shift时，原地复制一个节点，选中节点继续拖拽
         const rect = closestRidgeNode.getBoundingClientRect()
@@ -323,16 +306,15 @@ export default class WorkSpaceControl {
 
       // 清除既有选中
       if (this.moveable.target && this.moveable.target.length) {
-        // const bcr = this.moveable.target[0].getBoundingClientRect()
-        // this.selectElements([])
-        this.moveable.target = null
-        // this.moveable.updateTarget()
-        // this.placeElementAt(this.moveable.target[0], bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
+        this.moveable.target = []
       }
 
+      if (closestRidgeNode.classList.contains('is-locked') || closestRidgeNode.classList.contains('is-full')) {
+        this.moveable.resizable = false
+      } else {
+        this.moveable.resizable = true
+      }
       this.moveable.target = closestRidgeNode
-      // this.moveable.resizable = false
-      // this.selectElements([closestRidgeNode])
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
         return el !== closestRidgeNode && el.closest('.ridge-element') !== closestRidgeNode
       })]
@@ -479,32 +461,33 @@ export default class WorkSpaceControl {
    * @param {*} notNotify
    */
   selectElements (elements, notNotify) {
-    if (elements === this.selected) {
-      return
-    }
-
-    this.moveable.resizable = true
-    if (elements.length === 1) {
-      if (elements[0].classList.contains('is-locked')) {
+    const filtered = elements.filter(el => !el.classList.contains('is-hidden'))
+    // 单选支持选中并设置为不可resize/move
+    if (filtered.length === 1) {
+      if (filtered[0].classList.contains('is-locked') || filtered[0].classList.contains('is-full')) {
         this.moveable.resizable = false
+      } else {
+        this.moveable.resizable = true
       }
-      this.selected = elements
-      this.moveable.target = elements
+      this.selected = filtered
+      this.moveable.target = filtered
     } else {
-      this.selected = elements.filter(el => !el.classList.contains('is-locked'))
-      this.moveable.target = elements.filter(el => !el.classList.contains('is-locked'))
+      this.moveable.resizable = true
+      // 多选排除locked
+      this.selected = filtered.filter(el => !el.classList.contains('is-locked'))
+      this.moveable.target = filtered.filter(el => !el.classList.contains('is-locked'))
     }
 
     this.moveable.updateTarget()
-    if (!notNotify && elements && elements.length <= 1) {
+    if (!notNotify && filtered && filtered.length <= 1) {
       emit(EVENT_ELEMENT_SELECTED, {
         from: 'workspace',
-        element: elements[0],
+        element: filtered[0],
         elements: this.pageManager.getPageElements()
       })
     }
 
-    if (elements) {
+    if (filtered) {
       window.sl = elements.map(e => e.elementWrapper)
     }
   }
@@ -538,7 +521,7 @@ export default class WorkSpaceControl {
       })
     })
 
-    this.onElementDragEnd(div, ev.pageX, ev.pageY)
+    this.placeElementAt(div, ev.pageX, ev.pageY)
   }
 
   copy (divs) {
