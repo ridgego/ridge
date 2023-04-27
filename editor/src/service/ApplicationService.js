@@ -50,7 +50,6 @@ export default class ApplicationService {
         this.store.getItem(file.key).then(async dataUrl => {
           const blob = await dataURLtoBlob(dataUrl)
           this.dataUrlByPath[file.path] = window.URL.createObjectURL(blob)
-          // this.dataUrlByPath[file.path] = dataUrl
         })
       }
     })

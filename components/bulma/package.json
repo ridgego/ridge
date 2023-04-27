@@ -15,6 +15,9 @@
   "externals": [
     "bulma.min.css"
   ],
+  "files": [
+    "ridge.js"
+  ],
   "author": "",
   "license": "ISC",
   "components": [

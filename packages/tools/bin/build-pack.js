@@ -16,6 +16,8 @@ args.option('dir', 'The Front Component Project Root Path', './')
     .option('watch', 'Build with Watch')
     .option('remote', 'Enable Remote Debug')
     .option('port', 'Package Provider Host Port')
+    .option('concat', 'Concat all components in one file')
+    .option('external', 'Bundle with external libs')
     .option('analyse', 'Start Bundle Analyse Service');
 
     const log = console.log,
@@ -67,28 +69,49 @@ args.option('dir', 'The Front Component Project Root Path', './')
         log(chalk.green('编译打包以下图元文件:'));
         
         let entry = null;
-        if (ridgeConfig.concat) {
-            
+        let output = null;
+        if (ridgeConfig.concat || flags.concat) {
             const imports = []
             const names = []
             for (let i = 0; i < targetFiles.length; i++) {
                 const file = targetFiles[i];
-                log(chalk.green(file));
                 const folderName = path.basename(path.dirname(file))
+                log(chalk.green(file));
                 imports.push(`import ${folderName} from '${file}'`)
                 names.push(folderName)
             }
+            let concatJsContent = ''
+            if (ridgeConfig.bundleExternal || flags.bundleExternal) {
+                if (packageJson.externals) {
+                    for (const external of packageJson.externals) {
+                        concatJsContent += `import './${external}'\n`
+                    }
+                }
+            }
             
-            const concatJsContent = 
-`${imports.join('\n')} 
-export {
-    ${names.join(',')}
-}`
+            concatJsContent += `${imports.join('\n')}\n`
+            concatJsContent += `export { ${names.join(', ')} }`
+
             console.log(concatJsContent)
 
             fs.writeFileSync(path.resolve(packagePath, './concat.js'), concatJsContent)
             
             entry = './concat.js'
+
+            output = {
+                filename:  'ridge.js',
+                // filename: '[name].js',
+                // 图元的全局唯一ID (pelUId) 也是图元的下载地址
+                library: `/${packageJson.name}/Module`,
+                // 代码输出格式，amd方式将依赖也输出到define上，未来在运行时需要针对amd加载做相关处理
+                libraryTarget: 'this',
+                // 如果代码中有import() 异步引入的部分，打包后会自动增加server地址前缀
+                // publicPath: `${NPM_SERVER}/${packageJson.name}/${packageJson.version}/${BUILD_PATH}/`,
+                publicPath: './',
+                // 编译输出到项目BUILD_PATH目录下
+                // path: path.resolve(packagePath, './' + BUILD_PATH)
+            }
+
         } else {
             entry = {}
             const elementPaths = []
@@ -103,6 +126,22 @@ export {
     
             packageJson.components = elementPaths
     
+            output = {
+                filename:  '[name].js',
+                // chunkData => {
+                //     return chunkData.chunk.name.substring(0, chunkData.chunk.name.indexOf('.')) + '.js';
+                // },
+                // filename: '[name].js',
+                // 图元的全局唯一ID (pelUId) 也是图元的下载地址
+                library: `/${packageJson.name}/${BUILD_PATH}/[name].js`,
+                // 代码输出格式，amd方式将依赖也输出到define上，未来在运行时需要针对amd加载做相关处理
+                libraryTarget: 'this',
+                // 如果代码中有import() 异步引入的部分，打包后会自动增加server地址前缀
+                // publicPath: `${NPM_SERVER}/${packageJson.name}/${packageJson.version}/${BUILD_PATH}/`,
+                publicPath: './',
+                // 编译输出到项目BUILD_PATH目录下
+                path: path.resolve(packagePath, './' + BUILD_PATH)
+            }
             fs.writeFileSync(path.resolve(packagePath, './package.json'), JSON.stringify(packageJson, null, 2))
         }
 
@@ -136,43 +175,12 @@ export {
             };
         } else {
             argsConfig.mode = 'production'
-            // argsConfig.optimization = {
-            //     minimize: true,
-            //     minimizer: [
-            //         new TerserPlugin({
-            //             minify: TerserPlugin.uglifyJsMinify,
-            //             // `terserOptions` options will be passed to `uglify-js`
-            //             // Link to options - https://github.com/mishoo/UglifyJS#minify-options
-            //             terserOptions: {
-            //                 compress: {
-            //                     drop_debugger: true,
-            //                     drop_console: true
-            //                 }
-            //             }
-            //         })
-            //     ]
-            // }
         } 
 
         // 创建webpack 编译器  这里使用webpack api方式进行编译
         const compiler = webpack(merge({
             entry,
-            output: {
-                filename:  '[name].js',
-                // chunkData => {
-                //     return chunkData.chunk.name.substring(0, chunkData.chunk.name.indexOf('.')) + '.js';
-                // },
-                // filename: '[name].js',
-                // 图元的全局唯一ID (pelUId) 也是图元的下载地址
-                library: `/${packageJson.name}/${BUILD_PATH}/[name].js`,
-                // 代码输出格式，amd方式将依赖也输出到define上，未来在运行时需要针对amd加载做相关处理
-                libraryTarget: 'this',
-                // 如果代码中有import() 异步引入的部分，打包后会自动增加server地址前缀
-                // publicPath: `${NPM_SERVER}/${packageJson.name}/${packageJson.version}/${BUILD_PATH}/`,
-                publicPath: './',
-                // 编译输出到项目BUILD_PATH目录下
-                path: path.resolve(packagePath, './' + BUILD_PATH)
-            },
+            output,
             plugins: [
                 new CleanWebpackPlugin()
             ]
@@ -251,6 +259,10 @@ export {
 
                 if (ridgeConfig && ridgeConfig.copy) {
                     fs.copySync(packagePath, path.resolve(packagePath, ridgeConfig.copy));
+                }
+
+                if (ridgeConfig.concat || flags.concat) {
+                    fs.unlinkSync(path.resolve(packagePath, './concat.js'))
                 }
                 console.log('Build complete.\n');
             })
