@@ -92,8 +92,6 @@ args.option('dir', 'The Front Component Project Root Path', './')
             concatJsContent += `${imports.join('\n')}\n`
             concatJsContent += `export { ${names.join(', ')} }`
 
-            console.log(concatJsContent)
-
             fs.writeFileSync(path.resolve(packagePath, './concat.js'), concatJsContent)
             
             entry = './concat.js'
@@ -102,7 +100,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
                 filename:  'ridge.js',
                 // filename: '[name].js',
                 // 图元的全局唯一ID (pelUId) 也是图元的下载地址
-                library: `/${packageJson.name}/Module`,
+                library: `${packageJson.name}/Main`,
                 // 代码输出格式，amd方式将依赖也输出到define上，未来在运行时需要针对amd加载做相关处理
                 libraryTarget: 'this',
                 // 如果代码中有import() 异步引入的部分，打包后会自动增加server地址前缀
@@ -127,13 +125,13 @@ args.option('dir', 'The Front Component Project Root Path', './')
             packageJson.components = elementPaths
     
             output = {
-                filename:  '[name].js',
+                filename: '[name].js',
                 // chunkData => {
                 //     return chunkData.chunk.name.substring(0, chunkData.chunk.name.indexOf('.')) + '.js';
                 // },
                 // filename: '[name].js',
                 // 图元的全局唯一ID (pelUId) 也是图元的下载地址
-                library: `/${packageJson.name}/${BUILD_PATH}/[name].js`,
+                library: `${packageJson.name}/[name]`,
                 // 代码输出格式，amd方式将依赖也输出到define上，未来在运行时需要针对amd加载做相关处理
                 libraryTarget: 'this',
                 // 如果代码中有import() 异步引入的部分，打包后会自动增加server地址前缀

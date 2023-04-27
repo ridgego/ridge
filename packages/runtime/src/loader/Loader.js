@@ -1,4 +1,6 @@
 import debug from 'debug'
+import loadjs from 'loadjs'
+import ky from 'ky'
 import _ from 'lodash'
 const log = debug('ridge:loader')
 /**
@@ -11,14 +13,16 @@ class Loader {
    * @param {object} externalOptions 第三方依赖定义信息，这个配置会覆盖 wind-pack-externals 中webpackExternals 定义
    */
   constructor ({
-    store
+    baseUrl
   }) {
-    this.store = store
+    this.baseUrl = baseUrl
     log('RidgeLoader baseUrl: ' + this.baseUrl)
 
     this.packageJSONCache = {}
-    this.getPackageJSON = _.memoize(this.getPackageJSONOnce)
-    this.loadComponent = _.memoize(this.loadComponentOnce)
+    this.getPackageJSON = _.memoize(this._getPackageJSON)
+    this.loadComponent = _.memoize(this._loadComponent)
+    this.loadScript = _.memoize(this._loadScript)
+    this.confirmPackageDependencies = _.memoize(this._confirmPackageDependencies)
   }
 
   /**
@@ -36,11 +40,21 @@ class Loader {
 
   }
 
-  async loadScript (scriptPath) {
-
+  async _loadScript (url) {
+    try {
+      log('加载库:' + url)
+      await loadjs(url, {
+        returnPromise: true,
+        before: function (scriptPath, scriptEl) {
+          scriptEl.crossOrigin = true
+        }
+      })
+    } catch (e) {
+      console.error('第三方库加载异常 ', `${url}`)
+    }
   }
 
-  async loadComponent (componentPath) {
+  async _loadComponent (componentPath) {
     let packageName, path
     if (typeof componentPath === 'object') {
       packageName = componentPath.packageName
@@ -62,23 +76,31 @@ class Loader {
       // 组件单个加载
       // 加载包依赖的js （必须首先加载否则组件加载会出错）
       await this.confirmPackageDependencies(packageName)
-      rc = await this.store.loadScript(packageName, path)
+      await this.loadScript(`${this.baseUrl}/${packageName}/${path}`)
+
+      if (window[`${packageName}/${path}`]) {
+        rc = window[`${packageName}/${path}`].default
+      }
     } else {
       await this.confirmPackageDependencies(packageName)
-      const bundle = await this.store.loadScript(packageName, 'ridge.js')
+      const bundle = await this.loadScript(`${packageName}/ridge.js`)
+
       rc = bundle[path]
     }
-    rc.packageName = packageName
-    rc.path = path
 
-    return rc
+    if (rc != null) {
+      rc.packageName = packageName
+      rc.path = path
+
+      return rc
+    }
   }
 
   /**
    * 加载组件包的依赖资源
    * @param {String} packageName 组件包名称
    */
-  async confirmPackageDependencies (packageName) {
+  async _confirmPackageDependencies (packageName) {
     const packageObject = await this.getPackageJSON(packageName)
     if (packageObject) {
       if (packageObject.dependencies) {
@@ -99,18 +121,12 @@ class Loader {
    * @param {*} packageName
    * @returns
    */
-  async getPackageJSON (packageName) {
+  async _getPackageJSON (packageName) {
     if (this.packageJSONCache[packageName]) {
       return this.packageJSONCache[packageName]
     }
 
-    let packageJSONObject = null
-    for (const store of this.stores) {
-      packageJSONObject = await store.getPackageJSON(store)
-      if (packageJSONObject) break
-    }
-
-    this.prefixPackageJSON(packageJSONObject)
+    const packageJSONObject = await ky.get(`${this.baseUrl}/${packageName}/package.json`).json()
 
     this.packageJSONCache[packageName] = packageJSONObject
     return packageJSONObject
