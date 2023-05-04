@@ -3,7 +3,6 @@ export const color = {
   label: '颜色',
   type: 'array',
   control: 'select',
-  bindable: false,
   value: 'is-primary',
   width: '50%',
   optionList: [{
@@ -63,27 +62,26 @@ export const isDelete = {
 }
 
 export const size = {
-  name: 'size',
+  name: 'fontSize',
   label: '大小',
   type: 'string',
   control: 'select',
-  bindable: false,
   value: 'is-normal',
   width: '50%',
   optionList: [{
     label: '小号',
-    value: 'is-small'
+    value: '.75rem'
   },
   {
     label: '普通',
-    value: 'is-normal'
+    value: '1rem'
   },
   {
     label: '中号',
-    value: 'is-medium'
+    value: '1.25rem'
   },
   {
     label: '大号',
-    value: 'is-large'
+    value: '1.5rem'
   }]
 }

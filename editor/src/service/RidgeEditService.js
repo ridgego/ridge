@@ -28,6 +28,8 @@ const ee = new EventEmitter()
 const emit = ee.emit.bind(ee)
 const on = ee.on.bind(ee)
 
+ridge.ee = ee
+
 export {
   workspaceControl,
   backUpService,

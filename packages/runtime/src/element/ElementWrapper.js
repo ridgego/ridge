@@ -45,6 +45,10 @@ class ElementWrapper {
     return this.config.parent == null
   }
 
+  getConfig () {
+    return this.config
+  }
+
   /**
    * 复制组件实例
    * @returns
@@ -227,6 +231,7 @@ class ElementWrapper {
     this.el.hasMethod = this.hasMethod.bind(this)
     this.el.invoke = this.invoke.bind(this)
     this.el.forceUpdate = this.forceUpdate.bind(this)
+    this.el.getConfig = this.getConfig.bind(this)
 
     this.style = Object.assign({}, this.config.style, this.style)
     this.updateExpressionedStyle()
@@ -461,7 +466,7 @@ class ElementWrapper {
 
   removeChild (wrapper) {
     if (this.renderer) {
-      const result =  this.renderer.invoke('removeChild', [wrapper])
+      const result = this.renderer.invoke('removeChild', [wrapper])
       Object.assign(this.config.props, result)
     }
     delete wrapper.config.parent
@@ -660,7 +665,6 @@ class ElementWrapper {
   }
 
   setConfigVisible (visible) {
-    this.set
     this.config.style.visible = visible
     this.el.style.visibility = visible ? 'visible' : 'hidden'
   }

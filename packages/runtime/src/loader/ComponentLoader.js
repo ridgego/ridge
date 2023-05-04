@@ -3,9 +3,7 @@ import ky from 'ky'
 import debug from 'debug'
 import loadjs from 'loadjs'
 import _ from 'lodash'
-import externals from 'ridge-externals'
 
-// 组态化组件资源服务地址
 const log = debug('ridge:loader')
 
 /**
@@ -265,8 +263,8 @@ class ComponentLoader {
     packageName,
     path
   }) {
-    const scriptUrl = this.getComponentUrl({ packageName, path })
-    const scriptLibName = this.getComponentLibName({ packageName, path })
+    const scriptUrl = `${this.baseUrl}/${packageName}/build/${path}.js`
+    const scriptLibName = `${packageName}/${path}`
 
     // 加载图元脚本，其中每个图元在编译时都已经设置到了window根上，以图元url为可以key
     await this.loadScript(scriptUrl)

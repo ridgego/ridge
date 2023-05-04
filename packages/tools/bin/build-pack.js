@@ -70,7 +70,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
         
         let entry = null;
         let output = null;
-        if (ridgeConfig.concat || flags.concat) {
+        if (ridgeConfig.concat || flags.concat) { // 文件打包到一起
             const imports = []
             const names = []
             for (let i = 0; i < targetFiles.length; i++) {
@@ -97,7 +97,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
             entry = './concat.js'
 
             output = {
-                filename:  'ridge.js',
+                filename:  'ridge.dist.js',
                 // filename: '[name].js',
                 // 图元的全局唯一ID (pelUId) 也是图元的下载地址
                 library: `${packageJson.name}/Main`,
@@ -107,7 +107,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
                 // publicPath: `${NPM_SERVER}/${packageJson.name}/${packageJson.version}/${BUILD_PATH}/`,
                 publicPath: './',
                 // 编译输出到项目BUILD_PATH目录下
-                // path: path.resolve(packagePath, './' + BUILD_PATH)
+                path: path.resolve(packagePath, './' + BUILD_PATH)
             }
 
         } else {
@@ -115,11 +115,12 @@ args.option('dir', 'The Front Component Project Root Path', './')
             const elementPaths = []
             for (let i = 0; i < targetFiles.length; i++) {
                 const file = targetFiles[i];
-    
                 log(chalk.green(file));
-                const jsName = path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')
-                elementPaths.push(BUILD_PATH + '/' + jsName + '.js');
-                entry[path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')] = file;
+                // 以目录名称作为组件名称
+                const componentName = path.basename(path.resolve(file, '../'))
+                // const jsName = path.basename(path.resolve(file, '../')) + '-' + path.basename(file, '.js')
+                elementPaths.push(componentName);
+                entry[componentName] = file;
             }
     
             packageJson.components = elementPaths
@@ -235,6 +236,10 @@ args.option('dir', 'The Front Component Project Root Path', './')
                         chunkModules: true
                     }) + '\n\n');
                     console.log('  Build Complete.\n');
+
+                    if (ridgeConfig && ridgeConfig.copy) {
+                        fs.copySync(packagePath, path.resolve(packagePath, ridgeConfig.copy));
+                    }
                 }, 100)
             });
         } else {

@@ -10,7 +10,7 @@ import { getFileTree } from '../panels/files/buildFileTree.js'
 const { nanoid } = require('../utils/string')
 
 /**
- * 应用管理服务，用于创建、修改、查询应用下资源（包括页面、图片、音视频等）
+ * 应用管理服务，用于创建、修改、查询应用下资源（包括页面、图片、音视频、组件包等）
  */
 export default class ApplicationService {
   constructor () {

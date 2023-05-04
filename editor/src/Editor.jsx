@@ -32,8 +32,9 @@ export default class Editor extends React.Component {
       propPanelVisible: false,
       outlinePanelVisible: false,
       appFilePanelVisible: true,
-      editorLang: null,
       modeRun: false,
+      zoom: 1,
+      containerMask: true,
       currentPageId: null,
       panelPosition: PANEL_SIZE_1920
     }
@@ -128,7 +129,7 @@ export default class Editor extends React.Component {
     })
     this.pageConfig = pageConfig
     const { content } = this.pageConfig
-    workspaceControl.fitToCenter(content.properties.width, content.properties.height)
+    workspaceControl.fitToCenter(content.properties.width, content.properties.height, this.state.zoom)
 
     // 从HTML初始化页面管理器
     // this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
@@ -200,23 +201,36 @@ export default class Editor extends React.Component {
       propPanelVisible,
       outlinePanelVisible,
       modeRun,
-      panelPosition
+      panelPosition,
+      containerMask
     } = state
     return (
       <>
         <div
-          className='workspace' style={{
+          className={'workspace ' + (containerMask ? 'show-container' : '')} style={{
             display: modeRun ? 'none' : ''
           }}
         >
           <div className='viewport-container' />
           <MenuBar
-            {...state} toggleVisible={name => {
+            {...state}
+            toggleVisible={name => {
               this.setState({
                 [name]: !this.state[name]
               })
             }}
+            toggleContainerMask={() => {
+              this.setState({
+                containerMask: !containerMask
+              })
+            }}
             toggoleRunMode={this.toggoleRunMode.bind(this)}
+            zoomChange={zoom => {
+              this.setState({
+                zoom
+              })
+              workspaceControl.setZoom(zoom)
+            }}
           />
           <ComponentPanel title='组件' position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
           <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && appFilePanelVisible} />

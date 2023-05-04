@@ -1,8 +1,8 @@
-import RowContainer from './RowContainer'
+import ColumnContainer from './ColumnContainer.js'
 import { border } from 'ridge-prop-utils'
 export default {
-  name: 'row-container',
-  component: RowContainer,
+  name: 'column-container',
+  component: ColumnContainer,
   label: '多行容器',
   type: 'vanilla',
   icon: 'IconSectionStroked',

@@ -9,6 +9,7 @@ export default {
   props: [{
     name: 'text',
     label: '文本',
+    bindable: true,
     type: 'string',
     value: '按钮'
   }, {

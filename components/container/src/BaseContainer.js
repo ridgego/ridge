@@ -154,7 +154,7 @@ export default class BaseContainer {
     if (wrapper.el) { // 已有组件放置进入
       // 获取当前放置的次序
       const afterNode = this.getAfterNode(wrapper.el.getBoundingClientRect(), this.containerEl.childNodes)
-      this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), afterNode, wrapper.config.style)
+      this.checkInsertDropShadowEl(wrapper.getConfig().style, afterNode, wrapper.config.style)
     } else { // 新增组件放置, 这种情况下 Wrapper只是一个含有width/height的rect对象
       const afterNode = this.getAfterNode(wrapper, this.containerEl.childNodes)
       this.checkInsertDropShadowEl(wrapper, afterNode, wrapper)

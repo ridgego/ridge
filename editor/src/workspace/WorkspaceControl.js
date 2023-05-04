@@ -17,7 +17,7 @@ export default class WorkSpaceControl {
   }) {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
-
+    this.zoom = 0.8
     this.selectorDropableTarget = ['.ridge-container']
 
     on(EVENT_ELEMENT_SELECTED, payload => {
@@ -62,7 +62,7 @@ export default class WorkSpaceControl {
     this.moveable.updateTarget()
   }
 
-  fitToCenter (width, height) {
+  fitToCenter (width, height, zoom) {
     this.viewPortEl.style.width = width + 'px'
     this.viewPortEl.style.height = height + 'px'
 
@@ -71,10 +71,14 @@ export default class WorkSpaceControl {
     this.workspaceX = (containerRect.width - width) / 2
     this.workspaceY = (containerRect.height - height) / 2
 
-    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${(this.workspaceY) / 2}px)`
+    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${(this.workspaceY) / 2}px) scale(${this.zoom})`
   }
 
   setZoom (zoom) {
+    this.zoom = zoom
+    this.moveable.target = []
+    this.moveable.updateTarget()
+    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${(this.workspaceY) / 2}px) scale(${this.zoom})`
     // this.moveable.zoom = zoom
     // this.selecto.zoom = zoom
   }
@@ -98,6 +102,8 @@ export default class WorkSpaceControl {
       trace('viewPortEl drag')
       if (ev.inputEvent.ctrlKey && this.workspaceMovable.dragWorkSpace) {
         this.moveable.target = null
+        this.workspaceX = ev.translate[0]
+        this.workspaceY = ev.translate[1]
         ev.target.style.transform = ev.transform
       }
     })
@@ -286,6 +292,10 @@ export default class WorkSpaceControl {
       e.stop()
       return
     }
+    if (target.closest('.menu-bar')) {
+      e.stop()
+      return
+    }
 
     // 拖拽起始位置位于元素内
     const closestRidgeNode = target.closest('.ridge-element')
@@ -420,8 +430,8 @@ export default class WorkSpaceControl {
     const bcr = el.getBoundingClientRect()
     el.elementWrapper.setConfigStyle({
       position: 'absolute',
-      x: x - rbcr.x - bcr.width / 2,
-      y: y - rbcr.y - bcr.height / 2
+      x: (x - rbcr.x - bcr.width / 2) / this.zoom,
+      y: (y - rbcr.y - bcr.height / 2) / this.zoom
     })
     this.moveable.updateTarget()
   }
@@ -441,10 +451,10 @@ export default class WorkSpaceControl {
 
     el.elementWrapper.setConfigStyle({
       position: 'absolute',
-      x: beforeRect.x - rbcr.x,
-      y: beforeRect.y - rbcr.y,
-      width: beforeRect.width,
-      height: beforeRect.height
+      x: (beforeRect.x - rbcr.x) / this.zoom,
+      y: (beforeRect.y - rbcr.y) / this.zoom,
+      width: beforeRect.width / this.zoom,
+      height: beforeRect.height / this.zoom
     })
 
     this.checkDropTargetStatus({

@@ -1,6 +1,6 @@
 import React from 'react'
-import { Button, Divider, Dropdown, Popover, Space } from '@douyinfe/semi-ui'
-import { IconPlus, IconTemplate, IconTick, IconSetting, IconPause, IconMinus, IconGift, IconPlay } from '@douyinfe/semi-icons'
+import { Button, Divider, Dropdown, Popover, Space, Slider } from '@douyinfe/semi-ui'
+import { IconPlus, IconTemplate, IconTick, IconSetting, IconPause, IconGridSquare, IconGift, IconPlay } from '@douyinfe/semi-icons'
 import AppSettingPanel from './setting/AppSettingPanel.jsx'
 import './style.less'
 
@@ -15,7 +15,11 @@ export default props => {
     modeRun,
     currentPageId,
     toggleVisible,
-    toggoleRunMode
+    toggleContainerMask,
+    zoom,
+    zoomChange,
+    toggoleRunMode,
+    containerMask
   } = props
 
   return (
@@ -23,7 +27,35 @@ export default props => {
       className='menu-bar'
     >
       <Space className='bar-content'>
+        <Dropdown
+          trigger='click'
+          position='top'
+          render={
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => zoomChange(0.3)}>30%</Dropdown.Item>
+              <Dropdown.Item onClick={() => zoomChange(0.5)}>50%</Dropdown.Item>
+              <Dropdown.Item onClick={() => zoomChange(0.6)}>60%</Dropdown.Item>
+              <Dropdown.Item onClick={() => zoomChange(0.7)}>70%</Dropdown.Item>
+              <Dropdown.Item onClick={() => zoomChange(0.8)}>80%</Dropdown.Item>
+              <Dropdown.Item onClick={() => zoomChange(0.9)}>90%</Dropdown.Item>
+              <Dropdown.Item onClick={() => zoomChange(1)}>100%</Dropdown.Item>
+              <Dropdown.Item onClick={() => zoomChange(1.2)}>120%</Dropdown.Item>
+              <Dropdown.Item onClick={() => zoomChange(1.5)}>150%</Dropdown.Item>
+            </Dropdown.Menu>
+          }
+        >
+          <Button style={{ width: 48 }} theme='borderless' type='tertiary'>{Math.floor(zoom * 100)}%</Button>
+        </Dropdown>
+        <div style={{ width: '120px' }}>
+          <Slider min={10} max={200} defaultValue={zoom * 100} onChange={zoom => zoomChange(zoom / 100)} showBoundary={false} size='small' />
+        </div>
         <Divider layout='vertical' />
+        <Button
+          icon={<IconGridSquare />}
+          type={containerMask ? 'primary' : 'tertiary'}
+          theme={containerMask ? 'solid' : 'borderless'}
+          onClick={toggleContainerMask}
+        />
         <Dropdown
           trigger='click'
           position='rightTop'
