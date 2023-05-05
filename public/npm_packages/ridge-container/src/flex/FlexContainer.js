@@ -23,7 +23,10 @@ export default class FlexBoxContainer extends BaseContainer {
   }
 
   getChildStyle (wrapper) {
-    const style = {}
+    const style = {
+      width: '',
+      height: ''
+    }
     const configStyle = wrapper.config.style
 
     if (wrapper.config.props.styleMargin) {
@@ -33,17 +36,20 @@ export default class FlexBoxContainer extends BaseContainer {
     }
     if (configStyle.flex) {
       style.flex = configStyle.flex
-      if (this.props.alignItems !== 'stretch') {
-        if (this.props.direction === 'row') {
-          style.height = configStyle.height ? (configStyle.height + 'px') : ''       
-        } else if (this.props.direction === 'column') {
-          style.width = configStyle.width ? (configStyle.width + 'px') : ''
-        }
-      }
     } else {
       style.flex = ''
-      style.width = configStyle.width ? (configStyle.width + 'px') : ''
-      style.height = configStyle.height ? (configStyle.height + 'px') : ''
+      if (this.props.direction === 'row') {
+        style.width = configStyle.width ? (configStyle.width + 'px') : ''
+      } else {
+        style.height = configStyle.height ? (configStyle.height + 'px') : ''
+      }
+    }
+    if (this.props.alignItems !== 'stretch') {
+      if (this.props.direction === 'row') {
+        style.height = configStyle.height ? (configStyle.height + 'px') : ''
+      } else if (this.props.direction === 'column') {
+        style.width = configStyle.width ? (configStyle.width + 'px') : ''
+      }
     }
     style.zIndex = 10
     return style

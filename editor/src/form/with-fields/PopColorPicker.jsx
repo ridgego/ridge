@@ -1,14 +1,16 @@
 import React from 'react'
 import { Popover, Button } from '@douyinfe/semi-ui'
-import { SketchPicker } from 'react-color'
+import { TwitterPicker } from 'react-color'
 
 const PopColorPicker = ({
   value,
+  options,
   onChange
 }) => {
   return (
     <Popover content={
-      <SketchPicker
+      <TwitterPicker
+        colors={options}
         color={value} onChangeComplete={val => {
           onChange(val.hex + parseInt(val.rgb.a * 255).toString(16))
         }}

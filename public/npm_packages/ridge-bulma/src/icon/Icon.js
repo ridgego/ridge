@@ -1,17 +1,10 @@
 import BulmaBase from '../base/BulmaBase'
-export default class Button extends BulmaBase {
-  innerHTML (props) {
-    return `<button class="button ${props.color} ${props.light ? 'is-light' : ''} ${props.size} ${props.full} ${(props.styles || []).join(' ')}">
-      ${props.icon ? ` <span class="icon ${props.size}">${props.icon}</span>` : ''}
-      ${props.text == null ? '' : `<span>${props.text}</span>`}
-    </button>`
-  }
+import './style.css'
 
-  isDroppable (el) {
-    if (el.componentPath === '') {
-      return true
-    } else {
-      return false
-    }
+export default class Icon extends BulmaBase {
+  innerHTML (props) {
+    return `<span style="width:100%; height: 100%; color: ${props.color}; background-color: ${props.backgroundColor}" class="icon">
+      ${props.icon || ''}
+    </span>`
   }
 }

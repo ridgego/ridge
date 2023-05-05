@@ -39,7 +39,13 @@ export default {
     type: 'boolean',
     width: '50%',
     value: true
+  }, {
+    label: '上边距',
+    field: 'style.marginTop',
+    type: 'number',
+    width: '50%',
+    value: '10'
   }],
-  width: 180,
-  height: 60 
+  width: 360,
+  height: 120
 }

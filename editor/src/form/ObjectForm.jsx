@@ -11,6 +11,7 @@ import IconEdit from './with-fields/IconEdit.jsx'
 import Px4Edit from './with-fields/Px4Edit.jsx'
 import BackgroundEdit from './with-fields/BackgroundEdit.jsx'
 import ColorPicker from './with-fields/ColorPicker.jsx'
+import PresetColorPicker from './with-fields/PresetColorPicker.jsx'
 import RadioGroupEdit from './with-fields/RadioGroupEdit.jsx'
 import CheckBoxGroupEdit from './with-fields/CheckBoxGroupEdit.jsx'
 import BoxShadowEdit from './with-fields/BoxShadowEdit.jsx'
@@ -58,7 +59,8 @@ export default class ObjectForm extends React.Component {
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
       px4: (col, readonly) => <Px4Edit label={col.label} field={col.field} disabled={readonly} />,
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,
-      colorpicker: (col, readonly) => <ColorPicker label={col.label} field={col.field} disabled={readonly} />,
+      colorpicker: (col, readonly) => <ColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
+      presetcolorpicker: (col, readonly) => <PresetColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       json: (col, readonly) => <JSONEdit label={col.label} field={col.field} disabled={readonly} />
     }
   }

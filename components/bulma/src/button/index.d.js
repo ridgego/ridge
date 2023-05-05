@@ -4,7 +4,7 @@ export default {
   name: 'button',
   title: '按钮',
   component: Button,
-  icon: 'IconStop',
+  icon: 'IconButtonStroked',
   type: 'vanilla',
   props: [{
     name: 'text',
@@ -13,10 +13,11 @@ export default {
     type: 'string',
     value: '按钮'
   }, {
-    name: 'icon',
-    label: '图标',
-    type: 'icon',
-    value: ''
+    name: 'iconBefore',
+    type: 'slot'
+  }, {
+    name: 'iconAfter',
+    type: 'slot'
   }, color, size, light],
   events: [{
     label: '点击事件',

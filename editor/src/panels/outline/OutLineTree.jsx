@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_UNSELECT, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
+import { EVENT_PAGE_LOADED, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
 import RawSvgIcon from '../../utils/RawSvgIcon.jsx'
 import { workspaceControl, on, emit } from '../../service/RidgeEditService.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
@@ -73,12 +73,12 @@ class OutLineTree extends React.Component {
     const treeData = []
     const rootElements = Object.values(elements).filter(el => el.isRoot())
     for (const element of rootElements) {
-      treeData.push(this.getElementTree(element))
+      treeData.push(this.getElementTree(element, elements))
     }
     return treeData
   }
 
-  getElementTree (element, tags) {
+  getElementTree (element, elements, tags) {
     const treeNodeObject = {
       key: element.id,
       label: element.config.title,
@@ -96,20 +96,16 @@ class OutLineTree extends React.Component {
       }
     }
     if (element.config.props.children && element.config.props.children.length) {
-      for (const childWrapper of element.config.props.children.filter(n => n)) {
-        if (childWrapper.id) {
-          treeNodeObject.children.push(this.getElementTree(childWrapper))
+      for (const childId of element.config.props.children.filter(n => n)) {
+        if (elements[childId]) {
+          treeNodeObject.children.push(this.getElementTree(elements[childId]))
         }
       }
     }
 
-    const slotChildrenElements = element.getSlotChildren()
-
-    for (const slotChild of slotChildrenElements) {
-      if (slotChild.element && slotChild.element.id) {
-        treeNodeObject.children.push(this.getElementTree(slotChild.element, {
-          tag: slotChild.name
-        }))
+    for (const value of Object.values(element.properties)) {
+      if (value && value.componentPath) {
+        treeNodeObject.children.push(this.getElementTree(value))
       }
     }
     return treeNodeObject

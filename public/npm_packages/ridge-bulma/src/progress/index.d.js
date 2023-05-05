@@ -4,7 +4,7 @@ export default {
   name: 'progress',
   title: '进度条',
   component: Progress,
-  icon: 'IconButtonStroked',
+  icon: 'IconRingChartStroked',
   type: 'vanilla',
   adjustSize: 'all',
   resizable: false,

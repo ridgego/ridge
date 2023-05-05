@@ -193,12 +193,7 @@ class PageElementManager {
 
     const div = document.createElement('div')
     newWrapper.mount(div)
-    // if (sourceWrapper.parentWrapper) {
-    //   this.attachToParent(sourceWrapper.parentWrapper, newWrapper)
-    //   console.log('attached', newWrapper, newWrapper.config.style)
-    // } else {
-    //   this.putElementToRoot(newWrapper)
-    // }
+
     this.pushElement(newWrapper)
     return newWrapper
   }
@@ -243,28 +238,9 @@ class PageElementManager {
      */
   detachChildElement (childElement) {
     const sourceParentElement = childElement.parentWrapper
-    if (!sourceParentElement) {
-      return
-    }
 
-    // 判断子节点是插槽子节点还是普通子节点
-    let isSlot = false
-    for (const slotProp of sourceParentElement.componentDefinition.props.filter(prop => prop.type === 'slot')) {
-      if (sourceParentElement.config.props[slotProp.name] === childElement) {
-        // 设置插槽属性为null
-        sourceParentElement.setPropsConfig(null, {
-          ['props.' + slotProp.name]: null
-        })
-        isSlot = true
-      }
-    }
-
-    // 非插槽重新计算children
-    if (!isSlot) {
-      sourceParentElement.removeChild(childElement)
-      sourceParentElement.config.props.children = sourceParentElement.invoke('getChildren')
-    }
-
+    const result = sourceParentElement.invoke('removeChild', [childElement])
+    Object.assign(sourceParentElement.config.props, result)
 
     delete childElement.config.parent
     delete childElement.parentWrapper

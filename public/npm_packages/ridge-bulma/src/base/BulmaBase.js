@@ -3,12 +3,8 @@ export default class BulmaBase {
     this.props = props
   }
 
-  isDroppable () {
+  isDroppable (el) {
     return false
-  }
-
-  onDragOver () {
-
   }
 
   random (length = 8) {
@@ -36,6 +32,14 @@ export default class BulmaBase {
     this.props = props
     this.el.innerHTML = this.innerHTML(props)
     this.mounted()
+  }
+
+  onDragOver () {
+    this.el.style.border = '2px dashed hsl(204, 86%, 53%)'
+  }
+
+  onDragOut () {
+    this.el.style.border = ''
   }
 
   mounted () {

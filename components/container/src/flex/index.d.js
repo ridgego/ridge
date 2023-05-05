@@ -1,5 +1,4 @@
 import FlexBoxContainer from './FlexContainer'
-import { border } from 'ridge-prop-utils'
 
 export default {
   name: 'flex-container',
@@ -64,16 +63,27 @@ export default {
     }],
     value: 'flex-start'
   }, {
+    name: 'children',
+    hidden: true,
+    type: 'children'
+  }, {
     label: '间隔',
     name: 'gap',
     party: true,
     type: 'number',
     value: 0
   }, {
-    name: 'children',
-    hidden: true,
-    type: 'children'
-  }, ...border.props],
+    name: 'padding',
+    label: '内边',
+    type: 'string',
+    control: 'px4',
+    value: '2px'
+  }, {
+    name: 'rectStyle',
+    label: '块样式',
+    type: 'rect',
+    value: {}
+  }],
   childStyle: [{
     label: 'W',
     width: '50%',

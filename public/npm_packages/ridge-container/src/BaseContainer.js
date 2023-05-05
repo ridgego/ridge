@@ -173,7 +173,7 @@ export default class BaseContainer {
 
   getChildren () {
     return Array.from(this.containerEl.childNodes).map(el => {
-      return el.elementWrapper
+      return el.elementWrapper.id
     }).filter(e => e != null)
   }
 

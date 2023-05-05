@@ -1,17 +1,31 @@
 import Icon from './Icon'
-import { color, size, light } from '../base/props'
+import { colors } from '../colors/colors'
 export default {
   name: 'icon',
   title: '图标',
   component: Icon,
-  icon: 'IconStop',
+  icon: 'IconHeartStroked',
   type: 'vanilla',
   props: [{
     name: 'icon',
     label: '图标',
     type: 'icon',
     value: ''
-  }, color, size, light],
+  }, {
+    name: 'color',
+    label: '颜色',
+    type: 'string',
+    control: 'presetcolorpicker',
+    presetColors: colors,
+    width: '50%'
+  }, {
+    name: 'backgroundColor',
+    label: '背景色',
+    type: 'string',
+    control: 'presetcolorpicker',
+    presetColors: colors,
+    width: '50%'
+  }],
   events: [{
     label: '点击事件',
     name: 'onClick'

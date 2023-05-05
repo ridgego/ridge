@@ -28,6 +28,10 @@ export default class ColumnContainer extends BaseContainer {
       shadowStyle.margin = ''
     }
 
+    if (configStyle.marginTop) {
+      shadowStyle.marginTop = configStyle.marginTop + 'px'
+    }
+
     if (configStyle.fullwidth) {
       shadowStyle.width = '100%'
     } else {

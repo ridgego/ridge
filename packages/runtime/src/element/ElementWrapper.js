@@ -186,10 +186,11 @@ class ElementWrapper {
         }
       } else if (prop.type === 'slot') {
         this.isContainer = true
+        this.el.classList.add('ridge-droppable')
         this.slotProps.push(prop.name)
         // 写入slot的包装类
         if (this.config.props[prop.name] && typeof this.config.props[prop.name] === 'string') {
-          this.config.props[prop.name] = this.pageManager.getElement(this.config.props[prop.name])
+          this.properties[prop.name] = this.pageManager.getElement(this.config.props[prop.name])
         }
       }
     }
@@ -614,6 +615,9 @@ class ElementWrapper {
         Object.assign(this.config.props, {
           [key]: field[keyPath]
         })
+        Object.assign(this.properties, {
+          [key]: field[keyPath]
+        })
       }
       if (type === 'style') {
         Object.assign(this.config.style, {
@@ -646,8 +650,6 @@ class ElementWrapper {
         this.config.title = field[keyPath]
       }
     }
-
-    Object.assign(this.properties, this.config.props)
 
     this.updateStyle()
     this.renderUpdate()
@@ -707,24 +709,7 @@ class ElementWrapper {
   }
 
   toJSON () {
-    if (this.isContainer) {
-      const result = Object.assign({}, this.config)
-      result.props = Object.assign({}, this.config.props)
-
-      // 保存时children及slotProp只保存id
-      if (this.config.props.children) {
-        result.props.children = this.config.props.children.filter(n => n).map(child => child.id)
-      }
-
-      for (const key of this.slotProps ?? []) {
-        if (result.props[key]) {
-          result.props[key] = result.props[key].id
-        }
-      }
-      return JSON.parse(JSON.stringify(result))
-    } else {
-      return JSON.parse(JSON.stringify(this.config))
-    }
+    return JSON.parse(JSON.stringify(this.config))
   }
 }
 

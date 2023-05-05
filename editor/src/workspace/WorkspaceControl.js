@@ -18,7 +18,7 @@ export default class WorkSpaceControl {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
     this.zoom = 0.8
-    this.selectorDropableTarget = ['.ridge-container']
+    this.selectorDropableTarget = ['.ridge-container', '.ridge-droppable']
 
     on(EVENT_ELEMENT_SELECTED, payload => {
       if (payload.from === 'outline' &&
