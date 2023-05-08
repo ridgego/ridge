@@ -26,14 +26,14 @@ export default class Button extends BulmaBase {
     if (this.props.iconBefore) {
       if (!this.props.iconBefore.el) {
         const childDiv = document.createElement('div')
-        this.props.iconBefore.mount(childDiv)
+        this.props.iconBefore.loadAndMount(childDiv)
       }
       this.el.querySelector('button').insertBefore(this.props.iconBefore.el, this.el.querySelector('span.button-text'))
       this.updateChildStyle(this.props.iconBefore)
     } else if (this.props.iconAfter) {
       if (!this.props.iconAfter.el) {
         const childDiv = document.createElement('div')
-        this.props.iconAfter.mount(childDiv)
+        this.props.iconAfter.loadAndMount(childDiv)
       }
       this.el.querySelector('button').insertAfter(this.props.iconAfter.el, this.el.querySelector('span.button-text'))
       this.updateChildStyle(this.props.iconAfter)

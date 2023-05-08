@@ -31,7 +31,7 @@ export default class ReactRenderer extends Renderer {
     this.renderRef = this.props.ref
   }
 
-  async mount (el) {
+  mount (el) {
     this.el = el
     this.root = ReactDOM.createRoot(el)
     this.root.render(this.getRenderInstance())

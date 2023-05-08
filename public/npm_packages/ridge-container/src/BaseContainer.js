@@ -63,7 +63,7 @@ export default class BaseContainer {
       for (const childWrapper of this.props.children) {
         const childDiv = document.createElement('div')
         containerDiv.appendChild(childDiv)
-        await childWrapper.mount(childDiv)
+        await childWrapper.loadAndMount(childDiv)
         this.updateChildStyle(childWrapper)
       }
     }

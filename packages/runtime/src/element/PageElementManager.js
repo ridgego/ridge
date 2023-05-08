@@ -87,7 +87,7 @@ class PageElementManager {
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
       const div = document.createElement('div')
       el.appendChild(div)
-      promises.push(await wrapper.mount(div))
+      promises.push(await wrapper.loadAndMount(div))
     }
     this.onPageMounted && this.onPageMounted()
     await Promise.allSettled(promises)
@@ -260,7 +260,7 @@ class PageElementManager {
       return false
     } else {
       Object.assign(targetParentElement.config.props, result)
-  
+
       sourceElement.config.parent = targetParentElement.id
       sourceElement.parentWrapper = targetParentElement
     }

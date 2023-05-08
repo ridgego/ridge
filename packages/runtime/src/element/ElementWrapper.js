@@ -80,6 +80,17 @@ class ElementWrapper {
     return cloned
   }
 
+  async loadAndMount (el) {
+    this.el = el
+    this.el.classList.add('ridge-element')
+    this.el.setAttribute('ridge-id', this.id)
+    this.el.elementWrapper = this
+    this.el.componentPath = this.componentPath
+
+    await this.preload()
+    this.mount(el)
+  }
+
   /**
    * 加载组件代码、按代码初始化属性
    */
@@ -222,27 +233,17 @@ class ElementWrapper {
   /**
      * 执行组件初次加载 mount到具体DOM元素
      */
-  async mount (el) {
-    this.el = el
-    this.el.classList.add('ridge-element')
-    this.el.setAttribute('ridge-id', this.id)
-    this.el.elementWrapper = this
-
-    this.el.componentPath = this.componentPath
+  mount () {
     this.el.hasMethod = this.hasMethod.bind(this)
     this.el.invoke = this.invoke.bind(this)
     this.el.forceUpdate = this.forceUpdate.bind(this)
     this.el.getConfig = this.getConfig.bind(this)
 
-    this.style = Object.assign({}, this.config.style, this.style)
+    this.style = Object.assign({}, this.config.style)
     this.updateExpressionedStyle()
     this.updateStyle()
-    if (!this.preloaded) {
-      // 加载定义
-      await this.preload()
-    }
     this.initPropsAndEvents()
-    this.renderer = await this.createRenderer()
+    this.renderer = this.createRenderer()
   }
 
   unmount () {
@@ -267,15 +268,15 @@ class ElementWrapper {
    * 调用组件依托的技术框架渲染内容
    * @returns
    */
-  async createRenderer () {
+  createRenderer () {
     try {
       if (this.componentDefinition.type === 'vanilla') {
         const render = new VanillaRender(this.componentDefinition.component, this.getProperties())
-        await render.mount(this.el)
+        render.mount(this.el)
         return render
       } else {
         const render = new ReactRenderer(this.componentDefinition.component, this.getProperties())
-        await render.mount(this.el)
+        render.mount(this.el)
         return render
       }
     } catch (e) {
@@ -430,7 +431,7 @@ class ElementWrapper {
   /**
    * 强制更新、计算所有属性
    */
-  async forceUpdate () {
+  forceUpdate () {
     this.updateExpressionedStyle()
     this.updateStyle()
 
@@ -509,20 +510,6 @@ class ElementWrapper {
             await this.pageStore.doReducer(reducer, this.getContextState(), payload)
           }
         }
-      }
-    }
-  }
-
-  /**
-   * 应用拦截器的拦截方法（异步）
-   * @param {*} hookName
-   */
-  async applyDecorate (hookName) {
-    if (this.pageManager && this.pageManager.decorators.element) {
-      for (const decorator of this.pageManager.decorators.element) {
-        try {
-          decorator[hookName] && await decorator[hookName](this)
-        } catch (e) {}
       }
     }
   }

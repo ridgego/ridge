@@ -527,14 +527,13 @@ export default class WorkSpaceControl {
     const div = document.createElement('div')
 
     const wrapper = this.pageManager.createElement(fraction)
-    wrapper.mount(div).then(() => {
-      emit(EVENT_ELEMENT_CREATED, {
-        elements: this.pageManager.getPageElements(),
-        element: wrapper
-      })
-    })
+    wrapper.loadAndMount(div)
 
     this.placeElementAt(div, ev.pageX, ev.pageY)
+    emit(EVENT_ELEMENT_CREATED, {
+      elements: this.pageManager.getPageElements(),
+      element: wrapper
+    })
   }
 
   copy (divs) {

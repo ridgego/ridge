@@ -12,9 +12,9 @@ export default class VanillaRender extends Renderer {
     this.props = initOption
   }
 
-  async mount (el) {
+  mount (el) {
     this.el = el
-    await this.getRenderInstance().mount(el)
+    this.getRenderInstance().mount(el)
   }
 
   getRenderInstance () {
