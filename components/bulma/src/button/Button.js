@@ -2,12 +2,12 @@ import BulmaBase from '../base/BulmaBase'
 export default class Button extends BulmaBase {
   innerHTML (props) {
     return `<button style="width:100%;height:100%;font-size: ${props.fontSize};" class="button ${props.color} ${props.light ? 'is-light' : ''} ${(props.styles || []).join(' ')}">
-      ${props.text == null ? '' : `<span class="button-text" style="margin: 0 5px;">${props.text}</span>`}
+      ${props.text == null ? '' : `<span class="button-text" style="margin: 0 10px">${props.text}</span>`}
     </button>`
   }
 
   isDroppable (el) {
-    if (el.componentPath === 'ridge-bulma/icon') {
+    if (el.componentPath === 'ridge-bulma/icon' && !this.el.querySelector('.ridge-element')) {
       return true
     } else {
       return false
@@ -15,37 +15,60 @@ export default class Button extends BulmaBase {
   }
 
   mounted () {
-    if (this.props.iconBefore) {
-      const childDiv = document.createElement('div')
-      this.el.querySelector('button').insertBefore(childDiv, this.el.querySelector('span.button-text'))
+    this.ensureButtonIcon()
+  }
 
-      this.props.iconBefore.mount(childDiv)
-      this.updateChildStyle(childDiv)
+  updated () {
+    this.ensureButtonIcon()
+  }
+
+  ensureButtonIcon () {
+    if (this.props.iconBefore) {
+      if (!this.props.iconBefore.el) {
+        const childDiv = document.createElement('div')
+        this.props.iconBefore.mount(childDiv)
+      }
+      this.el.querySelector('button').insertBefore(this.props.iconBefore.el, this.el.querySelector('span.button-text'))
+      this.updateChildStyle(this.props.iconBefore)
+    } else if (this.props.iconAfter) {
+      if (!this.props.iconAfter.el) {
+        const childDiv = document.createElement('div')
+        this.props.iconAfter.mount(childDiv)
+      }
+      this.el.querySelector('button').insertAfter(this.props.iconAfter.el, this.el.querySelector('span.button-text'))
+      this.updateChildStyle(this.props.iconAfter)
     }
   }
 
-  updateIconBefore () {
-
+  updateChildStyle (wrapper) {
+    wrapper.el.style.position = ''
+    wrapper.el.style.transform = ''
+    wrapper.el.style.width = wrapper.config.width + 'px'
+    wrapper.el.style.height = wrapper.config.height + 'px'
   }
 
-  updateChildStyle (el) {
-    el.style.position = ''
-    el.style.transform = ''
+  removeChild (wrapper) {
+    this.el.querySelector('button').removeChild(wrapper.el)
+    return {
+      iconBefore: null,
+      iconAfter: null
+    }
   }
 
   appendChild (wp, x, y) {
-    this.el.querySelector('button').insertBefore(wp.el, this.el.querySelector('span.button-text'))
-    this.updateChildStyle(wp.el)
+    const currentRect = this.el.getBoundingClientRect()
+    const isBefore = x < (currentRect.x + currentRect.width / 2)
+
+    if (isBefore) {
+      this.el.querySelector('button').insertBefore(wp.el, this.el.querySelector('span.button-text'))
+    } else {
+      this.el.querySelector('button').appendChild(wp.el)
+    }
+
+    this.updateChildStyle(wp)
     this.onDragOut()
     return {
       iconBefore: wp.id
-    }
-  }
-
-  removeChild (wp) {
-    this.el.querySelector('button').removeChild(wp.el)
-    return {
-      iconBefore: ''
     }
   }
 }

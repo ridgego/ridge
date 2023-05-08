@@ -256,10 +256,14 @@ class PageElementManager {
     // 这里容器会提供 appendChild 方法，并提供放置位置
     const result = targetParentElement.invoke('appendChild', [sourceElement, x, y])
 
-    Object.assign(targetParentElement.config.props, result)
-
-    sourceElement.config.parent = targetParentElement.id
-    sourceElement.parentWrapper = targetParentElement
+    if (result === false) {
+      return false
+    } else {
+      Object.assign(targetParentElement.config.props, result)
+  
+      sourceElement.config.parent = targetParentElement.id
+      sourceElement.parentWrapper = targetParentElement
+    }
   }
 
   putElementToRoot (element) {

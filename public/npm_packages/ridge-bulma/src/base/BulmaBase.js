@@ -17,6 +17,9 @@ export default class BulmaBase {
     return str
   }
 
+  mounted () {}
+  updated () {}
+
   async mount (el) {
     this.el = el
 
@@ -31,7 +34,7 @@ export default class BulmaBase {
   update (props) {
     this.props = props
     this.el.innerHTML = this.innerHTML(props)
-    this.mounted()
+    this.updated()
   }
 
   onDragOver () {
@@ -40,9 +43,5 @@ export default class BulmaBase {
 
   onDragOut () {
     this.el.style.border = ''
-  }
-
-  mounted () {
-
   }
 }

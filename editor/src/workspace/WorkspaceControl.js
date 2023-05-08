@@ -406,7 +406,10 @@ export default class WorkSpaceControl {
     } else {
       // 放入一个容器
       trace('从页面到父容器')
-      this.pageManager.attachToParent(targetParentElement, sourceElement, { x, y })
+      const result = this.pageManager.attachToParent(targetParentElement, sourceElement, { x, y })
+      if (result === false) {
+        this.putElementToRoot(el, x, y)
+      }
     }
     emit(EVENT_ELEMENT_DRAG_END, {
       sourceElement: el,

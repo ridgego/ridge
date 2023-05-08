@@ -18,7 +18,7 @@ export default {
   }, {
     name: 'iconAfter',
     type: 'slot'
-  }, color, size, light],
+  }, color, light],
   events: [{
     label: '点击事件',
     name: 'onClick'

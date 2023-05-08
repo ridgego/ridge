@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Divider, Dropdown, Popover, Space, Slider } from '@douyinfe/semi-ui'
-import { IconPlus, IconTemplate, IconTick, IconSetting, IconPause, IconGridSquare, IconGift, IconPlay } from '@douyinfe/semi-icons'
+import { IconPlus, IconTemplate, IconTick, IconSetting, IconPause, IconGridSquare, IconGridView1, IconGift, IconPlay } from '@douyinfe/semi-icons'
 import AppSettingPanel from './setting/AppSettingPanel.jsx'
 import './style.less'
 
@@ -51,12 +51,13 @@ export default props => {
         </div>
         <Divider layout='vertical' />
         <Button
-          icon={<IconGridSquare />}
+          icon={<IconGridView1 />}
+          size='small'
           type={containerMask ? 'primary' : 'tertiary'}
           theme={containerMask ? 'solid' : 'borderless'}
           onClick={toggleContainerMask}
         />
-        <Dropdown
+        {/* <Dropdown
           trigger='click'
           position='rightTop'
           render={
@@ -69,7 +70,7 @@ export default props => {
           }
         >
           <Button disabled={modeRun} icon={<IconTemplate />} theme='borderless' size='small' type='tertiary' />
-        </Dropdown>
+        </Dropdown> */}
         <Popover
           showArrow
           zIndex={3001}
@@ -86,12 +87,12 @@ export default props => {
           icon={modeRun ? <IconPause /> : <IconPlay />} onClick={toggoleRunMode}
         >预览
         </Button>
-        <Button
+        {/* <Button
           type='warning'
           theme='solid'
           icon={<IconGift />}
         >组件商店
-        </Button>
+        </Button> */}
       </Space>
     </div>
   )

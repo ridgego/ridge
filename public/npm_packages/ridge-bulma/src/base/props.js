@@ -49,7 +49,7 @@ export const color = {
 
 export const light = {
   name: 'light',
-  label: '浅色',
+  label: '浅色模式',
   width: '50%',
   type: 'boolean'
 }

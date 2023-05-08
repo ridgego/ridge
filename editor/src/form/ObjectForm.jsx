@@ -74,6 +74,9 @@ export default class ObjectForm extends React.Component {
   }
 
   renderField (field, index, formState, options) {
+    if (field.type === 'slot' || field.type === 'children') {
+      return
+    }
     const hidden = (typeof field.hidden === 'function') ? field.hidden(formState.values) : field.hidden
     if (hidden) {
       return
