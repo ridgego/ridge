@@ -40,13 +40,6 @@ export default class Button extends BulmaBase {
     }
   }
 
-  updateChildStyle (wrapper) {
-    wrapper.el.style.position = ''
-    wrapper.el.style.transform = ''
-    wrapper.el.style.width = wrapper.config.width + 'px'
-    wrapper.el.style.height = wrapper.config.height + 'px'
-  }
-
   removeChild (wrapper) {
     this.el.querySelector('button').removeChild(wrapper.el)
     return {

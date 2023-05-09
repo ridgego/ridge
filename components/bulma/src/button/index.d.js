@@ -22,6 +22,16 @@ export default {
   events: [{
     label: '点击事件',
     name: 'onClick'
+  }], childStyle: [{
+    label: 'W',
+    width: '50%',
+    control: 'number',
+    field: 'style.width'
+  }, {
+    label: 'H',
+    width: '50%',
+    control: 'number',
+    field: 'style.height'
   }],
   width: 80,
   height: 40

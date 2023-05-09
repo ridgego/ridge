@@ -81,9 +81,9 @@ export default class ApplicationService {
       states: [],
       reducers: [],
       properties: {
-        type: 'fixed',
-        width: 800,
-        height: 600
+        type: 'static',
+        width: 1366,
+        height: 768
       },
       elements: []
     }

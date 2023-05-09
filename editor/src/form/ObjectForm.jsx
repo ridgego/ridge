@@ -16,6 +16,7 @@ import RadioGroupEdit from './with-fields/RadioGroupEdit.jsx'
 import CheckBoxGroupEdit from './with-fields/CheckBoxGroupEdit.jsx'
 import BoxShadowEdit from './with-fields/BoxShadowEdit.jsx'
 import ToggleIcon from './with-fields/ToggleIcon.jsx'
+import RectEdit from './with-fields/RectEdit.jsx'
 
 import './form.less'
 
@@ -58,6 +59,7 @@ export default class ObjectForm extends React.Component {
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
       px4: (col, readonly) => <Px4Edit label={col.label} field={col.field} disabled={readonly} />,
+      rect: (col, readonly) => <RectEdit label={col.label} field={col.field} noLabel disabled={readonly} />,
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,
       colorpicker: (col, readonly) => <ColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       presetcolorpicker: (col, readonly) => <PresetColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,

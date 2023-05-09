@@ -85,16 +85,10 @@ const PAGE_FIELDS = [
       label: '固定宽高',
       value: 'static'
     }, {
-      label: '缩放适应',
-      value: 'static-scaled'
+      label: '横向自适应',
+      value: 'responsive'
     }, {
-      label: '宽度填充',
-      value: 'responsive-width'
-    }, {
-      label: '宽度固定',
-      value: 'fixed-width'
-    }, {
-      label: '全填充适应',
+      label: '横向+纵向自适应',
       value: 'full-responsive'
     }]
   },
@@ -249,7 +243,7 @@ export default class ComponentPanel extends React.Component {
     }, () => {
       this.componentPropFormApi.reset()
       this.componentEventFormApi.reset()
-  
+
       this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
         notNotify: true
       })
@@ -265,7 +259,7 @@ export default class ComponentPanel extends React.Component {
       this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
         notNotify: true
       })
-  
+
       this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
         notNotify: true
       })

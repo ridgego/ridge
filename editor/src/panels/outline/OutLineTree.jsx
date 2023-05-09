@@ -87,25 +87,38 @@ class OutLineTree extends React.Component {
       element,
       children: []
     }
-    if (element.componentDefinition && element.componentDefinition.icon) {
-      if (SemiIcons[element.componentDefinition.icon]) {
-        const Icon = SemiIcons[element.componentDefinition.icon]
-        treeNodeObject.icon = <Icon />
-      } else {
-        treeNodeObject.icon = (<RawSvgIcon svg={element.componentDefinition.icon} />)
-      }
-    }
-    if (element.config.props.children && element.config.props.children.length) {
-      for (const childId of element.config.props.children.filter(n => n)) {
-        if (elements[childId]) {
-          treeNodeObject.children.push(this.getElementTree(elements[childId]))
+
+    if (element.componentDefinition) {
+      // 更改Icon
+      if (element.componentDefinition.icon) {
+        if (SemiIcons[element.componentDefinition.icon]) {
+          const Icon = SemiIcons[element.componentDefinition.icon]
+          treeNodeObject.icon = <Icon />
+        } else {
+          treeNodeObject.icon = (<RawSvgIcon svg={element.componentDefinition.icon} />)
         }
       }
-    }
 
-    for (const value of Object.values(element.properties)) {
-      if (value && value.componentPath) {
-        treeNodeObject.children.push(this.getElementTree(value))
+      // 递归处理子节点树
+      const childProps = element.componentDefinition.props.filter(p => p.type === 'children')
+      if (childProps.length) {
+        for (const childProp of childProps) {
+          if (element.config.props[childProp.name] && element.config.props[childProp.name].length) {
+            for (const elementId of element.config.props[childProp.name]) {
+              treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, childProps.label))
+            }
+          }
+        }
+      }
+
+      // 递归处理插槽节点
+      const slotProps = element.componentDefinition.props.filter(p => p.type === 'slot')
+      if (slotProps.length) {
+        for (const childProp of slotProps) {
+          if (element.config.props[childProp.name] && elements[element.config.props[childProp.name]]) {
+            treeNodeObject.children.push(this.getElementTree(elements[element.config.props[childProp.name]], elements, childProps.label))
+          }
+        }
       }
     }
     return treeNodeObject

@@ -6,9 +6,7 @@ import ComponentPanel from './panels/component/index.jsx'
 import LeftBottomPanel from './panels/files/index.jsx'
 import MenuBar from './menu/MenuBar.jsx'
 import debounce from 'lodash/debounce'
-
 import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
-
 import { ridge, emit, on, workspaceControl } from './service/RidgeEditService.js'
 
 import './editor.less'
@@ -129,7 +127,10 @@ export default class Editor extends React.Component {
     })
     this.pageConfig = pageConfig
     const { content } = this.pageConfig
-    workspaceControl.fitToCenter(content.properties.width, content.properties.height, this.state.zoom)
+    const zoom = workspaceControl.fitToCenter(content.properties.width, content.properties.height, this.state.zoom)
+    this.setState({
+      zoom
+    })
 
     // 从HTML初始化页面管理器
     // this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)

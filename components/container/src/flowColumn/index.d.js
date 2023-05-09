@@ -1,5 +1,4 @@
 import ColumnContainer from './ColumnContainer.js'
-import { border } from 'ridge-prop-utils'
 export default {
   name: 'column-container',
   component: ColumnContainer,
@@ -7,14 +6,21 @@ export default {
   type: 'vanilla',
   icon: 'IconSectionStroked',
   props: [{
-    name: 'coverContainer',
-    label: '填充',
-    type: 'boolean'
-  }, {
     name: 'children',
     hidden: true,
     type: 'children'
-  }, ...border.props],
+  }, {
+    name: 'padding',
+    label: '内边',
+    type: 'string',
+    control: 'px4',
+    value: '8px'
+  }, {
+    name: 'rectStyle',
+    label: '块样式',
+    type: 'rect',
+    value: {}
+  }],
   childStyle: [{
     label: 'W',
     width: '50%',

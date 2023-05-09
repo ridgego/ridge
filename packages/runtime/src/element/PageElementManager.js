@@ -107,17 +107,17 @@ class PageElementManager {
       this.el.style.height = this.pageConfig.properties.height + 'px'
     } else {
       switch (this.pageConfig.properties.type) {
-        case 'fixed':
+        case 'static':
           this.el.style.width = this.pageConfig.properties.width + 'px'
           this.el.style.height = this.pageConfig.properties.height + 'px'
           break
-        case 'fit-wh':
+        case 'responsive':
           this.el.style.width = '100%'
-          this.el.style.height = '100%'
+          this.el.style.height = 'auto'
           break
-        default:
+        case 'full-responsive':
           this.el.style.width = '100%'
-          this.el.style.height = '100%'
+          this.el.style.height = 'auto'
           break
       }
     }
@@ -215,17 +215,13 @@ class PageElementManager {
     const element = this.pageElements[id]
 
     if (element) {
-      for (const childId of element.getChildrenIds()) {
-        this.removeElement(childId)
+      if (element.parentWrapper) {
+        this.detachChildElement(element)
       }
-      for (const slotChild of element.getSlotChildren()) {
-        if (slotChild.element) {
-          this.removeElement(slotChild.element.id)
-        }
-      }
-      if (element.config.parent) {
-        this.detachChildElement(this.pageElements[element.config.parent], element)
-      }
+
+      element.forEachChildren((childWrapper, type, propKey) => {
+        this.removeElement(childWrapper.id)
+      })
       element.unmount()
       delete this.pageElements[id]
     }

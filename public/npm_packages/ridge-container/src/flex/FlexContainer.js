@@ -1,5 +1,4 @@
 import BaseContainer from '../BaseContainer'
-import { border } from 'ridge-prop-utils'
 
 export default class FlexBoxContainer extends BaseContainer {
   getContainerStyle () {
@@ -8,7 +7,8 @@ export default class FlexBoxContainer extends BaseContainer {
       direction = 'row',
       alignItems = 'stretch',
       gap = 0,
-      justify = 'flex-start'
+      justify = 'flex-start',
+      rectStyle
     } = this.props
     const containerStyle = {
       display: 'flex',
@@ -18,7 +18,7 @@ export default class FlexBoxContainer extends BaseContainer {
       gap: gap + 'px'
     }
 
-    Object.assign(containerStyle, border.style(this.props))
+    Object.assign(containerStyle, rectStyle)
     return containerStyle
   }
 

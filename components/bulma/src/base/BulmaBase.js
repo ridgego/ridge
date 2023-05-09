@@ -37,6 +37,13 @@ export default class BulmaBase {
     this.updated()
   }
 
+  updateChildStyle (wrapper) {
+    wrapper.el.style.position = ''
+    wrapper.el.style.transform = ''
+    wrapper.el.style.width = wrapper.config.style.width + 'px'
+    wrapper.el.style.height = wrapper.config.style.height + 'px'
+  }
+  
   onDragOver () {
     this.el.style.border = '2px dashed hsl(204, 86%, 53%)'
   }

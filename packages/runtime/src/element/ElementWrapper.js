@@ -132,9 +132,34 @@ class ElementWrapper {
     }
   }
 
-  appendChild (wrapper) {
-    this.children.push(wrapper)
+  /**
+   * 枚举每个子节点
+   * @param {*} cb 
+   */
+  forEachChildren(cb) {
+    // 递归处理子节点树
+    const childProps = this.componentDefinition.props.filter(p => p.type === 'children')
+    if (childProps.length) {
+      for (const childProp of childProps) {
+        if (this.config.props[childProp.name] && this.config.props[childProp.name].length) {
+          for (const elementId of this.config.props[childProp.name]) {
+            cb(this.pageManager.pageElements[elementId], 'children', childProp.name)
+          }
+        }
+      }
+    }
+
+    // 递归处理插槽节点
+    const slotProps = this.componentDefinition.props.filter(p => p.type === 'slot')
+    if (slotProps.length) {
+      for (const childProp of slotProps) {
+        if (this.config.props[childProp.name]) {
+          cb(this.pageManager.pageElements[this.config.props[childProp.name]], 'slot', childProp.name)
+        }
+      }
+    }
   }
+  
 
   /**
    * 初始化组件属性、事件
@@ -187,7 +212,7 @@ class ElementWrapper {
 
         // 写入子级的具体包装类
         if (Array.isArray(this.config.props.children)) {
-          this.config.props.children = this.config.props.children.map(element => {
+          this.properties.children = this.config.props.children.map(element => {
             if (typeof element === 'string') {
               return this.pageManager.getElement(element)
             } else {
@@ -201,7 +226,12 @@ class ElementWrapper {
         this.slotProps.push(prop.name)
         // 写入slot的包装类
         if (this.config.props[prop.name] && typeof this.config.props[prop.name] === 'string') {
-          this.properties[prop.name] = this.pageManager.getElement(this.config.props[prop.name])
+          const childrenWrapper = this.pageManager.getElement(this.config.props[prop.name])
+          if (childrenWrapper) {
+            childrenWrapper.parentWrapper = this
+            this.properties[prop.name] = childrenWrapper
+
+          }
         }
       }
     }
@@ -247,19 +277,14 @@ class ElementWrapper {
   }
 
   unmount () {
-    if (this.children && this.children.length) {
-      for (const childWrapper of this.children) {
-        childWrapper.unmount()
-      }
-    }
     if (this.renderer) {
       this.renderer.destroy()
       this.renderer = null
     }
-    if (this.el) {
+    if (this.el && this.el.parentElement) {
       this.el.parentElement.removeChild(this.el)
-      this.el = null
     }
+    this.el = null
 
     this.pageStore && this.pageStore.unsubscribe(this.id)
   }
@@ -696,6 +721,9 @@ class ElementWrapper {
   }
 
   toJSON () {
+    if (this.config.props.children && this.config.props.children[0] && this.config.props.children[0].id) {
+      debugger
+    }
     return JSON.parse(JSON.stringify(this.config))
   }
 }

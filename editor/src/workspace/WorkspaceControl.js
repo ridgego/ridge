@@ -5,6 +5,7 @@ import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, 
 import { emit, on } from '../service/RidgeEditService'
 
 import debug from 'debug'
+import { fitRectIntoBounds } from '../utils/rectUtils'
 const trace = debug('ridge:workspace')
 /**
  * 控制工作区组件的Drag/Resize/New等动作
@@ -62,16 +63,32 @@ export default class WorkSpaceControl {
     this.moveable.updateTarget()
   }
 
-  fitToCenter (width, height, zoom) {
+  fitToCenter (width, height) {
+    const availableWidth = window.innerWidth - 620
+    let zoom = 1
+    if (width > availableWidth) {
+      zoom = availableWidth / width
+    }
+
+    // const fitted = fitRectIntoBounds({
+    //   width,
+    //   height
+    // }, {
+    //   width: window.innerWidth,
+    //   height: window.innerHeight
+    // })
+
     this.viewPortEl.style.width = width + 'px'
     this.viewPortEl.style.height = height + 'px'
 
-    const containerRect = this.workspaceEl.getBoundingClientRect()
+    this.workspaceX = 290
+    this.workspaceY = 5
 
-    this.workspaceX = (containerRect.width - width) / 2
-    this.workspaceY = (containerRect.height - height) / 2
+    this.viewPortEl.style.transformOrigin = 'top left'
+    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${zoom})`
 
-    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${(this.workspaceY) / 2}px) scale(${this.zoom})`
+    this.zoom = zoom
+    return zoom
   }
 
   setZoom (zoom) {
@@ -371,7 +388,7 @@ export default class WorkSpaceControl {
       ev.preventDefault()
     })
 
-    this.workspaceEl.addEventListener('drop', this.workspaceDrop.bind(this))
+    this.workspaceEl.addEventListener('drop', this.onWorkspaceDrop.bind(this))
   }
 
   checkDropTargetStatus ({ target, clientX, clientY, width, height }) {
@@ -515,7 +532,7 @@ export default class WorkSpaceControl {
    * 放置组件事件
    * @param {*} ev
    */
-  workspaceDrop (ev) {
+  onWorkspaceDrop (ev) {
     if (!this.enabled) {
       return
     }
@@ -527,12 +544,12 @@ export default class WorkSpaceControl {
     const div = document.createElement('div')
 
     const wrapper = this.pageManager.createElement(fraction)
-    wrapper.loadAndMount(div)
-
-    this.placeElementAt(div, ev.pageX, ev.pageY)
-    emit(EVENT_ELEMENT_CREATED, {
-      elements: this.pageManager.getPageElements(),
-      element: wrapper
+    wrapper.loadAndMount(div).then(() => {
+      this.placeElementAt(div, ev.pageX, ev.pageY)
+      emit(EVENT_ELEMENT_CREATED, {
+        elements: this.pageManager.getPageElements(),
+        element: wrapper
+      })
     })
   }
 

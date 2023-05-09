@@ -123,7 +123,6 @@ export default class BaseContainer {
   checkInsertDropShadowEl (rect, afterNode, configStyle) {
     const existedNode = this.containerEl.querySelector(':scope > .drop-shadow')
 
-    console.log(existedNode, afterNode)
     if (existedNode && existedNode.nextElementSibling === afterNode) {
       return
     }
@@ -172,7 +171,7 @@ export default class BaseContainer {
   }
 
   getChildren () {
-    return Array.from(this.containerEl.childNodes).map(el => {
+    return Array.from(this.containerEl.childNodes).filter(el => el.classList.contains('ridge-element')).map(el => {
       return el.elementWrapper.id
     }).filter(e => e != null)
   }

@@ -63,6 +63,7 @@ export default {
     }],
     value: 'flex-start'
   }, {
+    label: '子元素',
     name: 'children',
     hidden: true,
     type: 'children'
@@ -71,13 +72,13 @@ export default {
     name: 'gap',
     party: true,
     type: 'number',
-    value: 0
+    value: 8
   }, {
     name: 'padding',
     label: '内边',
     type: 'string',
     control: 'px4',
-    value: '2px'
+    value: '8px'
   }, {
     name: 'rectStyle',
     label: '块样式',

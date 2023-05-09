@@ -30,6 +30,6 @@ export default {
     label: '点击事件',
     name: 'onClick'
   }],
-  width: 80,
-  height: 40
+  width: 36,
+  height: 36
 }

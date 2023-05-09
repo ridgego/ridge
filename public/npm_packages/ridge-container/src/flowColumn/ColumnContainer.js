@@ -1,4 +1,3 @@
-import { border } from 'ridge-prop-utils'
 import BaseContainer from '../BaseContainer'
 
 /**
@@ -10,7 +9,7 @@ export default class ColumnContainer extends BaseContainer {
       width: '100%',
       height: '100%'
     }
-    Object.assign(containerStyle, border.style(this.props))
+    Object.assign(containerStyle, this.props.rectStyle)
     return containerStyle
   }
 
