@@ -20,7 +20,12 @@ export default class ColumnContainer extends BaseContainer {
   getShadowStyle (configStyle) {
     const shadowStyle = {}
 
-    shadowStyle.height = configStyle.height ? (configStyle.height + 'px') : ''
+    if (this.isRuntime) {
+      shadowStyle.minHeight = configStyle.height ? (configStyle.height + 'px') : ''
+      shadowStyle.height = ''
+    } else {
+      shadowStyle.height = configStyle.height ? (configStyle.height + 'px') : ''
+    }
     if (configStyle.center) {
       shadowStyle.margin = '0 auto'
     } else {
@@ -34,7 +39,12 @@ export default class ColumnContainer extends BaseContainer {
     if (configStyle.fullwidth) {
       shadowStyle.width = '100%'
     } else {
-      shadowStyle.width = configStyle.width + 'px'
+      if (this.isRuntime) {
+        shadowStyle.maxWidth = configStyle.width + 'px'
+        shadowStyle.width = ''
+      } else {
+        shadowStyle.width = configStyle.width + 'px'
+      }
     }
     return shadowStyle
   }

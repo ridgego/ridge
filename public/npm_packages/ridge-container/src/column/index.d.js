@@ -1,20 +1,26 @@
-import RowContainer from './RowContainer'
-import { border } from 'ridge-prop-utils'
+import ColumnContainer from './ColumnContainer.js'
 export default {
-  name: 'row-container',
-  component: RowContainer,
+  name: 'column-container',
+  component: ColumnContainer,
   label: '多行容器',
   type: 'vanilla',
   icon: 'IconSectionStroked',
   props: [{
-    name: 'coverContainer',
-    label: '填充',
-    type: 'boolean'
-  }, {
     name: 'children',
     hidden: true,
     type: 'children'
-  }, ...border.props],
+  }, {
+    name: 'padding',
+    label: '内边',
+    type: 'string',
+    control: 'px4',
+    value: '8px'
+  }, {
+    name: 'rectStyle',
+    label: '块样式',
+    type: 'rect',
+    value: {}
+  }],
   childStyle: [{
     label: 'W',
     width: '50%',
@@ -39,7 +45,13 @@ export default {
     type: 'boolean',
     width: '50%',
     value: true
+  }, {
+    label: '上边距',
+    field: 'style.marginTop',
+    type: 'number',
+    width: '50%',
+    value: '10'
   }],
-  width: 180,
-  height: 60 
+  width: 360,
+  height: 120
 }

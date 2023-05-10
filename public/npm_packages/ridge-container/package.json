@@ -18,7 +18,7 @@
   "components": [
     "flex",
     "flowColumn",
-    "flowRow",
+    "inline",
     "list",
     "relative"
   ],

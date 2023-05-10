@@ -271,9 +271,9 @@ export default class ComponentPanel extends React.Component {
    * @param {DOM} el
    */
   elementSelected (el) {
-    if (this.currentElement === el) {
-      return
-    }
+    // if (this.currentElement === el) {
+    //   return
+    // }
     this.currentElement = el
     if (this.interval) {
       window.clearInterval(this.interval)

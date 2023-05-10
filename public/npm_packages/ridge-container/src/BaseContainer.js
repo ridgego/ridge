@@ -1,5 +1,3 @@
-import { border } from 'ridge-prop-utils'
-
 /**
  * @abstract BaseContainer
  * 容器基础实现，包含通用配置及方法
@@ -7,6 +5,7 @@ import { border } from 'ridge-prop-utils'
 export default class BaseContainer {
   constructor (props) {
     this.props = props
+    this.isRuntime = props.__mode !== 'edit'
   }
 
   /**
@@ -57,7 +56,7 @@ export default class BaseContainer {
     Object.assign(this.containerEl.style, {
       width: '100%',
       height: '100%'
-    }, border.style(this.props), this.getContainerStyle())
+    }, this.getContainerStyle())
 
     if (this.props.children) {
       for (const childWrapper of this.props.children) {

@@ -9,13 +9,27 @@ export default {
   adjustSize: 'all',
   resizable: false,
   props: [{
-    name: 'rounded',
-    label: '圆形',
-    type: 'boolean'
-  }, {
     name: 'url',
     label: '图片',
     type: 'image'
+  }, {
+    name: 'objectFit',
+    label: '大小适应',
+    type: 'string',
+    control: 'select',
+    optionList: [{
+      label: '拉伸填充',
+      value: 'fill'
+    }, {
+      label: '裁剪填充',
+      value: 'cover'
+    }, {
+      label: '按比例缩放',
+      value: 'contain'
+    }, {
+      label: '原尺寸',
+      value: 'none'
+    }]
   }],
   events: [{
     label: '点击事件',
