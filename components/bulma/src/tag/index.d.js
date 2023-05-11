@@ -3,7 +3,6 @@ import { color, size, light, isDelete } from '../base/props'
 
 const addOnColor = JSON.parse(JSON.stringify(color))
 addOnColor.name = 'addonColor'
-addOnColor.hidden = ({ props }) => !props.addon
 
 export default {
   name: 'tag',
@@ -18,14 +17,32 @@ export default {
     label: '文本',
     type: 'string',
     value: '标签'
-  }, color, size, light, isDelete, {
+  }, color, {
+    name: 'size',
+    label: '大小',
+    type: 'string',
+    control: 'select',
+    value: 'is-normal',
+    width: '50%',
+    optionList: [{
+      label: '小号',
+      value: 'is-normal'
+    },
+    {
+      label: '普通',
+      value: 'is-medium'
+    },
+    {
+      label: '大号',
+      value: 'is-large'
+    }]
+  }, light, isDelete, {
     name: 'addon',
     label: '扩展',
     type: 'boolean'
   }, {
     name: 'addonText',
     label: '扩展文本',
-    hidden: ({ props }) => !props.addon,
     type: 'string',
     value: '扩展'
   }, addOnColor],

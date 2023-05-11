@@ -1,9 +1,33 @@
 import React, { useState } from 'react'
-import { IconPlus, IconMinus } from '@douyinfe/semi-icons'
+import { IconPlus, IconMinus, IconChevronDown } from '@douyinfe/semi-icons'
 import { Select, Space, withField, Button, InputNumber, Collapsible, Typography } from '@douyinfe/semi-ui'
 import PopColorPicker from './PopColorPicker.jsx'
 
 const { Text } = Typography
+
+const Padding = ({
+  value,
+  onChange
+}) => {
+  const paddings = (value || '0 0 0 0').split(' ').map(p => parseInt(p))
+
+  return (
+    <>
+      {paddings.map((val, index) =>
+        <InputNumber
+          key={index}
+          size='small'
+          style={{
+            width: '46px'
+          }}
+          value={val} onChange={val => {
+            paddings[index] = val
+            onChange(paddings.map(p => p + 'px').join(' '))
+          }}
+        />)}
+    </>
+  )
+}
 
 const RectEdit = withField(({
   value,
@@ -14,87 +38,76 @@ const RectEdit = withField(({
     setOpen(!isOpen)
   }
   const style = value || {}
-  const borderWidth = style.borderWidth || '0px 0px 0px 0px'
-  const borderNums = borderWidth.split(' ').map(px => parseInt(px))
+  const shadow = (style.boxShadow || '0 0 0 0 #fff').split(' ').map((p, i) => i < 4 ? parseInt(p) : p)
+  const updateShadow = () => {
+    onChange(Object.assign(style, {
+      boxShadow: `${shadow[0]}px ${shadow[1]}px ${shadow[2]}px ${shadow[3]}px ${shadow[4]}`
+    }))
+  }
   return (
     <>
-      <Button onClick={toggle}>详细</Button>
-      <Collapsible isOpen={isOpen} style={{ padding: '5px' }}>
-        <Space>
-          <Text type='secondary'>边框</Text>
-          <PopColorPicker
-            value={style.borderColor} onChange={val => {
-              onChange(Object.assign(style, {
-                borderColor: val
-              }))
-            }}
-          />
-          <Select
-            value={style.borderStyle} optionList={[{
-              label: '实线',
-              value: 'solid'
-            }, {
-              label: '点划线',
-              value: 'dashed'
-            }]}
-            size='small'
-            onChange={value => {
-              onChange(Object.assign(style, {
-                borderStyle: value
-              }))
-            }}
-          />
-        </Space>
+      <Space>
+        <Text type='tertiary'>四边</Text>
+        <PopColorPicker
+          value={style.borderColor} onChange={val => {
+            onChange(Object.assign(style, {
+              borderColor: val
+            }))
+          }}
+        />
+        <Select
+          value={style.borderStyle} optionList={[{
+            label: '实线',
+            value: 'solid'
+          }, {
+            label: '点划线',
+            value: 'dashed'
+          }]}
+          size='small'
+          onChange={value => {
+            onChange(Object.assign(style, {
+              borderStyle: value
+            }))
+          }}
+        />
+        <Button type='tertiary' theme='borderless' icon={<IconChevronDown rotate={isOpen ? 180 : 0} />} onClick={toggle} />
+      </Space>
+      <Collapsible isOpen={isOpen}>
         <Space style={{ marginTop: 8 }}>
-          <Text type='secondary'>宽度</Text>
-          <InputNumber
-            size='small'
-            style={{
-              width: '46px'
-            }}
-            value={borderNums[0]} onChange={val => {
+          <Text type='tertiary'>边框宽度</Text>
+          <Padding
+            value={style.borderWidth} onChange={val => {
               onChange(Object.assign(style, {
-                borderWidth: `${val}px ${borderNums[1]}px ${borderNums[2]}px ${borderNums[3]}px`
-              }))
-            }}
-          />
-          <InputNumber
-            size='small'
-            style={{
-              width: '46px'
-            }}
-            value={borderNums[1]} onChange={val => {
-              onChange(Object.assign(style, {
-                borderWidth: `${borderNums[0]}px ${val}px ${borderNums[2]}px ${borderNums[3]}px`
-              }))
-            }}
-          />
-          <InputNumber
-            size='small'
-            style={{
-              width: '46px'
-            }}
-            value={borderNums[2]} onChange={val => {
-              onChange(Object.assign(style, {
-                borderWidth: `${borderNums[0]}px ${borderNums[1]}px ${val}px ${borderNums[3]}px`
-              }))
-            }}
-          />
-          <InputNumber
-            size='small'
-            style={{
-              width: '46px'
-            }}
-            value={borderNums[3]} onChange={val => {
-              onChange(Object.assign(style, {
-                borderWidth: `${borderNums[0]}px ${borderNums[1]}px ${borderNums[2]}px ${val}px`
+                borderWidth: val
               }))
             }}
           />
         </Space>
 
-        <Space style={{ marginTop: 8 }}>
-          <Text>背景色</Text>
+        <Space style={{ marginTop: 12 }}>
+          <Text type='tertiary'>内边距</Text>
+          <Padding
+            value={style.padding} onChange={val => {
+              onChange(Object.assign(style, {
+                padding: val
+              }))
+            }}
+          />
+        </Space>
+
+        <Space style={{ marginTop: 12 }}>
+          <Text type='tertiary'>圆角</Text>
+          <Padding
+            value={style.borderRadius} onChange={val => {
+              onChange(Object.assign(style, {
+                borderRadius: val
+              }))
+            }}
+          />
+        </Space>
+
+        <Space style={{ marginTop: 12 }}>
+          <Text type='tertiary'>背景色</Text>
           <PopColorPicker
             value={style.backgroundColor} onChange={val => {
               onChange(Object.assign(style, {
@@ -103,6 +116,53 @@ const RectEdit = withField(({
             }}
           />
         </Space>
+
+        <Space style={{ marginTop: 12 }}>
+          <Text type='tertiary'>阴影</Text>
+          <InputNumber
+            className='digit2'
+            size='small'
+            value={shadow[0]}
+            onChange={value => {
+              shadow[0] = value
+              updateShadow()
+            }}
+          />
+          <InputNumber
+            className='digit2'
+            size='small'
+            value={shadow[1]}
+            onChange={value => {
+              shadow[1] = value
+              updateShadow()
+            }}
+          />
+          <InputNumber
+            className='digit2'
+            size='small'
+            value={shadow[2]}
+            onChange={value => {
+              shadow[2] = value
+              updateShadow()
+            }}
+          />
+          <InputNumber
+            className='digit2'
+            size='small'
+            value={shadow[3]}
+            onChange={value => {
+              shadow[3] = value
+              updateShadow()
+            }}
+          />
+          <PopColorPicker
+            value={shadow[4]} onChange={value => {
+              shadow[4] = value
+              updateShadow()
+            }}
+          />
+        </Space>
+
       </Collapsible>
     </>
   )

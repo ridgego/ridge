@@ -20,12 +20,7 @@ export default class ColumnContainer extends BaseContainer {
   getShadowStyle (configStyle) {
     const shadowStyle = {}
 
-    if (this.isRuntime) {
-      shadowStyle.minHeight = configStyle.height ? (configStyle.height + 'px') : ''
-      shadowStyle.height = ''
-    } else {
-      shadowStyle.height = configStyle.height ? (configStyle.height + 'px') : ''
-    }
+    shadowStyle.height = configStyle.height ? (configStyle.height + 'px') : ''
     if (configStyle.center) {
       shadowStyle.margin = '0 auto'
     } else {

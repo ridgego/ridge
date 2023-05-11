@@ -22,7 +22,8 @@ export default {
   events: [{
     label: '点击事件',
     name: 'onClick'
-  }], childStyle: [{
+  }],
+  childStyle: [{
     label: 'W',
     width: '50%',
     control: 'number',
