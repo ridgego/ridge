@@ -17,7 +17,7 @@ import CheckBoxGroupEdit from './with-fields/CheckBoxGroupEdit.jsx'
 import BoxShadowEdit from './with-fields/BoxShadowEdit.jsx'
 import ToggleIcon from './with-fields/ToggleIcon.jsx'
 import RectEdit from './with-fields/RectEdit.jsx'
-
+import FontEdit from './with-fields/FontEdit.jsx'
 import './form.less'
 
 const TYPE_CONTROL_MAP = {
@@ -60,6 +60,7 @@ export default class ObjectForm extends React.Component {
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
       px4: (col, readonly) => <Px4Edit label={col.label} field={col.field} disabled={readonly} />,
       rect: (col, readonly) => <RectEdit label={col.label} field={col.field} noLabel disabled={readonly} />,
+      font: (col, readonly) => <FontEdit label={col.label} field={col.field} noLabel disabled={readonly} />,
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,
       colorpicker: (col, readonly) => <ColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       presetcolorpicker: (col, readonly) => <PresetColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,

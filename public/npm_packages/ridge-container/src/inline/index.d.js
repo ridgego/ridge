@@ -10,6 +10,11 @@ export default {
     hidden: true,
     type: 'children'
   }, {
+    label: '行高',
+    name: 'lineHeight',
+    type: 'number',
+    value: 24
+  }, {
     name: 'rectStyle',
     label: '块样式',
     type: 'rect',
@@ -28,11 +33,11 @@ export default {
     field: 'style.height',
     fieldEx: 'styleEx.height'
   }, {
-    label: '横向占满',
-    field: 'style.fullwidth',
-    type: 'boolean',
+    label: '左间距',
+    field: 'style.marginLeft',
+    type: 'number',
     width: '50%',
-    value: true
+    value: 5
   }],
   width: 180,
   height: 60

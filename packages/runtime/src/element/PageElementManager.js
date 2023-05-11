@@ -216,7 +216,7 @@ class PageElementManager {
 
     if (element) {
       if (element.parentWrapper) {
-        this.detachChildElement(element)
+        this.detachChildElement(element, true)
       }
 
       element.forEachChildren((childWrapper, type, propKey) => {
@@ -232,10 +232,10 @@ class PageElementManager {
      * @param {*} sourceParentElement 父节点
      * @param {*} childElementId 子节点
      */
-  detachChildElement (childElement) {
+  detachChildElement (childElement, isDelete) {
     const sourceParentElement = childElement.parentWrapper
 
-    const result = sourceParentElement.invoke('removeChild', [childElement])
+    const result = sourceParentElement.invoke('removeChild', [childElement, isDelete])
     Object.assign(sourceParentElement.config.props, result)
 
     delete childElement.config.parent

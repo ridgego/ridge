@@ -6,6 +6,7 @@ export default class RowContainer extends BaseContainer {
   getContainerStyle (props) {
     const containerStyle = {
       width: '100%',
+      lineHeight: this.props.lineHeight + 'px',
       height: '100%'
     }
     Object.assign(containerStyle, this.props.rectStyle)
@@ -22,6 +23,7 @@ export default class RowContainer extends BaseContainer {
     shadowStyle.display = 'inline-block'
     shadowStyle.height = configStyle.height + 'px'
     shadowStyle.width = configStyle.width + 'px'
+    shadowStyle.marginLeft = configStyle.marginLeft + 'px'
 
     return shadowStyle
   }

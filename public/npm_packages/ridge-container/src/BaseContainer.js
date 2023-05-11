@@ -98,11 +98,13 @@ export default class BaseContainer {
   }
 
   // 删除子节点
-  removeChild (wrapper) {
+  removeChild (wrapper, isDelete) {
     const el = wrapper.el
     // 原地阴影
     if (wrapper.el.parentElement === this.containerEl) {
-      this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), wrapper.el, wrapper.config.style)
+      if (!isDelete) {
+        this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), wrapper.el, wrapper.config.style)
+      }
       this.containerEl.removeChild(wrapper.el)
     } else {
       console.warn('not children ')
