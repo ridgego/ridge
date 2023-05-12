@@ -1,8 +1,8 @@
 import BulmaBase from '../base/BulmaBase'
 export default class Button extends BulmaBase {
   innerHTML (props) {
-    return `<button style="width:100%;height:100%;font-size: ${props.fontSize};" class="button ${props.color} ${props.light ? 'is-light' : ''} ${(props.styles || []).join(' ')}">
-      ${props.text == null ? '' : `<span class="button-text" style="margin: 0 10px">${props.text}</span>`}
+    return `<button style="width:100%;height:100%;" class="button ${props.color} ${props.light ? 'is-light' : ''}">
+      ${props.text == null ? '' : `<span class="button-text">${props.text}</span>`}
     </button>`
   }
 
@@ -15,10 +15,12 @@ export default class Button extends BulmaBase {
   }
 
   mounted () {
+    Object.assign(this.el.querySelector('button').style, this.props.fontStyle)
     this.ensureButtonIcon()
   }
 
   updated () {
+    Object.assign(this.el.querySelector('button').style, this.props.fontStyle)
     this.ensureButtonIcon()
   }
 

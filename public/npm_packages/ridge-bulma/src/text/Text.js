@@ -1,7 +1,6 @@
 import BulmaBase from '../base/BulmaBase'
 export default class Button extends BulmaBase {
   innerHTML ({
-    fontStyle,
     text
   }) {
     return `<div style="width:100%; height: 100%;" class="text">

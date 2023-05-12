@@ -13,6 +13,11 @@ export default {
     type: 'string',
     value: '按钮'
   }, {
+    name: 'fontStyle',
+    label: '样式',
+    type: 'font',
+    value: {}
+  }, {
     name: 'iconBefore',
     type: 'slot'
   }, {

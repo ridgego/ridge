@@ -8,7 +8,7 @@ import EventEdit from './with-fields/EventEdit.jsx'
 import JSONEdit from './with-fields/JSONEdit.jsx'
 import ImageEdit from './with-fields/ImageEdit.jsx'
 import IconEdit from './with-fields/IconEdit.jsx'
-import Px4Edit from './with-fields/Px4Edit.jsx'
+import PaddingEdit from './with-fields/PaddingEdit.jsx'
 import BackgroundEdit from './with-fields/BackgroundEdit.jsx'
 import ColorPicker from './with-fields/ColorPicker.jsx'
 import PresetColorPicker from './with-fields/PresetColorPicker.jsx'
@@ -58,7 +58,7 @@ export default class ObjectForm extends React.Component {
       event: (col, readonly, options) => <EventEdit className='event-field' noLabel field={col.field} options={{ label: col.label, ...options }} />,
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
-      px4: (col, readonly) => <Px4Edit label={col.label} field={col.field} disabled={readonly} />,
+      padding: (col, readonly) => <PaddingEdit label={col.label} field={col.field} disabled={readonly} />,
       rect: (col, readonly) => <RectEdit label={col.label} field={col.field} noLabel disabled={readonly} />,
       font: (col, readonly) => <FontEdit label={col.label} field={col.field} noLabel disabled={readonly} />,
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,

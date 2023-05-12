@@ -375,9 +375,6 @@ class ElementWrapper {
       this.invoke('updateStyle', [this])
     } else {
       const style = Object.assign({}, this.getResetStyle())
-      style.position = 'absolute'
-      style.left = 0
-      style.top = 0
       if (this.el) {
         if (this.config.style.full) {
           style.width = '100%'
@@ -386,6 +383,8 @@ class ElementWrapper {
         } else {
           // 绝对定位： 固定宽高
           style.position = 'absolute'
+          style.left = 0
+          style.top = 0
           style.transform = `translate(${configStyle.x}px, ${configStyle.y}px)`
           style.width = configStyle.width ? (configStyle.width + 'px') : ''
           style.height = configStyle.height ? (configStyle.height + 'px') : ''

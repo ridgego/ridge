@@ -113,7 +113,8 @@ class PageElementManager {
           break
         case 'responsive':
           this.el.style.width = '100%'
-          this.el.style.height = 'auto'
+          this.el.style.height = '100%'
+          this.el.style.overflowY = 'auto'
           break
         case 'full-responsive':
           this.el.style.width = '100%'
