@@ -1,8 +1,8 @@
 import React from 'react'
 import trim from 'lodash/trim'
 import debug from 'debug'
-import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin } from '@douyinfe/semi-ui'
-import { IconTick, IconFolderOpen, IconImage, IconExport, IconCloudUploadStroked, IconImport, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
+import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Breadcrumb, Form } from '@douyinfe/semi-ui'
+import { IconTick, IconFolderOpen, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on } from '../../service/RidgeEditService.js'
 import { getFileTree } from './buildFileTree.js'
 import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_APP_OPEN, EVENT_WORKSPACE_RESET } from '../../constant'
@@ -25,6 +25,10 @@ class AppFileList extends React.Component {
       treeData: null,
       selected: null,
       currentEditKey: null,
+      currentParent: -1,
+      createDialogShow: false,
+      isCreateFile: false,
+      newFileName: '',
       currentEditValid: true,
       currentEditValue: ''
     }
@@ -37,21 +41,21 @@ class AppFileList extends React.Component {
     })
   }
 
-  async openAppFileTree () {
-    await this.updateFileTree()
+  // async openAppFileTree () {
+  //   await this.updateFileTree()
 
-    if (this.files.filter(a => a.type === 'page').length === 0) {
-      await ridge.appService.createPage(-1)
-    }
+  //   if (this.files.filter(a => a.type === 'page').length === 0) {
+  //     await ridge.appService.createPage(-1)
+  //   }
 
-    await this.updateFileTree()
-    const sorted = this.files.filter(a => a.type === 'page').sort((a, b) => b.updatedAt - a.updatedAt)
+  //   await this.updateFileTree()
+  //   const sorted = this.files.filter(a => a.type === 'page').sort((a, b) => b.updatedAt - a.updatedAt)
 
-    this.setState({
-      currentOpenId: sorted[0].id
-    })
-    emit(EVENT_PAGE_OPEN, sorted[0].id)
-  }
+  //   this.setState({
+  //     currentOpenId: sorted[0].id
+  //   })
+  //   emit(EVENT_PAGE_OPEN, sorted[0].id)
+  // }
 
   async updateFileTree () {
     trace('FileList  updateFileTree')
@@ -67,11 +71,13 @@ class AppFileList extends React.Component {
           file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
         } else if (file.mimeType.indexOf('image/') > -1) {
           file.icon = (<IconImage style={{ color: 'var(--semi-color-text-2)' }} />)
+        } else {
+          file.icon = <IconBriefStroked style={{ color: 'var(--semi-color-text-2)' }} />
         }
       }
-      if (file.type === 'directory') {
-        file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-      }
+      // if (file.type === 'directory') {
+      //   file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
+      // }
       if (file.children && file.children.length === 0) {
         file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
       }
@@ -83,7 +89,10 @@ class AppFileList extends React.Component {
   }
 
   selectNode (val) {
+    const node = this.state.files.filter(file => file.id === val)[0]
+
     this.setState({
+      currentParent: node.type === 'directory' ? node.id : node.parent,
       selected: val
     })
     if (val !== this.state.currentEditKey) {
@@ -126,9 +135,8 @@ class AppFileList extends React.Component {
         currentEditValid: false
       })
     } else {
-      const currentNode = this.state.files.filter(file => file.id === this.state.currentEditKey)[0]
       const siblings = this.state.files.filter(file => {
-        return (file.parent === currentNode.parent && file.id !== this.state.currentEditKey && file.name === trim(val))
+        return (file.parent === this.state.currentParent && file.name === trim(val) && file.id !== this.state.currentEditKey)
       })
       if (siblings.length === 0) {
         this.setState({
@@ -194,6 +202,29 @@ class AppFileList extends React.Component {
     await this.updateFileTree()
   }
 
+  showCreateDialog = (isFile) => {
+    this.setState({
+      currentEditKey: null,
+      createDialogShow: true,
+      isCreateFile: isFile,
+      newFileName: ''
+    })
+  }
+
+  confirmCreateFile = async () => {
+    const { appService } = ridge
+    if (this.state.isCreateFile) {
+      await appService.createPage(this.state.currentParent, this.state.currentEditValue)
+    } else {
+      await appService.createDirectory(this.state.currentParent, this.state.currentEditValue)
+    }
+    await this.updateFileTree()
+
+    this.setState({
+      createDialogShow: false
+    })
+  }
+
   createPage = async (dir) => {
     const { appService } = ridge
     const newPage = await appService.createPage(dir || this.getCurrentDir())
@@ -207,6 +238,7 @@ class AppFileList extends React.Component {
 
   rename = async (node) => {
     this.setState({
+      currentParent: node.parent,
       currentEditKey: node.key,
       currentEditValue: node.label,
       currentEditValid: true
@@ -275,10 +307,10 @@ class AppFileList extends React.Component {
   }
 
   fileUpload = async (files, dir) => {
-    const { backUpService } = window.Ridge
+    const { appService } = window.Ridge
     const errors = []
     for (const file of files) {
-      const result = await backUpService.importFileArchive(dir || this.getCurrentDir(), file)
+      const result = await appService.createFile(dir || this.getCurrentDir(), file, file.name)
       if (!result) {
         errors.push(file)
       }
@@ -300,26 +332,29 @@ class AppFileList extends React.Component {
     if (data.type === 'directory') {
       MORE_MENUS.push(
         <Dropdown.Item
-          icon={<IconFolderStroked />} onClick={() => {
+          icon={<IconBriefStroked />} onClick={() => {
             this.setState({
-              expandedKeys: [data.key, ...this.state.expandedKeys]
+              expandedKeys: [data.key, ...this.state.expandedKeys],
+              currentParent: data.key
             })
-            this.createDirectory(data.key)
+
+            this.showCreateDialog(true)
           }}
         >
-          创建子目录
+          创建空页面
         </Dropdown.Item>
       )
       MORE_MENUS.push(
         <Dropdown.Item
-          icon={<IconPlusStroked />} onClick={() => {
+          icon={<IconFolderStroked />} onClick={() => {
             this.setState({
-              expandedKeys: [data.key, ...this.state.expandedKeys]
+              expandedKeys: [data.key, ...this.state.expandedKeys],
+              currentParent: data.key
             })
-            this.createPage(data.key)
+            this.showCreateDialog(false)
           }}
         >
-          创建空页面
+          创建子目录
         </Dropdown.Item>
       )
       MORE_MENUS.push(
@@ -331,7 +366,7 @@ class AppFileList extends React.Component {
               this.fileUpload(files, data.key)
             }} accept={ACCEPT_FILES}
           >
-            导入资源
+            上传文件
           </Upload>
         </Dropdown.Item>
       )
@@ -389,13 +424,12 @@ class AppFileList extends React.Component {
             onChange={(val) => {
               this.editLabelCheck(val)
             }} size='small' defaultValue={label}
-            suffix={<IconTick onClick={() => this.checkUpdateEditName()} color={!currentEditValid ? 'error' : 'default'} />}
+            suffix={<IconTick style={{ cursor: 'pointer' }} onClick={() => this.checkUpdateEditName()} color={!currentEditValid ? 'error' : 'default'} />}
           />}
         {data.key !== currentEditKey &&
           <div className={'tree-label' + (currentOpenId === data.key ? ' opened' : '')}>
             <Text ellipsis={{ showTooltip: true }} style={{ width: 'calc(100% - 48px)' }} className='label-content'>{label}</Text>
             <Dropdown
-              clickToHide
               trigger='click' showTick
               render={<Dropdown.Menu>{MORE_MENUS}</Dropdown.Menu>}
             >
@@ -406,15 +440,67 @@ class AppFileList extends React.Component {
     )
   }
 
+  renderCreateModal = () => {
+    const { state, confirmCreateFile } = this
+    const { createDialogShow, isCreateFile, currentEditValid, currentParent } = state
+
+    const parentPaths = []
+    let parent = currentParent
+
+    while (parent !== -1) {
+      const node = this.state.files.filter(file => file.id === parent)[0]
+      parentPaths.push(node.name)
+      parent = node.parent
+    }
+
+    return (
+      <Modal
+        title={isCreateFile ? '创建新的页面' : '新增目录'}
+        visible={createDialogShow}
+        onOk={() => {
+          if (trim(this.state.newFileName) === '') {
+            this.setState({
+              currentEditValid: false
+            })
+          } else if (this.state.currentEditValid) {
+            confirmCreateFile()
+          }
+        }}
+        onCancel={() => {
+          this.setState({
+            createDialogShow: false
+          })
+        }}
+      >
+        <Form
+          labelPosition='left'
+          labelAlign='right'
+          labelWidth={80}
+        >
+          <Form.Input disabled label='所在目录' initValue={'/' + parentPaths.reverse().join('/')} />
+          <Form.Input
+            validateStatus={currentEditValid ? '' : 'error'}
+            label='名称' onChange={val => {
+              this.editLabelCheck(val)
+              this.setState({
+                newFileName: val
+              })
+            }}
+          />
+        </Form>
+      </Modal>
+    )
+  }
+
   render () {
-    const { treeData, selected, expandedKeys, imagePreviewSrc, imagePreviewVisible } = this.state
-    const { createDirectory, renderFullLabel, createPage } = this
+    const { renderFullLabel, showCreateDialog, renderCreateModal, state } = this
+    const { treeData, selected, expandedKeys, imagePreviewSrc, imagePreviewVisible } = state
 
     return (
       <>
         <div className='file-actions'>
           <div className='align-right'>
-            <Button icon={<IconPlusStroked />} size='small' theme='borderless' type='tertiary' onClick={() => createPage()} />
+            <Button icon={<IconBriefStroked />} size='small' theme='borderless' type='tertiary' onClick={() => showCreateDialog(true)} />
             <Upload
               multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
                 this.fileUpload(files)
@@ -422,7 +508,7 @@ class AppFileList extends React.Component {
             >
               <Button icon={<IconCloudUploadStroked />} size='small' theme='borderless' type='tertiary' />
             </Upload>
-            <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={() => createDirectory()} />
+            <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={() => showCreateDialog(false)} />
           </div>
         </div>
         <ImagePreview
@@ -432,6 +518,7 @@ class AppFileList extends React.Component {
             })
           }}
         />
+        {renderCreateModal()}
         {treeData &&
           <Tree
             className='file-tree'
@@ -442,7 +529,6 @@ class AppFileList extends React.Component {
             value={selected}
             treeData={treeData}
             onDrop={({ node, dragNode, dropPosition, dropToGap }) => {
-              console.log(node, dragNode, dropPosition, dropToGap)
               this.move(node, dragNode, dropToGap)
             }}
             onExpand={expandedKeys => {

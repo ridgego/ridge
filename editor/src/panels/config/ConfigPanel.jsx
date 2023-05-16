@@ -85,10 +85,10 @@ const PAGE_FIELDS = [
       label: '固定宽高',
       value: 'static'
     }, {
-      label: '横向自适应',
+      label: '宽度自适应',
       value: 'responsive'
     }, {
-      label: '横向+纵向自适应',
+      label: '宽高自适应',
       value: 'full-responsive'
     }]
   },
