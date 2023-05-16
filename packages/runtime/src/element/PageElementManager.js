@@ -188,7 +188,12 @@ class PageElementManager {
     return wrapper
   }
 
-  cloneElement (sourceWrapper) {
+  /**
+   * 复制一个节点（包括节点下的子节点）
+   * @param {ElementWrapper} sourceWrapper
+   * @returns
+   */
+  cloneElementWithChild (sourceWrapper) {
     const newWrapper = sourceWrapper.clone()
     console.log('mounted', newWrapper, newWrapper.config.style)
 

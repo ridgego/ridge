@@ -682,5 +682,34 @@ export default class WorkSpaceControl {
         this.moveable.updateTarget()
       }
     })
+
+    Mousetrap.bind('ctrl+c', () => {
+      if (this.selected) {
+        this.controlC = this.selected
+      } else {
+        this.controlC = []
+      }
+    })
+
+    Mousetrap.bind('ctrl+v', () => {
+      if (this.controlC && this.controlC.length) {
+        for (const wrapper of this.controlC) {
+          const newWrapper = this.pageManager.cloneElementWithChild(eid)
+          const div = document.createElement('div')
+
+          newWrapper.mount(div)
+
+          if (this.selected && this.selected.length === 1) {
+            trace('从页面到父容器')
+            const result = this.pageManager.attachToParent(this.selected[0].elementWrapper, newWrapper)
+            if (result === false) {
+              this.putElementToRoot(newWrapper, newWrapper.config.style.x + 20, newWrapper.config.style.y + 20)
+            }
+          } else {
+            this.putElementToRoot(newWrapper, newWrapper.config.style.x + 20, newWrapper.config.style.y + 20)
+          }
+        }
+      }
+    })
   }
 }

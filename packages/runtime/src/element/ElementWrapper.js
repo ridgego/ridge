@@ -50,10 +50,10 @@ class ElementWrapper {
   }
 
   /**
-   * 复制组件实例
+   * 复制组件实例 (只复制组件本身)
    * @returns
    */
-  clone () {
+  cloneTo (pageManager) {
     const cloned = new ElementWrapper({
       mode: this.mode,
       config: this.toJSON(),
@@ -67,15 +67,6 @@ class ElementWrapper {
     if (this.componentDefinition) {
       cloned.componentDefinition = this.componentDefinition
       cloned.preloaded = true
-    }
-
-    if (cloned.config.props.children) {
-      cloned.config.props.children = cloned.config.props.children.map(wrapperId => {
-        const templateNode = this.pageManager.getElement(wrapperId)
-        const clonedChild = templateNode.clone()
-        clonedChild.parentWrapper = cloned
-        return clonedChild
-      })
     }
     return cloned
   }
@@ -134,9 +125,9 @@ class ElementWrapper {
 
   /**
    * 枚举每个子节点
-   * @param {*} cb 
+   * @param {*} cb
    */
-  forEachChildren(cb) {
+  forEachChildren (cb) {
     // 递归处理子节点树
     const childProps = this.componentDefinition.props.filter(p => p.type === 'children')
     if (childProps.length) {
@@ -159,7 +150,6 @@ class ElementWrapper {
       }
     }
   }
-  
 
   /**
    * 初始化组件属性、事件
@@ -230,7 +220,6 @@ class ElementWrapper {
           if (childrenWrapper) {
             childrenWrapper.parentWrapper = this
             this.properties[prop.name] = childrenWrapper
-
           }
         }
       }
