@@ -9,18 +9,13 @@ const PaddingEdit = withField(({
   const paddings = (value || '0 0 0 0').split(' ').map(p => parseInt(p))
 
   return (
-    <div style={{
-      margin: '20px',
-      border: '1px solid #ece'
-    }}
+    <div
+      className='input-padding'
     >
       {paddings.map((n, index) =>
         <InputNumber
-          className={'padding-input-number order-' + index}
+          className={'input-padding-number order-' + index}
           key={index}
-          style={{
-            width: '46px'
-          }}
           size='small'
           value={n} onChange={n => {
             paddings[index] = n

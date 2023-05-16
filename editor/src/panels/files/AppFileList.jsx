@@ -199,6 +199,9 @@ class AppFileList extends React.Component {
     }
 
     await appService.trash(data.key)
+    this.setState({
+      currentParent: -1
+    })
     await this.updateFileTree()
   }
 

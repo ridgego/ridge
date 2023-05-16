@@ -9,10 +9,14 @@ export default class Button extends BulmaBase {
   }
 
   mounted () {
-    Object.assign(this.el.querySelector('div.text').style, this.props.fontStyle)
+    Object.assign(this.el.querySelector('div.text').style, this.props.fontStyle, {
+      padding: this.props.padding
+    })
   }
 
   updated () {
-    Object.assign(this.el.querySelector('div.text').style, this.props.fontStyle)
+    Object.assign(this.el.querySelector('div.text').style, this.props.fontStyle, {
+      padding: this.props.padding
+    })
   }
 }
