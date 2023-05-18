@@ -206,11 +206,6 @@ class PageElementManager {
 
   pushElement (wrapper) {
     this.pageElements[wrapper.id] = wrapper
-    if (wrapper.config.props.children) {
-      for (const cw of wrapper.config.props.children) {
-        this.pushElement(cw)
-      }
-    }
   }
 
   /**
@@ -254,9 +249,12 @@ class PageElementManager {
    * @param {*} sourceElement
    * @param {*} targetEl
    */
-  attachToParent (targetParentElement, sourceElement, { x, y }) {
+  attachToParent (targetParentElement, sourceElement, pos = {}) {
+    if (!targetParentElement.hasMethod('appendChild')) {
+      return false
+    }
     // 这里容器会提供 appendChild 方法，并提供放置位置
-    const result = targetParentElement.invoke('appendChild', [sourceElement, x, y])
+    const result = targetParentElement.invoke('appendChild', [sourceElement, pos.x, pos.y])
 
     if (result === false) {
       return false

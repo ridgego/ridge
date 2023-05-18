@@ -4,7 +4,7 @@ export default {
   name: 'list-container',
   component: ListContainer,
   label: '列表容器',
-  icon: 'IconListView',
+  icon: 'IconCheckChoiceStroked',
   type: 'vanilla',
   props: [{
     name: 'dataSource',

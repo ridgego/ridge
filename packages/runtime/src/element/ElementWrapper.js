@@ -50,24 +50,45 @@ class ElementWrapper {
   }
 
   /**
-   * 复制组件实例 (只复制组件本身)
+   * 复制组件实例到manager，支持跨页面复制
    * @returns
    */
   cloneTo (pageManager) {
+    const cloned = this.clone(pageManager)
+
+    cloned.forEachChildren((childWrapper, propType, propName, index) => {
+      const childCloned = childWrapper.cloneTo(pageManager)
+      childCloned.config.parent = cloned.id
+      // 更新子项配置
+      if (index != null) {
+        cloned.config.props[propName][index] = childCloned.id
+      } else {
+        cloned.config.props[propName] = childCloned.id
+      }
+    })
+    return cloned
+  }
+
+  /**
+   * 原始复制动作，只复制组件本身
+   */
+  clone (pageManager) {
     const cloned = new ElementWrapper({
       mode: this.mode,
       config: this.toJSON(),
-      pageManager: this.pageManager
+      pageManager: pageManager || this.pageManager
     })
+    const id = nanoid(8)
     cloned.cloneFrom = cloned.id
-    cloned.config.id = nanoid(5)
-    cloned.id = cloned.config.id
+    cloned.id = id
+    cloned.config.id = id
     delete cloned.config.parent
 
     if (this.componentDefinition) {
       cloned.componentDefinition = this.componentDefinition
       cloned.preloaded = true
     }
+    cloned.pageManager.pushElement(cloned)
     return cloned
   }
 
@@ -76,6 +97,7 @@ class ElementWrapper {
     this.el.classList.add('ridge-element')
     this.el.setAttribute('ridge-id', this.id)
     this.el.elementWrapper = this
+    this.el.wrapper = this
     this.el.componentPath = this.componentPath
 
     await this.preload()
@@ -133,8 +155,8 @@ class ElementWrapper {
     if (childProps.length) {
       for (const childProp of childProps) {
         if (this.config.props[childProp.name] && this.config.props[childProp.name].length) {
-          for (const elementId of this.config.props[childProp.name]) {
-            cb(this.pageManager.pageElements[elementId], 'children', childProp.name)
+          for (let i = 0; i < this.config.props[childProp.name].length; i++) {
+            cb(this.pageManager.pageElements[this.config.props[childProp.name][i]], 'children', childProp.name, i)
           }
         }
       }
@@ -341,6 +363,10 @@ class ElementWrapper {
     this.updateStyle()
   }
 
+  sizeChanged () {
+
+  }
+
   getResetStyle () {
     return {
       left: '',
@@ -361,7 +387,6 @@ class ElementWrapper {
     this.el.classList.remove('is-hidden')
     if (this.parentWrapper && this.parentWrapper.hasMethod('updateChildStyle')) {
       this.parentWrapper.invoke('updateChildStyle', [this])
-      this.invoke('updateStyle', [this])
     } else {
       const style = Object.assign({}, this.getResetStyle())
       if (this.el) {
@@ -381,11 +406,9 @@ class ElementWrapper {
         Object.assign(this.el.style, style)
       }
     }
-
     if (configStyle.visible === false) {
       this.el.classList.add('is-hidden')
     }
-
     // 设置编辑器的属性
     if (this.mode === 'edit') {
       // 编辑器特有：锁定
@@ -393,6 +416,7 @@ class ElementWrapper {
         this.el.classList.add('is-locked')
       }
     }
+    this.invoke('updateStyle', [this])
   }
 
   /**

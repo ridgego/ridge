@@ -1,5 +1,4 @@
 import RelativeContainer from './RelativeContainer.js'
-import { border } from 'ridge-prop-utils'
 export default {
   name: 'relative-container',
   component: RelativeContainer,
@@ -7,16 +6,41 @@ export default {
   type: 'vanilla',
   icon: 'IconMarginStroked',
   props: [{
-    name: 'coverContainer',
-    label: '填充',
-    type: 'boolean'
-  }, {
     name: 'children',
     hidden: true,
     type: 'children'
-  }, ...border.props.filter(prop => prop.name !== 'padding')],
+  }, {
+    name: 'rectStyle',
+    label: '块样式',
+    type: 'rect',
+    value: {}
+  }],
   childStyle: [{
-    name: 'relative',
+    label: 'X',
+    width: '50%',
+    control: 'number',
+    field: 'style.x',
+    fieldEx: 'styleEx.x'
+  }, {
+    label: 'Y',
+    width: '50%',
+    control: 'number',
+    field: 'style.y',
+    fieldEx: 'styleEx.y'
+  }, {
+    label: 'W',
+    width: '50%',
+    control: 'number',
+    field: 'style.width',
+    fieldEx: 'styleEx.width'
+  }, {
+    label: 'H',
+    width: '50%',
+    control: 'number',
+    field: 'style.height',
+    fieldEx: 'styleEx.height'
+  }, {
+    field: 'style.relative',
     type: 'array',
     label: '定位',
     control: 'checkboxgroup',
@@ -49,6 +73,6 @@ export default {
       value: 'vcenter'
     }]
   }],
-  width: 180,
-  height: 60
+  width: 540,
+  height: 360
 }

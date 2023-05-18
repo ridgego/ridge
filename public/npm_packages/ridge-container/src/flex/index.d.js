@@ -74,12 +74,6 @@ export default {
     type: 'number',
     value: 8
   }, {
-    name: 'padding',
-    label: '内边',
-    type: 'string',
-    control: 'px4',
-    value: '8px'
-  }, {
     name: 'rectStyle',
     label: '块样式',
     type: 'rect',

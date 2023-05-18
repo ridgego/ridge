@@ -1,63 +1,92 @@
-import { border } from 'ridge-prop-utils'
+import BaseContainer from '../BaseContainer'
 
-export default class RelativeContainer {
-  constructor (props) {
-    this.props = props
-  }
-
-  getContainerStyle (props) {
+export default class RelativeContainer extends BaseContainer {
+  getContainerStyle () {
     const containerStyle = {
       width: '100%',
       height: '100%',
       boxSizing: 'border-box',
       position: 'relative'
     }
-    Object.assign(containerStyle, border.style(props))
+    Object.assign(containerStyle, this.props.rectStyle)
     return containerStyle
   }
 
-  async mount (el) {
-    const containerDiv = document.createElement('div')
-    containerDiv.classList.add('relative-container')
-    Object.assign(containerDiv.style, this.getContainerStyle(this.props))
-    el.appendChild(containerDiv)
+  getChildStyle (wrapper, beforeRect) {
+    if (beforeRect) { // 刚从外部放入
+      const rect = this.containerEl.getBoundingClientRect()
+      const zoom = rect.width / this.wrapper.config.style.width
 
-    this.containerEl = containerDiv
-    this.previousSize = containerDiv.getBoundingClientRect()
-    this.wrapper = this.props.__elementWrapper
-    this.mode = this.wrapper.pageManager.mode
+      const computedStyle = window.getComputedStyle(this.containerEl)
+      const borderTopWidth = parseInt(computedStyle.borderTopWidth) || 0
+      const borderLeftWidth = parseInt(computedStyle.borderLeftWidth) || 0
 
-    if (this.props.children) {
-      for (const childWrapper of this.props.children) {
-        const childDiv = document.createElement('div')
-        containerDiv.appendChild(childDiv)
-        this.positionChild(childWrapper, this.wrapper.config.style)
-
-        await childWrapper.mount(childDiv)
-        // Object.assign(childDiv.style, this.getChildrenWrapperStyle(childWrapper))
+      wrapper.config.style.position = 'absolute'
+      wrapper.config.style.x = (beforeRect.x - rect.x - borderTopWidth) / zoom
+      wrapper.config.style.y = (beforeRect.y - rect.y - borderLeftWidth) / zoom
+      return {
+        position: 'absolute',
+        transform: `translate(${wrapper.config.style.x}px, ${wrapper.config.style.y}px)`
       }
-    }
-
-    /*
-    this.resizeObserver = new window.ResizeObserver((entries) => {
-      console.log('resize', entries, this)
-
-      if (this.props.children) {
-        for (const childWrapper of this.props.children) {
-          this.positionChild(childWrapper, this.previousSize)
-          childWrapper.updateStyle()
-          // Object.assign(childDiv.style, this.getChildrenWrapperStyle(childWrapper))
+    } else {
+      if (this.isRuntime) {
+        const newPos = this.position(this.wrapper.config.style, wrapper.config.style, this.containerEl.getBoundingClientRect(), wrapper.config.style.relative || [])
+        return {
+          position: 'absolute',
+          width: newPos.width + 'px',
+          height: newPos.height + 'px',
+          transform: `translate(${newPos.x}px, ${newPos.y}px)`
+        }
+      } else {
+        return {
+          position: 'absolute',
+          transform: `translate(${wrapper.config.style.x}px, ${wrapper.config.style.y}px)`,
+          width: wrapper.config.style.width + 'px',
+          height: wrapper.config.style.height + 'px'
         }
       }
-      this.previousSize = this.containerEl.getBoundingClientRect()
-    })
+    }
+  }
 
-    this.resizeObserver.observe(this.containerEl)
-    */
+  getShadowStyle (configStyle) {
+    return {
+      width: '100%',
+      height: '100%'
+    }
   }
 
   updateStyle (style) {
     console.log('update style', style)
+    this.sizeChanged()
+  }
+
+  mounted () {
+    // 每次记录上次的宽高， resize时调整子节点位置
+    this.lastWidth = this.wrapper.config.style.width
+    this.lastHeight = this.wrapper.config.style.height
+  }
+
+  // 编辑时修改容器大小
+  sizeChanged () {
+    const newWidth = this.wrapper.config.style.width
+    const newHeight = this.wrapper.config.style.height
+
+    Array.from(this.containerEl.childNodes).forEach(el => {
+      if (el.wrapper) {
+        const newStyle = this.position({
+          width: this.lastWidth,
+          height: this.lastHeight
+        }, el.wrapper.config.style, {
+          width: newWidth,
+          height: newHeight
+        }, el.wrapper.config.style.relative)
+
+        el.wrapper.setConfigStyle(newStyle)
+      }
+    })
+
+    this.lastWidth = newWidth
+    this.lastHeight = newHeight
   }
 
   /**
@@ -68,7 +97,7 @@ export default class RelativeContainer {
    * @param {*} pos
    * @returns
    */
-  position (originalContainer, originalChild, currentContainer, pos) {
+  position (originalContainer, originalChild, currentContainer, pos = []) {
     let positioning = JSON.parse(JSON.stringify(pos))
     const targetStyle = {}
     // 横向居中偏移
@@ -163,32 +192,32 @@ export default class RelativeContainer {
     })
   }
 
-  appendChild (wrapper, x, y) {
-    const el = wrapper.el
-    if (el.parentElement !== this.containerEl) {
-      const containerbc = this.containerEl.getBoundingClientRect()
-      this.containerEl.appendChild(el)
-      const childbc = el.getBoundingClientRect()
-      wrapper.setConfigStyle({
-        position: 'absolute',
-        x: x - containerbc.x - (childbc.width) / 2,
-        y: y - containerbc.y - (childbc.height) / 2
-      })
-    }
-  }
+  // appendChild (wrapper, x, y) {
+  //   const el = wrapper.el
+  //   if (el.parentElement !== this.containerEl) {
+  //     const containerbc = this.containerEl.getBoundingClientRect()
+  //     this.containerEl.appendChild(el)
+  //     const childbc = el.getBoundingClientRect()
+  //     wrapper.setConfigStyle({
+  //       position: 'absolute',
+  //       x: x - containerbc.x - (childbc.width) / 2,
+  //       y: y - containerbc.y - (childbc.height) / 2
+  //     })
+  //   }
+  // }
 
-  getChildren () {
-    return Array.from(this.containerEl.childNodes).map(el => {
-      return el.elementWrapper
-    }).filter(e => e != null)
-  }
+  // getChildren () {
+  //   return Array.from(this.containerEl.childNodes).map(el => {
+  //     return el.elementWrapper
+  //   }).filter(e => e != null)
+  // }
 
-  /**
-   * 按属性联动方法
-   * @param {*} props
-   */
-  update (props) {
-    this.props = props
-    Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
-  }
+  // /**
+  //  * 按属性联动方法
+  //  * @param {*} props
+  //  */
+  // update (props) {
+  //   this.props = props
+  //   Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
+  // }
 }

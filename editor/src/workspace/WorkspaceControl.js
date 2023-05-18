@@ -102,7 +102,7 @@ export default class WorkSpaceControl {
 
   setWorkSpaceMovable () {
     this.workspaceMovable = createMoveable({
-      target: this.viewPortEl,
+      target: this.workspaceEl,
       className: 'workspace-movable'
     })
 
@@ -119,22 +119,25 @@ export default class WorkSpaceControl {
       trace('viewPortEl drag')
       if (ev.inputEvent.ctrlKey && this.workspaceMovable.dragWorkSpace) {
         this.moveable.target = null
-        this.workspaceX = ev.translate[0]
-        this.workspaceY = ev.translate[1]
-        ev.target.style.transform = ev.transform
+        this.workspaceX += ev.delta[0]
+        this.workspaceY += ev.delta[1]
+
+        this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${this.zoom})`
+
+        // this.viewPortEl.style.transform = ev.transform
       }
     })
-    this.workspaceMovable.on('resize', ev => {
-      if (ev.delta && ev.delta[0] && ev.delta[1]) {
-        emit(EVENT_PAGE_PROP_CHANGE, {
-          from: 'workspace',
-          properties: {
-            width: ev.width,
-            height: ev.height
-          }
-        })
-      }
-    })
+    // this.workspaceMovable.on('resize', ev => {
+    //   if (ev.delta && ev.delta[0] && ev.delta[1]) {
+    //     emit(EVENT_PAGE_PROP_CHANGE, {
+    //       from: 'workspace',
+    //       properties: {
+    //         width: ev.width,
+    //         height: ev.height
+    //       }
+    //     })
+    //   }
+    // })
   }
 
   isElementMovable (el) {
@@ -179,9 +182,7 @@ export default class WorkSpaceControl {
     this.moveable.on('dragEnd', ev => {
       if (ev.isDrag) {
         trace('movable dragEnd')
-        // if (ev.isDrag) {
-        const bcr = ev.target.getBoundingClientRect()
-        sm.placeElementAt(ev.target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
+        sm.placeElementAt(ev.target, ev.clientX, ev.clientY)
       } else {
         sm.selectElements([ev.target])
       }
@@ -216,6 +217,7 @@ export default class WorkSpaceControl {
       delta,
       transform
     }) => {
+      target.wrapper.invoke('sizeChanged')
       this.selectElements([target])
     })
 
@@ -324,12 +326,12 @@ export default class WorkSpaceControl {
 
     if (closestRidgeNode) {
       // 变框选为选择单个节点并拖拽开始
-      if (inputEvent.shiftKey) {
-        // shift时，原地复制一个节点，选中节点继续拖拽
-        const rect = closestRidgeNode.getBoundingClientRect()
-        const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
-        this.placeElementAt(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
-      }
+      // if (inputEvent.shiftKey) {
+      //   // shift时，原地复制一个节点，选中节点继续拖拽
+      //   const rect = closestRidgeNode.getBoundingClientRect()
+      //   const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
+      //   this.placeElementAt(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
+      // }
 
       // 清除既有选中
       if (this.moveable.target && this.moveable.target.length) {
@@ -443,16 +445,25 @@ export default class WorkSpaceControl {
    * @param {*} y
    */
   putElementToRoot (el, x, y) {
-    // 计算位置
-    const rbcr = this.viewPortEl.getBoundingClientRect()
     // 修改父子关系
     this.viewPortEl.appendChild(el)
+    const rbcr = this.viewPortEl.getBoundingClientRect()
     const bcr = el.getBoundingClientRect()
-    el.elementWrapper.setConfigStyle({
-      position: 'absolute',
-      x: (x - rbcr.x - bcr.width / 2) / this.zoom,
-      y: (y - rbcr.y - bcr.height / 2) / this.zoom
-    })
+    if (x == null || y == null || (x > bcr.x && x < (bcr.x + bcr.width) && y > bcr.y && y < (bcr.y + bcr.height))) {
+      // 计算位置
+      el.wrapper.setConfigStyle({
+        position: 'absolute',
+        x: Math.floor((bcr.x - rbcr.x) / this.zoom),
+        y: Math.floor((bcr.y - rbcr.y) / this.zoom)
+      })
+    } else {
+      // 计算位置
+      el.wrapper.setConfigStyle({
+        position: 'absolute',
+        x: Math.floor((x - rbcr.x - bcr.width / 2) / this.zoom),
+        y: Math.floor((y - rbcr.y - bcr.height / 2) / this.zoom)
+      })
+    }
     this.moveable.updateTarget()
   }
 
@@ -482,7 +493,6 @@ export default class WorkSpaceControl {
       clientX: event.clientX,
       clientY: event.clientY
     })
-    // this.moveable.updateTarget()
   }
 
   /**
@@ -551,13 +561,6 @@ export default class WorkSpaceControl {
         element: wrapper
       })
     })
-  }
-
-  copy (divs) {
-    for (const div of divs) {
-      const newWrapper = this.pageManager.cloneElement(div.elementWrapper)
-      this.pageManager.putElementToRoot(newWrapper)
-    }
   }
 
   /**
@@ -685,29 +688,36 @@ export default class WorkSpaceControl {
 
     Mousetrap.bind('ctrl+c', () => {
       if (this.selected) {
-        this.controlC = this.selected
+        this.copied = this.selected
       } else {
-        this.controlC = []
+        this.copied = []
       }
     })
 
     Mousetrap.bind('ctrl+v', () => {
-      if (this.controlC && this.controlC.length) {
-        for (const wrapper of this.controlC) {
-          const newWrapper = this.pageManager.cloneElementWithChild(eid)
+      if (this.copied && this.copied.length) {
+        for (const el of this.copied) {
+          const newWrapper = el.wrapper.cloneTo(this.pageManager)
           const div = document.createElement('div')
-
-          newWrapper.mount(div)
-
-          if (this.selected && this.selected.length === 1) {
-            trace('从页面到父容器')
-            const result = this.pageManager.attachToParent(this.selected[0].elementWrapper, newWrapper)
-            if (result === false) {
-              this.putElementToRoot(newWrapper, newWrapper.config.style.x + 20, newWrapper.config.style.y + 20)
+          newWrapper.loadAndMount(div).then(() => {
+            if (this.selected && this.selected.length === 1) {
+              trace('从页面到父容器')
+              const result = this.pageManager.attachToParent(this.selected[0].elementWrapper, newWrapper)
+              if (result === false) {
+                newWrapper.setConfigStyle({
+                  x: newWrapper.config.style.x + 20,
+                  y: newWrapper.config.style.y + 20
+                })
+                this.putElementToRoot(newWrapper)
+              }
+            } else {
+              newWrapper.setConfigStyle({
+                x: newWrapper.config.style.x + 20,
+                y: newWrapper.config.style.y + 20
+              })
+              this.putElementToRoot(newWrapper.el)
             }
-          } else {
-            this.putElementToRoot(newWrapper, newWrapper.config.style.x + 20, newWrapper.config.style.y + 20)
-          }
+          })
         }
       }
     })

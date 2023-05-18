@@ -52,7 +52,10 @@ export default class Button extends BulmaBase {
 
   appendChild (wp, x, y) {
     const currentRect = this.el.getBoundingClientRect()
-    const isBefore = x < (currentRect.x + currentRect.width / 2)
+    let isBefore = true
+    if (x != null) {
+      isBefore = x < (currentRect.x + currentRect.width / 2)
+    }
 
     if (isBefore) {
       this.el.querySelector('button').insertBefore(wp.el, this.el.querySelector('span.button-text'))

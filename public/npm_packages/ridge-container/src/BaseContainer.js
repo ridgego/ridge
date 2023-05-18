@@ -44,24 +44,33 @@ export default class BaseContainer {
      * @param {*} siblings
      * @abstract
      */
-  getAfterNode (droppedRect, siblings) {}
+  getAfterNode (droppedRect, siblings) {
+    return null
+  }
+
+  mounted () {}
 
   async mount (el) {
     const containerDiv = document.createElement('div')
-    containerDiv.classList.add(this.className)
+
+    if (this.className) {
+      containerDiv.classList.add(this.className)
+    }
     el.appendChild(containerDiv)
 
     this.containerEl = containerDiv
+    this.wrapper = this.props.__elementWrapper
     this.mode = this.props.__mode
     Object.assign(this.containerEl.style, {
       width: '100%',
       height: '100%'
     }, this.getContainerStyle())
 
+    this.mounted()
     if (this.props.children) {
       for (const childWrapper of this.props.children) {
         const childDiv = document.createElement('div')
-        containerDiv.appendChild(childDiv)
+        this.containerEl.appendChild(childDiv)
         await childWrapper.loadAndMount(childDiv)
         this.updateChildStyle(childWrapper)
       }
@@ -72,8 +81,8 @@ export default class BaseContainer {
    * 计算并更新子节点样式
    * @param  {ElementWrapper} wrapper 封装类
    */
-  updateChildStyle (wrapper) {
-    const style = Object.assign({}, wrapper.getResetStyle(), this.getChildStyle(wrapper))
+  updateChildStyle (wrapper, originalRect) {
+    const style = Object.assign({}, wrapper.getResetStyle(), this.getChildStyle(wrapper, originalRect))
 
     Object.assign(wrapper.el.style, style)
   }
@@ -81,25 +90,23 @@ export default class BaseContainer {
   // 追加子节点
   appendChild (wrapper) {
     const el = wrapper.el
+    const originalRect = el.getBoundingClientRect()
     if (el.parentElement !== this.containerEl) {
       if (this.containerEl.querySelector(':scope > .drop-shadow')) {
         this.containerEl.insertBefore(el, this.containerEl.querySelector(':scope > .drop-shadow'))
         this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
+      } else {
+        this.containerEl.appendChild(el)
       }
-      this.updateChildStyle(wrapper)
+      this.updateChildStyle(wrapper, originalRect)
     }
-    if (this.isSlot(el)) {
-      return this.getSlotProps()
-    } else {
-      return {
-        children: this.getChildren()
-      }
+    return {
+      children: this.getChildren()
     }
   }
 
   // 删除子节点
   removeChild (wrapper, isDelete) {
-    const el = wrapper.el
     // 原地阴影
     if (wrapper.el.parentElement === this.containerEl) {
       if (!isDelete) {
@@ -109,14 +116,8 @@ export default class BaseContainer {
     } else {
       console.warn('not children ')
     }
-    if (this.isSlot(wrapper.el)) {
-      return {
-
-      }
-    } else {
-      return {
-        children: this.getChildren()
-      }
+    return {
+      children: this.getChildren()
     }
   }
 

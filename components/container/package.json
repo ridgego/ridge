@@ -20,7 +20,8 @@
     "flowColumn",
     "inline",
     "list",
-    "relative"
+    "relative",
+    "scrollable"
   ],
   "author": "",
   "license": "ISC",
