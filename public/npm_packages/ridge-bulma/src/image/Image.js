@@ -4,8 +4,8 @@ export default class Image extends BulmaBase {
     if (this.props.rectStyle && this.props.rectStyle.background) {
       return '<div class="mask-image image-root" style="width:100%; height: 100%; background-size: cover; background-repeat: no-repeat;"/>'
     } else {
-      return `<figure class="image image-root" style="width: 100%;height:100%">
-        <img style="object-fit: ${props.objectFit}; width:100%;height:100%" src="${props.url}">
+      return `<figure class="image image-root" style="width: 100%;height:100%;">
+        ${props.url ? `<img style="object-fit: ${props.objectFit}; width:100%;height:100%" src="${props.url}">` : '<div style="width: 100%;height:100%; display: flex; justify-content: center; align-items: center; background: #CCCCCC;color: #969696;">图片</div>'}
     </figure>`
     }
   }

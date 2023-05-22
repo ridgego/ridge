@@ -1,5 +1,5 @@
 import Input from './Input'
-import { color } from '../base/props'
+import { color, size } from '../base/props'
 export default {
   name: 'input',
   title: '输入框',
@@ -14,12 +14,12 @@ export default {
     bindable: true,
     type: 'string',
     value: ''
-  }, {
+  }, size, color, {
     name: 'placeholder',
     label: '提示',
     type: 'string',
     value: '请输入内容'
-  }, color, {
+  }, {
     name: 'round',
     label: '圆角',
     width: '50%',
@@ -48,13 +48,17 @@ export default {
     value: false
   }, {
     name: 'iconBefore',
-    type: 'slot'
+    label: '图标',
+    type: 'icon'
   }, {
     name: 'iconAfter',
-    type: 'slot'
+    label: '图标',
+    width: '50%',
+    type: 'icon'
   }],
   events: [{
     name: 'onChange',
+    width: '50%',
     label: '值改变'
   }],
   width: 160,

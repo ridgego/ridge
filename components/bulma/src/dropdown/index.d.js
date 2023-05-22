@@ -20,8 +20,20 @@ export default {
     name: 'menus',
     label: '下拉列表',
     type: 'array',
-    item: '选项',
-    value: ['选项1', '选项2', '-', '选项3']
+    item: {
+      label: '选项',
+      value: 'key'
+    },
+    value: [{
+      label: '选项1',
+      value: 'key1'
+    }, {
+      label: '选项2',
+      value: 'key2'
+    }, {
+      label: '选项3',
+      value: 'key3'
+    }]
   }],
   events: [{
     label: '点击事件',

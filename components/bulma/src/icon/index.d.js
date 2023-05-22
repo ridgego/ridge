@@ -15,16 +15,20 @@ export default {
     name: 'color',
     label: '颜色',
     type: 'string',
-    control: 'presetcolorpicker',
     presetColors: colors,
     width: '50%'
   }, {
     name: 'backgroundColor',
     label: '背景色',
     type: 'string',
-    control: 'presetcolorpicker',
-    presetColors: colors,
+    control: 'colorpicker',
     width: '50%'
+  }, {
+    name: 'size',
+    label: '大小',
+    type: 'number',
+    width: '50%',
+    value: 24
   }],
   events: [{
     label: '点击事件',

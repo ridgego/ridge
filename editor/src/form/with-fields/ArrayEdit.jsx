@@ -14,7 +14,7 @@ const ArrayEdit = withField(({
     return data.slice(start, end)
   }
   const addNew = () => {
-    onChange([...data, options.item])
+    onChange([...data, JSON.parse(JSON.stringify(options.item))])
   }
   const removeItem = index => {
     onChange(data.filter((v, i) => i !== (page - 1) * pageSize + index))

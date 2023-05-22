@@ -5,7 +5,7 @@ export const color = {
   control: 'select',
   value: 'is-primary',
   width: '50%',
-  bindable: false,
+  bindable: true,
   optionList: [{
     label: '白色',
     value: 'is-white'
