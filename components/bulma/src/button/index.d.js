@@ -15,7 +15,7 @@ export default {
   }, size, color, light, {
     name: 'icon',
     label: '图标',
-    type: 'image'
+    type: 'icon'
   }, outlined, {
     name: 'loading',
     label: '加载中',

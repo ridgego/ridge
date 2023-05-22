@@ -186,7 +186,34 @@
       position: absolute;
       background-color: var(--semi-color-bg-0);
       width: 60px;
-      
+    }
+  }
+
+  .picker-button {
+    font-size: 20px;
+    width: 21px;
+    cursor: pointer;
+  }
+}
+
+.pop-icon-container {
+  .icon-list {
+    width: 420px;
+    height: 330px;
+    overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    i {
+      cursor: pointer;
+      color: var(--semi-color-tertiary-hover);
+      padding: 5px;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      &:hover {
+        color: var(--semi-color-primary-hover)
+      }
     }
   }
 }

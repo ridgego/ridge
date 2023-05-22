@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import { Popover, Input, Typography, withField, Button } from '@douyinfe/semi-ui'
-import AppImageList from '../../panels/files/AppImageList.jsx'
+import { Popover, Input, Typography, withField, Tabs, TabPane } from '@douyinfe/semi-ui'
+import { IconAppCenter } from '@douyinfe/semi-icons'
 import { ridge } from '../../service/RidgeEditService.js'
-import { dataURLToString } from '../../utils/blob.js'
 
 const { Text } = Typography
 
@@ -10,36 +9,32 @@ const IconEdit = withField(({
   value,
   onChange
 }) => {
-  const [images, setImages] = useState([])
-  const AppList = () => {
+  const { icons } = window.Ridge
+  const IconList = () => {
     return (
-      <div style={{
-        width: '420px',
-        height: '400px'
-      }}
-      >
-        <Text>选择图标</Text>
-        <AppImageList
-          images={images} select={(filePath, base64Url) => {
-            dataURLToString(base64Url).then(blob => {
-              onChange(blob)
-            })
-          }}
-        />
-      </div>
-    )
-  }
+      <>
+        <Tabs type='button' size='small'>
+          {Object.values(icons).map((iconModule, index) => {
+            return (
+              <TabPane
+                key={index}
+                itemKey={index} tab={<div className={iconModule.options.icon} />}
+              >
+                <div className='icon-list'>
+                  {iconModule.icons.map(ico =>
+                    <i
+                      onClick={() => {
+                        onChange(ico)
+                      }} key={ico} className={ico}
+                    />)}
+                </div>
 
-  const visibleChange = visible => {
-    if (visible) {
-      const { appService } = ridge
-      appService.getByMimeType('image/svg').then(async files => {
-        for (const file of files) {
-          file.src = await appService.store.getItem(file.id)
-        }
-        setImages(files)
-      })
-    }
+              </TabPane>
+            )
+          })}
+        </Tabs>
+      </>
+    )
   }
 
   return (
@@ -51,21 +46,15 @@ const IconEdit = withField(({
       onChange={val => onChange(val)}
       suffix={
         <Popover
-          onVisibleChange={visibleChange}
           trigger='click'
+          className='pop-icon-container'
           showArrow
           zIndex={2001}
           content={
-            <AppList />
+            <IconList />
           }
         >
-          <span style={{
-            fontSize: '12px',
-            width: '33px',
-            cursor: 'pointer',
-            textAlign: 'center'
-          }}
-          >选择
+          <span className='picker-button'><IconAppCenter />
           </span>
         </Popover>
       }

@@ -13,7 +13,7 @@ export default class Button extends BulmaBase {
   }) {
     return `<button style="width:100%;height:100%;" class="button ${color} ${size} ${light ? 'is-light' : ''} ${outline ? 'is-outlined' : ''}
       ${round ? 'is-rounded' : ''} ${loading ? 'is-loading' : ''}" ${disabled ? 'disabled' : ''}>
-      ${icon ? '<span class="icon"><img src="' + icon + '"/></span>' : ''}
+      ${icon ? '<span class="icon ' + icon + '"></span>' : ''}
       ${text == null ? '' : `<span class="button-text">${text}</span>`}
     </button>`
   }

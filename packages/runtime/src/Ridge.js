@@ -21,6 +21,10 @@ class Ridge {
     })
     this.store = new Store({ states, reducers })
     this.pageElementManagers = {}
+
+    this.icons = {}
+
+    this.loader.loadScript('./plugins/bootstraps/main.js')
   }
 
   static async load (json) {
@@ -71,6 +75,16 @@ class Ridge {
 
   registerMethod (name, method) {
     this[name] = method
+  }
+
+  setIcons (key, icons, options) {
+    this.icons[key] = {
+      icons,
+      options
+    }
+    if (options.css) {
+      this.loader.loadCss('/plugins/' + key + '/' + options.css)
+    }
   }
 }
 
