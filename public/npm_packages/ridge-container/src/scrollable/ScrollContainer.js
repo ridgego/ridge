@@ -16,8 +16,8 @@ export default class ScrollContainer extends BaseContainer {
     if (__mode === 'edit') {
       containerStyle.overflow = 'auto'
     } else {
-      containerStyle.overflowX = overflowX
-      containerStyle.overflowY = overflowY
+      containerStyle.overflowX = overflowX ? 'auto' : ''
+      containerStyle.overflowY = overflowY ? 'auto' : ''
     }
 
     return containerStyle

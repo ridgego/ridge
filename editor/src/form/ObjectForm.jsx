@@ -18,6 +18,7 @@ import BoxShadowEdit from './with-fields/BoxShadowEdit.jsx'
 import ToggleIcon from './with-fields/ToggleIcon.jsx'
 import RectEdit from './with-fields/RectEdit.jsx'
 import FontEdit from './with-fields/FontEdit.jsx'
+import ArrayEdit from './with-fields/ArrayEdit.jsx'
 import './form.less'
 
 const TYPE_CONTROL_MAP = {
@@ -64,7 +65,8 @@ export default class ObjectForm extends React.Component {
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,
       colorpicker: (col, readonly) => <ColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       presetcolorpicker: (col, readonly) => <PresetColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
-      json: (col, readonly) => <JSONEdit label={col.label} field={col.field} disabled={readonly} />
+      json: (col, readonly) => <JSONEdit label={col.label} field={col.field} disabled={readonly} />,
+      array: (col) => <ArrayEdit label={col.label} field={col.field} options={col} />
     }
   }
 
@@ -86,7 +88,7 @@ export default class ObjectForm extends React.Component {
     }
     const readonly = (typeof field.readonly === 'function') ? field.readonly(formState.values) : field.readonly
     if (field.control == null) {
-      field.control = TYPE_CONTROL_MAP[field.type] || field.type || 'string'
+      field.control = field.type
     }
     const RenderField = this.getRenderField(field, readonly, options)
     RenderField.props.fieldStyle = {

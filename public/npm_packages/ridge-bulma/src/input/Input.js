@@ -45,7 +45,7 @@ export default class Button extends BulmaBase {
       }
       this.el.firstChild.appendChild(iconBefore.el)
       this.updateChildStyle(iconBefore)
-    } 
+    }
     if (iconAfter) {
       iconAfter.position = 'after'
       if (!iconAfter.el) {
@@ -65,21 +65,24 @@ export default class Button extends BulmaBase {
       this.el.firstChild.classList.remove('has-icons-left')
       wrapper.el.classList.remove('is-left')
       return {
-        iconBefore: null,
+        iconBefore: null
       }
     } else {
       delete wrapper.position
       this.el.firstChild.classList.remove('has-icons-right')
       wrapper.el.classList.remove('is-right')
       return {
-        iconAfter: null,
+        iconAfter: null
       }
     }
   }
 
   appendChild (wrapper, x, y) {
     const currentRect = this.el.getBoundingClientRect()
-    const isBefore = x < (currentRect.x + currentRect.width / 2)
+    let isBefore = true
+    if (x != null) {
+      isBefore = x < (currentRect.x + currentRect.width / 2)
+    }
 
     if (isBefore && this.el.firstChild.querySelector('.is-left')) {
       return false
@@ -87,7 +90,7 @@ export default class Button extends BulmaBase {
     if (!isBefore && this.el.firstChild.querySelector('.is-right')) {
       return false
     }
-    
+
     wrapper.position = isBefore ? 'before' : 'after'
     this.el.firstChild.appendChild(wrapper.el)
     this.updateChildStyle(wrapper)
@@ -97,8 +100,8 @@ export default class Button extends BulmaBase {
         iconBefore: wrapper.id
       }
     } else {
-      return { 
-        iconAfter: wrapper.id 
+      return {
+        iconAfter: wrapper.id
       }
     }
   }

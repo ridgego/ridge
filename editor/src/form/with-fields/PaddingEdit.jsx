@@ -2,7 +2,8 @@ import React from 'react'
 import { IconPlus, IconMinus } from '@douyinfe/semi-icons'
 import { Select, Space, withField, Button, InputNumber, Popover } from '@douyinfe/semi-ui'
 
-const PaddingEdit = withField(({
+export const Padding = ({
+  position = 'border',
   value,
   onChange
 }) => {
@@ -10,7 +11,7 @@ const PaddingEdit = withField(({
 
   return (
     <div
-      className='input-padding'
+      className={'input-padding position-' + position}
     >
       {paddings.map((n, index) =>
         <InputNumber
@@ -24,6 +25,8 @@ const PaddingEdit = withField(({
         />)}
     </div>
   )
-})
+}
+
+const PaddingEdit = withField(Padding)
 
 export default PaddingEdit

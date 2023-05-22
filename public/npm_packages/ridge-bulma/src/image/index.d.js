@@ -17,6 +17,7 @@ export default {
     label: '大小适应',
     type: 'string',
     control: 'select',
+    value: 'contain',
     optionList: [{
       label: '拉伸填充',
       value: 'fill'
@@ -30,6 +31,11 @@ export default {
       label: '原尺寸',
       value: 'none'
     }]
+  }, {
+    name: 'rectStyle',
+    label: '块样式',
+    type: 'rect',
+    value: {}
   }],
   events: [{
     label: '点击事件',

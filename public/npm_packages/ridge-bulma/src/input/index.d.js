@@ -4,7 +4,7 @@ export default {
   name: 'input',
   title: '输入框',
   component: Input,
-  icon: 'IconComponentStroked',
+  icon: 'IconEdit2Stroked',
   type: 'vanilla',
   adjustSize: 'all',
   resizable: false,

@@ -2,7 +2,7 @@ import Select from './Select'
 import { color, size } from '../base/props'
 export default {
   name: 'select',
-  title: '下拉选项',
+  title: '下拉输入',
   component: Select,
   icon: 'IconServer',
   type: 'vanilla',
@@ -17,7 +17,20 @@ export default {
     name: 'options',
     label: '选项',
     type: 'array',
-    value: []
+    item: {
+      label: '选项',
+      value: 'key'
+    },
+    value: [{
+      label: '选项1',
+      value: 'key1'
+    }, {
+      label: '选项2',
+      value: 'key2'
+    }, {
+      label: '选项3',
+      value: 'key3'
+    }]
   }, {
     name: 'placeholder',
     label: '提示',

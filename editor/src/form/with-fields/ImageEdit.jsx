@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Popover, Input, withField } from '@douyinfe/semi-ui'
 import { IconChainStroked, IconFolderOpen } from '@douyinfe/semi-icons'
 import AppImageList from '../../panels/files/AppImageList.jsx'
@@ -12,7 +12,7 @@ const ImageEdit = withField(({
   const AppList = () => {
     return (
       <div style={{
-        width: '620px',
+        width: '510px',
         height: '430px'
       }}
       >

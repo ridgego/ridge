@@ -118,6 +118,7 @@ export default class ApplicationService {
       name: await this.getNewFileName(parentId, blob.name || name, n => `(${n})`),
       parent: parentId
     })
+    this.updateAppFileTree(true)
     return true
   }
 

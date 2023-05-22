@@ -1,33 +1,33 @@
 import React, { useState } from 'react'
-import { IconPlus, IconMinus, IconChevronDown } from '@douyinfe/semi-icons'
+import { IconPlus, IconMinus, IconChevronDown, IconConfigStroked } from '@douyinfe/semi-icons'
 import { Select, Space, withField, Button, InputNumber, Collapsible, Typography } from '@douyinfe/semi-ui'
 import PopColorPicker from './PopColorPicker.jsx'
-
+import { Padding } from './PaddingEdit.jsx'
 const { Text } = Typography
 
-const Padding = ({
-  value,
-  onChange
-}) => {
-  const paddings = (value || '0 0 0 0').split(' ').map(p => parseInt(p))
+// const Padding = ({
+//   value,
+//   onChange
+// }) => {
+//   const paddings = (value || '0 0 0 0').split(' ').map(p => parseInt(p))
 
-  return (
-    <>
-      {paddings.map((val, index) =>
-        <InputNumber
-          key={index}
-          size='small'
-          style={{
-            width: '46px'
-          }}
-          value={val} onChange={val => {
-            paddings[index] = val
-            onChange(paddings.map(p => p + 'px').join(' '))
-          }}
-        />)}
-    </>
-  )
-}
+//   return (
+//     <>
+//       {paddings.map((val, index) =>
+//         <InputNumber
+//           key={index}
+//           size='small'
+//           style={{
+//             width: '46px'
+//           }}
+//           value={val} onChange={val => {
+//             paddings[index] = val
+//             onChange(paddings.map(p => p + 'px').join(' '))
+//           }}
+//         />)}
+//     </>
+//   )
+// }
 
 const RectEdit = withField(({
   value,
@@ -47,11 +47,18 @@ const RectEdit = withField(({
   return (
     <>
       <Space>
-        <Text type='tertiary'>四边</Text>
+        <Text type='tertiary'>边框及背景</Text>
         <PopColorPicker
           value={style.borderColor} onChange={val => {
             onChange(Object.assign(style, {
               borderColor: val
+            }))
+          }}
+        />
+        <PopColorPicker
+          value={style.backgroundColor} onChange={val => {
+            onChange(Object.assign(style, {
+              backgroundColor: val
             }))
           }}
         />
@@ -70,11 +77,11 @@ const RectEdit = withField(({
             }))
           }}
         />
-        <Button type='tertiary' theme='borderless' icon={<IconChevronDown rotate={isOpen ? 180 : 0} />} onClick={toggle} />
+        <Button type={isOpen ? 'primary' : 'tertiary'} theme='borderless' icon={<IconConfigStroked />} onClick={toggle} />
       </Space>
       <Collapsible isOpen={isOpen}>
         <Space style={{ marginTop: 8 }}>
-          <Text type='tertiary'>边框宽度</Text>
+          <Text type='tertiary' style={{ width: 60 }}>边框宽度</Text>
           <Padding
             value={style.borderWidth} onChange={val => {
               onChange(Object.assign(style, {
@@ -85,7 +92,7 @@ const RectEdit = withField(({
         </Space>
 
         <Space style={{ marginTop: 12 }}>
-          <Text type='tertiary'>内边距</Text>
+          <Text type='tertiary' style={{ width: 60 }}>内边距</Text>
           <Padding
             value={style.padding} onChange={val => {
               onChange(Object.assign(style, {
@@ -96,22 +103,12 @@ const RectEdit = withField(({
         </Space>
 
         <Space style={{ marginTop: 12 }}>
-          <Text type='tertiary'>圆角</Text>
+          <Text type='tertiary' style={{ width: 60 }}>圆角</Text>
           <Padding
+            position='corner'
             value={style.borderRadius} onChange={val => {
               onChange(Object.assign(style, {
                 borderRadius: val
-              }))
-            }}
-          />
-        </Space>
-
-        <Space style={{ marginTop: 12 }}>
-          <Text type='tertiary'>背景色</Text>
-          <PopColorPicker
-            value={style.backgroundColor} onChange={val => {
-              onChange(Object.assign(style, {
-                backgroundColor: val
               }))
             }}
           />

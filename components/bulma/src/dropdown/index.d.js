@@ -2,12 +2,10 @@ import DropDown from './DropDown'
 import { color, size, light } from '../base/props'
 export default {
   name: 'dropdown',
-  title: '下拉选项',
+  title: '下拉框',
   component: DropDown,
-  icon: 'IconChevronDown',
+  icon: 'IconChecklistStroked',
   type: 'vanilla',
-  adjustSize: 'all',
-  resizable: false,
   props: [{
     name: 'text',
     label: '文本',
@@ -22,12 +20,8 @@ export default {
     name: 'menus',
     label: '下拉列表',
     type: 'array',
-    value: []
-  }, {
-    name: 'value',
-    label: '活动项',
-    type: 'string',
-    value: ''
+    item: '选项',
+    value: ['选项1', '选项2', '-', '选项3']
   }],
   events: [{
     label: '点击事件',

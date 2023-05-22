@@ -20,7 +20,7 @@ export default ({
   return (
     <div
       zIndex={3001}
-      className='app-image-list-icon'
+      className='app-image-list'
     >
       {images.map((img, index) => {
         return (
@@ -33,7 +33,6 @@ export default ({
                 src={img.src}
               />
             </div>
-            <Text type='tertiary' style={{ width: 96 }}>{img.name}</Text>
           </div>
         )
       })}

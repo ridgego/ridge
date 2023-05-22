@@ -1,17 +1,25 @@
 import BulmaBase from '../base/BulmaBase'
 export default class Button extends BulmaBase {
-  innerHTML (props) {
-    return `<button style="width:100%;height:100%;" class="button ${props.color} ${props.light ? 'is-light' : ''}">
-      ${props.text == null ? '' : `<span class="button-text">${props.text}</span>`}
+  innerHTML ({
+    color,
+    size,
+    light,
+    outline,
+    round,
+    loading,
+    disabled,
+    icon,
+    text
+  }) {
+    return `<button style="width:100%;height:100%;" class="button ${color} ${size} ${light ? 'is-light' : ''} ${outline ? 'is-outlined' : ''}
+      ${round ? 'is-rounded' : ''} ${loading ? 'is-loading' : ''}" ${disabled ? 'disabled' : ''}>
+      ${icon ? '<span class="icon"><img src="' + icon + '"/></span>' : ''}
+      ${text == null ? '' : `<span class="button-text">${text}</span>`}
     </button>`
   }
 
   isDroppable (el) {
-    if (el.componentPath === 'ridge-bulma/icon' && !this.el.querySelector('.ridge-element')) {
-      return true
-    } else {
-      return false
-    }
+    return false
   }
 
   mounted () {
@@ -52,7 +60,10 @@ export default class Button extends BulmaBase {
 
   appendChild (wp, x, y) {
     const currentRect = this.el.getBoundingClientRect()
-    const isBefore = x < (currentRect.x + currentRect.width / 2)
+    let isBefore = true
+    if (x != null) {
+      isBefore = x < (currentRect.x + currentRect.width / 2)
+    }
 
     if (isBefore) {
       this.el.querySelector('button').insertBefore(wp.el, this.el.querySelector('span.button-text'))

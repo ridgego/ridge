@@ -1,9 +1,9 @@
 import Checkbox from './Checkbox.js'
 export default {
   name: 'checkbox',
-  title: '切换选框',
+  title: '切换框',
   component: Checkbox,
-  icon: 'IconCheckboxTick',
+  icon: 'IconTickCircle',
   type: 'vanilla',
   adjustSize: 'all',
   resizable: false,
@@ -16,12 +16,12 @@ export default {
     name: 'label',
     label: '内容',
     type: 'string',
-    value: ''
+    value: '我已同意'
   }],
   events: [{
     name: 'onChange',
     label: '值改变'
   }],
-  width: 160,
-  height: 40
+  width: 130,
+  height: 32
 }

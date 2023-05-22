@@ -19,11 +19,13 @@ export default class BulmaBase {
 
   mounted () {}
   updated () {}
+  innerHTMLSet () {}
 
   async mount (el) {
     this.el = el
 
     this.el.innerHTML = this.innerHTML(this.props)
+    this.innerHTMLSet()
     this.mounted()
   }
 
@@ -34,6 +36,7 @@ export default class BulmaBase {
   update (props) {
     this.props = props
     this.el.innerHTML = this.innerHTML(props)
+    this.innerHTMLSet()
     this.updated()
   }
 
@@ -43,7 +46,7 @@ export default class BulmaBase {
     wrapper.el.style.width = wrapper.config.style.width + 'px'
     wrapper.el.style.height = wrapper.config.style.height + 'px'
   }
-  
+
   onDragOver () {
     this.el.style.border = '2px dashed hsl(204, 86%, 53%)'
   }

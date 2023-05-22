@@ -5,7 +5,7 @@ export const color = {
   control: 'select',
   value: 'is-primary',
   width: '50%',
-  bindable: true,
+  bindable: false,
   optionList: [{
     label: '白色',
     value: 'is-white'
@@ -54,6 +54,13 @@ export const light = {
   width: '50%',
   type: 'boolean'
 }
+export const outlined = {
+  name: 'outline',
+  label: '描边',
+  width: '50%',
+  type: 'boolean',
+  value: false
+}
 
 export const isDelete = {
   name: 'isDelete',
@@ -63,26 +70,25 @@ export const isDelete = {
 }
 
 export const size = {
-  name: 'fontSize',
+  name: 'size',
   label: '大小',
   type: 'string',
-  control: 'select',
+  control: 'radiogroup',
   value: 'is-normal',
-  width: '50%',
   optionList: [{
     label: '小号',
-    value: '.75rem'
+    value: 'is-small'
   },
   {
-    label: '普通',
-    value: '1rem'
+    label: '默认',
+    value: 'is-normal'
   },
   {
     label: '中号',
-    value: '1.25rem'
+    value: 'is-medium'
   },
   {
     label: '大号',
-    value: '1.5rem'
+    value: 'is-large'
   }]
 }
