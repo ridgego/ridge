@@ -34,6 +34,8 @@ export default class WorkSpaceControl {
     })
     this.initKeyBind()
     this.initComponentDrop()
+
+    this.viewPortEl.style.transformOrigin = 'top left'
   }
 
   enable () {
@@ -84,7 +86,6 @@ export default class WorkSpaceControl {
     this.workspaceX = 290
     this.workspaceY = 5
 
-    this.viewPortEl.style.transformOrigin = 'top left'
     this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${zoom})`
 
     this.zoom = zoom
@@ -95,7 +96,9 @@ export default class WorkSpaceControl {
     this.zoom = zoom
     this.moveable.target = []
     this.moveable.updateTarget()
-    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${(this.workspaceY) / 2}px) scale(${this.zoom})`
+
+    console.log('setZoom', this.workspaceX, this.workspaceY, this.zoom)
+    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${this.zoom})`
     // this.moveable.zoom = zoom
     // this.selecto.zoom = zoom
   }
@@ -110,6 +113,7 @@ export default class WorkSpaceControl {
       trace('viewPortEl dragStart')
       if (ev.inputEvent.ctrlKey) {
         this.workspaceMovable.dragWorkSpace = true
+        this.moveable.target = []
       } else {
         this.workspaceMovable.dragWorkSpace = false
       }
@@ -122,6 +126,7 @@ export default class WorkSpaceControl {
         this.workspaceX += ev.delta[0]
         this.workspaceY += ev.delta[1]
 
+        console.log('viewPortEl drag', this.workspaceX, this.workspaceY, this.zoom)
         this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${this.zoom})`
 
         // this.viewPortEl.style.transform = ev.transform
@@ -165,6 +170,9 @@ export default class WorkSpaceControl {
     this.moveable.on('drag', ev => {
       const target = ev.target
       if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
+        return
+      }
+      if (this.workspaceMovable.dragWorkSpace) {
         return
       }
       trace('movable drag', ev)
@@ -721,5 +729,14 @@ export default class WorkSpaceControl {
         }
       }
     })
+
+    this.workspaceEl.onwheel = (event) => {
+      event.preventDefault()
+      let targetZoom = this.zoom + (event.deltaY > 0 ? -1 : 1) * 0.01
+      targetZoom = Math.min(Math.max(0.1, targetZoom), 2)
+
+      this.zoomBack && this.zoomBack(targetZoom)
+      this.setZoom(targetZoom)
+    }
   }
 }

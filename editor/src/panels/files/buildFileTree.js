@@ -1,5 +1,6 @@
 export const getFileTree = (files, each) => {
   const roots = files.filter(file => file.parent === -1).map(file => buildFileTree(file, null, files, each)).sort(sortFile)
+
   return roots
 }
 
@@ -29,8 +30,9 @@ const buildFileTree = (file, dir, files, each) => {
     key: file.id,
     label: file.name,
     type: file.type,
-    path: (file.parent === -1) ? (file.name) : (dir.path + '/' + file.name),
+    path: (file.parent === -1) ? ('/' + file.name) : (dir.path + '/' + file.name),
     parent: file.parent,
+    parentNode: dir,
     raw: file,
     value: file.id
   }

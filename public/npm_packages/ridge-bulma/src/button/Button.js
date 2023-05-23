@@ -24,12 +24,12 @@ export default class Button extends BulmaBase {
 
   mounted () {
     Object.assign(this.el.querySelector('button').style, this.props.fontStyle)
-    this.ensureButtonIcon()
+    // this.ensureButtonIcon()
   }
 
   updated () {
     Object.assign(this.el.querySelector('button').style, this.props.fontStyle)
-    this.ensureButtonIcon()
+    // this.ensureButtonIcon()
   }
 
   ensureButtonIcon () {

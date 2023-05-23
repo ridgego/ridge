@@ -151,6 +151,9 @@ class ElementWrapper {
    */
   forEachChildren (cb) {
     // 递归处理子节点树
+    if (this.componentDefinition == null) {
+      return
+    }
     const childProps = this.componentDefinition.props.filter(p => p.type === 'children')
     if (childProps.length) {
       for (const childProp of childProps) {

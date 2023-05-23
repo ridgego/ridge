@@ -5,13 +5,25 @@ export default class DropDown extends BulmaBase {
     <div class="dropdown-trigger">
       <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
         <span>${props.text}</span>
+        <span class="icon is-small">
+          <i class="fas fa-angle-down" aria-hidden="true"></i>
+        </span>
       </button>
     </div>
     <div class="dropdown-menu" role="menu">
       <div class="dropdown-content">
-        ${(props.menus || ['选项1', '选项2', '-', 'C']).map(str => str === '-'
+        ${(props.menus || [{
+          label: '选项1',
+          value: 'key1'
+        }, {
+          label: '选项2',
+          value: 'key2'
+        }, {
+          label: '选项3',
+          value: 'key3'
+        }]).map(opt => opt.key === '-'
             ? '<hr class="dropdown-divider">'
-            : `<a href="#" class="dropdown-item ${props.value === str ? 'is-active' : ''}">${str}</a>`).join('')}
+            : `<a href="#" class="dropdown-item ${props.value === opt.value ? 'is-active' : ''}">${opt.label}</a>`).join('')}
       </div>
     </div>
   </div>`

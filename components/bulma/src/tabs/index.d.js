@@ -11,13 +11,13 @@ export default {
   resizable: false,
   props: [{
     name: 'value',
-    label: '当前选中',
+    label: '当前值',
     type: 'string'
   }, {
     name: 'align',
     label: '对齐',
     type: 'string',
-    control: 'select',
+    control: 'radiogroup',
     optionList: [{
       label: '靠左',
       value: 'is-left'
@@ -33,7 +33,7 @@ export default {
     name: 'style',
     label: '样式',
     type: 'string',
-    control: 'select',
+    control: 'radiogroup',
     optionList: [{
       label: '默认',
       value: ''
@@ -57,7 +57,20 @@ export default {
     name: 'tabs',
     label: '列表',
     type: 'array',
-    value: []
+    item: {
+      label: '选项',
+      value: 'key'
+    },
+    value: [{
+      label: '图片',
+      value: 'pictures'
+    }, {
+      label: '音乐',
+      value: 'musics'
+    }, {
+      label: '视频',
+      value: 'videos'
+    }]
   }],
   events: [{
     label: '切换',

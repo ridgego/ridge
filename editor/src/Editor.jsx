@@ -128,6 +128,11 @@ export default class Editor extends React.Component {
     this.pageConfig = pageConfig
     const { content } = this.pageConfig
     const zoom = workspaceControl.fitToCenter(content.properties.width, content.properties.height, this.state.zoom)
+    workspaceControl.zoomBack = val => {
+      this.setState({
+        zoom: val
+      })
+    }
     this.setState({
       zoom
     })

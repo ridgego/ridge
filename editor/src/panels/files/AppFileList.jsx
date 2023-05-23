@@ -4,9 +4,11 @@ import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Breadcrumb, Form } from '@douyinfe/semi-ui'
 import { IconTick, IconFolderOpen, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on } from '../../service/RidgeEditService.js'
-import { getFileTree } from './buildFileTree.js'
+import { eachNode, getFileTree } from './buildFileTree.js'
 import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_APP_OPEN, EVENT_WORKSPACE_RESET } from '../../constant'
 import './file-list.less'
+import LeftTopPanel from '../component/index.jsx'
+import { isLength } from 'lodash'
 
 const trace = debug('ridge:file')
 const { Text } = Typography
@@ -21,11 +23,11 @@ class AppFileList extends React.Component {
       imagePreviewVisible: false,
       imagePreviewSrc: null,
       expandedKeys: [],
-      files: [],
       treeData: null,
       selected: null,
       currentEditKey: null,
       currentParent: -1,
+      currentSelectedNode: null,
       createDialogShow: false,
       isCreateFile: false,
       newFileName: '',
@@ -61,6 +63,31 @@ class AppFileList extends React.Component {
     trace('FileList  updateFileTree')
     const { appService } = ridge
 
+    let fileTree = appService.getFileTree()
+
+    if (fileTree == null) {
+      fileTree = await appService.updateAppFileTree(true)
+    }
+
+    eachNode(fileTree, file => {
+      if (file.mimeType) {
+        if (file.mimeType === 'application/font-woff') {
+          file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
+        } else if (file.mimeType.indexOf('image/') > -1) {
+          file.icon = <img src={file.url} />
+        } else {
+          file.icon = <IconBriefStroked style={{ color: 'var(--semi-color-text-2)' }} />
+        }
+      }
+      if (file.type === 'directory') {
+        file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
+      }
+      // if (file.children && file.children.length === 0) {
+      //   file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
+      // }
+    })
+
+    /*
     const files = await appService.getFiles(this.props.filter)
     this.files = files
     trace('FileList  files Loaded', files)
@@ -82,27 +109,30 @@ class AppFileList extends React.Component {
         file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
       }
     })
+    */
     this.setState({
-      treeData,
-      files
+      treeData: fileTree
     })
   }
 
-  selectNode (val) {
-    const node = this.state.files.filter(file => file.id === val)[0]
-
+  selectNode (node) {
+    // const node = this.state.files.filter(file => file.id === val)[0]
     this.setState({
-      currentParent: node.type === 'directory' ? node.id : node.parent,
-      selected: val
+      currentSelectedNode: node,
+      selected: node.key
     })
-    if (val !== this.state.currentEditKey) {
-      if (this.state.currentEditKey) {
-        this.checkUpdateEditName()
-      }
-      this.setState({
-        currentEditKey: null
-      })
-    }
+
+    // this.setState({
+    //   currentParent: node.type === 'directory' ? node.key : node.parent,
+    // })
+    // if (node.key !== this.state.currentEditKey) {
+    //   if (this.state.currentEditKey) {
+    //     this.checkUpdateEditName()
+    //   }
+    //   this.setState({
+    //     currentEditKey: null
+    //   })
+    // }
   }
 
   /**
@@ -110,16 +140,22 @@ class AppFileList extends React.Component {
    * @returns
    */
   getCurrentDir () {
-    const currentNode = this.state.files.filter(file => file.id === this.state.selected)[0]
-
-    if (currentNode == null) {
-      return -1
-    } else {
-      if (currentNode.type !== 'directory') {
-        return currentNode.parent
+    if (this.state.currentSelectedNode) {
+      if (this.state.currentSelectedNode.type === 'directory') {
+        return this.state.currentSelectedNode.key
       } else {
-        return currentNode.id
+        return this.state.currentSelectedNode.parent
       }
+    } else {
+      return -1
+    }
+  }
+
+  getCurrentSiblings () {
+    if (this.state.currentSelectedNode && this.state.currentSelectedNode.parentNode) {
+      return this.state.currentSelectedNode.parentNode.children
+    } else {
+      return this.state.treeData
     }
   }
 
@@ -135,7 +171,11 @@ class AppFileList extends React.Component {
         currentEditValid: false
       })
     } else {
-      const siblings = this.state.files.filter(file => {
+      const siblings = this.getCurrentSiblings().filter(file => {
+
+      })
+
+      this.state.files.filter(file => {
         return (file.parent === this.state.currentParent && file.name === trim(val) && file.id !== this.state.currentEditKey)
       })
       if (siblings.length === 0) {
@@ -447,13 +487,13 @@ class AppFileList extends React.Component {
     const { state, confirmCreateFile } = this
     const { createDialogShow, isCreateFile, currentEditValid, currentParent } = state
 
-    const parentPaths = []
-    let parent = currentParent
-
-    while (parent !== -1) {
-      const node = this.state.files.filter(file => file.id === parent)[0]
-      parentPaths.push(node.name)
-      parent = node.parent
+    let parentPaths = '/'
+    if (this.state.currentSelectedNode) {
+      if (this.state.currentSelectedNode.type === 'directory') {
+        parentPaths = this.state.currentSelectedNode.path
+      } else if (this.state.currentSelectedNode.parentNode) {
+        parentPaths = this.state.currentSelectedNode.parentNode.path
+      }
     }
 
     return (
@@ -480,7 +520,7 @@ class AppFileList extends React.Component {
           labelAlign='right'
           labelWidth={80}
         >
-          <Form.Input disabled label='所在目录' initValue={'/' + parentPaths.reverse().join('/')} />
+          <Form.Input disabled label='所在目录' initValue={parentPaths} />
           <Form.Input
             validateStatus={currentEditValid ? '' : 'error'}
             label='名称' onChange={val => {
@@ -497,7 +537,7 @@ class AppFileList extends React.Component {
 
   render () {
     const { renderFullLabel, showCreateDialog, renderCreateModal, state } = this
-    const { treeData, selected, expandedKeys, imagePreviewSrc, imagePreviewVisible } = state
+    const { treeData, currentSelectedNode, expandedKeys, imagePreviewSrc, imagePreviewVisible } = state
 
     return (
       <>
@@ -529,7 +569,7 @@ class AppFileList extends React.Component {
             draggable
             expandedKeys={expandedKeys}
             renderLabel={renderFullLabel}
-            value={selected}
+            value={currentSelectedNode}
             treeData={treeData}
             onDrop={({ node, dragNode, dropPosition, dropToGap }) => {
               this.move(node, dragNode, dropToGap)
@@ -542,8 +582,9 @@ class AppFileList extends React.Component {
             onDoubleClick={(ev, node) => {
               this.open(node)
             }}
-            onChange={(value) => {
-              this.selectNode(value)
+            onChangeWithObject
+            onChange={(treeNode) => {
+              this.selectNode(treeNode)
             }}
           />}
         {!treeData && <div className='tree-loading'><Spin size='middle' /></div>}

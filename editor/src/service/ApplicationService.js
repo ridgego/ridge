@@ -45,11 +45,12 @@ export default class ApplicationService {
 
   async updateAppFileTree (updateBlob) {
     const files = await this.getFiles()
-    this.fileTree = getFileTree(files, file => {
+    this.fileTree = getFileTree(files, async file => {
       if (updateBlob && file.mimeType && file.mimeType.indexOf('image/') > -1) {
         this.store.getItem(file.key).then(async dataUrl => {
           const blob = await dataURLtoBlob(dataUrl)
           this.dataUrlByPath[file.path] = window.URL.createObjectURL(blob)
+          file.url = this.dataUrlByPath[file.path]
         })
       }
     })
@@ -96,7 +97,7 @@ export default class ApplicationService {
     }
     await this.store.setItem(id, pageContent)
     await this.collection.insert(pageObject)
-
+    await this.updateAppFileTree()
     return pageObject
   }
 
@@ -154,6 +155,7 @@ export default class ApplicationService {
     await this.collection.patch({ id }, {
       name: newName
     })
+    await this.updateAppFileTree(true)
     return true
   }
 
@@ -172,6 +174,7 @@ export default class ApplicationService {
       await this.collection.patch({ id }, {
         parent: newParent
       })
+      await this.updateAppFileTree(true)
       return true
     } else {
       return false
@@ -196,6 +199,7 @@ export default class ApplicationService {
       if (content) {
         await this.store.setItem(newId, content)
       }
+      await this.updateAppFileTree(true)
     }
   }
 
@@ -216,6 +220,7 @@ export default class ApplicationService {
         }
       }
       await this.collection.remove({ id })
+      await this.updateAppFileTree(true)
     }
   }
 

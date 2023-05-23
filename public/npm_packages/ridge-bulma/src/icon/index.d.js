@@ -10,12 +10,12 @@ export default {
     name: 'icon',
     label: '图标',
     type: 'icon',
-    value: ''
+    value: 'bi bi-archive'
   }, {
     name: 'color',
     label: '颜色',
     type: 'string',
-    presetColors: colors,
+    control: 'colorpicker',
     width: '50%'
   }, {
     name: 'backgroundColor',
