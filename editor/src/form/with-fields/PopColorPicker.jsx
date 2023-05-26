@@ -26,6 +26,9 @@ const PopColorPicker = ({
               boxShadow: 'none'
             }}
             triangle='hide'
+            onChange={val => {
+              onChange(val.hex + parseInt(val.rgb.a * 255).toString(16))
+            }}
             onChangeComplete={val => {
               onChange(val.hex + parseInt(val.rgb.a * 255).toString(16))
             }}

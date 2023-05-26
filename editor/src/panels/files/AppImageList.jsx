@@ -1,20 +1,12 @@
 import React from 'react'
-import { ridge } from '../../service/RidgeEditService'
-import { Typography } from '@douyinfe/semi-ui'
 import './app-image-list.less'
 
-const { Text } = Typography
 export default ({
   images,
   select
 }) => {
   const onSelect = (file) => {
-    // 选择后将filePath传出
-    const { appService } = ridge
-    // select(file.id)
-    appService.getFilePath(file).then((filePath) => {
-      select(filePath, file.src)
-    })
+    select(file.path, file.src)
   }
 
   return (

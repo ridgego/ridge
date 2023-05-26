@@ -97,7 +97,6 @@ export default class WorkSpaceControl {
     this.moveable.target = []
     this.moveable.updateTarget()
 
-    console.log('setZoom', this.workspaceX, this.workspaceY, this.zoom)
     this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${this.zoom})`
     // this.moveable.zoom = zoom
     // this.selecto.zoom = zoom
@@ -126,7 +125,6 @@ export default class WorkSpaceControl {
         this.workspaceX += ev.delta[0]
         this.workspaceY += ev.delta[1]
 
-        console.log('viewPortEl drag', this.workspaceX, this.workspaceY, this.zoom)
         this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${this.zoom})`
 
         // this.viewPortEl.style.transform = ev.transform
@@ -322,6 +320,15 @@ export default class WorkSpaceControl {
     if (target.closest('.menu-bar')) {
       e.stop()
       return
+    }
+
+    if (this.moveable.target && this.moveable.target.length === 1 && !this.moveable.target[0].contains(target)) {
+      const { clientX, clientY } = inputEvent
+      const bc = this.moveable.target[0].getBoundingClientRect()
+      if (clientX > bc.x && clientX < (bc.x + bc.width) && clientY > bc.y && clientY < (bc.y + bc.height)) {
+        e.stop()
+        return
+      }
     }
 
     // 拖拽起始位置位于元素内

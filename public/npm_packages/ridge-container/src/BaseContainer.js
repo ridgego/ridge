@@ -88,9 +88,19 @@ export default class BaseContainer {
   }
 
   // 追加子节点
-  appendChild (wrapper) {
+  appendChild (wrapper, x, y) {
     const el = wrapper.el
-    const originalRect = el.getBoundingClientRect()
+
+    let originalRect = el.getBoundingClientRect()
+
+    if (el.parentElement == null) {
+      originalRect = {
+        x: x - (wrapper.config.style.width || 100) / 2,
+        y: y - (wrapper.config.style.height || 100) / 2,
+        width: wrapper.config.style.width || 100,
+        height: wrapper.config.style.height || 100
+      }
+    }
     if (el.parentElement !== this.containerEl) {
       if (this.containerEl.querySelector(':scope > .drop-shadow')) {
         this.containerEl.insertBefore(el, this.containerEl.querySelector(':scope > .drop-shadow'))
