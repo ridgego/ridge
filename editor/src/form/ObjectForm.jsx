@@ -21,11 +21,6 @@ import FontEdit from './with-fields/FontEdit.jsx'
 import ArrayEdit from './with-fields/ArrayEdit.jsx'
 import './form.less'
 
-const TYPE_CONTROL_MAP = {
-  object: 'json',
-  array: 'json'
-}
-
 export default class ObjectForm extends React.Component {
   constructor (props) {
     super(props)

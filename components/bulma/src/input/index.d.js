@@ -11,7 +11,7 @@ export default {
   props: [{
     name: 'value',
     label: '内容',
-    bindable: true,
+    connect: true,
     type: 'string',
     value: ''
   }, size, color, {
@@ -58,7 +58,6 @@ export default {
   }],
   events: [{
     name: 'onChange',
-    width: '50%',
     label: '值改变'
   }],
   width: 160,

@@ -254,7 +254,7 @@ export default class ComponentPanel extends React.Component {
       })
       for (const prop of elementWrapper.componentDefinition.props) {
         const field = {}
-        if (prop.bindable === true) {
+        if (prop.connect === true) {
           Object.assign(field, prop, {
             field: 'props.' + prop.name,
             fieldEx: 'propsEx.' + prop.name
@@ -272,7 +272,6 @@ export default class ComponentPanel extends React.Component {
           label: event.label,
           type: 'function',
           control: 'event',
-          bindable: false,
           field: 'event.' + event.name
         }
         nodeEventFields.push(control)

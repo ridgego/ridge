@@ -11,7 +11,8 @@ export default {
   resizable: false,
   props: [{
     name: 'value',
-    label: '当前值',
+    label: '选中',
+    connect: true,
     type: 'string'
   }, {
     name: 'align',
