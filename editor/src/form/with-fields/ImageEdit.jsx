@@ -4,7 +4,7 @@ import { IconChainStroked, IconFolderOpen } from '@douyinfe/semi-icons'
 import AppImageList from '../../panels/files/AppImageList.jsx'
 import { ridge } from '../../service/RidgeEditService.js'
 
-const ImageEdit = withField(({
+export const ImageEdit = ({
   value,
   onChange
 }) => {
@@ -61,6 +61,6 @@ const ImageEdit = withField(({
       }
     />
   )
-})
+}
 
-export default ImageEdit
+export default withField(ImageEdit)

@@ -21,6 +21,7 @@ const PopColorPicker = ({
           >清除颜色
           </Button>
           <SketchPicker
+            color={value}
             width={220}
             style={{
               boxShadow: 'none'

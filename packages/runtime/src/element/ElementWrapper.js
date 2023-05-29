@@ -2,6 +2,7 @@ import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import { nanoid } from '../utils/string'
+import getBackground from './style/getBackground'
 const log = debug('ridge:element')
 const error = debug('error:element')
 
@@ -409,9 +410,6 @@ class ElementWrapper {
         Object.assign(this.el.style, style)
       }
     }
-    if (configStyle.visible === false) {
-      this.el.classList.add('is-hidden')
-    }
     // 设置编辑器的属性
     if (this.mode === 'edit') {
       // 编辑器特有：锁定
@@ -420,6 +418,38 @@ class ElementWrapper {
       }
     }
     this.invoke('updateStyle', [this])
+
+    this.updateAddonStyles(configStyle, this.el)
+  }
+
+  updateAddonStyles (configStyle, el) {
+    if (configStyle.visible === false) {
+      this.el.classList.add('is-hidden')
+    }
+
+    if (configStyle.opacity != null) {
+      this.el.style.opacity = configStyle.opacity + '%'
+    }
+    if (configStyle.padding) {
+      this.el.style.padding = configStyle.padding
+    }
+    if (configStyle.margin) {
+      this.el.style.margin = configStyle.margin
+    }
+    if (configStyle.borderStyle) {
+      this.el.style.borderStyle = configStyle.borderStyle
+    }
+    if (configStyle.borderColor) {
+      this.el.style.borderColor = configStyle.borderColor
+    }
+    if (configStyle.borderWidth) {
+      this.el.style.borderWidth = configStyle.borderWidth
+    }
+
+    Object.assign(
+      this.el.style,
+      getBackground(configStyle.background, this.ridge, this.mode)
+    )
   }
 
   /**
@@ -736,9 +766,6 @@ class ElementWrapper {
   }
 
   toJSON () {
-    if (this.config.props.children && this.config.props.children[0] && this.config.props.children[0].id) {
-      debugger
-    }
     return JSON.parse(JSON.stringify(this.config))
   }
 }

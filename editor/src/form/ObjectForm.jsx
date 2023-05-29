@@ -64,6 +64,7 @@ export default class ObjectForm extends React.Component {
       font: (col, readonly) => <FontEdit label={col.label} field={col.field} disabled={readonly} />,
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,
       colorpicker: (col, readonly) => <ColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
+      color: (col, readonly) => <ColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       presetcolorpicker: (col, readonly) => <PresetColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       json: (col, readonly) => <JSONEdit label={col.label} field={col.field} disabled={readonly} />,
       array: (col) => <ArrayEdit label={col.label} field={col.field} options={col} />
@@ -161,6 +162,7 @@ export default class ObjectForm extends React.Component {
       <div className='object-form' style={style}>
         {!tableStyle && <Form
           size='small'
+          labelAlign='right'
           labelPosition={labelPosition}
           layout='horizontal'
           getFormApi={callback}

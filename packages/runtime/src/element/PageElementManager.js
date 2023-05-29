@@ -1,6 +1,7 @@
 import ElementWrapper from './ElementWrapper'
 import { nanoid } from '../utils/string'
 import Store from '../store/Store'
+import getBackground from './style/getBackground'
 
 class PageElementManager {
   constructor (pageConfig, ridge, mode) {
@@ -97,7 +98,7 @@ class PageElementManager {
   // 配置根节点容器的样式 （可能是body）
   updateRootElStyle () {
     if (this.pageConfig.properties.background) {
-      this.el.style.background = this.pageConfig.properties.background
+      Object.assign(this.el.style, getBackground(this.pageConfig.properties.background, this.ridge, this.mode))
     } else {
       this.el.style.background = ''
     }

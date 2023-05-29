@@ -58,15 +58,37 @@ const COMPONENT_ROOT_FIELDS = [
     width: '50%',
     type: 'boolean',
     field: 'style.full'
-  }, {
-    label: '显示',
-    width: '50%',
-    type: 'boolean',
-    control: 'checkbox',
-    field: 'style.visible',
-    fieldEx: 'styleEx.visible'
   }
 ]
+
+const COMPONENT_STYLE_FIELDS = [{
+  label: '显示',
+  type: 'boolean',
+  control: 'checkbox',
+  field: 'style.visible',
+  fieldEx: 'styleEx.visible'
+}, {
+  label: '透明度',
+  type: 'number',
+  field: 'style.opacity',
+  fieldEx: 'styleEx.opacity'
+}, {
+  label: '内边距',
+  type: 'padding',
+  field: 'style.padding'
+}, {
+  label: '边框颜色',
+  type: 'color',
+  field: 'style.borderColor'
+}, {
+  label: '边框宽度',
+  type: 'padding',
+  field: 'style.borderWidth'
+}, {
+  label: '背景',
+  control: 'background',
+  field: 'style.background'
+}]
 
 const PAGE_FIELDS = [
   {
@@ -104,6 +126,10 @@ const PAGE_FIELDS = [
     width: '50%',
     control: 'number',
     field: 'height'
+  }, {
+    label: '背景',
+    control: 'background',
+    field: 'background'
   }
 ]
 
@@ -243,6 +269,7 @@ export default class ComponentPanel extends React.Component {
     }, () => {
       this.componentPropFormApi.reset()
       this.componentEventFormApi.reset()
+      this.componentStyleFormApi.reset()
 
       this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
         notNotify: true
@@ -257,6 +284,13 @@ export default class ComponentPanel extends React.Component {
         notNotify: true
       })
       this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
+        notNotify: true
+      })
+
+      this.componentStyleFormApi.setValue('style', elementWrapper.config.style, {
+        notNotify: true
+      })
+      this.componentStyleFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
         notNotify: true
       })
 
@@ -314,6 +348,10 @@ export default class ComponentPanel extends React.Component {
       nodeEventsValues
     } = this.state
 
+    const basicStylesAPI = formApi => {
+      this.componentStyleFormApi = formApi
+    }
+
     // 回写styleApi句柄以便直接操作基础form
     const basicPropsAPI = (formApi) => {
       window.componentPropFormApi = this.componentEventFormApi
@@ -340,6 +378,9 @@ export default class ComponentPanel extends React.Component {
     const componentEventValueChange = (values, field) => {
       emit(EVENT_ELEMENT_EVENT_CHANGE, { el: this.currentElement, values, field })
     }
+    const componentStyleValueChange = (values, field) => {
+      emit(EVENT_ELEMENT_PROP_CHANGE, { el: this.currentElement, values, field })
+    }
 
     const pagePropValueChange = (values, field) => {
       emit(EVENT_PAGE_PROP_CHANGE, {
@@ -358,7 +399,7 @@ export default class ComponentPanel extends React.Component {
           }}
         >
           {/* 组件属性配置 */}
-          <TabPane tab='属性' itemKey='style'>
+          <TabPane tab='属性' itemKey='props'>
             <ObjectForm
               fields={nodePropFields}
               getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
@@ -372,6 +413,15 @@ export default class ComponentPanel extends React.Component {
               initValues={nodeEventsValues}
               fields={nodeEventFields}
               getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
+                pageReducers,
+                pageStates
+              }}
+            />
+          </TabPane>
+          <TabPane tab='样式' itemKey='style'>
+            <ObjectForm
+              fields={COMPONENT_STYLE_FIELDS}
+              getFormApi={basicStylesAPI} onValueChange={componentStyleValueChange} options={{
                 pageReducers,
                 pageStates
               }}

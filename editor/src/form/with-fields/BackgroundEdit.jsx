@@ -1,41 +1,80 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { SketchPicker } from 'react-color'
-import { Select, Space, Input, withField, Button, Tabs, TabPane, Popover } from '@douyinfe/semi-ui'
+import { Select, Input, TextArea, Space, withField, Button, Tabs, TabPane, Popover } from '@douyinfe/semi-ui'
+import { ImageEdit } from './ImageEdit.jsx'
+import { PopColorPicker } from './ColorPicker.jsx'
 
 const BackgroundEdit = withField(({
   value,
   onChange
 }) => {
-  const renderPopContent = () => {
-    return (
-      <Tabs type='button'>
-        <TabPane tab='纯色' itemKey='1'>
-          <SketchPicker
-            color={value} onChangeComplete={val => {
-              onChange(val.hex + parseInt(val.rgb.a * 255).toString(16))
-            }}
-          />
-        </TabPane>
-        <TabPane tab='自定义' itemKey='2'>
-          <div style={{ height: 317, padding: 5, width: 220, display: 'flex', flexWrap: 'wrap' }}>
-            <Input value={value} onChange={val => onChange(val)} />
-          </div>
-        </TabPane>
-      </Tabs>
-    )
+  const [mode, setMode] = useState('color')
+
+  const backgroundValue = value || {
+    type: 'color'
   }
   return (
-    <Popover content={renderPopContent} trigger='click'>
-      <Button
-        size='small' style={{
-          background: value,
-          height: '22px',
-          width: '22px',
-          padding: 0,
-          border: '1px solid #ccc'
+    <>
+      <Select
+        size='small'
+        style={{
+          marginBottom: 10
         }}
-      />
-    </Popover>
+        value={backgroundValue.type} onChange={val => {
+          onChange({
+            type: val,
+            value: ''
+          })
+        }}
+      >
+        <Select.Option value='color'>纯色</Select.Option>
+        <Select.Option value='image'>图片</Select.Option>
+        <Select.Option value='code'>编码</Select.Option>
+      </Select>
+      <div>
+        {backgroundValue.type === 'color' &&
+          <PopColorPicker
+            value={backgroundValue.value} onChange={val => {
+              onChange({
+                type: 'color',
+                value: val
+              })
+            }}
+          />}
+        {backgroundValue.type === 'code' &&
+          <TextArea
+            style={{ width: '95%' }} autosize value={backgroundValue.value} rows={2} onChange={val => {
+              onChange({
+                type: 'code',
+                value: val
+              })
+            }}
+          />}
+        {backgroundValue.type === 'image' &&
+          <>
+            <ImageEdit
+              value={backgroundValue.value} onChange={val => {
+                onChange({
+                  type: 'image',
+                  value: val
+                })
+              }}
+            />
+            {/* <Select
+              size='small'
+              value={backgroundValue.size} onChange={val => {
+                onChange({
+                  type: val,
+                  value: ''
+                })
+              }}
+            >
+              <Select.Option value='contain'>包含</Select.Option>
+              <Select.Option value='cover'>覆盖</Select.Option>
+            </Select> */}
+          </>}
+      </div>
+    </>
   )
 })
 
