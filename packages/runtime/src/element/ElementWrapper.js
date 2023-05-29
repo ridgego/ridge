@@ -410,44 +410,56 @@ class ElementWrapper {
         Object.assign(this.el.style, style)
       }
     }
-    // 设置编辑器的属性
-    if (this.mode === 'edit') {
-      // 编辑器特有：锁定
-      if (configStyle.locked === true) {
-        this.el.classList.add('is-locked')
-      }
-    }
     this.invoke('updateStyle', [this])
 
     this.updateAddonStyles(configStyle, this.el)
   }
 
+  /**
+   * 更新扩展的CSS样式
+   * @param {*} configStyle
+   * @param {*} el
+   */
   updateAddonStyles (configStyle, el) {
     if (configStyle.visible === false) {
-      this.el.classList.add('is-hidden')
+      el.classList.add('is-hidden')
+    }
+    // 设置编辑器的属性
+    if (this.mode === 'edit') {
+      // 编辑器特有：锁定
+      if (configStyle.locked === true) {
+        el.classList.add('is-locked')
+      }
+    }
+
+    if (configStyle.zIndex) {
+      el.style.zIndex = configStyle.zIndex
+    }
+    if (configStyle.borderRadius) {
+      el.style.borderRadius = configStyle.borderRadius
     }
 
     if (configStyle.opacity != null) {
-      this.el.style.opacity = configStyle.opacity + '%'
+      el.style.opacity = configStyle.opacity + '%'
     }
     if (configStyle.padding) {
-      this.el.style.padding = configStyle.padding
+      el.style.padding = configStyle.padding
     }
     if (configStyle.margin) {
-      this.el.style.margin = configStyle.margin
+      el.style.margin = configStyle.margin
     }
     if (configStyle.borderStyle) {
-      this.el.style.borderStyle = configStyle.borderStyle
+      el.style.borderStyle = configStyle.borderStyle
     }
     if (configStyle.borderColor) {
-      this.el.style.borderColor = configStyle.borderColor
+      el.style.borderColor = configStyle.borderColor
     }
     if (configStyle.borderWidth) {
-      this.el.style.borderWidth = configStyle.borderWidth
+      el.style.borderWidth = configStyle.borderWidth
     }
 
     Object.assign(
-      this.el.style,
+      el.style,
       getBackground(configStyle.background, this.ridge, this.mode)
     )
   }

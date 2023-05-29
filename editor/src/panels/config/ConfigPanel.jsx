@@ -65,24 +65,48 @@ const COMPONENT_STYLE_FIELDS = [{
   label: '显示',
   type: 'boolean',
   control: 'checkbox',
+  width: '50%',
   field: 'style.visible',
   fieldEx: 'styleEx.visible'
 }, {
   label: '透明度',
   type: 'number',
+  width: '50%',
   field: 'style.opacity',
   fieldEx: 'styleEx.opacity'
+}, {
+  label: '层',
+  type: 'number',
+  width: '50%',
+  field: 'style.zIndex'
 }, {
   label: '内边距',
   type: 'padding',
   field: 'style.padding'
 }, {
-  label: '边框颜色',
+  label: '圆角',
+  type: 'padding',
+  position: 'corner',
+  field: 'style.borderRadius'
+}, {
+  label: '边框',
   type: 'color',
+  width: '72px',
   field: 'style.borderColor'
 }, {
-  label: '边框宽度',
+  type: 'select',
+  width: '80px',
+  field: 'style.borderStyle',
+  optionList: [{
+    label: '实线',
+    value: 'solid'
+  }, {
+    label: '虚线',
+    value: 'dashed'
+  }]
+}, {
   type: 'padding',
+  width: 140,
   field: 'style.borderWidth'
 }, {
   label: '背景',

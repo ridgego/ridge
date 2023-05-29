@@ -59,7 +59,7 @@ export default class ObjectForm extends React.Component {
       event: (col, readonly, options) => <EventEdit className='event-field' noLabel field={col.field} options={{ label: col.label, ...options }} />,
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
-      padding: (col, readonly) => <PaddingEdit label={col.label} field={col.field} disabled={readonly} />,
+      padding: (col, readonly) => <PaddingEdit disabled={readonly} {...col} />,
       rect: (col, readonly) => <RectEdit label={col.label} field={col.field} noLabel disabled={readonly} />,
       font: (col, readonly) => <FontEdit label={col.label} field={col.field} disabled={readonly} />,
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,
@@ -92,8 +92,10 @@ export default class ObjectForm extends React.Component {
       field.control = field.type
     }
     const RenderField = this.getRenderField(field, readonly, options)
-    RenderField.props.fieldStyle = {
-      flex: 1
+    if (field.label) {
+      RenderField.props.label = field.label
+    } else {
+      RenderField.props.noLabel = true
     }
     if (field.type === 'divider') {
       return <Divider margin='0' align='center'>{field.label || ''}</Divider>

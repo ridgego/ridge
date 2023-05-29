@@ -19,7 +19,7 @@ export const PopColorPicker = ({
           >清除颜色
           </Button>
           <SketchPicker
-            color={value}
+            color={value || '#fff'}
             width={220}
             style={{
               boxShadow: 'none'

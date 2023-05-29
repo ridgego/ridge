@@ -29,7 +29,7 @@ const BackgroundEdit = withField(({
       >
         <Select.Option value='color'>纯色</Select.Option>
         <Select.Option value='image'>图片</Select.Option>
-        <Select.Option value='code'>编码</Select.Option>
+        <Select.Option value='code'>自定义编码</Select.Option>
       </Select>
       <div>
         {backgroundValue.type === 'color' &&
