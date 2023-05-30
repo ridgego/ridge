@@ -11,6 +11,7 @@ export default {
   props: [{
     name: 'value',
     label: '取值',
+    connect: true,
     type: 'string',
     value: ''
   }, {

@@ -14,12 +14,14 @@ const BackgroundEdit = withField(({
     type: 'color'
   }
   return (
-    <>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4
+    }}
+    >
       <Select
         size='small'
-        style={{
-          marginBottom: 10
-        }}
         value={backgroundValue.type} onChange={val => {
           onChange({
             type: val,
@@ -74,7 +76,7 @@ const BackgroundEdit = withField(({
             </Select> */}
           </>}
       </div>
-    </>
+    </div>
   )
 })
 

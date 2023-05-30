@@ -31,7 +31,7 @@ class PageElementManager {
       this.pageConfig.reducers = []
     }
 
-    if (this.mode === 'run') {
+    if (this.mode !== 'edit') {
       this.pageStore = new Store(this.pageConfig)
     }
 

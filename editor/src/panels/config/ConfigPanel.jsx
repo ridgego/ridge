@@ -112,6 +112,10 @@ const COMPONENT_STYLE_FIELDS = [{
   label: '背景',
   control: 'background',
   field: 'style.background'
+}, {
+  label: '阴影',
+  control: 'boxshadow',
+  field: 'style.boxShadow'
 }]
 
 const PAGE_FIELDS = [

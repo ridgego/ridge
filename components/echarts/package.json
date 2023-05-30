@@ -13,7 +13,7 @@
     "pd": "npm publish --tag dev"
   },
   "externals": [
-    "bulma.min.css"
+    "echarts.min.js"
   ],
   "files": [
     "build"
@@ -21,20 +21,6 @@
   "author": "",
   "license": "ISC",
   "components": [
-    "button",
-    "checkbox",
-    "deleteBtn",
-    "dropdown",
-    "icon",
-    "image",
-    "input",
-    "notification",
-    "progress",
-    "radio",
-    "select",
-    "tabs",
-    "tag",
-    "text",
-    "textarea"
+    "line-base"
   ]
 }

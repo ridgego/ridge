@@ -458,6 +458,10 @@ class ElementWrapper {
       el.style.borderWidth = configStyle.borderWidth
     }
 
+    if (configStyle.boxShadow) {
+      el.style.boxShadow = configStyle.boxShadow
+    }
+
     Object.assign(
       el.style,
       getBackground(configStyle.background, this.ridge, this.mode)

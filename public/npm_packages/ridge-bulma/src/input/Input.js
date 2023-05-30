@@ -29,8 +29,21 @@ ${iconAfter
   }
 
   mounted () {
+    this.updateBindEvents()
+  }
+
+  updateBindEvents () {
+    const { onChange, input } = this.props
+    this.el.querySelector('input').oninput = (evt) => {
+      const value = evt.target.value
+      input && input(value)
+      if (value !== this.props.value) {
+        onChange && onChange(value)
+      }
+    }
   }
 
   updated () {
+    this.updateBindEvents()
   }
 }

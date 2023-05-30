@@ -9,6 +9,10 @@ export default class Button extends BulmaBase {
   }
 
   mounted () {
+    this.updateBindEvents()
+  }
+
+  updateBindEvents () {
     const { onTabChange, input } = this.props
     this.el.querySelectorAll('li').forEach(li => {
       li.onclick = () => {
@@ -19,5 +23,9 @@ export default class Button extends BulmaBase {
         }
       }
     })
+  }
+
+  updated () {
+    this.updateBindEvents()
   }
 }

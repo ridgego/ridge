@@ -31,11 +31,6 @@ export default {
       label: '原尺寸',
       value: 'none'
     }]
-  }, {
-    name: 'rectStyle',
-    label: '块样式',
-    type: 'rect',
-    value: {}
   }],
   events: [{
     label: '点击事件',
