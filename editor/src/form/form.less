@@ -161,5 +161,31 @@
 }
 
 
-
+.series-table-edit {
+  border: 1px solid var(--semi-color-border);
+  border-collapse: collapse;
+  font-size: 14px;
+  border-right: none;
+  border-bottom: none;
+  th {
+    background-color: var(--semi-color-fill-1);
+  }
+  th:nth-child(1), td:nth-child(1), th.column-plus {
+    background-color: var(--semi-color-fill-1);
+    width: 28px;
+    min-width: 28px;
+  }
+  td, th {
+    border: 1px solid var(--semi-color-border);
+    padding: 0.1rem 0.5rem;
+    vertical-align: middle;
+    min-width: 60px;
+  }
+  th.column-plus, td.row-plus {
+    cursor: pointer;
+    &:hover {
+      background-color: var(--semi-color-fill-0);
+    }
+  }
+}
 

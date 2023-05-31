@@ -19,6 +19,7 @@ import ToggleIcon from './with-fields/ToggleIcon.jsx'
 import RectEdit from './with-fields/RectEdit.jsx'
 import FontEdit from './with-fields/FontEdit.jsx'
 import ArrayEdit from './with-fields/ArrayEdit.jsx'
+import SeriesTableEdit from './with-fields/SeriesTableEdit.jsx'
 import './form.less'
 
 export default class ObjectForm extends React.Component {
@@ -62,7 +63,8 @@ export default class ObjectForm extends React.Component {
       color: (col, readonly) => <ColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       presetcolorpicker: (col, readonly) => <PresetColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       json: (col, readonly) => <JSONEdit label={col.label} field={col.field} disabled={readonly} />,
-      array: (col) => <ArrayEdit label={col.label} field={col.field} options={col} />
+      array: (col) => <ArrayEdit label={col.label} field={col.field} options={col} />,
+      SeriesData: (col) => <SeriesTableEdit {...col} />
     }
   }
 
