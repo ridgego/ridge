@@ -17,17 +17,9 @@ export default class PackageManager {
   async loadPackages () {
     const packagesLoading = []
 
-    // Check & Load Debug Pacakge.json
-    const debugPkg = await ridge.loader.getDebugPackage()
-    if (debugPkg) {
-      packagesLoading.push(await ridge.loader.getPackageJSON(debugPkg.name))
-    }
-
     // Load Package
     for (const pkname of this.packageNames) {
-      if (debugPkg == null || (debugPkg.name !== pkname)) {
-        packagesLoading.push(await ridge.loader.getPackageJSON(pkname))
-      }
+      packagesLoading.push(await ridge.loader.getPackageJSON(pkname))
     }
 
     await Promise.allSettled(packagesLoading)

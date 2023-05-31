@@ -175,6 +175,27 @@
     width: 28px;
     min-width: 28px;
   }
+  td.row-delete {
+    display: none;
+    width: 28px;
+    min-width: 28px;
+    line-height: 14px;
+    color: var(--semi-color-danger);
+    border: none;
+  }
+  td.column-delete {
+    line-height: 14px;
+    cursor: pointer;
+    color: var(--semi-color-danger);
+  }
+  tr:hover {
+    td.row-delete {
+      width: 28px;
+      min-width: 28px;
+      cursor: pointer;
+      display: table-cell;
+    }
+  }
   td, th {
     border: 1px solid var(--semi-color-border);
     padding: 0.1rem 0.5rem;

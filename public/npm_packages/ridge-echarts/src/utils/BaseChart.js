@@ -31,7 +31,22 @@ class BaseChart {
       this.props = props
     }
     if (this.chartInstance) {
-      this.chartInstance.setOption(this.getChartOptions())
+      const chartOptions = this.getChartOptions()
+      if (this.props.legend) {
+        chartOptions.legend = {
+          show: true
+        }
+      }
+      chartOptions.xAxis.axisLabel = {
+        interval: 0
+      }
+      // chartOptions.grid = {
+      //   left: '10%',
+      //   top: 60,
+      //   right: '10%',
+      //   bottom: 20
+      // }
+      this.chartInstance.setOption(chartOptions)
     }
     if (this.props.loading) {
       this.chartInstance.showLoading()

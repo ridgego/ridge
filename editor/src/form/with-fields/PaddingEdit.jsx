@@ -15,6 +15,7 @@ export const Padding = ({
         size='small' value={value} onChange={onChange} suffix={
           <Popover
             trigger='click'
+            stopPropagation
             content={
               <div className='input-padding-pop'>
                 <div

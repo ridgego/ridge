@@ -7,20 +7,14 @@ export default {
   type: 'vanilla',
   props: [{
     name: 'chartData',
-    label: '',
+    label: '数据',
     bindable: true,
     type: 'SeriesData',
     value: {}
   }, {
-    name: 'loading',
-    label: '加载中',
-    connect: true,
-    type: 'boolean',
-    value: false
-  }, {
-    name: 'darkMode',
-    label: '暗色',
-    connect: true,
+    name: 'legend',
+    label: '图例',
+    width: '50%',
     type: 'boolean',
     value: false
   }],

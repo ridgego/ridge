@@ -501,8 +501,12 @@ class ComponentLoader {
   }
 
   prefixPackageJSON (packageObject, prefix) {
-    if (packageObject.icon && !packageObject.icon.startsWith('data:image')) {
-      packageObject.icon = `${prefix}/${packageObject.icon}`
+    if (packageObject.icon) {
+      if (!packageObject.icon.startsWith('data:image')) {
+        packageObject.icon = `${prefix}/${packageObject.icon}`
+      }
+    } else {
+      packageObject.icon = `${prefix}/icon.svg`
     }
 
     for (const com of packageObject.components ?? []) {
