@@ -1,4 +1,4 @@
-import { withField } from '@douyinfe/semi-ui'
+import { Popover, Button, withField } from '@douyinfe/semi-ui'
 import { IconMinusCircleStroked } from '@douyinfe/semi-icons'
 const SeriesTableEdit = ({
   value,
@@ -123,36 +123,61 @@ const SeriesTableEdit = ({
       categories,
       series
     })
-
-    console.log(pastedData)
   }
 
   const pasteOnSerie = (evt, ci, si) => {
+    evt.stopPropagation()
+    evt.preventDefault()
+    const clipboardData = evt.clipboardData || window.clipboardData
+    const pastedData = clipboardData.getData('text/plain')
 
+    const lines = pastedData.split('\r\n')
+
+    for (let i = 0; i < lines.length; i++) {
+      const lineDataArray = lines[i].split(/ +|\t|,/).filter(n => n)
+
+      for (let v = 0; v < lineDataArray.length; v++) {
+        if (series[si + v]) {
+          series[si + v].data[ci + i] = parseFloat(lineDataArray[v]) || 0
+        }
+      }
+    }
+
+    onChange({
+      categories,
+      series
+    })
   }
 
   return (
     <>
-      <table className='series-table-edit'>
-        <tr>
-          <th />
-          <th>分类</th>
-          {series.map((serie, i) => <th key={i} onBlur={(evt) => serieNameChange(i, evt)} contentEditable>{serie.name}</th>)}
-          <th className='column-plus' placeholder='增加一个数据系列' onClick={addSerie}>+</th>
-        </tr>
-        {categories.map((ct, i) =>
-          <tr key={i}>
-            <td>{i}</td>
-            <td contentEditable onBlur={(evt) => categoryChange(i, evt)} onPaste={evt => pasteOnCategory(evt, i)}>{ct}</td>
-            {series.map((serie, k) => <td key={k} contentEditable onBlur={(evt) => seriesValueChange(i, k, evt)} onPaste={evt => pasteOnSerie(evt, i, k)}>{serie.data[i]}</td>)}
-            <td className='row-delete' onClick={() => deleteCategory(i)}><IconMinusCircleStroked /></td>
-          </tr>)}
-        <tr>
-          <td className='row-plus' placeholder='增加一个' onClick={addCategory}>+</td>
-          <td />
-          {series.map((serie, k) => <td key={k} className='column-delete' onClick={() => deleteSerie(k)}><IconMinusCircleStroked /></td>)}
-        </tr>
-      </table>
+      <Popover
+        trigger='click'
+        content={
+          <table className='series-table-edit'>
+            <tr>
+              <th />
+              <th>分类</th>
+              {series.map((serie, i) => <th key={i} onBlur={(evt) => serieNameChange(i, evt)} contentEditable>{serie.name}</th>)}
+              <th className='column-plus' placeholder='增加一个数据系列' onClick={addSerie}>+</th>
+            </tr>
+            {categories.map((ct, i) =>
+              <tr key={i}>
+                <td>{i}</td>
+                <td contentEditable onBlur={(evt) => categoryChange(i, evt)} onPaste={evt => pasteOnCategory(evt, i)}>{ct}</td>
+                {series.map((serie, k) => <td key={k} contentEditable onBlur={(evt) => seriesValueChange(i, k, evt)} onPaste={evt => pasteOnSerie(evt, i, k)}>{serie.data[i]}</td>)}
+                <td className='row-delete' onClick={() => deleteCategory(i)}><IconMinusCircleStroked /></td>
+              </tr>)}
+            <tr>
+              <td className='row-plus' placeholder='增加一个' onClick={addCategory}>+</td>
+              <td />
+              {series.map((serie, k) => <td key={k} className='column-delete' onClick={() => deleteSerie(k)}><IconMinusCircleStroked /></td>)}
+            </tr>
+          </table>
+      }
+      >
+        <Button size='small' type='primary'>编辑</Button>
+      </Popover>
 
     </>
   )

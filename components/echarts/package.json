@@ -21,6 +21,8 @@
   "author": "",
   "license": "ISC",
   "components": [
+    "bar-base",
+    "bar-race",
     "line-base"
   ]
 }

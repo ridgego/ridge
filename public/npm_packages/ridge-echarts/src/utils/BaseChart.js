@@ -36,16 +36,14 @@ class BaseChart {
         chartOptions.legend = {
           show: true
         }
+      } else {
+        chartOptions.legend = {
+          show: false
+        }
       }
       chartOptions.xAxis.axisLabel = {
         interval: 0
       }
-      // chartOptions.grid = {
-      //   left: '10%',
-      //   top: 60,
-      //   right: '10%',
-      //   bottom: 20
-      // }
       this.chartInstance.setOption(chartOptions)
     }
     if (this.props.loading) {
