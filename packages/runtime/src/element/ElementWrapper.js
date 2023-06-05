@@ -94,6 +94,8 @@ class ElementWrapper {
   }
 
   async loadAndMount (el) {
+    await this.preload()
+
     this.el = el
     this.el.classList.add('ridge-element')
     this.el.setAttribute('ridge-id', this.id)
@@ -101,7 +103,6 @@ class ElementWrapper {
     this.el.wrapper = this
     this.el.componentPath = this.componentPath
 
-    await this.preload()
     this.mount(el)
   }
 
@@ -278,7 +279,10 @@ class ElementWrapper {
   /**
      * 执行组件初次加载 mount到具体DOM元素
      */
-  mount () {
+  mount (el) {
+    if (el) {
+      this.el = el
+    }
     this.el.hasMethod = this.hasMethod.bind(this)
     this.el.invoke = this.invoke.bind(this)
     this.el.forceUpdate = this.forceUpdate.bind(this)
@@ -491,7 +495,7 @@ class ElementWrapper {
   }
 
   setScopeStateValues (state) {
-    this.scopeState = Object.assign({}, this.scopeState, state)
+    this.scopeState = state
 
     this.forceUpdate()
   }
@@ -518,11 +522,13 @@ class ElementWrapper {
    * 强制更新、计算所有属性
    */
   forceUpdate () {
-    this.updateExpressionedStyle()
-    this.updateStyle()
+    if (this.el) {
+      this.updateExpressionedStyle()
+      this.updateStyle()
 
-    this.updateExpressionedProperties()
-    this.renderUpdate()
+      this.updateExpressionedProperties()
+      this.renderUpdate()
+    }
   }
 
   /**

@@ -95,10 +95,14 @@ export default class Editor extends React.Component {
     on(EVENT_WORKSPACE_RESET, () => {
       this.saveCloseCurrentPage()
     })
+
+    this.saveTaskInterval = setInterval(() => {
+      this.saveCurrentPage()
+    }, 3000)
   }
 
   async saveCurrentPage () {
-    if (this.pageElementManager) {
+    if (this.pageElementManager && !this.state.modeRun) {
       const pageJSONObject = this.pageElementManager.getPageJSON()
       this.pageConfig.content = pageJSONObject
       trace('Save Page', this.pageConfig.id, pageJSONObject)
@@ -154,13 +158,6 @@ export default class Editor extends React.Component {
     workspaceControl.setPageManager(this.pageElementManager)
 
     ridge.pageElementManagers = this.pageElementManager
-
-    if (this.saveTaskInterval) {
-      clearInterval(this.saveTaskInterval)
-    }
-    this.saveTaskInterval = setInterval(() => {
-      this.saveCurrentPage()
-    }, 3000)
   }
 
   togglePanel (panel) {

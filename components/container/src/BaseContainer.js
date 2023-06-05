@@ -51,14 +51,15 @@ export default class BaseContainer {
   mounted () {}
 
   async mount (el) {
+    this.el = el
     const containerDiv = document.createElement('div')
+    this.containerEl = containerDiv
 
     if (this.className) {
       containerDiv.classList.add(this.className)
     }
     el.appendChild(containerDiv)
 
-    this.containerEl = containerDiv
     this.wrapper = this.props.__elementWrapper
     this.mode = this.props.__mode
     Object.assign(this.containerEl.style, {
@@ -66,7 +67,6 @@ export default class BaseContainer {
       height: '100%'
     }, this.getContainerStyle())
 
-    this.mounted()
     if (this.props.children) {
       for (const childWrapper of this.props.children) {
         const childDiv = document.createElement('div')
@@ -75,6 +75,7 @@ export default class BaseContainer {
         this.updateChildStyle(childWrapper)
       }
     }
+    await this.mounted()
   }
 
   /**

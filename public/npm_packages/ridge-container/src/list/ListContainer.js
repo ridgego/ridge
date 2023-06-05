@@ -1,87 +1,126 @@
-import { border } from 'ridge-prop-utils'
+import Container from '../Container'
 
-export default class ListContainer {
-  constructor (props) {
-    this.props = props
-  }
-
-  isEditMode () {
-    if (this.props.__pageManager && this.props.__pageManager.mode === 'edit') {
-      return true
-    } else {
-      return false
-    }
-  }
-
+export default class ListContainer extends Container {
   async mount (el) {
-    const { renderItem } = this.props
-
     this.el = el
-    this.containerEl = document.createElement('div')
-    this.containerEl.classList.add('list-container')
-    Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
-    el.appendChild(this.containerEl)
+    const containerDiv = document.createElement('div')
+    this.el.appendChild(containerDiv)
 
-    if (renderItem) {
-      await renderItem.preload(true)
+    this.containerEl = containerDiv
+    this.wrapper = this.props.__elementWrapper
+    this.mode = this.props.__mode
+    Object.assign(this.containerEl.style, {
+      width: '100%',
+      height: '100%'
+    }, this.getContainerStyle())
+
+    if (this.props.renderItem) {
+      await this.props.renderItem.preload()
     }
-    if (this.isEditMode()) { // 编辑
-      this.renderInEditor()
+    if (this.mode === 'edit') {
+      // 编辑时
+      if (this.props.renderItem) {
+        const renderEl = document.createElement('div')
+        this.containerEl.appendChild(renderEl)
+        this.props.renderItem.loadAndMount(renderEl)
+      }
     } else {
       this.renderUpdateListItems()
     }
   }
 
-  /**
-   * 创建/更新编辑器下渲染
-   */
-  renderInEditor () {
-    const { renderItem } = this.props
-    this.containerEl.textContent = ''
-    if (!this.containerEl.querySelector('SLOT')) {
-      const slotEl = document.createElement('slot')
-      slotEl.setAttribute('name', 'renderItem')
-      slotEl.elementWrapper = this.props.__elementWrapper
-      this.containerEl.appendChild(slotEl)
-      this.slotEl = slotEl
-    }
+  getContainerStyle () {
+    return {}
+  }
 
-    this.slotEl.style.display = 'block'
-    this.slotEl.style.width = 'calc(100% - 20px)'
-    this.slotEl.style.height = 'calc(100% - 20px)'
-
-    if (renderItem) {
-      if (!renderItem.isMounted()) {
-        const el = document.createElement('div')
-        renderItem.mount(el)
-      }
-      // 每次放入都要设置到固定位置
-      renderItem.setConfigStyle({
-        position: 'relative',
-        x: 0,
-        y: 0
-      })
-      this.slotEl.appendChild(renderItem.el)
-      this.slotEl.setAttribute('tpl', renderItem.id)
+  isDroppable () {
+    if (this.props.renderItem) {
+      return false
     } else {
-      this.slotEl.style.border = '1px dashed rgb(164,224,167)'
-      this.slotEl.style.display = 'flex'
-      this.slotEl.style.alignItems = 'center'
-      this.slotEl.style.justifyContent = 'center'
-      this.slotEl.style.fontSize = '14px'
-      this.slotEl.innerHTML = '请拖拽放入列表项模板'
+      return true
     }
+  }
+
+  // 拖动进入
+  onDragOver (wrapper) {
+    const shadowNode = this.containerEl.querySelector(':scope > .drop-shadow')
+
+    if (!shadowNode) {
+      const shadowNode = document.createElement('div')
+      shadowNode.classList.add('drop-shadow')
+      shadowNode.style.width = '100%'
+      shadowNode.style.height = '100%'
+
+      shadowNode.style.borderRadius = 'var(--semi-border-radius-small)'
+      shadowNode.style.border = '2px dashed var(--semi-color-primary)'
+      shadowNode.style.backgroundColor = 'var(--semi-color-primary-light-default)'
+      this.containerEl.appendChild(shadowNode)
+    }
+  }
+
+  // 拖动离开
+  onDragOut () {
+    if (this.containerEl.querySelector(':scope > .drop-shadow')) {
+      this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
+    }
+  }
+
+  getChildren () {
+    return []
+  } // ?
+
+  // 增加
+  appendChild (wrapper, x, y) {
+    const el = wrapper.el
+    if (this.containerEl.querySelector(':scope > .drop-shadow')) {
+      this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
+    }
+    this.containerEl.appendChild(el)
+
+    Object.assign(el.style, wrapper.getResetStyle(), {
+      width: wrapper.config.style.width + 'px',
+      height: wrapper.config.style.height + 'px'
+    })
+
+    this.props.renderItem = wrapper.id
+
+    return {
+      renderItem: wrapper.id
+    }
+  }
+
+  updateChildStyle (wrapper) {
+    Object.assign(wrapper.el.style, wrapper.getResetStyle(), {
+      width: wrapper.config.style.width + 'px',
+      height: wrapper.config.style.height + 'px'
+    })
+  }
+
+  removeChild (wrapper, isDelete) {
+    // 原地阴影
+    if (wrapper.el.parentElement === this.containerEl) {
+      if (!isDelete) {
+        this.onDragOver()
+      }
+      this.containerEl.removeChild(wrapper.el)
+    } else {
+      console.warn('not children ')
+    }
+    this.props.renderItem = null
+    return {
+      renderItem: null
+    }
+  } // 移除
+
+  update (props) {
+    this.props = props
+    this.renderUpdateListItems()
   }
 
   /**
    * 运行期间更新渲染列表
    */
   renderUpdateListItems () {
-    // 可能会 editor/preview 切换
-    if (this.slotEl) {
-      this.slotEl.parentElement.removeChild(this.slotEl)
-      this.slotEl = null
-    }
     const { itemKey, dataSource, renderItem } = this.props
     if (dataSource && renderItem) {
       for (let index = 0; index < dataSource.length; index++) {
@@ -114,6 +153,7 @@ export default class ListContainer {
             this.containerEl.appendChild(newEl)
           }
           const newWrapper = renderItem.clone()
+          newWrapper.parentWrapper = this.wrapper
           newWrapper.setScopeStateValues({
             $hover: false,
             $item: data,
@@ -121,16 +161,6 @@ export default class ListContainer {
             $list: dataSource
           })
           newWrapper.mount(newEl)
-          newEl.onmouseenter = (e) => {
-            newWrapper.setScopeStateValues({
-              $hover: true
-            })
-          }
-          newEl.onmouseleave = (e) => {
-            newWrapper.setScopeStateValues({
-              $hover: false
-            })
-          }
         }
       }
 
@@ -141,28 +171,6 @@ export default class ListContainer {
 
       this.itemInstanceWrappers = Array.from(this.containerEl.childNodes).map(el => el.elementWrapper)
     }
-  }
-
-  getContainerStyle () {
-    const style = {
-      width: '100%',
-      height: '100%',
-      overflow: 'overlay'
-    }
-
-    Object.assign(style, border.style(this.props))
-
-    if (!this.props.grid) {
-      style.display = 'flex'
-      if (this.props.itemLayout === 'vertical') {
-        style.flexDirection = 'column'
-      } else if (this.props.itemLayout === 'horizontal') {
-        style.flexDirection = 'row'
-      }
-      style.flexWrap = 'wrap'
-      style.gap = '10px'
-    }
-    return style
   }
 
   getSlotStyle () {
@@ -188,19 +196,5 @@ export default class ListContainer {
       x: 0,
       y: 0
     })
-  }
-
-  /**
-   * 按属性联动方法
-   * @param {*} props
-   */
-  update (props) {
-    this.props = props
-    if (this.isEditMode()) {
-      this.renderInEditor()
-    } else {
-      this.renderUpdateListItems()
-    }
-    Object.assign(this.containerEl.style, this.getContainerStyle(this.props))
   }
 }

@@ -162,22 +162,20 @@ class AppFileList extends React.Component {
   /**
    * 实时检查名称是否冲突，这个只更新currentEditValid状态
    */
-  editLabelCheck = val => {
+  editLabelCheck = (val, key) => {
+    const trimVal = trim(val)
     this.setState({
-      currentEditValue: trim(val)
+      currentEditValue: trimVal
     })
-    if (trim(val) === '') {
+    if (trimVal === '') {
       this.setState({
         currentEditValid: false
       })
     } else {
-      const siblings = this.getCurrentSiblings().filter(file => {
-
+      const siblings = this.getCurrentSiblings().filter(sbl => {
+        return sbl.label === trimVal && sbl.key !== key
       })
 
-      this.state.files.filter(file => {
-        return (file.parent === this.state.currentParent && file.name === trim(val) && file.id !== this.state.currentEditKey)
-      })
       if (siblings.length === 0) {
         this.setState({
           currentEditValid: true
@@ -465,7 +463,7 @@ class AppFileList extends React.Component {
           <Input
             validateStatus={!currentEditValid ? 'error' : 'default'}
             onChange={(val) => {
-              this.editLabelCheck(val)
+              this.editLabelCheck(val, currentEditKey)
             }} size='small' defaultValue={label}
             suffix={<IconTick style={{ cursor: 'pointer' }} onClick={() => this.checkUpdateEditName()} color={!currentEditValid ? 'error' : 'default'} />}
           />}

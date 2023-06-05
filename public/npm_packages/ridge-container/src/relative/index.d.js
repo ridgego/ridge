@@ -9,11 +9,6 @@ export default {
     name: 'children',
     hidden: true,
     type: 'children'
-  }, {
-    name: 'rectStyle',
-    label: '块样式',
-    type: 'rect',
-    value: {}
   }],
   childStyle: [{
     label: 'X',

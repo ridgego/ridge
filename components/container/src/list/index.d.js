@@ -1,5 +1,4 @@
 import ListContainer from './ListContainer'
-import { border } from 'ridge-prop-utils'
 export default {
   name: 'list-container',
   component: ListContainer,
@@ -31,14 +30,6 @@ export default {
     }],
     value: 'vertical'
   }, {
-    name: 'grid',
-    label: '网格',
-    type: 'object',
-    control: 'grid',
-    value: {
-      enabled: false
-    }
-  }, {
     name: 'renderItem',
     label: '单项模板',
     type: 'slot'
@@ -46,7 +37,7 @@ export default {
     name: 'coverContainer',
     label: '填充',
     type: 'boolean'
-  }, ...border.props],
-  width: 180,
-  height: 60
+  }],
+  width: 420,
+  height: 360
 }

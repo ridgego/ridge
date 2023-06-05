@@ -8,7 +8,6 @@ export default class RelativeContainer extends BaseContainer {
       boxSizing: 'border-box',
       position: 'relative'
     }
-    Object.assign(containerStyle, this.props.rectStyle)
     return containerStyle
   }
 

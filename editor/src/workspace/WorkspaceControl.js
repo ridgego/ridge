@@ -593,13 +593,13 @@ export default class WorkSpaceControl {
     const filtered = Array.from(droppableElements).filter(el => {
       const { x, y, width, height } = el.getBoundingClientRect()
       // Exclude: droppables in the dragging element
+      // 容器判断 isDroppable为false
+      if (el.invoke('isDroppable', [dragEl]) === false) {
+        return false
+      }
+
       if (dragEl) { // 现有元素拖拽
         if (dragEl.contains(el)) { // 拖拽节点包含了可放置容器
-          return false
-        }
-
-        // 容器判断 isDroppable为false
-        if (el.invoke('isDroppable', [dragEl]) === false) {
           return false
         }
         // Exclude: slot el with element dropped
