@@ -6,7 +6,7 @@ import BackUpService from './BackUpService.js'
 import { ridge, emit } from './RidgeEditService.js'
 import { EVENT_APP_OPEN } from '../constant.js'
 import { blobToDataUrl, dataURLtoBlob } from '../utils/blob.js'
-import { getFileTree } from '../panels/files/buildFileTree.js'
+import { getFileTree, eachNode } from '../panels/files/buildFileTree.js'
 const { nanoid } = require('../utils/string')
 
 /**
@@ -45,15 +45,19 @@ export default class ApplicationService {
 
   async updateAppFileTree (updateBlob) {
     const files = await this.getFiles()
-    this.fileTree = getFileTree(files, async file => {
-      if (updateBlob && file.mimeType && file.mimeType.indexOf('image/') > -1) {
-        this.store.getItem(file.key).then(async dataUrl => {
+    this.fileTree = getFileTree(files)
+
+    await eachNode(this.fileTree, async (file) => {
+      if (file.mimeType && file.mimeType.indexOf('image/') > -1) {
+        if (this.dataUrlByPath[file.path] == null) {
+          const dataUrl = await this.store.getItem(file.key)
           const blob = await dataURLtoBlob(dataUrl)
           this.dataUrlByPath[file.path] = window.URL.createObjectURL(blob)
-          file.url = this.dataUrlByPath[file.path]
-        })
+        }
+        file.dataUrl = this.dataUrlByPath[file.path]
       }
     })
+
     return this.fileTree
   }
 
@@ -119,7 +123,7 @@ export default class ApplicationService {
       name: await this.getNewFileName(parentId, blob.name || name, n => `(${n})`),
       parent: parentId
     })
-    this.updateAppFileTree(true)
+    await this.updateAppFileTree()
     return true
   }
 
@@ -229,7 +233,8 @@ export default class ApplicationService {
     if (filter) {
       query.name = new RegExp(filter)
     }
-    return await this.collection.find(query)
+    const files = await this.collection.find(query)
+    return files
   }
 
   async getFile (id) {
@@ -352,7 +357,11 @@ export default class ApplicationService {
   }
 
   getDataUrl (path) {
-    return this.dataUrlByPath[path]
+    if (path.startsWith('http')) {
+      return path
+    } else {
+      return this.dataUrlByPath[path]
+    }
   }
 
   async exportAppArchive () {

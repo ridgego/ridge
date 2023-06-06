@@ -8,15 +8,9 @@ export default {
   props: [{
     name: 'text',
     label: '内容',
-    bindable: true,
+    connect: true,
     type: 'string',
     value: '文字'
-  }, {
-    name: 'padding',
-    label: '内边距',
-    bindable: false,
-    type: 'padding',
-    value: '0 0 0 0'
   }, {
     name: 'fontStyle',
     label: '样式',

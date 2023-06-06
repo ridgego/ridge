@@ -40,6 +40,9 @@ class ElementWrapper {
 
     // 局部状态
     this.scopeState = {}
+
+    // 类列表
+    this.classList = []
   }
 
   isRoot () {
@@ -54,11 +57,12 @@ class ElementWrapper {
    * 复制组件实例到manager，支持跨页面复制
    * @returns
    */
-  cloneTo (pageManager) {
-    const cloned = this.clone(pageManager)
+  clone (pageManager) {
+    const cloned = this.cloneElement(pageManager)
 
+    // const childProperties = {}
     cloned.forEachChildren((childWrapper, propType, propName, index) => {
-      const childCloned = childWrapper.cloneTo(pageManager)
+      const childCloned = childWrapper.clone(pageManager)
       childCloned.config.parent = cloned.id
       // 更新子项配置
       if (index != null) {
@@ -66,6 +70,16 @@ class ElementWrapper {
       } else {
         cloned.config.props[propName] = childCloned.id
       }
+
+      // 复制更新属性
+      // if (index != null) {
+      //   if (childProperties[propName] == null) {
+      //     childProperties[propName] = []
+      //     childProperties[propName][index] = childCloned
+      //   } else {
+      //     childProperties[propName] = childCloned
+      //   }
+      // }
     })
     return cloned
   }
@@ -73,7 +87,7 @@ class ElementWrapper {
   /**
    * 原始复制动作，只复制组件本身
    */
-  clone (pageManager) {
+  cloneElement (pageManager) {
     const cloned = new ElementWrapper({
       mode: this.mode,
       config: this.toJSON(),
@@ -95,14 +109,6 @@ class ElementWrapper {
 
   async loadAndMount (el) {
     await this.preload()
-
-    this.el = el
-    this.el.classList.add('ridge-element')
-    this.el.setAttribute('ridge-id', this.id)
-    this.el.elementWrapper = this
-    this.el.wrapper = this
-    this.el.componentPath = this.componentPath
-
     this.mount(el)
   }
 
@@ -182,7 +188,6 @@ class ElementWrapper {
    * 初始化组件属性、事件
    */
   initPropsAndEvents () {
-    this.slotProps = []
     if (!this.componentDefinition) {
       return
     }
@@ -192,7 +197,6 @@ class ElementWrapper {
     }
 
     this.adjustSize = this.componentDefinition.adjustSize
-    this.resizable = this.componentDefinition.resizable
 
     // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
@@ -225,7 +229,7 @@ class ElementWrapper {
       if (prop.name === 'children') {
         this.children = []
         this.isContainer = true
-        this.el.classList.add('ridge-container')
+        this.classList.push('ridge-container')
 
         // 写入子级的具体包装类
         if (Array.isArray(this.config.props.children)) {
@@ -239,8 +243,7 @@ class ElementWrapper {
         }
       } else if (prop.type === 'slot') {
         this.isContainer = true
-        this.el.classList.add('ridge-droppable')
-        this.slotProps.push(prop.name)
+        this.classList.push('ridge-droppable')
         // 写入slot的包装类
         if (this.config.props[prop.name] && typeof this.config.props[prop.name] === 'string') {
           const childrenWrapper = this.pageManager.getElement(this.config.props[prop.name])
@@ -257,19 +260,6 @@ class ElementWrapper {
         this.emit(event.name, ...args)
       }
     }
-
-    if (!this.isCreate) {
-      this.updateAssetsProperties()
-      this.updateExpressionedProperties()
-      // TODO 检查动态绑定的情况，按需对store变化进行响应
-    }
-
-    if (this.mode !== 'edit') {
-      // 将所有需要连接的属性传入订阅
-      this.pageStore && this.pageStore.subscribe(this.id, () => {
-        this.forceUpdate()
-      }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
-    }
   }
 
   isMounted () {
@@ -282,16 +272,35 @@ class ElementWrapper {
   mount (el) {
     if (el) {
       this.el = el
+    } else {
+      console.error('Mout Without Element', this.id, this.componentPath)
+      return
     }
+    this.initPropsAndEvents()
+    this.el.classList.add('ridge-element')
+    this.el.setAttribute('ridge-id', this.id)
     this.el.hasMethod = this.hasMethod.bind(this)
     this.el.invoke = this.invoke.bind(this)
     this.el.forceUpdate = this.forceUpdate.bind(this)
     this.el.getConfig = this.getConfig.bind(this)
+    this.el.elementWrapper = this
+    this.el.wrapper = this
+    this.el.componentPath = this.componentPath
+    this.classList.forEach(className => this.el.classList.add(className))
 
     this.style = Object.assign({}, this.config.style)
-    this.updateExpressionedStyle()
     this.updateStyle()
-    this.initPropsAndEvents()
+    this.updateAssetsProperties()
+    this.updateExpressionedStyle()
+    this.updateExpressionedProperties()
+
+    if (this.mode !== 'edit') {
+      // 将所有需要连接的属性传入订阅
+      this.pageStore && this.pageStore.subscribe(this.id, () => {
+        this.forceUpdate()
+      }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
+    }
+
     this.renderer = this.createRenderer()
   }
 
@@ -551,8 +560,6 @@ class ElementWrapper {
       for (const imgProp of imageProps) {
         if (this.config.props[imgProp.name]) {
           this.properties[imgProp.name] = this.ridge.appService.getDataUrl(this.config.props[imgProp.name])
-        } else {
-          this.properties[imgProp.name] = ''
         }
       }
     }

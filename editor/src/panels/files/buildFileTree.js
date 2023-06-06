@@ -16,17 +16,18 @@ const sortFile = (a, b) => {
   }
 }
 
-export const eachNode = (files, callback) => {
-  files.forEach((file) => {
-    callback(file)
+export const eachNode = async (files, callback) => {
+  for (const file of files) {
+    await callback(file)
     if (file.children) {
-      eachNode(file.children, callback)
+      await eachNode(file.children, callback)
     }
-  })
+  }
 }
 
 const buildFileTree = (file, dir, files, each) => {
   const treeNode = {
+    id: file.id,
     key: file.id,
     label: file.name,
     type: file.type,
@@ -38,7 +39,6 @@ const buildFileTree = (file, dir, files, each) => {
   }
   if (file.mimeType) {
     treeNode.mimeType = file.mimeType
-    treeNode.dataUrl = file.dataUrl
   }
 
   if (treeNode.type === 'directory') {

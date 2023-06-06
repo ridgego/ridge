@@ -1,14 +1,13 @@
 import React from 'react'
 import trim from 'lodash/trim'
 import debug from 'debug'
-import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Breadcrumb, Form } from '@douyinfe/semi-ui'
+import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
 import { IconTick, IconFolderOpen, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on } from '../../service/RidgeEditService.js'
 import { eachNode, getFileTree } from './buildFileTree.js'
 import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_APP_OPEN, EVENT_WORKSPACE_RESET } from '../../constant'
 import './file-list.less'
 import LeftTopPanel from '../component/index.jsx'
-import { isLength } from 'lodash'
 
 const trace = debug('ridge:file')
 const { Text } = Typography
@@ -73,8 +72,8 @@ class AppFileList extends React.Component {
       if (file.mimeType) {
         if (file.mimeType === 'application/font-woff') {
           file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
-        } else if (file.mimeType.indexOf('image/') > -1) {
-          file.icon = <img src={file.url} />
+        } else if (file.dataUrl) {
+          file.icon = <Popover showArrow content={<img className='image-full' src={file.dataUrl} />}><img className='icon-image' src={file.dataUrl} /></Popover>
         } else {
           file.icon = <IconBriefStroked style={{ color: 'var(--semi-color-text-2)' }} />
         }

@@ -16,6 +16,7 @@ export default class ListContainer extends Container {
 
     if (this.props.renderItem) {
       await this.props.renderItem.preload()
+      this.props.renderItem.initPropsAndEvents()
     }
     if (this.mode === 'edit') {
       // 编辑时
@@ -114,7 +115,9 @@ export default class ListContainer extends Container {
 
   update (props) {
     this.props = props
-    this.renderUpdateListItems()
+    if (this.mode !== 'edit') {
+      this.renderUpdateListItems()
+    }
   }
 
   /**

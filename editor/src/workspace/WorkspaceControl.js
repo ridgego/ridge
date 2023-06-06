@@ -712,7 +712,7 @@ export default class WorkSpaceControl {
     Mousetrap.bind('ctrl+v', () => {
       if (this.copied && this.copied.length) {
         for (const el of this.copied) {
-          const newWrapper = el.wrapper.cloneTo(this.pageManager)
+          const newWrapper = el.wrapper.clone(this.pageManager)
           const div = document.createElement('div')
           newWrapper.loadAndMount(div).then(() => {
             if (this.selected && this.selected.length === 1) {
