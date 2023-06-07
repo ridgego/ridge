@@ -25,6 +25,21 @@ export const eachNode = async (files, callback) => {
   }
 }
 
+/* 从树节点过滤掉 */
+export const filterTree = (treeData, filterCb) => {
+  const result = []
+
+  treeData.forEach(node => {
+    if (filterCb(node)) {
+      result.push(node)
+    }
+    if (node.children) {
+      result.push(...filterTree(node.children, filterCb))
+    }
+  })
+  return result
+}
+
 const buildFileTree = (file, dir, files, each) => {
   const treeNode = {
     id: file.id,

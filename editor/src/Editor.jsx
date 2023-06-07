@@ -140,7 +140,6 @@ export default class Editor extends React.Component {
     this.setState({
       zoom
     })
-
     // 从HTML初始化页面管理器
     // this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
 
@@ -156,8 +155,7 @@ export default class Editor extends React.Component {
       }))
     }
     workspaceControl.setPageManager(this.pageElementManager)
-
-    ridge.pageElementManagers = this.pageElementManager
+    ridge.pageElementManager = this.pageElementManager
   }
 
   togglePanel (panel) {

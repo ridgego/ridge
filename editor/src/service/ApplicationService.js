@@ -4,9 +4,9 @@ import NeCollection from './NeCollection.js'
 import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
 import { ridge, emit } from './RidgeEditService.js'
-import { EVENT_APP_OPEN } from '../constant.js'
-import { blobToDataUrl, dataURLtoBlob } from '../utils/blob.js'
-import { getFileTree, eachNode } from '../panels/files/buildFileTree.js'
+import { EVENT_APP_OPEN, EVENT_FILE_TREE_CHANGE } from '../constant.js'
+import { blobToDataUrl, dataURLtoBlob, dataURLToString } from '../utils/blob.js'
+import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
 const { nanoid } = require('../utils/string')
 
 /**
@@ -19,10 +19,17 @@ export default class ApplicationService {
     this.backUpService = new BackUpService(this)
     this.dataUrlByPath = {}
     this.dataUrls = {}
+    this.fileTree = []
+
+    this.updateAppFileTree()
   }
 
   getFileTree () {
     return this.fileTree
+  }
+
+  filterFiles (filter) {
+    return filterTree(this.fileTree, filter)
   }
 
   /**
@@ -43,7 +50,7 @@ export default class ApplicationService {
     return n === 0 ? baseName : (baseName + nextNameFunc(n))
   }
 
-  async updateAppFileTree (updateBlob) {
+  async updateAppFileTree () {
     const files = await this.getFiles()
     this.fileTree = getFileTree(files)
 
@@ -56,8 +63,13 @@ export default class ApplicationService {
         }
         file.dataUrl = this.dataUrlByPath[file.path]
       }
+      if (file.mimeType && file.mimeType.indexOf('text/css') > -1) {
+        const dataUrl = await this.store.getItem(file.key)
+        file.textContent = await dataURLToString(dataUrl)
+      }
     })
 
+    emit(EVENT_FILE_TREE_CHANGE, this.fileTree)
     return this.fileTree
   }
 

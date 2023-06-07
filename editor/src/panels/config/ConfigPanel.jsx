@@ -3,13 +3,12 @@ import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../../form/ObjectForm.jsx'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import PageDataConfig from './PageDataConfig.jsx'
-import { emit, on } from '../../service/RidgeEditService.js'
+import { emit, on, ridge, appService } from '../../service/RidgeEditService.js'
 import debug from 'debug'
 
 import {
-  EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
+  EVENT_FILE_TREE_CHANGE, EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
 } from '../../constant.js'
-
 const trace = debug('editor:config-panel')
 
 const COMPONENT_BASIC_FIELDS = [
@@ -170,6 +169,7 @@ export default class ComponentPanel extends React.Component {
     this.pagePropFormApi = null
 
     this.state = {
+      pageFields: PAGE_FIELDS,
       pageStates: [],
       pageReducers: [],
       nodePropFields: [], // 当前节点属性
@@ -200,6 +200,7 @@ export default class ComponentPanel extends React.Component {
         pageReducers: reducers,
         pageStates: states
       })
+      this.updatePageConfigFields()
     })
     on(EVENT_PAGE_CONFIG_CHANGE, ({ states, reducers }) => {
       this.setState({
@@ -220,6 +221,10 @@ export default class ComponentPanel extends React.Component {
           })
         }
       }
+    })
+
+    on(EVENT_FILE_TREE_CHANGE, payload => {
+      this.updatePageConfigFields()
     })
     on(EVENT_ELEMENT_SELECTED, payload => {
       // if (payload.from === 'workspace') {
@@ -320,10 +325,39 @@ export default class ComponentPanel extends React.Component {
       this.componentStyleFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
         notNotify: true
       })
-
       this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
         notNotify: true
       })
+    })
+  }
+
+  updatePageConfigFields () {
+    this.setState({
+      pageFields: [...PAGE_FIELDS, {
+        field: 'cssFiles',
+        label: '样式表',
+        control: 'select',
+        optionList: appService.filterFiles(node => node.mimeType === 'text/css').map(file => {
+          return {
+            value: file.path,
+            label: file.label
+          }
+        }),
+        required: false,
+        multiple: true
+      }, {
+        field: 'classNames',
+        label: '样式',
+        control: 'select',
+        optionList: ridge.pageElementManager.classNames.map(c => {
+          return {
+            label: c.label,
+            value: c.className
+          }
+        }),
+        required: false,
+        multiple: true
+      }]
     })
   }
 
@@ -354,6 +388,7 @@ export default class ComponentPanel extends React.Component {
         }, 200)
       }
     } else {
+      this.updatePageConfigFields()
       this.currentElement = null
       this.setState({
         nodePropFields: [],
@@ -372,9 +407,9 @@ export default class ComponentPanel extends React.Component {
       nodeEventFields,
       pageReducers,
       pageStates,
-      nodeEventsValues
+      nodeEventsValues,
+      pageFields
     } = this.state
-
     const basicStylesAPI = formApi => {
       this.componentStyleFormApi = formApi
     }
@@ -455,6 +490,7 @@ export default class ComponentPanel extends React.Component {
             />
           </TabPane>
         </Tabs>
+
         <Tabs
           type='card'
           className='on-title'
@@ -463,9 +499,9 @@ export default class ComponentPanel extends React.Component {
           }}
         >
           {/* 页面属性配置 */}
-          <TabPane tab='属性' itemKey='style'>
+          <TabPane tab='基础' itemKey='style'>
             <ObjectForm
-              fields={PAGE_FIELDS}
+              fields={pageFields}
               getFormApi={cbPagePropFormApi} onValueChange={pagePropValueChange}
             />
           </TabPane>

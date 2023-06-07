@@ -2,6 +2,7 @@ import ElementWrapper from './ElementWrapper'
 import { nanoid } from '../utils/string'
 import Store from '../store/Store'
 import getBackground from './style/getBackground'
+import { appService } from '../../../../editor/src/service/RidgeEditService'
 
 class PageElementManager {
   constructor (pageConfig, ridge, mode) {
@@ -10,6 +11,7 @@ class PageElementManager {
     this.mode = mode
     this.decorators = {}
     this.mounted = []
+    this.classNames = []
     this.initialize()
   }
 
@@ -51,12 +53,36 @@ class PageElementManager {
   }
 
   /**
-   * 更新页面属性配置
-   * @param {} properties
+   * 更新页面引入的样式表
    */
-  updatePageProperties (properties) {
-    this.pageConfig.properties = properties
-    this.updateRootElStyle()
+  updateImportedStyle () {
+    let styleEl = document.querySelector('#ridgePageStyle')
+    if (!styleEl) {
+      styleEl = document.createElement('style')
+      styleEl.id = 'ridgePageStyle'
+      document.head.appendChild(styleEl)
+    }
+    styleEl.textContent = ''
+    this.classNames = []
+    const { properties } = this.pageConfig
+    if (properties.cssFiles && properties.cssFiles.length) {
+      for (const filePath of properties.cssFiles) {
+        const file = appService.filterFiles(f => f.path === filePath)[0]
+        if (file) {
+          const matches = file.textContent.match(/\/\*.+\*\/[^{]+{/g)
+          styleEl.textContent = '\r\n' + file.textContent
+          for (const m of matches) {
+            const label = m.match(/\/\*.+\*\//)[0].replace(/[/*]/g, '')
+            const className = m.match(/\r\n[^{]+/g)[0].trim().substring(1)
+
+            this.classNames.push({
+              className,
+              label
+            })
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -65,6 +91,7 @@ class PageElementManager {
    */
   updatePageConfig (change) {
     Object.assign(this.pageConfig, change)
+    this.updateImportedStyle()
     this.updateRootElStyle()
   }
 
@@ -83,6 +110,7 @@ class PageElementManager {
   async mount (el) {
     this.el = el
     this.updateRootElStyle()
+    this.updateImportedStyle()
 
     const promises = []
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
@@ -101,6 +129,14 @@ class PageElementManager {
       Object.assign(this.el.style, getBackground(this.pageConfig.properties.background, this.ridge, this.mode))
     } else {
       this.el.style.background = ''
+    }
+
+    this.el.classList.value = ''
+    this.el.classList.add('viewport-container')
+    if (this.pageConfig.properties.classNames && this.pageConfig.properties.classNames.length) {
+      this.pageConfig.properties.classNames.forEach(c => {
+        this.el.classList.add(c)
+      })
     }
 
     if (this.mode === 'edit') {

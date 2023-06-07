@@ -5,14 +5,13 @@ import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview,
 import { IconTick, IconFolderOpen, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on } from '../../service/RidgeEditService.js'
 import { eachNode, getFileTree } from './buildFileTree.js'
-import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_APP_OPEN, EVENT_WORKSPACE_RESET } from '../../constant'
+import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_WORKSPACE_RESET, EVENT_FILE_TREE_CHANGE } from '../../constant'
 import './file-list.less'
-import LeftTopPanel from '../component/index.jsx'
 
 const trace = debug('ridge:file')
 const { Text } = Typography
 
-const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg,.json'
+const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg,.json,.css'
 class AppFileList extends React.Component {
   constructor () {
     super()
@@ -36,9 +35,25 @@ class AppFileList extends React.Component {
   }
 
   componentDidMount () {
-    this.updateFileTree()
-    on(EVENT_APP_OPEN, () => {
-      this.updateFileTree()
+    // this.updateFileTree()
+    on(EVENT_FILE_TREE_CHANGE, treeData => {
+      eachNode(treeData, file => {
+        if (file.mimeType) {
+          if (file.mimeType === 'application/font-woff') {
+            file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
+          } else if (file.dataUrl) {
+            file.icon = <Popover showArrow content={<img className='image-full' src={file.dataUrl} />}><img className='icon-image' src={file.dataUrl} /></Popover>
+          } else {
+            file.icon = <IconBriefStroked style={{ color: 'var(--semi-color-text-2)' }} />
+          }
+        }
+        if (file.type === 'directory') {
+          file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
+        }
+      })
+      this.setState({
+        treeData
+      })
     })
   }
 
@@ -199,7 +214,6 @@ class AppFileList extends React.Component {
     if (this.state.currentEditValid) {
       const { appService } = ridge
       await appService.rename(this.state.currentEditKey, this.state.currentEditValue)
-      this.updateFileTree()
       if (this.state.currentOpenId === this.state.currentEditKey) {
         emit(EVENT_PAGE_RENAMED, this.state.currentEditValue)
       }
@@ -258,7 +272,7 @@ class AppFileList extends React.Component {
     } else {
       await appService.createDirectory(this.state.currentParent, this.state.currentEditValue)
     }
-    await this.updateFileTree()
+    // await this.updateFileTree()
 
     this.setState({
       createDialogShow: false
@@ -268,7 +282,7 @@ class AppFileList extends React.Component {
   createPage = async (dir) => {
     const { appService } = ridge
     const newPage = await appService.createPage(dir || this.getCurrentDir())
-    await this.updateFileTree()
+    // await this.updateFileTree()
     this.setState({
       currentEditKey: newPage.id,
       currentEditValue: newPage.name,
@@ -288,7 +302,7 @@ class AppFileList extends React.Component {
   copy = async node => {
     const { appService } = ridge
     await appService.copy(node.key)
-    await this.updateFileTree()
+    // await this.updateFileTree()
   }
 
   open = async (node) => {
@@ -337,7 +351,7 @@ class AppFileList extends React.Component {
     const { appService } = ridge
     const moveResult = await appService.move(dragNode.key, parentId)
     if (moveResult) {
-      await this.updateFileTree()
+      // await this.updateFileTree()
     } else {
       Toast.warning({
         content: '目录移动错误：存在同名的文件',
@@ -355,7 +369,7 @@ class AppFileList extends React.Component {
         errors.push(file)
       }
     }
-    await this.updateFileTree()
+    // await this.updateFileTree()
 
     if (errors.length) {
       Toast.warning({
