@@ -1,29 +1,34 @@
 import React, { useState } from 'react'
 import { IconChainStroked } from '@douyinfe/semi-icons'
+import { ridge } from '../../service/RidgeEditService'
 import { withField, Popover, Button, Space, Tree } from '@douyinfe/semi-ui'
 
 const StateBindEdit = withField(({
   value,
-  options,
   onChange
 }) => {
-  const { scopeStates, pageStates, appStates } = options
+  const [storeTreeData, setStoreTreeData] = useState([])
   const [visible, setVisible] = useState()
 
-  const renderSelectState = () => {
+  const updateStateTree = () => {
+    const storeTrees = ridge.pageElementManager.getStoreTrees()
     const treeData = []
-    const pageStateTree = {
-      label: '页面状态',
-      key: 'pageState',
-      disabled: true,
-      children: pageStates.map(state => ({
-        label: state.label,
-        key: state.name,
-        value: state.name
-      }))
+    for (const [storeName, tree] of Object.entries(storeTrees)) {
+      const storeTree = {
+        label: storeName,
+        key: storeName,
+        disabled: true,
+        children: tree.states.map(state => ({
+          label: state.alias,
+          key: state.key,
+          value: state.key
+        }))
+      }
+      treeData.push(storeTree)
     }
-    treeData.push(pageStateTree)
-
+    setStoreTreeData(treeData)
+  }
+  const renderSelectState = () => {
     return (
       <div style={{ width: '320px', padding: '0', height: '360px', overflow: 'overlay' }}>
         <Tree
@@ -33,7 +38,7 @@ const StateBindEdit = withField(({
           value={value}
           filterTreeNode
           expandAll
-          treeData={treeData}
+          treeData={storeTreeData}
           onSelect={val => {
             if (value === val) {
               onChange(null)
@@ -64,6 +69,7 @@ const StateBindEdit = withField(({
     <Popover
       content={renderSelectState} trigger='click' showArrow visible={visible} onVisibleChange={visible => {
         setVisible(visible)
+        updateStateTree()
       }}
     >
       <div

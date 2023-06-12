@@ -332,33 +332,47 @@ export default class ComponentPanel extends React.Component {
   }
 
   updatePageConfigFields () {
-    this.setState({
-      pageFields: [...PAGE_FIELDS, {
-        field: 'cssFiles',
-        label: '样式表',
-        control: 'select',
-        optionList: appService.filterFiles(node => node.mimeType === 'text/css').map(file => {
-          return {
-            value: file.path,
-            label: file.label
-          }
-        }),
-        required: false,
-        multiple: true
-      }, {
-        field: 'classNames',
-        label: '样式',
-        control: 'select',
-        optionList: ridge.pageElementManager.classNames.map(c => {
-          return {
-            label: c.label,
-            value: c.className
-          }
-        }),
-        required: false,
-        multiple: true
-      }]
-    })
+    if (ridge.pageElementManager) {
+      this.setState({
+        pageFields: [...PAGE_FIELDS, {
+          field: 'cssFiles',
+          label: '样式表',
+          control: 'select',
+          optionList: appService.filterFiles(node => node.mimeType === 'text/css').map(file => {
+            return {
+              value: file.path,
+              label: file.label
+            }
+          }),
+          required: false,
+          multiple: true
+        }, {
+          field: 'jsFiles',
+          label: '脚本库',
+          control: 'select',
+          optionList: appService.filterFiles(node => node.mimeType === 'text/javascript').map(file => {
+            return {
+              value: file.path,
+              label: file.label
+            }
+          }),
+          required: false,
+          multiple: true
+        }, {
+          field: 'classNames',
+          label: '样式',
+          control: 'select',
+          optionList: ridge.pageElementManager.classNames.map(c => {
+            return {
+              label: c.label,
+              value: c.className
+            }
+          }),
+          required: false,
+          multiple: true
+        }]
+      })
+    }
   }
 
   /**

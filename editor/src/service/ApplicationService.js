@@ -5,7 +5,7 @@ import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
 import { ridge, emit } from './RidgeEditService.js'
 import { EVENT_APP_OPEN, EVENT_FILE_TREE_CHANGE } from '../constant.js'
-import { blobToDataUrl, dataURLtoBlob, dataURLToString } from '../utils/blob.js'
+import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToDataUrl } from '../utils/blob.js'
 import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
 const { nanoid } = require('../utils/string')
 
@@ -63,7 +63,7 @@ export default class ApplicationService {
         }
         file.dataUrl = this.dataUrlByPath[file.path]
       }
-      if (file.mimeType && file.mimeType.indexOf('text/css') > -1) {
+      if (file.mimeType && (file.mimeType.indexOf('text/css') > -1 || file.mimeType.indexOf('text/javascript') > -1)) {
         const dataUrl = await this.store.getItem(file.key)
         file.textContent = await dataURLToString(dataUrl)
       }
@@ -137,6 +137,17 @@ export default class ApplicationService {
     })
     await this.updateAppFileTree()
     return true
+  }
+
+  /**
+   * 更新文本类文件内容
+   * @param {*} key
+   * @param {*} content
+   * @param {*} mimeType
+   */
+  async updateFileContent (key, content, mimeType) {
+    this.filterFiles(file => file.id === key)[0].textContent = content
+    await this.store.setItem(key, stringToDataUrl(content, mimeType))
   }
 
   /**

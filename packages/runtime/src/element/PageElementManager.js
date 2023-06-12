@@ -2,6 +2,7 @@ import ElementWrapper from './ElementWrapper'
 import { nanoid } from '../utils/string'
 import Store from '../store/Store'
 import getBackground from './style/getBackground'
+import { defineStore, createPinia } from 'pinia'
 import { appService } from '../../../../editor/src/service/RidgeEditService'
 
 class PageElementManager {
@@ -13,6 +14,11 @@ class PageElementManager {
     this.mounted = []
     this.classNames = []
     this.initialize()
+
+    this.ridge.pinia = createPinia()
+    // 一个页面支持多个store
+    this.store = {}
+    this.storeTrees = {}
   }
 
   setMode (mode) {
@@ -73,7 +79,7 @@ class PageElementManager {
           styleEl.textContent = '\r\n' + file.textContent
           for (const m of matches) {
             const label = m.match(/\/\*.+\*\//)[0].replace(/[/*]/g, '')
-            const className = m.match(/\r\n[^{]+/g)[0].trim().substring(1)
+            const className = m.match(/\n[^{]+/g)[0].trim().substring(1)
 
             this.classNames.push({
               className,
@@ -86,6 +92,89 @@ class PageElementManager {
   }
 
   /**
+   * 更新页面引入的样式表
+   */
+  updateImportedJS () {
+    const scriptEls = document.querySelectorAll('script.ridge-scripts')
+
+    for (const el of scriptEls) {
+      document.head.removeChild(el)
+    }
+
+    this.stores = []
+
+    const { properties } = this.pageConfig
+    if (properties.jsFiles && properties.jsFiles.length) {
+      for (const jsFilePath of properties.jsFiles) {
+        const file = appService.filterFiles(f => f.path === jsFilePath)[0]
+        if (file) {
+          const moduleName = file.label.substring(0, file.label.length - 3)
+          const scriptDiv = document.createElement('script')
+          // scriptDiv.setAttribute('type', 'module')
+          scriptDiv.classList.add('ridge-scripts')
+          scriptDiv.textContent = file.textContent
+          document.head.append(scriptDiv)
+
+          // extract desc
+          const definedStore = defineStore('store', globalThis[moduleName])
+
+          this.stores[moduleName] = definedStore(this.ridge.pinia)
+
+          this.storeTrees[moduleName] = this.parseStoreTree(globalThis[moduleName], file.textContent)
+
+          // const matches = file.textContent.match(/\/\*.+\*\/[^{]+{/g)
+          // styleEl.textContent = '\r\n' + file.textContent
+          // for (const m of matches) {
+          //   const label = m.match(/\/\*.+\*\//)[0].replace(/[/*]/g, '')
+          //   const className = m.match(/\r\n[^{]+/g)[0].trim().substring(1)
+
+          //   this.classNames.push({
+          //     className,
+          //     label
+          //   })
+          // }
+        }
+      }
+    }
+  }
+
+  getStoreTrees () {
+    return this.storeTrees
+  }
+
+  parseStoreTree (storeDefModule, textContent) {
+    const tree = {
+      states: [],
+      actions: []
+    }
+
+    const alias = storeDefModule.alias || {}
+
+    Object.keys(storeDefModule.state()).forEach(key => {
+      tree.states.push({
+        key,
+        alias: alias[key] || key
+      })
+    })
+
+    Object.keys(storeDefModule.getters).forEach(key => {
+      tree.states.push({
+        key,
+        alias: alias[key] || key
+      })
+    })
+
+    Object.keys(storeDefModule.actions).forEach(key => {
+      tree.actions.push({
+        key,
+        alias: alias[key] || key
+      })
+    })
+
+    return tree
+  }
+
+  /**
    * 更新页面变量取值
    * @param {*} values 新的页面变量对
    */
@@ -93,6 +182,7 @@ class PageElementManager {
     Object.assign(this.pageConfig, change)
     this.updateImportedStyle()
     this.updateRootElStyle()
+    this.updateImportedJS()
   }
 
   getElement (id) {
@@ -109,8 +199,10 @@ class PageElementManager {
    */
   async mount (el) {
     this.el = el
+    this.rootClassList = Array.from(this.el.classList)
     this.updateRootElStyle()
     this.updateImportedStyle()
+    this.updateImportedJS()
 
     const promises = []
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
@@ -132,7 +224,9 @@ class PageElementManager {
     }
 
     this.el.classList.value = ''
-    this.el.classList.add('viewport-container')
+    this.rootClassList.forEach(c => {
+      this.el.classList.add(c)
+    })
     if (this.pageConfig.properties.classNames && this.pageConfig.properties.classNames.length) {
       this.pageConfig.properties.classNames.forEach(c => {
         this.el.classList.add(c)
@@ -143,21 +237,23 @@ class PageElementManager {
       this.el.style.width = this.pageConfig.properties.width + 'px'
       this.el.style.height = this.pageConfig.properties.height + 'px'
     } else {
-      switch (this.pageConfig.properties.type) {
-        case 'static':
-          this.el.style.width = this.pageConfig.properties.width + 'px'
-          this.el.style.height = this.pageConfig.properties.height + 'px'
-          break
-        case 'responsive':
-          this.el.style.width = '100%'
-          this.el.style.height = '100%'
-          this.el.style.overflowY = 'auto'
-          break
-        case 'full-responsive':
-          this.el.style.width = '100%'
-          this.el.style.height = 'auto'
-          break
-      }
+      this.el.style.width = '100%'
+      this.el.style.height = '100%'
+      // switch (this.pageConfig.properties.type) {
+      //   case 'static':
+      //     this.el.style.width = this.pageConfig.properties.width + 'px'
+      //     this.el.style.height = this.pageConfig.properties.height + 'px'
+      //     break
+      //   case 'responsive':
+      //     this.el.style.width = '100%'
+      //     this.el.style.height = '100%'
+      //     this.el.style.overflowY = 'auto'
+      //     break
+      //   case 'full-responsive':
+      //     this.el.style.width = '100%'
+      //     this.el.style.height = 'auto'
+      //     break
+      // }
     }
   }
 

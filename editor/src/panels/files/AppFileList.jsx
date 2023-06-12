@@ -3,15 +3,16 @@ import trim from 'lodash/trim'
 import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
 import { IconTick, IconFolderOpen, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
-import { ridge, emit, on } from '../../service/RidgeEditService.js'
+import { ridge, emit, on, appService } from '../../service/RidgeEditService.js'
 import { eachNode, getFileTree } from './buildFileTree.js'
 import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_WORKSPACE_RESET, EVENT_FILE_TREE_CHANGE } from '../../constant'
 import './file-list.less'
+import DialogCodeEdit from './DialogCodeEdit.jsx'
 
 const trace = debug('ridge:file')
 const { Text } = Typography
 
-const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg,.json,.css'
+const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg,.json,.css,.js'
 class AppFileList extends React.Component {
   constructor () {
     super()
@@ -30,7 +31,11 @@ class AppFileList extends React.Component {
       isCreateFile: false,
       newFileName: '',
       currentEditValid: true,
-      currentEditValue: ''
+      currentEditValue: '',
+      codeEditNodeId: null,
+      codeEditType: '',
+      codeEditText: '',
+      codeEditVisible: false
     }
   }
 
@@ -57,96 +62,11 @@ class AppFileList extends React.Component {
     })
   }
 
-  // async openAppFileTree () {
-  //   await this.updateFileTree()
-
-  //   if (this.files.filter(a => a.type === 'page').length === 0) {
-  //     await ridge.appService.createPage(-1)
-  //   }
-
-  //   await this.updateFileTree()
-  //   const sorted = this.files.filter(a => a.type === 'page').sort((a, b) => b.updatedAt - a.updatedAt)
-
-  //   this.setState({
-  //     currentOpenId: sorted[0].id
-  //   })
-  //   emit(EVENT_PAGE_OPEN, sorted[0].id)
-  // }
-
-  async updateFileTree () {
-    trace('FileList  updateFileTree')
-    const { appService } = ridge
-
-    let fileTree = appService.getFileTree()
-
-    if (fileTree == null) {
-      fileTree = await appService.updateAppFileTree(true)
-    }
-
-    eachNode(fileTree, file => {
-      if (file.mimeType) {
-        if (file.mimeType === 'application/font-woff') {
-          file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
-        } else if (file.dataUrl) {
-          file.icon = <Popover showArrow content={<img className='image-full' src={file.dataUrl} />}><img className='icon-image' src={file.dataUrl} /></Popover>
-        } else {
-          file.icon = <IconBriefStroked style={{ color: 'var(--semi-color-text-2)' }} />
-        }
-      }
-      if (file.type === 'directory') {
-        file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-      }
-      // if (file.children && file.children.length === 0) {
-      //   file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-      // }
-    })
-
-    /*
-    const files = await appService.getFiles(this.props.filter)
-    this.files = files
-    trace('FileList  files Loaded', files)
-    const treeData = getFileTree(files, (file) => {
-      // 处理更新图标
-      if (file.mimeType) {
-        if (file.mimeType === 'application/font-woff') {
-          file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
-        } else if (file.mimeType.indexOf('image/') > -1) {
-          file.icon = (<IconImage style={{ color: 'var(--semi-color-text-2)' }} />)
-        } else {
-          file.icon = <IconBriefStroked style={{ color: 'var(--semi-color-text-2)' }} />
-        }
-      }
-      // if (file.type === 'directory') {
-      //   file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-      // }
-      if (file.children && file.children.length === 0) {
-        file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-      }
-    })
-    */
-    this.setState({
-      treeData: fileTree
-    })
-  }
-
   selectNode (node) {
-    // const node = this.state.files.filter(file => file.id === val)[0]
     this.setState({
       currentSelectedNode: node,
       selected: node.key
     })
-
-    // this.setState({
-    //   currentParent: node.type === 'directory' ? node.key : node.parent,
-    // })
-    // if (node.key !== this.state.currentEditKey) {
-    //   if (this.state.currentEditKey) {
-    //     this.checkUpdateEditName()
-    //   }
-    //   this.setState({
-    //     currentEditKey: null
-    //   })
-    // }
   }
 
   /**
@@ -333,7 +253,26 @@ class AppFileList extends React.Component {
         imagePreviewSrc: srcList,
         imagePreviewVisible: true
       })
+    } else if (node.mimeType && (node.mimeType === 'text/css' || node.mimeType === 'text/javascript')) {
+      this.setState({
+        codeEditType: node.mimeType,
+        codeEditNodeId: node.key,
+        codeEditText: node.textContent,
+        codeEditVisible: true
+      })
     }
+  }
+
+  async completeCodeEdit (code) {
+    const {
+      codeEditNodeId,
+      codeEditType
+    } = this.state
+    await appService.updateFileContent(codeEditNodeId, code, codeEditType)
+
+    this.setState({
+      codeEditVisible: false
+    })
   }
 
   move = async (node, dragNode, dropToGap) => {
@@ -369,7 +308,6 @@ class AppFileList extends React.Component {
         errors.push(file)
       }
     }
-    // await this.updateFileTree()
 
     if (errors.length) {
       Toast.warning({
@@ -496,14 +434,14 @@ class AppFileList extends React.Component {
 
   renderCreateModal = () => {
     const { state, confirmCreateFile } = this
-    const { createDialogShow, isCreateFile, currentEditValid, currentParent } = state
+    const { createDialogShow, isCreateFile, currentEditValid, currentParent, currentSelectedNode } = state
 
     let parentPaths = '/'
-    if (this.state.currentSelectedNode) {
-      if (this.state.currentSelectedNode.type === 'directory') {
-        parentPaths = this.state.currentSelectedNode.path
-      } else if (this.state.currentSelectedNode.parentNode) {
-        parentPaths = this.state.currentSelectedNode.parentNode.path
+    if (currentSelectedNode) {
+      if (currentSelectedNode.type === 'directory') {
+        parentPaths = currentSelectedNode.path
+      } else if (currentSelectedNode.parentNode) {
+        parentPaths = currentSelectedNode.parentNode.path
       }
     }
 
@@ -548,7 +486,7 @@ class AppFileList extends React.Component {
 
   render () {
     const { renderFullLabel, showCreateDialog, renderCreateModal, state } = this
-    const { treeData, currentSelectedNode, expandedKeys, imagePreviewSrc, imagePreviewVisible } = state
+    const { treeData, currentSelectedNode, expandedKeys, imagePreviewSrc, imagePreviewVisible, codeEditText, codeEditVisible, codeEditType } = state
 
     return (
       <>
@@ -569,6 +507,17 @@ class AppFileList extends React.Component {
           src={imagePreviewSrc} visible={imagePreviewVisible} onVisibleChange={() => {
             this.setState({
               imagePreviewVisible: false
+            })
+          }}
+        />
+        <DialogCodeEdit
+          value={codeEditText} visible={codeEditVisible} lang='css' onChange={code => {
+            this.completeCodeEdit(code)
+          }}
+          type={codeEditType}
+          onClose={() => {
+            this.setState({
+              codeEditVisible: false
             })
           }}
         />

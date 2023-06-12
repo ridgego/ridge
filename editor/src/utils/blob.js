@@ -10,6 +10,12 @@ const dataURLToString = async dataURL => {
   return await blob.text()
 }
 
+const stringToDataUrl = async (content, type) => {
+  const blob = new Blob([content], { type })
+
+  return await blobToDataUrl(blob)
+}
+
 const blobToDataUrl = async (file) => {
   return new Promise((resolve) => {
     const reader = new FileReader()
@@ -52,6 +58,7 @@ function click (node) {
 
 export {
   saveAs,
+  stringToDataUrl,
   dataURLToString,
   blobToDataUrl,
   dataURLtoBlob
