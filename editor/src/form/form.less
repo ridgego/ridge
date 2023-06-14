@@ -46,31 +46,30 @@
             margin-bottom: 0;
             margin-right: 0;
             padding-top: 0px;
-            line-height: 24px;
+            line-height: 26px;
             padding-bottom: 0px;
             font-weight: normal;
             color: var( --semi-color-text-2);
         }
-        
         .field-block {
-            display: flex;
-            padding: 4px 0;
+          padding: 4px 0;
         }
         .with-code-expr {
-            .semi-button-tertiary.btn-code {
-                visibility: hidden;
-                &.semi-button-primary {
-                    visibility: initial;    
-                }
-            }
-            .semi-button-tertiary.is-open {
-                visibility: initial;
-            } 
-            &:hover {
-                .semi-button-tertiary.btn-code {
-                    visibility: initial;
-                } 
-            }
+          display: flex;
+          .semi-button-tertiary.btn-code {
+              visibility: hidden;
+              &.semi-button-primary {
+                  visibility: initial;    
+              }
+          }
+          .semi-button-tertiary.is-open {
+              visibility: initial;
+          } 
+          &:hover {
+              .semi-button-tertiary.btn-code {
+                  visibility: initial;
+              } 
+          }
         }
         .semi-form-field-main>.semi-checkbox {
             padding: 2px;

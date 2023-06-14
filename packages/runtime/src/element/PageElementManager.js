@@ -17,8 +17,9 @@ class PageElementManager {
 
     this.ridge.pinia = createPinia()
     // 一个页面支持多个store
-    this.store = {}
-    this.storeTrees = {}
+    this.storeObjects = {} // 定义
+    this.store = {} // pinia store
+    this.storeTrees = {} //
   }
 
   setMode (mode) {
@@ -56,6 +57,47 @@ class PageElementManager {
 
   getPageProperties () {
     return this.pageConfig.properties
+  }
+
+  getStoreValue (expr, payload) {
+    const [storeKey, stateExpr] = expr.split('.')
+    if (this.stores[storeKey]) {
+      // getters
+      const result = this.stores[storeKey][stateExpr]
+      if (typeof result === 'function') {
+        return result.apply(null, payload)
+      } else {
+        return result
+      }
+    }
+  }
+
+  dispatchStateChange (expr, val) {
+    const [storeKey, stateExpr] = expr.split('.')
+
+    if (this.stores[storeKey] && this.stores[storeKey][stateExpr] != null) {
+      this.stores[storeKey].$patch({
+        [stateExpr]: val
+      })
+    }
+  }
+
+  subscribe (expr, cb) {
+    const [storeKey, stateExpr] = expr.split('.')
+
+    this.stores[storeKey].$subscribe((mutation, state) => {
+      if (!mutation.payload) {
+        cb()
+      } else if (mutation.payload && mutation.payload[stateExpr]) {
+        cb()
+      }
+    })
+  }
+
+  doStoreAction (storeKey, action, payload) {
+    if (this.stores[storeKey] && this.stores[storeKey][action]) {
+      this.stores[storeKey][action](payload)
+    }
   }
 
   /**
@@ -116,6 +158,8 @@ class PageElementManager {
           document.head.append(scriptDiv)
 
           // extract desc
+
+          this.storeObjects[moduleName] = globalThis[moduleName]
           const definedStore = defineStore('store', globalThis[moduleName])
 
           this.stores[moduleName] = definedStore(this.ridge.pinia)
@@ -149,28 +193,24 @@ class PageElementManager {
     }
 
     const alias = storeDefModule.alias || {}
-
     Object.keys(storeDefModule.state()).forEach(key => {
       tree.states.push({
         key,
         alias: alias[key] || key
       })
     })
-
     Object.keys(storeDefModule.getters).forEach(key => {
       tree.states.push({
         key,
         alias: alias[key] || key
       })
     })
-
     Object.keys(storeDefModule.actions).forEach(key => {
       tree.actions.push({
         key,
         alias: alias[key] || key
       })
     })
-
     return tree
   }
 
@@ -239,21 +279,6 @@ class PageElementManager {
     } else {
       this.el.style.width = '100%'
       this.el.style.height = '100%'
-      // switch (this.pageConfig.properties.type) {
-      //   case 'static':
-      //     this.el.style.width = this.pageConfig.properties.width + 'px'
-      //     this.el.style.height = this.pageConfig.properties.height + 'px'
-      //     break
-      //   case 'responsive':
-      //     this.el.style.width = '100%'
-      //     this.el.style.height = '100%'
-      //     this.el.style.overflowY = 'auto'
-      //     break
-      //   case 'full-responsive':
-      //     this.el.style.width = '100%'
-      //     this.el.style.height = 'auto'
-      //     break
-      // }
     }
   }
 

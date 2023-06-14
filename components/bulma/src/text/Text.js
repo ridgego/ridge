@@ -4,7 +4,7 @@ export default class Button extends BulmaBase {
     text
   }) {
     return `<div style="width:100%; height: 100%;" class="text">
-      ${text || ''}
+      ${text == null ? '' : text}
     </div>`
   }
 

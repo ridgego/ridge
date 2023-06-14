@@ -68,11 +68,8 @@ const JSONEdit = withField(({
   }
 
   return (
-    <div style={{
-      position: 'relative'
-    }}
-    >
-      {renderTree()}
+    <div>
+      {/* {renderTree()} */}
       <Modal
         closeOnEsc={false}
         lazyRender={false}
@@ -102,11 +99,7 @@ const JSONEdit = withField(({
         </div>
       </Modal>
       <Button
-        style={{
-          position: 'absolute',
-          right: 0,
-          top: 0
-        }} size='small' type='tertiary' onClick={edit}
+        size='small' type='tertiary' onClick={edit}
       >编辑
       </Button>
     </div>

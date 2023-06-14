@@ -45,6 +45,10 @@ class ElementWrapper {
     this.classList = []
   }
 
+  isEdit () {
+    return this.mode === 'edit'
+  }
+
   isRoot () {
     return this.config.parent == null
   }
@@ -296,9 +300,14 @@ class ElementWrapper {
 
     if (this.mode !== 'edit') {
       // 将所有需要连接的属性传入订阅
-      this.pageStore && this.pageStore.subscribe(this.id, () => {
-        this.forceUpdate()
-      }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
+      new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
+        this.pageManager.subscribe(expr, () => {
+          this.forceUpdate()
+        })
+      })
+      // this.pageStore && this.pageStore.subscribe(this.id, () => {
+      //   this.forceUpdate()
+      // }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
     }
 
     this.renderer = this.createRenderer()
@@ -527,6 +536,15 @@ class ElementWrapper {
     )
   }
 
+  getIndexList () {
+    const parentIndex = this.parentWrapper ? this.parentWrapper.getIndexList() : []
+    if (this.listIndex != null) {
+      return [...parentIndex, this.listIndex]
+    } else {
+      return parentIndex
+    }
+  }
+
   /**
    * 强制更新、计算所有属性
    */
@@ -544,12 +562,13 @@ class ElementWrapper {
    * 计算所有表达式值
    */
   updateExpressionedProperties () {
+    // 编辑模式不计算
     if (this.pageManager.mode === 'edit') return
     for (const [key, value] of Object.entries(this.config.propEx)) {
       if (value == null || value === '') {
         continue
       }
-      this.properties[key] = this.pageStore.getStateValue(value, this.getContextState())
+      this.properties[key] = this.pageManager.getStoreValue(value, this.getIndexList())
     }
   }
 
@@ -593,10 +612,8 @@ class ElementWrapper {
     log('Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
-      if (this.config.propEx.value && Object.keys(this.getContextState()).indexOf(this.config.propEx.value) > -1) {
-        this.pageStore.setState({
-          [this.config.propEx.value]: payload
-        })
+      if (this.config.propEx.value) {
+        this.pageManager.dispatchStateChange(this.config.propEx.value, payload)
       }
       return
     }
@@ -604,10 +621,8 @@ class ElementWrapper {
       // 处理input/value事件
       for (const action of this.config.events[eventName]) {
         if (action.method) {
-          const [target, reducer] = action.method.split('.')
-          if (target === 'page') {
-            await this.pageStore.doReducer(reducer, this.getContextState(), payload)
-          }
+          const [target, method] = action.method.split('.')
+          this.pageManager.doStoreAction(target, method)
         }
       }
     }

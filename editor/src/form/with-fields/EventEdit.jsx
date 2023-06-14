@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { IconDelete, IconEdit, IconPlus, IconTick } from '@douyinfe/semi-icons'
-import { withField, Button, Space, Form, Tree, Typography, Select } from '@douyinfe/semi-ui'
+import { withField, Button, Space, Form, Tree, Typography, Select, Tag } from '@douyinfe/semi-ui'
+import { ridge } from '../../service/RidgeEditService'
 const { Text } = Typography
 const { Option } = Select
 
@@ -27,7 +28,6 @@ const EventEdit = withField(({
     appStates,
     pageStates
   } = options
-  // const [actions, setActions] = useState(value || [])
 
   const getTreeData = () => {
     const tree = [{
@@ -50,12 +50,14 @@ const EventEdit = withField(({
   const getActionLabel = (action) => {
     const [target, method] = (action.method || '.').split('.')
 
-    if (target === 'page') {
-      const targetReducer = pageReducers.filter(reducer => reducer.name === method)[0]
-      if (targetReducer) {
-        return targetReducer.label
+    const storeTrees = ridge.pageElementManager.getStoreTrees()
+
+    if (storeTrees[target] && storeTrees[target].actions) {
+      const action = storeTrees[target].actions.filter(ac => ac.key === method)[0]
+      if (action) {
+        return action.alias
       } else {
-        return '页面方法不存在'
+        return ''
       }
     }
     return action.method
@@ -66,11 +68,13 @@ const EventEdit = withField(({
       <div className='tree-label'>
         {data.root &&
           <>
-            <Text className='label-content'>{label}</Text>
-            <Space className='label-action'>
+            <Text className='label-content'>{label}
+              <Tag color='green'>事件 </Tag>
+            </Text>
+            <Space className='action'>
               <Button
                 size='small' theme='borderless' type='tertiary' onClick={addAction} icon={<IconPlus />}
-              >处理函数
+              >处理动作
               </Button>
             </Space>
           </>}
@@ -81,28 +85,36 @@ const EventEdit = withField(({
   }
 
   const renderActionEdit = (data) => {
+    const storeTrees = ridge.pageElementManager.getStoreTrees()
+    Object.entries(storeTrees)
+
     return (
       <>
         <div className='label-content'>
           <Select
-            noLabel defaultValue={data.method} placeholder='请选择处理函数' size='small' onChange={val => {
+            noLabel defaultValue={data.method} placeholder='请选择处理动作' size='small' onChange={val => {
               data.method = val
             }}
           >
-            <Select.OptGroup label='页面函数'>
-              {pageReducers && pageReducers.map(reducer => {
-                return <Select.Option key={reducer.name} value={'page.' + reducer.name}>{reducer.label}</Select.Option>
-              })}
-            </Select.OptGroup>
+            {Object.entries(storeTrees).map(([storeName, tree]) => {
+              return (
+                <Select.OptGroup label={storeName} key={storeName}>
+                  {tree.actions.map(action => {
+                    return <Select.Option key={action.key} value={storeName + '.' + action.key}>{action.alias}</Select.Option>
+                  })}
+                </Select.OptGroup>
+              )
+            })}
           </Select>
 
         </div>
-        <Space className='label-action'>
+        <Space className='action'>
           <Button
-            size='small' theme='borderless' type='tertiary' onClick={() => {
+            size='small' onClick={() => {
               confirmActionEdit(data)
             }} icon={<IconTick />}
-          />
+          >确定
+          </Button>
         </Space>
       </>
     )
@@ -111,8 +123,8 @@ const EventEdit = withField(({
   const renderActionNode = (data) => {
     return (
       <>
-        <Text className='label-content'>{data.label || '未配置函数'}</Text>
-        <Space className='label-action'>
+        <Text className='label-content'>{data.label || '未配置动作'}</Text>
+        <Space className='action'>
           <Button
             size='small' icon={<IconEdit />} theme='borderless' type='tertiary' onClick={() => {
               editAction(data.index)

@@ -9,13 +9,9 @@ export default {
     name: 'dataSource',
     label: '数据',
     type: 'array',
+    connect: true,
     control: 'json',
     value: []
-  }, {
-    name: 'itemKey',
-    label: '数据键',
-    type: 'string',
-    value: ''
   }, {
     name: 'itemLayout',
     label: '布局',

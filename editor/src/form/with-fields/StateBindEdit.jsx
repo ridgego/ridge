@@ -21,7 +21,7 @@ const StateBindEdit = withField(({
         children: tree.states.map(state => ({
           label: state.alias,
           key: state.key,
-          value: state.key
+          value: storeName + '.' + state.key
         }))
       }
       treeData.push(storeTree)
@@ -74,7 +74,7 @@ const StateBindEdit = withField(({
     >
       <div
         style={{
-          height: 24,
+          height: 26,
           display: 'flex',
           alignItems: 'center'
         }}

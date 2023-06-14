@@ -99,9 +99,9 @@ export default class ObjectForm extends React.Component {
     } else if (field.fieldEx) {
       // 封装动态绑定的支持
       return (
-        <div className='field-block with-code-expr' style={{ width: field.width || '100%' }}>
+        <div className={'field-block with-code-expr ' + (field.width ? '' : 'full-width')} style={{ width: field.width || '100%' }}>
           {RenderField}
-          <StateBindEdit noLabel field={field.fieldEx} options={options} />
+          <StateBindEdit className='field-code-expr' noLabel field={field.fieldEx} options={options} />
         </div>
       )
     } else {
@@ -161,7 +161,7 @@ export default class ObjectForm extends React.Component {
       <div className='object-form' style={style}>
         {!tableStyle && <Form
           size='small'
-          labelAlign='right'
+          labelAlign='left'
           labelPosition={labelPosition}
           layout='horizontal'
           getFormApi={callback}

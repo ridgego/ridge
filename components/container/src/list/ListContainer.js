@@ -140,11 +140,13 @@ export default class ListContainer extends Container {
           const wrapper = existedEl.elementWrapper
 
           // 更新属性后强制更新
-          wrapper.setScopeStateValues({
-            $item: data,
-            $index: index,
-            $list: dataSource
-          })
+
+          wrapper.listIndex = index
+          // wrapper.setScopeStateValues({
+          //   $item: data,
+          //   $index: index,
+          //   $list: dataSource
+          // })
         } else {
           const newEl = document.createElement('div')
           if (itemKey) {
@@ -157,12 +159,14 @@ export default class ListContainer extends Container {
           }
           const newWrapper = renderItem.clone()
           newWrapper.parentWrapper = this.wrapper
-          newWrapper.setScopeStateValues({
-            $hover: false,
-            $item: data,
-            $index: index,
-            $list: dataSource
-          })
+
+          newWrapper.listIndex = index
+          // newWrapper.setScopeStateValues({
+          //   $hover: false,
+          //   $item: data,
+          //   $index: index,
+          //   $list: dataSource
+          // })
           newWrapper.mount(newEl)
         }
       }
