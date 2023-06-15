@@ -1,5 +1,5 @@
-import BulmaBase from '../base/BulmaBase'
-export default class Select extends BulmaBase {
+import HTMLComponent from '../base/HTMLComponent'
+export default class Select extends HTMLComponent {
   innerHTML ({ color, size, round, options, placeholder, disabled, readonly, value }) {
     return `<div class="select ${color} ${size} ${round ? 'is-rounded' : ''}">
       <select placeholder="${placeholder}" ${disabled ? 'disabled' : ''}>
@@ -21,9 +21,5 @@ export default class Select extends BulmaBase {
         onChange && onChange(value)
       }
     }
-  }
-
-  updated () {
-    this.updateBindEvents()
   }
 }

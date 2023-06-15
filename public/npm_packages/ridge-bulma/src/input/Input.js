@@ -1,5 +1,5 @@
-import BulmaBase from '../base/BulmaBase'
-export default class Button extends BulmaBase {
+import HTMLComponent from '../base/HTMLComponent'
+export default class Button extends HTMLComponent {
   innerHTML ({
     size,
     color,
@@ -29,10 +29,6 @@ ${iconAfter
   }
 
   mounted () {
-    this.updateBindEvents()
-  }
-
-  updateBindEvents () {
     const { onChange, input } = this.props
     this.el.querySelector('input').oninput = (evt) => {
       const value = evt.target.value
@@ -43,7 +39,7 @@ ${iconAfter
     }
   }
 
-  updated () {
-    this.updateBindEvents()
+  runtimeUpdate () {
+    this.el.querySelector('input').value = this.props.value
   }
 }

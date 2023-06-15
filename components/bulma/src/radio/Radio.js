@@ -1,5 +1,5 @@
-import BulmaBase from '../base/BulmaBase'
-export default class Radio extends BulmaBase {
+import HTMLComponent from '../base/HTMLComponent'
+export default class Radio extends HTMLComponent {
   innerHTML ({ options, value }) {
     const name = 'radio' + this.random()
     return `<div class="control">

@@ -1,5 +1,5 @@
-import BulmaBase from '../base/BulmaBase'
-export default class CheckBox extends BulmaBase {
+import HTMLComponent from '../base/HTMLComponent'
+export default class CheckBox extends HTMLComponent {
   innerHTML ({ label, value }) {
     return `<label class="checkbox">
       <input type="checkbox" ${value ? 'checked' : ''}>

@@ -48,11 +48,12 @@ export default {
     value: false
   }, {
     name: 'iconBefore',
-    label: '图标',
+    label: '前图标',
+    width: '50%',
     type: 'icon'
   }, {
     name: 'iconAfter',
-    label: '图标',
+    label: '后图标',
     width: '50%',
     type: 'icon'
   }],

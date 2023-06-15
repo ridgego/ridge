@@ -1,5 +1,5 @@
-import BulmaBase from '../base/BulmaBase'
-export default class Image extends BulmaBase {
+import HTMLComponent from '../base/HTMLComponent'
+export default class Image extends HTMLComponent {
   innerHTML (props) {
     return `<figure class="image image-root" style="width: 100%;height:100%;">
         ${props.url ? `<img style="object-fit: ${props.objectFit}; width:100%;height:100%" src="${props.url}">` : '<div style="width: 100%;height:100%; display: flex; justify-content: center; align-items: center; background: #CCCCCC;color: #969696;">图片</div>'}

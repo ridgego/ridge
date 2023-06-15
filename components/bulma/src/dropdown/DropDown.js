@@ -1,5 +1,5 @@
-import BulmaBase from '../base/BulmaBase'
-export default class DropDown extends BulmaBase {
+import HTMLComponent from '../base/HTMLComponent'
+export default class DropDown extends HTMLComponent {
   innerHTML (props) {
     return `<div class="dropdown ${props.isActive} ${props.hoverable ? 'is-hoverable' : ''}">
     <div class="dropdown-trigger">

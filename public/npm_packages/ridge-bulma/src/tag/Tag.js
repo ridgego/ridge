@@ -1,5 +1,5 @@
-import BulmaBase from '../base/BulmaBase'
-export default class Button extends BulmaBase {
+import HTMLComponent from '../base/HTMLComponent'
+export default class Button extends HTMLComponent {
   innerHTML (props) {
     if (props.addon && props.isDelete) {
       return `<div class="tags has-addons">
