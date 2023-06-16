@@ -4,7 +4,6 @@ import { EditorView, basicSetup } from 'codemirror'
 import { tooltips } from '@codemirror/view'
 import { javascript } from '@codemirror/lang-javascript'
 import { css } from '@codemirror/lang-css'
-import { autocompletion } from '@codemirror/autocomplete'
 
 export default ({
   value,
@@ -41,6 +40,8 @@ export default ({
 
   return (
     <Modal
+      closeOnEsc={false}
+      maskClosable={false}
       title='代码编辑'
       width='80%'
       height='80%'

@@ -2,8 +2,8 @@ import ElementWrapper from './ElementWrapper'
 import { nanoid } from '../utils/string'
 import Store from '../store/Store'
 import getBackground from './style/getBackground'
-import { defineStore, createPinia } from 'pinia'
-import { appService } from '../../../../editor/src/service/RidgeEditService'
+import { defineStore, createPinia, storeToRefs } from 'pinia'
+import { watch } from 'vue'
 
 class PageElementManager {
   constructor (pageConfig, ridge, mode) {
@@ -32,18 +32,6 @@ class PageElementManager {
    */
   initialize () {
     this.id = this.pageConfig.id
-
-    if (!this.pageConfig.states) {
-      this.pageConfig.states = []
-    }
-    if (!this.pageConfig.reducers) {
-      this.pageConfig.reducers = []
-    }
-
-    if (this.mode !== 'edit') {
-      this.pageStore = new Store(this.pageConfig)
-    }
-
     this.pageElements = {}
     for (const element of this.pageConfig.elements) {
       const elementWrapper = new ElementWrapper({
@@ -115,7 +103,7 @@ class PageElementManager {
     const { properties } = this.pageConfig
     if (properties.cssFiles && properties.cssFiles.length) {
       for (const filePath of properties.cssFiles) {
-        const file = appService.filterFiles(f => f.path === filePath)[0]
+        const file = this.ridge.appService.filterFiles(f => f.path === filePath)[0]
         if (file) {
           const matches = file.textContent.match(/\/\*.+\*\/[^{]+{/g)
           styleEl.textContent = '\r\n' + file.textContent
@@ -148,7 +136,7 @@ class PageElementManager {
     const { properties } = this.pageConfig
     if (properties.jsFiles && properties.jsFiles.length) {
       for (const jsFilePath of properties.jsFiles) {
-        const file = appService.filterFiles(f => f.path === jsFilePath)[0]
+        const file = this.ridge.appService.filterFiles(f => f.path === jsFilePath)[0]
         if (file) {
           const moduleName = file.label.substring(0, file.label.length - 3)
           const scriptDiv = document.createElement('script')
@@ -164,8 +152,19 @@ class PageElementManager {
 
           this.stores[moduleName] = definedStore(this.ridge.pinia)
 
+          const refs = storeToRefs(this.stores[moduleName])
+
           this.storeTrees[moduleName] = this.parseStoreTree(globalThis[moduleName], file.textContent)
 
+
+          const treeState = this.storeTrees[moduleName].states
+
+          for (const state of treeState) {
+            watch(refs[state.key], (val) => {
+              console.log('key', state.key, ' -> ', val )
+            })
+          }
+          
           // const matches = file.textContent.match(/\/\*.+\*\/[^{]+{/g)
           // styleEl.textContent = '\r\n' + file.textContent
           // for (const m of matches) {

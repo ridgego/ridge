@@ -12,7 +12,6 @@ class BaseChart {
     this.el = el
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        console.log('Size changed', entry)
         this.chartInstance.resize()
       }
     })

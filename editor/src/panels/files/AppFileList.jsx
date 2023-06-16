@@ -270,6 +270,10 @@ class AppFileList extends React.Component {
     } = this.state
     await appService.updateFileContent(codeEditNodeId, code, codeEditType)
 
+    if (ridge.pageElementManager) {
+      ridge.pageElementManager.updateImportedStyle()
+      ridge.pageElementManager.updateImportedJS()
+    }
     this.setState({
       codeEditVisible: false
     })

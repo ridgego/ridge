@@ -47,7 +47,7 @@ export default props => {
           <Button style={{ width: 48 }} theme='borderless' type='tertiary'>{Math.floor(zoom * 100)}%</Button>
         </Dropdown>
         <div style={{ width: '120px' }}>
-          <Slider min={10} max={200} defaultValue={zoom * 100} onChange={zoom => zoomChange(zoom / 100)} showBoundary={false} size='small' />
+          <Slider min={10} max={200} value={zoom * 100} onChange={zoom => zoomChange(zoom / 100)} showBoundary={false} size='small' />
         </div>
         <Divider layout='vertical' />
         <Button

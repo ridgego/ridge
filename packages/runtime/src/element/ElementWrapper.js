@@ -23,7 +23,6 @@ class ElementWrapper {
 
     this.mode = mode
     this.pageManager = pageManager
-    this.pageStore = pageManager.pageStore
     this.ridge = pageManager.ridge
 
     // 系统内置属性
@@ -323,7 +322,6 @@ class ElementWrapper {
     }
     this.el = null
 
-    this.pageStore && this.pageStore.unsubscribe(this.id)
   }
 
   /**
@@ -379,7 +377,7 @@ class ElementWrapper {
       if (this.config.styleEx[styleName] == null || this.config.styleEx[styleName] === '') {
         continue
       }
-      this.style[styleName] = this.pageStore.getStateValue(this.config.styleEx[styleName], this.getContextState())
+      // this.style[styleName] = this.pageStore.getStateValue(this.config.styleEx[styleName], this.getContextState())
     }
   }
 
@@ -526,15 +524,6 @@ class ElementWrapper {
     }
   }
 
-  /**
-     * 获取当前组件可见的上下文变量信息
-     */
-  getContextState () {
-    return Object.assign({},
-      this.pageManager.pageStore.getState(),
-      this.getScopeStateValues()
-    )
-  }
 
   getIndexList () {
     const parentIndex = this.parentWrapper ? this.parentWrapper.getIndexList() : []
@@ -606,9 +595,6 @@ class ElementWrapper {
   // 组件对外发出事件
   async emit (eventName, payload) {
     // 无store 不处理事件
-    if (!this.pageStore) {
-      return
-    }
     log('Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
@@ -622,7 +608,7 @@ class ElementWrapper {
       for (const action of this.config.events[eventName]) {
         if (action.method) {
           const [target, method] = action.method.split('.')
-          this.pageManager.doStoreAction(target, method)
+          this.pageManager.doStoreAction(target, method, this.getIndexList())
         }
       }
     }
