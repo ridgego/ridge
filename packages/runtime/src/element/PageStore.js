@@ -5,9 +5,9 @@ export default class PageStore {
   constructor (pageElementManager) {
     this.pageElementManager = pageElementManager
     this.ridge = pageElementManager.ridge
-    if (!this.ridge.pinia) {
-      this.ridge.pinia = createPinia()
-    }
+    // if (!this.ridge.pinia) {
+    this.ridge.pinia = createPinia()
+    // }
     // 一个页面支持多个store
     this.storeObjects = {} // 定义
     this.stores = {} // pinia store
@@ -55,7 +55,7 @@ export default class PageStore {
 
   doStoreAction (storeKey, action, payload) {
     if (this.stores[storeKey] && this.stores[storeKey][action]) {
-      this.stores[storeKey][action](payload)
+      this.stores[storeKey][action](...payload)
     }
   }
 

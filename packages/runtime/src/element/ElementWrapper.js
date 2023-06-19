@@ -377,7 +377,7 @@ class ElementWrapper {
       if (this.config.styleEx[styleName] == null || this.config.styleEx[styleName] === '') {
         continue
       }
-      this.style[styleName] = this.pageStore.getStoreValue(this.config.styleEx[styleName], this.getIndexList())
+      this.style[styleName] = this.pageStore.getStoreValue(this.config.styleEx[styleName], this.getScopeItems())
     }
   }
 
@@ -510,12 +510,16 @@ class ElementWrapper {
     }
   }
 
-  getIndexList () {
-    const parentIndex = this.parentWrapper ? this.parentWrapper.getIndexList() : []
-    if (this.listIndex != null) {
-      return [...parentIndex, this.listIndex]
+  setScopeItem (scopeItem) {
+    this.scopeItem = scopeItem
+  }
+
+  getScopeItems () {
+    const parentScopes = this.parentWrapper ? this.parentWrapper.getScopeItems() : []
+    if (this.scopeItem != null) {
+      return [...parentScopes, this.scopeItem]
     } else {
-      return parentIndex
+      return parentScopes
     }
   }
 
@@ -542,7 +546,7 @@ class ElementWrapper {
       if (value == null || value === '') {
         continue
       }
-      this.properties[key] = this.pageStore.getStoreValue(value, this.getIndexList())
+      this.properties[key] = this.pageStore.getStoreValue(value, this.getScopeItems())
     }
   }
 
@@ -593,7 +597,7 @@ class ElementWrapper {
       for (const action of this.config.events[eventName]) {
         if (action.method) {
           const [target, method] = action.method.split('.')
-          this.pageStore.doStoreAction(target, method, this.getIndexList())
+          this.pageStore.doStoreAction(target, method, this.getScopeItems())
         }
       }
     }

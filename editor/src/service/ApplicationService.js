@@ -155,6 +155,9 @@ export default class ApplicationService {
      */
   async savePageContent (id, content) {
     await this.collection.patch({ id }, {})
+    if (content.then) {
+      debugger
+    }
     await this.store.setItem(id, content)
   }
 

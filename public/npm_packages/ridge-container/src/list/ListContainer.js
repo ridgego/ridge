@@ -140,8 +140,9 @@ export default class ListContainer extends Container {
           const wrapper = existedEl.elementWrapper
 
           // 更新属性后强制更新
-
-          wrapper.listIndex = index
+          // wrapper.listIndex = index
+          wrapper.setScopeItem(data)
+          wrapper.forceUpdate()
           // wrapper.setScopeStateValues({
           //   $item: data,
           //   $index: index,
@@ -160,7 +161,7 @@ export default class ListContainer extends Container {
           const newWrapper = renderItem.clone()
           newWrapper.parentWrapper = this.wrapper
 
-          newWrapper.listIndex = index
+          newWrapper.setScopeItem(data)
           // newWrapper.setScopeStateValues({
           //   $hover: false,
           //   $item: data,
