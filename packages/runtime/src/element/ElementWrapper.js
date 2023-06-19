@@ -23,6 +23,7 @@ class ElementWrapper {
 
     this.mode = mode
     this.pageManager = pageManager
+    this.pageStore = pageManager.pageStore
     this.ridge = pageManager.ridge
 
     // 系统内置属性
@@ -300,7 +301,7 @@ class ElementWrapper {
     if (this.mode !== 'edit') {
       // 将所有需要连接的属性传入订阅
       new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
-        this.pageManager.subscribe(expr, () => {
+        this.pageStore.subscribe(expr, () => {
           this.forceUpdate()
         })
       })
@@ -321,7 +322,6 @@ class ElementWrapper {
       this.el.parentElement.removeChild(this.el)
     }
     this.el = null
-
   }
 
   /**
@@ -377,7 +377,7 @@ class ElementWrapper {
       if (this.config.styleEx[styleName] == null || this.config.styleEx[styleName] === '') {
         continue
       }
-      // this.style[styleName] = this.pageStore.getStateValue(this.config.styleEx[styleName], this.getContextState())
+      this.style[styleName] = this.pageStore.getStoreValue(this.config.styleEx[styleName], this.getIndexList())
     }
   }
 
@@ -510,21 +510,6 @@ class ElementWrapper {
     }
   }
 
-  setScopeStateValues (state) {
-    this.scopeState = state
-
-    this.forceUpdate()
-  }
-
-  getScopeStateValues () {
-    if (this.parentWrapper) {
-      return Object.assign(this.parentWrapper.getScopeStateValues(), this.scopeState)
-    } else {
-      return this.scopeState
-    }
-  }
-
-
   getIndexList () {
     const parentIndex = this.parentWrapper ? this.parentWrapper.getIndexList() : []
     if (this.listIndex != null) {
@@ -557,7 +542,7 @@ class ElementWrapper {
       if (value == null || value === '') {
         continue
       }
-      this.properties[key] = this.pageManager.getStoreValue(value, this.getIndexList())
+      this.properties[key] = this.pageStore.getStoreValue(value, this.getIndexList())
     }
   }
 
@@ -599,7 +584,7 @@ class ElementWrapper {
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
       if (this.config.propEx.value) {
-        this.pageManager.dispatchStateChange(this.config.propEx.value, payload)
+        this.pageStore.dispatchStateChange(this.config.propEx.value, payload)
       }
       return
     }
@@ -608,7 +593,7 @@ class ElementWrapper {
       for (const action of this.config.events[eventName]) {
         if (action.method) {
           const [target, method] = action.method.split('.')
-          this.pageManager.doStoreAction(target, method, this.getIndexList())
+          this.pageStore.doStoreAction(target, method, this.getIndexList())
         }
       }
     }
