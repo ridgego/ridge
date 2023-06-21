@@ -71,7 +71,7 @@ export default props => {
         >
           <Button disabled={modeRun} icon={<IconTemplate />} theme='borderless' size='small' type='tertiary' />
         </Dropdown> */}
-        <Popover
+        {/* <Popover
           showArrow
           zIndex={3001}
           trigger='click'
@@ -79,7 +79,7 @@ export default props => {
           content={<AppSettingPanel />}
         >
           <Button disabled={modeRun} icon={<IconSetting />} theme='borderless' size='small' type='tertiary' />
-        </Popover>
+        </Popover> */}
         <Button
           disabled={!currentPageId}
           type={modeRun ? 'primary' : 'tertiary'}

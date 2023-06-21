@@ -1,10 +1,8 @@
 import Button from './Button'
-import { border, text } from 'ridge-prop-utils'
-import icon from './button.svg'
 export default {
   name: 'button',
   component: Button,
-  icon,
+  icon: 'bi bi-pause-btn',
   type: 'vanilla',
   title: '按钮',
   width: 64,
@@ -12,21 +10,12 @@ export default {
   props: [{
     name: 'text',
     label: '文本',
-    type: 'string'
-  }, {
-    name: 'data',
-    label: '数据',
-    type: 'object'
-  }, ...border.props, ...text.props, {
-    name: 'hoverBg',
-    label: '悬浮背景',
     type: 'string',
-    control: 'background'
+    value: '按钮'
   }, {
-    name: 'downBg',
-    label: '点击背景',
-    type: 'string',
-    control: 'background'
+    name: 'className',
+    label: '样式',
+    type: ''
   }],
   events: [{
     label: '点击事件',

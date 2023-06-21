@@ -94,8 +94,11 @@ export default class WorkSpaceControl {
 
   setZoom (zoom) {
     this.zoom = zoom
-    this.moveable.target = []
-    this.moveable.updateTarget()
+
+    if (this.moveable) {
+      this.moveable.target = []
+      this.moveable.updateTarget()
+    }
 
     this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${this.zoom})`
     // this.moveable.zoom = zoom

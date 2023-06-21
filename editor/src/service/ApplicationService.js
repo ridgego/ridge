@@ -55,7 +55,7 @@ export default class ApplicationService {
     this.fileTree = getFileTree(files)
 
     await eachNode(this.fileTree, async (file) => {
-      if (file.mimeType && file.mimeType.indexOf('image/') > -1) {
+      if (file.mimeType && (file.mimeType.indexOf('image/') > -1 || file.mimeType.indexOf('audio/') > -1)) {
         if (this.dataUrlByPath[file.path] == null) {
           const dataUrl = await this.store.getItem(file.key)
           const blob = await dataURLtoBlob(dataUrl)
@@ -155,9 +155,6 @@ export default class ApplicationService {
      */
   async savePageContent (id, content) {
     await this.collection.patch({ id }, {})
-    if (content.then) {
-      debugger
-    }
     await this.store.setItem(id, content)
   }
 

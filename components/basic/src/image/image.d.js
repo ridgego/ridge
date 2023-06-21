@@ -1,13 +1,13 @@
-import Image from './Image.jsx'
-import icon from './image.svg'
+import Image from './Image.js'
 
 export default {
   name: 'image',
   component: Image,
-  icon,
+  icon: 'bi bi-image',
   title: '图片',
-  width: 120,
-  height: 90,
+  type: 'vanilla',
+  width: 260,
+  height: 160,
   props: [{
     name: 'src',
     type: 'image',
@@ -15,7 +15,7 @@ export default {
     value: ''
   }, {
     name: 'objectFit',
-    label: '大小适应',
+    label: '自适应',
     type: 'string',
     control: 'select',
     optionList: [{
@@ -31,5 +31,21 @@ export default {
       label: '原尺寸',
       value: 'none'
     }]
+  }, {
+    name: 'borderRadius',
+    label: '圆角',
+    type: 'padding',
+    position: 'corner',
+    value: '0 0 0 0'
+  }, {
+    name: 'border',
+    label: '边框',
+    type: 'border',
+    value: '0px solid #CCC'
+  }, {
+    name: 'className',
+    label: '样式',
+    type: 'class',
+    value: []
   }]
 }

@@ -11,15 +11,17 @@ export default ({
   })
   return (
     <>
-      {src && <img
-        style={stl}
-        src={src}
-              />}
-      {!src && <div style={{
-        ...stl,
-        backgrond: 'rgba(ff,0,0,.3)'
-      }}
-               />}
+      {src &&
+        <img
+          style={stl}
+          src={src}
+        />}
+      {!src &&
+        <div style={{
+          ...stl,
+          backgrond: 'rgba(ff,0,0,.3)'
+        }}
+        />}
     </>
   )
 }

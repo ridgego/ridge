@@ -21,6 +21,8 @@ import FontEdit from './with-fields/FontEdit.jsx'
 import ArrayEdit from './with-fields/ArrayEdit.jsx'
 import SeriesTableEdit from './with-fields/SeriesTableEdit.jsx'
 import './form.less'
+import ClassEdit from './with-fields/ClassEdit.jsx'
+import AudioEdit from './with-fields/AudioEdit.jsx'
 
 export default class ObjectForm extends React.Component {
   constructor (props) {
@@ -51,11 +53,12 @@ export default class ObjectForm extends React.Component {
       radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
       checkboxgroup: (col, readonly) => <CheckBoxGroupEdit label={col.label} field={col.field} optionList={col.optionList} selectAll={col.selectAll} disabled={readonly} />,
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
+      padding: (col, readonly) => <PaddingEdit disabled={readonly} {...col} />,
       boxshadow: (col, readonly) => <BoxShadowEdit label={col.label} field={col.field} disabled={readonly} />,
       event: (col, readonly, options) => <EventEdit className='event-field' noLabel field={col.field} options={{ label: col.label, ...options }} />,
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
-      padding: (col, readonly) => <PaddingEdit disabled={readonly} {...col} />,
+      audio: (col, readonly) => <AudioEdit label={col.label} field={col.field} disabled={readonly} />,
       rect: (col, readonly) => <RectEdit label={col.label} field={col.field} noLabel disabled={readonly} />,
       font: (col, readonly) => <FontEdit label={col.label} field={col.field} disabled={readonly} />,
       background: (col, readonly) => <BackgroundEdit label={col.label} field={col.field} disabled={readonly} />,
@@ -64,6 +67,7 @@ export default class ObjectForm extends React.Component {
       presetcolorpicker: (col, readonly) => <PresetColorPicker label={col.label} field={col.field} options={col.presetColors} disabled={readonly} />,
       json: (col, readonly) => <JSONEdit label={col.label} field={col.field} disabled={readonly} />,
       array: (col) => <ArrayEdit label={col.label} field={col.field} options={col} />,
+      class: (col) => <ClassEdit label={col.label} field={col.field} options={col} />,
       SeriesData: (col) => <SeriesTableEdit {...col} />
     }
   }

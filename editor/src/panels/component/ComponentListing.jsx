@@ -79,9 +79,37 @@ class ComponentListing extends React.Component {
     }
   }
 
+  renderComponentIcon (icon) {
+    if (icon) {
+      if (icon.startsWith('data:image')) {
+        return (
+          <div
+            className='component-icon' style={{
+              '-webkit-mask-image': `url("${decodeURI(icon)}")`,
+              'mask-image': `url("${decodeURI(icon)}")`
+            }}
+          />
+        )
+      } else if (icon.indexOf(' ') > -1) {
+        return <div className={icon + ' font-icon'} />
+      } else if (SemiIcon[icon]) {
+        const Icon = SemiIcon[icon]
+        return (
+          <Icon
+            style={{
+              color: 'var( --semi-color-secondary)'
+            }}
+          />
+        )
+      }
+    } else {
+      return null
+    }
+  }
+
   render () {
     const { packageListingLoaded, packages, currentPackage } = this.state
-    const { dragStart } = this
+    const { dragStart, renderComponentIcon } = this
 
     const tabChange = this.tabChange.bind(this)
     return (
@@ -104,9 +132,7 @@ class ComponentListing extends React.Component {
                 className='tab-title'
                 collapsible
                 tab={
-                  <div className='package-icon'>
-                    <img src={decodeURI(pkg.icon)} />
-                  </div>
+                  <div className={'package-icon ' + pkg.icon} />
                 }
                 key={pkg.name}
                 itemKey={pkg.name}
@@ -120,7 +146,6 @@ class ComponentListing extends React.Component {
                     }}
                     dataSource={filteredComponents}
                     renderItem={item => {
-                      const Icon = SemiIcon[item.icon]
                       return (
                         <List.Item>
                           <div
@@ -130,21 +155,7 @@ class ComponentListing extends React.Component {
                             }))}
                             className='component-container'
                           >
-                            {
-                            item.icon && item.icon.startsWith('data:image') &&
-                              <div
-                                className='component-icon' style={{
-                                  '-webkit-mask-image': `url("${decodeURI(item.icon)}")`,
-                                  'mask-image': `url("${decodeURI(item.icon)}")`
-                                }}
-                              />
-                            }
-                            {Icon &&
-                              <Icon
-                                style={{
-                                  color: item.iconColor || 'var( --semi-color-secondary)'
-                                }}
-                              />}
+                            {renderComponentIcon(item.icon)}
                             <Text>{item.title || item.label} </Text>
                           </div>
                         </List.Item>

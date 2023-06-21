@@ -106,7 +106,11 @@ export default class Editor extends React.Component {
       const pageJSONObject = this.pageElementManager.getPageJSON()
       this.pageConfig.content = pageJSONObject
       trace('Save Page', this.pageConfig.id, pageJSONObject)
-      await this.ridge.appService.savePageContent(this.pageConfig.id, pageJSONObject)
+      try {
+        await this.ridge.appService.savePageContent(this.pageConfig.id, pageJSONObject)
+      } catch (e) {
+        console.error('save page error', e)
+      }
     }
   }
 

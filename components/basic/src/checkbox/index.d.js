@@ -1,10 +1,9 @@
 import CheckBox from './CheckBox'
-import icon from './check-square.svg'
 
 export default {
   name: 'checkbox',
   component: CheckBox,
-  icon,
+  icon: 'bi bi-check2-circle',
   type: 'vanilla',
   title: '单选框',
   width: 24,

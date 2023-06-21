@@ -4,6 +4,7 @@ export default {
   name: 'icon',
   component: Icon,
   type: 'vanilla',
+  icon: 'bi bi-bag',
   title: '图标',
   width: 64,
   height: 64,

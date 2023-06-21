@@ -1,10 +1,8 @@
 import Input from './Input'
-import { border } from 'ridge-prop-utils'
-import icon from './input.svg'
 export default {
   name: 'input',
   component: Input,
-  icon,
+  icon: 'bi bi-textarea-resize',
   type: 'vanilla',
   title: '输入框',
   width: 160,
@@ -20,17 +18,17 @@ export default {
     type: 'string',
     value: '请输入文本'
   }, {
-    label: '字号',
-    name: 'fontSize',
-    type: 'number',
-    value: ''
+    label: '字体',
+    name: 'font',
+    type: 'font',
+    value: {}
   }, {
     name: 'color',
     label: '颜色',
     type: 'string',
     control: 'colorpicker',
     value: ''
-  }, ...border.props],
+  }],
   events: [{
     label: '输入值变化',
     name: 'onChange'

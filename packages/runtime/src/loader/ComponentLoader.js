@@ -503,7 +503,7 @@ class ComponentLoader {
   prefixPackageJSON (packageObject, prefix) {
     if (packageObject.icon) {
       if (!packageObject.icon.startsWith('data:image')) {
-        packageObject.icon = `${prefix}/${packageObject.icon}`
+      //  packageObject.icon = `${prefix}/${packageObject.icon}`
       }
     } else {
       packageObject.icon = `${prefix}/icon.svg`

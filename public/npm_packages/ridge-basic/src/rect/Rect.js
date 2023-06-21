@@ -1,5 +1,3 @@
-import { border } from 'ridge-prop-utils'
-
 export default class DivRect {
   constructor (props) {
     this.props = props
@@ -21,7 +19,6 @@ export default class DivRect {
   }
 
   update (props) {
-    Object.assign(this.props, border.style(props))
     this.render()
   }
 

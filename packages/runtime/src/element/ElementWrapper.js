@@ -553,7 +553,7 @@ class ElementWrapper {
   // 处理本地模式下，图片地址换为本地dataUrl
   updateAssetsProperties () {
     if (this.pageManager.mode === 'edit' || this.pageManager.mode === 'preview') {
-      const imageProps = this.componentDefinition.props.filter(prop => prop.type === 'image')
+      const imageProps = this.componentDefinition.props.filter(prop => prop.type === 'image' || prop.type === 'audio')
       for (const imgProp of imageProps) {
         if (this.config.props[imgProp.name]) {
           this.properties[imgProp.name] = this.ridge.appService.getDataUrl(this.config.props[imgProp.name])
@@ -583,7 +583,7 @@ class ElementWrapper {
 
   // 组件对外发出事件
   async emit (eventName, payload) {
-    // 无store 不处理事件
+    if (this.mode === 'edit') return
     log('Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况

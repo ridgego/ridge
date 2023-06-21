@@ -1,9 +1,43 @@
 import React from 'react'
-import PopColorPicker from './PopColorPicker.jsx'
-import { IconMinusStroked, IconIndependentCornersStroked } from '@douyinfe/semi-icons'
-import { Select, Space, withField, Button, InputNumber } from '@douyinfe/semi-ui'
+import { Select, Space, withField, InputNumber } from '@douyinfe/semi-ui'
+import ColorPicker from './ColorPicker.jsx'
 
-const BorderEdit = withField(({
+const BorderEdit = ({
+  value,
+  onChange
+}) => {
+  const [borderWidth = '', borderStyle = 'solid', borderColor = '#ccc'] = (value || '').split(' ')
+
+  return (
+    <Space>
+      <InputNumber
+        width={40}
+        size='small' value={parseInt(borderWidth) || 0} onChange={val => {
+          onChange(`${val}px ${borderStyle} ${borderColor}`)
+        }}
+      />
+      <Select
+        size='small'
+        value={borderStyle} onChange={val => {
+          onChange(`${borderWidth} ${val} ${borderColor}`)
+        }}
+      >
+        <Select.Option value='solid'>实线</Select.Option>
+        <Select.Option value='dashed'>点划线</Select.Option>
+      </Select>
+      <ColorPicker
+        value={borderColor} onChange={val => {
+          onChange(`${borderWidth} ${borderStyle} ${val}`)
+        }}
+      />
+    </Space>
+  )
+}
+
+export default withField(BorderEdit)
+/*
+{ /*
+const BorderEdit1 = withField(({
   value,
   onChange
 }) => {
@@ -110,6 +144,4 @@ const BorderEdit = withField(({
       </>
     )
   }
-})
-
-export default BorderEdit
+}) */

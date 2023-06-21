@@ -2,7 +2,7 @@ import React from 'react'
 import trim from 'lodash/trim'
 import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
-import { IconTick, IconFolderOpen, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
+import { IconTick, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on, appService } from '../../service/RidgeEditService.js'
 import { eachNode, getFileTree } from './buildFileTree.js'
 import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_WORKSPACE_RESET, EVENT_FILE_TREE_CHANGE } from '../../constant'
@@ -12,7 +12,7 @@ import DialogCodeEdit from './DialogCodeEdit.jsx'
 const trace = debug('ridge:file')
 const { Text } = Typography
 
-const ACCEPT_FILES = '.png,.jpg,.gif,.woff,.svg,.json,.css,.js'
+const ACCEPT_FILES = 'image/*,video/*,audio/*,.woff,.json,.css,.js'
 class AppFileList extends React.Component {
   constructor () {
     super()
@@ -46,6 +46,8 @@ class AppFileList extends React.Component {
         if (file.mimeType) {
           if (file.mimeType === 'application/font-woff') {
             file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
+          } else if (file.mimeType.indexOf('audio') > -1) {
+            file.icon = (<IconMusic style={{ color: 'var(--semi-color-text-2)' }} />)
           } else if (file.dataUrl) {
             file.icon = <Popover showArrow content={<img className='image-full' src={file.dataUrl} />}><img className='icon-image' src={file.dataUrl} /></Popover>
           } else {
@@ -148,7 +150,6 @@ class AppFileList extends React.Component {
   createDirectory = async (dir) => {
     const { appService } = ridge
     await appService.createDirectory(dir || this.getCurrentDir())
-    await this.updateFileTree()
   }
 
   /**
@@ -173,7 +174,6 @@ class AppFileList extends React.Component {
     this.setState({
       currentParent: -1
     })
-    await this.updateFileTree()
   }
 
   showCreateDialog = (isFile) => {
@@ -192,7 +192,6 @@ class AppFileList extends React.Component {
     } else {
       await appService.createDirectory(this.state.currentParent, this.state.currentEditValue)
     }
-    // await this.updateFileTree()
 
     this.setState({
       createDialogShow: false
@@ -202,7 +201,6 @@ class AppFileList extends React.Component {
   createPage = async (dir) => {
     const { appService } = ridge
     const newPage = await appService.createPage(dir || this.getCurrentDir())
-    // await this.updateFileTree()
     this.setState({
       currentEditKey: newPage.id,
       currentEditValue: newPage.name,
@@ -222,7 +220,6 @@ class AppFileList extends React.Component {
   copy = async node => {
     const { appService } = ridge
     await appService.copy(node.key)
-    // await this.updateFileTree()
   }
 
   open = async (node) => {
@@ -235,22 +232,22 @@ class AppFileList extends React.Component {
         currentOpenId: node.key
       })
     } else if (node.mimeType && node.mimeType.indexOf('image/') > -1) {
-      const otherImageFiles = this.state.files.filter(file => {
-        if (file.mimeType && file.mimeType.indexOf('image/') > -1 && file.id !== node.key) {
-          return true
-        } else {
-          return false
-        }
-      })
-      const srcList = []
+      // const otherImageFiles = this.state.files.filter(file => {
+      //   if (file.mimeType && file.mimeType.indexOf('image/') > -1 && file.id !== node.key) {
+      //     return true
+      //   } else {
+      //     return false
+      //   }
+      // })
+      // const srcList = []
 
-      srcList.push(await ridge.appService.store.getItem(node.key))
-      for (const imageFile of otherImageFiles) {
-        srcList.push(await ridge.appService.store.getItem(imageFile.id))
-      }
+      // srcList.push(await ridge.appService.store.getItem(node.key))
+      // for (const imageFile of otherImageFiles) {
+      //   srcList.push(await ridge.appService.store.getItem(imageFile.id))
+      // }
 
       this.setState({
-        imagePreviewSrc: srcList,
+        imagePreviewSrc: node.dataUrl,
         imagePreviewVisible: true
       })
     } else if (node.mimeType && (node.mimeType === 'text/css' || node.mimeType === 'text/javascript')) {

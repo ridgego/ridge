@@ -2,7 +2,6 @@ import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../../form/ObjectForm.jsx'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import PageDataConfig from './PageDataConfig.jsx'
 import { emit, on, ridge, appService } from '../../service/RidgeEditService.js'
 import debug from 'debug'
 
@@ -170,14 +169,11 @@ export default class ComponentPanel extends React.Component {
 
     this.state = {
       pageFields: PAGE_FIELDS,
-      pageStates: [],
-      pageReducers: [],
       nodePropFields: [], // 当前节点属性
       nodeEventFields: [], // 当前节点事件
       nodePropsValues: {},
       nodeEventsValues: {}
     }
-    // this.initEvents()
   }
 
   static contextType = ThemeContext
@@ -196,17 +192,7 @@ export default class ComponentPanel extends React.Component {
       this.pagePropFormApi.setValue('name', name, {
         notNotify: true
       })
-      this.setState({
-        pageReducers: reducers,
-        pageStates: states
-      })
       this.updatePageConfigFields()
-    })
-    on(EVENT_PAGE_CONFIG_CHANGE, ({ states, reducers }) => {
-      this.setState({
-        pageReducers: reducers,
-        pageStates: states
-      })
     })
     on(EVENT_PAGE_RENAMED, name => {
       this.pagePropFormApi.setValue('name', name, {
@@ -419,8 +405,6 @@ export default class ComponentPanel extends React.Component {
     const {
       nodePropFields,
       nodeEventFields,
-      pageReducers,
-      pageStates,
       nodeEventsValues,
       pageFields
     } = this.state
@@ -478,29 +462,20 @@ export default class ComponentPanel extends React.Component {
           <TabPane tab='属性' itemKey='props'>
             <ObjectForm
               fields={nodePropFields}
-              getFormApi={basicPropsAPI} onValueChange={componentPropValueChange} options={{
-                pageReducers,
-                pageStates
-              }}
+              getFormApi={basicPropsAPI} onValueChange={componentPropValueChange}
             />
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
               initValues={nodeEventsValues}
               fields={nodeEventFields}
-              getFormApi={eventPropsAPI} onValueChange={componentEventValueChange} options={{
-                pageReducers,
-                pageStates
-              }}
+              getFormApi={eventPropsAPI} onValueChange={componentEventValueChange}
             />
           </TabPane>
           <TabPane tab='样式' itemKey='style'>
             <ObjectForm
               fields={COMPONENT_STYLE_FIELDS}
-              getFormApi={basicStylesAPI} onValueChange={componentStyleValueChange} options={{
-                pageReducers,
-                pageStates
-              }}
+              getFormApi={basicStylesAPI} onValueChange={componentStyleValueChange}
             />
           </TabPane>
         </Tabs>
@@ -521,14 +496,8 @@ export default class ComponentPanel extends React.Component {
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
-              getFormApi={pageEventPropsAPI} onValueChange={componentEventValueChange} options={{
-                pageReducers,
-                pageStates
-              }}
+              getFormApi={pageEventPropsAPI} onValueChange={componentEventValueChange}
             />
-          </TabPane>
-          <TabPane tab='数据' itemKey='data'>
-            <PageDataConfig />
           </TabPane>
         </Tabs>
       </>
