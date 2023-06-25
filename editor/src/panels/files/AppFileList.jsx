@@ -21,17 +21,18 @@ class AppFileList extends React.Component {
       currentOpenId: null,
       imagePreviewVisible: false,
       imagePreviewSrc: null,
-      expandedKeys: [],
       treeData: null,
+      expandedKeys: [],
       selected: null,
-      currentEditKey: null,
       currentParent: -1,
       currentSelectedNode: null,
       createDialogShow: false,
       isCreateFile: false,
-      newFileName: '',
+
+      currentEditKey: null,
+      currentEditFileName: '',
       currentEditValid: true,
-      currentEditValue: '',
+
       codeEditNodeId: null,
       codeEditType: '',
       codeEditText: '',
@@ -101,7 +102,7 @@ class AppFileList extends React.Component {
   editLabelCheck = (val, key) => {
     const trimVal = trim(val)
     this.setState({
-      currentEditValue: trimVal
+      currentEditFileName: trimVal
     })
     if (trimVal === '') {
       this.setState({
@@ -132,17 +133,20 @@ class AppFileList extends React.Component {
   /**
    * 更新并保存命名修改
    */
-  checkUpdateEditName = async () => {
+  confirmRename = async () => {
     if (this.state.currentEditValid) {
       const { appService } = ridge
-      await appService.rename(this.state.currentEditKey, this.state.currentEditValue)
+      await appService.rename(this.state.currentEditKey, this.state.currentEditFileName)
       if (this.state.currentOpenId === this.state.currentEditKey) {
-        emit(EVENT_PAGE_RENAMED, this.state.currentEditValue)
+        emit(EVENT_PAGE_RENAMED, this.state.currentEditFileName)
       }
       this.setState({
+        showCreateDialog: false,
+        currentEditFileName: '',
         currentEditValid: true,
         currentEditKey: null
       })
+      Toast.success('文件已经重新命名为：' + this.state.currentEditFileName)
     }
   }
 
@@ -174,23 +178,24 @@ class AppFileList extends React.Component {
     this.setState({
       currentParent: -1
     })
+    Toast.success('文件已经删除')
   }
 
   showCreateDialog = (isFile) => {
     this.setState({
       currentEditKey: null,
+      currentEditFileName: '',
       createDialogShow: true,
-      isCreateFile: isFile,
-      newFileName: ''
+      isCreateFile: isFile
     })
   }
 
   confirmCreateFile = async () => {
     const { appService } = ridge
     if (this.state.isCreateFile) {
-      await appService.createPage(this.state.currentParent, this.state.currentEditValue)
+      await appService.createPage(this.state.currentParent, this.state.currentEditFileName)
     } else {
-      await appService.createDirectory(this.state.currentParent, this.state.currentEditValue)
+      await appService.createDirectory(this.state.currentParent, this.state.currentEditFileName)
     }
 
     this.setState({
@@ -206,13 +211,15 @@ class AppFileList extends React.Component {
       currentEditValue: newPage.name,
       currentEditValid: true
     })
+    Toast.success('文件创建完成')
   }
 
   rename = async (node) => {
     this.setState({
+      createDialogShow: true,
       currentParent: node.parent,
       currentEditKey: node.key,
-      currentEditValue: node.label,
+      currentEditFileName: node.label,
       currentEditValid: true
     })
   }
@@ -220,6 +227,7 @@ class AppFileList extends React.Component {
   copy = async node => {
     const { appService } = ridge
     await appService.copy(node.key)
+    Toast.success('文件复制完成')
   }
 
   open = async (node) => {
@@ -309,6 +317,8 @@ class AppFileList extends React.Component {
         errors.push(file)
       }
     }
+
+    Toast.success('文件上传完成')
 
     if (errors.length) {
       Toast.warning({
@@ -410,53 +420,61 @@ class AppFileList extends React.Component {
       </Dropdown.Item>
     )
     return (
-      <div>
-        {data.key === currentEditKey &&
-          <Input
-            validateStatus={!currentEditValid ? 'error' : 'default'}
-            onChange={(val) => {
-              this.editLabelCheck(val, currentEditKey)
-            }} size='small' defaultValue={label}
-            suffix={<IconTick style={{ cursor: 'pointer' }} onClick={() => this.checkUpdateEditName()} color={!currentEditValid ? 'error' : 'default'} />}
-          />}
-        {data.key !== currentEditKey &&
-          <div className={'tree-label' + (currentOpenId === data.key ? ' opened' : '')}>
-            <Text ellipsis={{ showTooltip: true }} style={{ width: 'calc(100% - 48px)' }} className='label-content'>{label}</Text>
-            <Dropdown
-              trigger='click' showTick
-              render={<Dropdown.Menu>{MORE_MENUS}</Dropdown.Menu>}
-            >
-              <Button className='more-button' size='small' theme='borderless' type='tertiary' icon={<IconMoreStroked rotate={90} />} />
-            </Dropdown>
-          </div>}
+      <div className={'tree-label' + (currentOpenId === data.key ? ' opened' : '')}>
+        <Text ellipsis={{ showTooltip: true }} style={{ width: 'calc(100% - 48px)' }} className='label-content'>{label}</Text>
+        <Dropdown
+          trigger='click' showTick
+          render={<Dropdown.Menu>{MORE_MENUS}</Dropdown.Menu>}
+        >
+          <Button className='more-button' size='small' theme='borderless' type='tertiary' icon={<IconMoreStroked rotate={90} />} />
+        </Dropdown>
       </div>
+
+    // <div>
+    //   {data.key === currentEditKey &&
+    //     <Input
+    //       validateStatus={!currentEditValid ? 'error' : 'default'}
+    //       onChange={(val) => {
+    //         this.editLabelCheck(val, currentEditKey)
+    //       }} size='small' defaultValue={label}
+    //       suffix={<IconTick style={{ cursor: 'pointer' }} onClick={() => this.checkUpdateEditName()} color={!currentEditValid ? 'error' : 'default'} />}
+    //     />}
+    //   {data.key !== currentEditKey &&
+    //     }
+    // </div>
     )
   }
 
   renderCreateModal = () => {
-    const { state, confirmCreateFile } = this
-    const { createDialogShow, isCreateFile, currentEditValid, currentParent, currentSelectedNode } = state
+    const { state, confirmCreateFile, confirmRename } = this
+    const { createDialogShow, isCreateFile, currentEditKey, currentEditValid, currentParent, currentSelectedNode, currentEditFileName } = state
 
     let parentPaths = '/'
-    if (currentSelectedNode) {
-      if (currentSelectedNode.type === 'directory') {
-        parentPaths = currentSelectedNode.path
-      } else if (currentSelectedNode.parentNode) {
+    if (currentEditKey) {
+      if (currentSelectedNode.parentNode) {
         parentPaths = currentSelectedNode.parentNode.path
+      }
+    } else {
+      if (currentSelectedNode) {
+        if (currentSelectedNode.type === 'directory') {
+          parentPaths = currentSelectedNode.path
+        } else if (currentSelectedNode.parentNode) {
+          parentPaths = currentSelectedNode.parentNode.path
+        }
       }
     }
 
     return (
       <Modal
-        title={isCreateFile ? '创建新的页面' : '新增目录'}
+        title={currentEditKey ? '重命名' : (isCreateFile ? '创建新的页面' : '新增目录')}
         visible={createDialogShow}
         onOk={() => {
-          if (trim(this.state.newFileName) === '') {
-            this.setState({
-              currentEditValid: false
-            })
-          } else if (this.state.currentEditValid) {
-            confirmCreateFile()
+          if (this.state.currentEditValid) {
+            if (currentEditKey) {
+              confirmRename()
+            } else {
+              confirmCreateFile()
+            }
           }
         }}
         onCancel={() => {
@@ -472,12 +490,10 @@ class AppFileList extends React.Component {
         >
           <Form.Input disabled label='所在目录' initValue={parentPaths} />
           <Form.Input
+            initValue={currentEditFileName}
             validateStatus={currentEditValid ? '' : 'error'}
             label='名称' onChange={val => {
-              this.editLabelCheck(val)
-              this.setState({
-                newFileName: val
-              })
+              this.editLabelCheck(val, currentEditKey)
             }}
           />
         </Form>

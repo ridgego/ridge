@@ -94,8 +94,9 @@ class OutLineTree extends React.Component {
         if (SemiIcons[element.componentDefinition.icon]) {
           const Icon = SemiIcons[element.componentDefinition.icon]
           treeNodeObject.icon = <Icon />
-        } else {
-          treeNodeObject.icon = (<RawSvgIcon svg={element.componentDefinition.icon} />)
+        } else if (element.componentDefinition.icon.startsWith('')) {
+          treeNodeObject.icon = <i style={{ fontSize: '16px', marginRight: '5px' }} className={element.componentDefinition.icon} />
+          // treeNodeObject.icon = (<RawSvgIcon svg={element.componentDefinition.icon} />)
         }
       }
 
