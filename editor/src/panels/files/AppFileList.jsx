@@ -8,6 +8,7 @@ import { eachNode, getFileTree } from './buildFileTree.js'
 import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_WORKSPACE_RESET, EVENT_FILE_TREE_CHANGE } from '../../constant'
 import './file-list.less'
 import DialogCodeEdit from './DialogCodeEdit.jsx'
+import { stringToBlob } from '../../utils/blob.js'
 
 const trace = debug('ridge:file')
 const { Text } = Typography
@@ -141,7 +142,7 @@ class AppFileList extends React.Component {
         emit(EVENT_PAGE_RENAMED, this.state.currentEditFileName)
       }
       this.setState({
-        showCreateDialog: false,
+        createDialogShow: false,
         currentEditFileName: '',
         currentEditValid: true,
         currentEditKey: null
@@ -181,19 +182,27 @@ class AppFileList extends React.Component {
     Toast.success('文件已经删除')
   }
 
-  showCreateDialog = (isFile) => {
+  showCreateDialog = (isFile, createFileType) => {
     this.setState({
       currentEditKey: null,
       currentEditFileName: '',
       createDialogShow: true,
+      createFileType,
       isCreateFile: isFile
     })
   }
 
   confirmCreateFile = async () => {
     const { appService } = ridge
-    if (this.state.isCreateFile) {
-      await appService.createPage(this.state.currentParent, this.state.currentEditFileName)
+    const { isCreateFile, createFileType } = this.state
+    if (isCreateFile) {
+      if (createFileType === 'js') {
+        await appService.createFile(this.state.currentParent, this.state.currentEditFileName, stringToBlob('', 'text/javascript'))
+      } else if (createFileType === 'css') {
+        await appService.createFile(this.state.currentParent, this.state.currentEditFileName, stringToBlob('', 'text/css'))
+      } else {
+        await appService.createPage(this.state.currentParent, this.state.currentEditFileName)
+      }
     } else {
       await appService.createDirectory(this.state.currentParent, this.state.currentEditFileName)
     }
@@ -312,7 +321,7 @@ class AppFileList extends React.Component {
     const { appService } = window.Ridge
     const errors = []
     for (const file of files) {
-      const result = await appService.createFile(dir || this.getCurrentDir(), file, file.name)
+      const result = await appService.createFile(dir || this.getCurrentDir(), file.name, file)
       if (!result) {
         errors.push(file)
       }
@@ -374,6 +383,34 @@ class AppFileList extends React.Component {
         </Dropdown.Item>
       )
       MORE_MENUS.push(<Dropdown.Divider />)
+      MORE_MENUS.push(
+        <Dropdown.Item
+          icon={<i class='bi bi-filetype-js' />} onClick={() => {
+            this.setState({
+              expandedKeys: [data.key, ...this.state.expandedKeys],
+              currentParent: data.key
+            })
+
+            this.showCreateDialog(true, 'js')
+          }}
+        >
+          创建程序文件
+        </Dropdown.Item>
+      )
+      MORE_MENUS.push(
+        <Dropdown.Item
+          icon={<i class='bi bi-filetype-css' />} onClick={() => {
+            this.setState({
+              expandedKeys: [data.key, ...this.state.expandedKeys],
+              currentParent: data.key
+            })
+
+            this.showCreateDialog(true, 'css')
+          }}
+        >
+          创建样式文件
+        </Dropdown.Item>
+      )
     } else {
       MORE_MENUS.push(
         <Dropdown.Item

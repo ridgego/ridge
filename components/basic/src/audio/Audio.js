@@ -26,7 +26,7 @@ export default class Audio {
   }
 
   render () {
-    const { autoPlay, src, playing, onLoaded, onTimeUpdated } = this.props
+    const { autoPlay, src, playing, onLoaded, onTimeUpdated, currentTime, __mode } = this.props
     this.audio.className = 'ridge-audio'
     this.audio.preload = 'auto'
     this.audio.autoPlay = autoPlay
@@ -48,7 +48,14 @@ export default class Audio {
       })
     }
 
-    if (playing && src) {
+    if (currentTime) {
+      this.audio.currentTime = currentTime
+      console.log('currentTime', currentTime)
+      onTimeUpdated && onTimeUpdated({
+        currentTime
+      })
+    }
+    if (playing && src && __mode !== 'edit') {
       this.audio.play()
     } else {
       this.audio.pause()

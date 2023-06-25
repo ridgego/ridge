@@ -1,5 +1,3 @@
-import { text } from 'ridge-prop-utils'
-
 export default class Text {
   constructor (props) {
     this.props = props
@@ -8,26 +6,21 @@ export default class Text {
   async mount (el) {
     this.el = el
     this.textDiv = document.createElement('div')
-
-    this.textDiv.innerHTML = this.props.text
     this.el.append(this.textDiv)
-    Object.assign(this.textDiv.style, this.getStyle())
+
+    this.render()
   }
 
-  getStyle () {
-    const style = {
-      width: '100%',
-      height: '100%',
-      boxSizing: 'border-box',
-      textAlign: this.props.textAlign,
-      ...text.style(this.props)
-    }
-    return style
+  render () {
+    const { text, textAlign, font } = this.props
+    this.textDiv.innerHTML = text
+    this.textDiv.style.textAlign = textAlign
+
+    Object.assign(this.textDiv.style, font)
   }
 
   update (props) {
-    Object.assign(this.props, props)
-    this.textDiv.innerHTML = this.props.text
-    Object.assign(this.textDiv.style, this.getStyle())
+    this.props = props
+    this.render()
   }
 }

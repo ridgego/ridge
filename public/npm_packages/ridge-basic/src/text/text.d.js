@@ -1,5 +1,4 @@
 import Text from './Text.js'
-import { text } from 'ridge-prop-utils'
 export default {
   name: 'text',
   title: '文本',
@@ -10,6 +9,7 @@ export default {
   component: Text,
   props: [{
     label: '内容',
+    connect: true,
     name: 'text',
     type: 'string',
     value: '文本'
@@ -30,5 +30,10 @@ export default {
       label: '靠右',
       value: 'right'
     }]
-  }, ...text.props]
+  }, {
+    label: '字体',
+    name: 'font',
+    type: 'font',
+    value: {}
+  }]
 }

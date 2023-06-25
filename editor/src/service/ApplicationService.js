@@ -65,7 +65,11 @@ export default class ApplicationService {
       }
       if (file.mimeType && (file.mimeType.indexOf('text/css') > -1 || file.mimeType.indexOf('text/javascript') > -1)) {
         const dataUrl = await this.store.getItem(file.key)
-        file.textContent = await dataURLToString(dataUrl)
+        try {
+          file.textContent = await dataURLToString(dataUrl)
+        } catch (e) {
+          file.textContent = ''
+        }
       }
     })
 
@@ -123,7 +127,7 @@ export default class ApplicationService {
    * @param {*} dir
    * @returns
    */
-  async createFile (parentId, blob, name, mimeType) {
+  async createFile (parentId, name, blob, mimeType) {
     const id = nanoid(10)
     const dataUrl = await blobToDataUrl(blob)
 

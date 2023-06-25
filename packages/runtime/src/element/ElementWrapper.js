@@ -261,7 +261,7 @@ class ElementWrapper {
     // 事件类属性写入，DOM初始化后事件才能挂到源头
     for (const event of this.componentDefinition.events || []) {
       this.properties[event.name] = (...args) => {
-        this.emit(event.name, ...args)
+        this.emit(event.name, args)
       }
     }
   }
@@ -588,7 +588,7 @@ class ElementWrapper {
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
       if (this.config.propEx.value) {
-        this.pageStore.dispatchStateChange(this.config.propEx.value, payload)
+        this.pageStore.dispatchStateChange(this.config.propEx.value, payload[0])
       }
       return
     }
@@ -597,7 +597,7 @@ class ElementWrapper {
       for (const action of this.config.events[eventName]) {
         if (action.method) {
           const [target, method] = action.method.split('.')
-          this.pageStore.doStoreAction(target, method, this.getScopeItems())
+          this.pageStore.doStoreAction(target, method, [...payload, ...this.getScopeItems()])
         }
       }
     }

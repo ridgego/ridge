@@ -109,24 +109,32 @@ export default class PageStore {
       actions: []
     }
     const alias = storeDefModule.alias || {}
-    Object.keys(storeDefModule.state()).forEach(key => {
-      tree.states.push({
-        key,
-        alias: alias[key] || key
+    if (storeDefModule.state && typeof storeDefModule.state === 'function') {
+      Object.keys(storeDefModule.state()).forEach(key => {
+        tree.states.push({
+          key,
+          alias: alias[key] || key
+        })
       })
-    })
-    Object.keys(storeDefModule.getters).forEach(key => {
-      tree.states.push({
-        key,
-        alias: alias[key] || key
+    }
+
+    if (storeDefModule.getters && typeof storeDefModule.getters === 'object') {
+      Object.keys(storeDefModule.getters).forEach(key => {
+        tree.states.push({
+          key,
+          alias: alias[key] || key
+        })
       })
-    })
-    Object.keys(storeDefModule.actions).forEach(key => {
-      tree.actions.push({
-        key,
-        alias: alias[key] || key
+    }
+
+    if (storeDefModule.actions && typeof storeDefModule.actions === 'object') {
+      Object.keys(storeDefModule.actions || {}).forEach(key => {
+        tree.actions.push({
+          key,
+          alias: alias[key] || key
+        })
       })
-    })
+    }
     return tree
   }
 }

@@ -11,23 +11,32 @@ export default {
     label: '内容',
     name: 'value',
     type: 'string',
+    connect: true,
     value: ''
   }, {
     label: '占位提示',
     name: 'placeholder',
     type: 'string',
+    connect: true,
     value: '请输入文本'
   }, {
     label: '字体',
     name: 'font',
     type: 'font',
-    value: {}
+    value: {
+      size: '14px'
+    }
   }, {
     name: 'color',
     label: '颜色',
     type: 'string',
     control: 'colorpicker',
     value: ''
+  }, {
+    name: 'className',
+    label: '样式',
+    type: 'class',
+    value: []
   }],
   events: [{
     label: '输入值变化',
