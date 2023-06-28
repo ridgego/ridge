@@ -27,7 +27,7 @@ export default class Rect {
       backgroundImage
     } = this.props
     this.div.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`
-    this.div.style.borderRadius = (borderRadius || 0) + 'px'
+    this.div.style.borderRadius = borderRadius || 0
     this.div.style.backgroundColor = backgroundColor
     this.div.style.backgroundSize = '100%'
     this.div.style.backgroundRepeat = 'no-repeat'

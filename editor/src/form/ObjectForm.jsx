@@ -23,6 +23,8 @@ import SeriesTableEdit from './with-fields/SeriesTableEdit.jsx'
 import './form.less'
 import ClassEdit from './with-fields/ClassEdit.jsx'
 import AudioEdit from './with-fields/AudioEdit.jsx'
+import FontFamilyEdit from './with-fields/FontFamilyEdit.jsx'
+import BooleanEdit from './with-fields/BooleanEdit.jsx'
 
 export default class ObjectForm extends React.Component {
   constructor (props) {
@@ -42,16 +44,13 @@ export default class ObjectForm extends React.Component {
       string: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
       text: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
       checkbox: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
-      boolean: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
+      boolean: (col, readonly) => <BooleanEdit {...col} />,
       select: (col, readonly) => {
-        if (col.required === false) {
-          return <Select placeholder='请选择' showClear size='small' label={col.label} field={col.field} multiple={col.multiple} optionList={col.optionList} disabled={readonly} />
-        } else {
-          return <Select size='small' label={col.label} field={col.field} optionList={col.optionList} multiple={col.multiple} disabled={readonly} />
-        }
+        return <Select size='small' label={col.label} showClear={col.required === false} field={col.field} optionList={col.optionList} multiple={col.multiple} optionList={col.options || col.optionList} disabled={readonly} />
       },
       radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
       checkboxgroup: (col, readonly) => <CheckBoxGroupEdit label={col.label} field={col.field} optionList={col.optionList} selectAll={col.selectAll} disabled={readonly} />,
+      fontFamily: (col, readonly) => <FontFamilyEdit label={col.label} field={col.field} disabled={readonly} />,
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
       padding: (col, readonly) => <PaddingEdit disabled={readonly} {...col} />,
       boxshadow: (col, readonly) => <BoxShadowEdit label={col.label} field={col.field} disabled={readonly} />,
@@ -99,7 +98,7 @@ export default class ObjectForm extends React.Component {
       RenderField.props.noLabel = true
     }
     if (field.type === 'divider') {
-      return <Divider margin='0' align='center'>{field.label || ''}</Divider>
+      return <Divider margin='0' align='left'>{field.label || ''}</Divider>
     } else if (field.fieldEx) {
       // 封装动态绑定的支持
       return (

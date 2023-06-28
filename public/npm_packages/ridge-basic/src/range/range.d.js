@@ -2,7 +2,7 @@ import Range from './Range'
 export default {
   name: 'range',
   component: Range,
-  icon: 'i class="bi bi-sliders"',
+  icon: 'bi bi-sliders',
   type: 'vanilla',
   title: '滑块',
   width: 160,

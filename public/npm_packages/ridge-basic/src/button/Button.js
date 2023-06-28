@@ -8,6 +8,8 @@ export default class Button {
     this.button = document.createElement('button')
     this.button.setAttribute('type', 'button')
 
+    this.button.style.width = '100%'
+    this.button.style.height = '100%'
     this.el.append(this.button)
     this.button.onclick = (e) => {
       this.props.onClick && this.props.onClick()
@@ -17,35 +19,24 @@ export default class Button {
   }
 
   render () {
-    if (this.props.text) {
-      this.button.innerHTML = this.props.text
-    } else {
-      this.button.innerHTML = ''
-    }
-    Object.assign(this.button.style, this.getStyle())
-  }
+    const {
+      text, fontFamily, fontSize,
+      color, borderWidth, borderStyle, borderColor, borderRadius, backgroundColor, classNames
+    } = this.props
 
-  getStyle () {
-    const style = {
-      width: '100%',
-      height: '100%',
-      cursor: 'pointer',
-      boxSizing: 'border-box',
-      lineHeight: '100%',
-      appearance: 'button',
-      color: this.props.color
-    }
-    if (this.props.fontSize) {
-      style.fontSize = this.props.fontSize + 'px'
-    }
+    this.button.innerHTML = text
+    this.button.style.fontFamily = fontFamily
+    this.button.style.fontSize = fontSize + 'px'
+    this.button.style.color = color
+    this.button.style.border = `${borderWidth || 0}px ${borderStyle || 'solid'} ${borderColor || '#ccc'}`
+    this.button.style.borderRadius = borderRadius
+    this.button.style.backgroundColor = backgroundColor
 
-    return style
+    this.button.className = (classNames || []).join(' ')
   }
 
   update (props) {
-    if (props) {
-      Object.assign(this.props, props)
-    }
+    this.props = props
     this.render()
   }
 }

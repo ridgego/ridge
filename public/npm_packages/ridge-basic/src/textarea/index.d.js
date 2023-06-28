@@ -1,18 +1,25 @@
-import Button from './Button'
+import TextArea from './TextArea'
 export default {
-  name: 'button',
-  component: Button,
-  icon: 'bi bi-pause-btn',
+  name: 'input',
+  component: TextArea,
+  icon: 'bi bi-textarea',
   type: 'vanilla',
-  title: '按钮',
-  order: 4,
-  width: 64,
+  title: '多行输入',
+  order: 6,
+  width: 160,
   height: 28,
   props: [{
-    name: 'text',
-    label: '文本',
+    label: '内容',
+    name: 'value',
     type: 'string',
-    value: '按钮'
+    connect: true,
+    value: ''
+  }, {
+    label: '提示',
+    name: 'placeholder',
+    type: 'string',
+    connect: true,
+    value: '请输入文本'
   }, {
     name: 'fontFamily',
     label: '字体',
@@ -29,11 +36,13 @@ export default {
     name: 'color',
     label: '颜色',
     width: '50%',
+    connect: true,
     type: 'color',
     value: '#333'
   }, {
     name: 'backgroundColor',
     label: '背景色',
+    connect: true,
     width: '50%',
     type: 'color'
   }, {
@@ -63,13 +72,26 @@ export default {
   }, {
     name: 'borderColor',
     width: 28,
+    connect: true,
     type: 'color'
   }, {
     name: 'borderRadius',
     label: '圆角',
     width: '50%',
-    type: 'string',
-    value: '0px'
+    type: 'number',
+    value: 0
+  }, {
+    name: 'padding',
+    label: '内边',
+    width: '50%',
+    type: 'number',
+    value: 0
+  }, {
+    name: 'readonly',
+    label: '只读',
+    connect: true,
+    width: '50%',
+    type: 'boolean'
   }, {
     name: 'classNames',
     label: '样式',
@@ -77,7 +99,10 @@ export default {
     value: []
   }],
   events: [{
-    label: '点击事件',
-    name: 'onClick'
+    label: '输入值变化',
+    name: 'onChange'
+  }, {
+    label: '按下回车键',
+    name: 'onPressEnter'
   }]
 }

@@ -1,18 +1,42 @@
-import Button from './Button'
+import Select from './Select'
 export default {
-  name: 'button',
-  component: Button,
-  icon: 'bi bi-pause-btn',
+  name: 'select',
+  component: Select,
+  icon: 'bi bi-menu-button',
   type: 'vanilla',
-  title: '按钮',
-  order: 4,
-  width: 64,
+  title: '下拉框',
+  order: 8,
+  width: 160,
   height: 28,
   props: [{
-    name: 'text',
-    label: '文本',
+    label: '选中',
+    name: 'value',
     type: 'string',
-    value: '按钮'
+    connect: true,
+    value: ''
+  }, {
+    name: 'placeholder',
+    label: '提示',
+    type: 'string',
+    value: '请输入内容'
+  }, {
+    name: 'options',
+    label: '选项',
+    type: 'array',
+    item: {
+      label: '选项',
+      value: 'key'
+    },
+    value: [{
+      label: '选项1',
+      value: 'key1'
+    }, {
+      label: '选项2',
+      value: 'key2'
+    }, {
+      label: '选项3',
+      value: 'key3'
+    }]
   }, {
     name: 'fontFamily',
     label: '字体',
@@ -25,17 +49,6 @@ export default {
     type: 'number',
     width: '50%',
     value: 16
-  }, {
-    name: 'color',
-    label: '颜色',
-    width: '50%',
-    type: 'color',
-    value: '#333'
-  }, {
-    name: 'backgroundColor',
-    label: '背景色',
-    width: '50%',
-    type: 'color'
   }, {
     name: 'borderWidth',
     label: '边框',
@@ -63,13 +76,19 @@ export default {
   }, {
     name: 'borderColor',
     width: 28,
+    connect: true,
     type: 'color'
   }, {
     name: 'borderRadius',
     label: '圆角',
     width: '50%',
-    type: 'string',
-    value: '0px'
+    type: 'number',
+    value: 0
+  }, {
+    name: 'color',
+    label: '颜色',
+    width: '50%',
+    type: 'color'
   }, {
     name: 'classNames',
     label: '样式',
@@ -77,7 +96,10 @@ export default {
     value: []
   }],
   events: [{
-    label: '点击事件',
-    name: 'onClick'
+    label: '输入值变化',
+    name: 'onChange'
+  }, {
+    label: '按下回车键',
+    name: 'onPressEnter'
   }]
 }

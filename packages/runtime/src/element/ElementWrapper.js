@@ -192,10 +192,6 @@ class ElementWrapper {
    * 初始化组件属性、事件
    */
   initPropsAndEvents () {
-    if (!this.componentDefinition) {
-      return
-    }
-
     if (this.config.parent && !this.parentWrapper) {
       this.parentWrapper = this.pageManager.getElement(this.config.parent)
     }
@@ -280,7 +276,6 @@ class ElementWrapper {
       console.error('Mout Without Element', this.id, this.componentPath)
       return
     }
-    this.initPropsAndEvents()
     this.el.classList.add('ridge-element')
     this.el.setAttribute('ridge-id', this.id)
     this.el.hasMethod = this.hasMethod.bind(this)
@@ -291,13 +286,20 @@ class ElementWrapper {
     this.el.wrapper = this
     this.el.componentPath = this.componentPath
     this.classList.forEach(className => this.el.classList.add(className))
-
     this.style = Object.assign({}, this.config.style)
+
+    if (!this.componentDefinition) {
+      console.error('Element Not Loaded: ', this.id, this.componentPath)
+      return
+    }
+    this.initPropsAndEvents()
+
     this.updateStyle()
     this.updateAssetsProperties()
     this.updateExpressionedStyle()
     this.updateExpressionedProperties()
 
+    // 数据订阅
     if (this.mode !== 'edit') {
       // 将所有需要连接的属性传入订阅
       new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
@@ -305,9 +307,6 @@ class ElementWrapper {
           this.forceUpdate()
         })
       })
-      // this.pageStore && this.pageStore.subscribe(this.id, () => {
-      //   this.forceUpdate()
-      // }, [...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)])
     }
 
     this.renderer = this.createRenderer()

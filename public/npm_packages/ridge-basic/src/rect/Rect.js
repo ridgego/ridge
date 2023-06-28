@@ -1,4 +1,4 @@
-export default class DivRect {
+export default class Rect {
   constructor (props) {
     this.props = props
   }
@@ -6,23 +6,31 @@ export default class DivRect {
   async mount (el) {
     this.el = el
     this.div = document.createElement('div')
+    this.div.style.width = '100%'
+    this.div.style.height = '100%'
     this.el.append(this.div)
     this.render()
   }
 
-  getStyle () {
-    return {
-      width: '100%',
-      height: '100%',
-      ...this.props ?? {}
-    }
-  }
-
   update (props) {
+    this.props = props
     this.render()
   }
 
   render () {
-    Object.assign(this.div.style, this.getStyle())
+    const {
+      borderRadius,
+      borderColor,
+      borderStyle,
+      borderWidth,
+      backgroundColor,
+      backgroundImage
+    } = this.props
+    this.div.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`
+    this.div.style.borderRadius = (borderRadius || 0) + 'px'
+    this.div.style.backgroundColor = backgroundColor
+    this.div.style.backgroundSize = '100%'
+    this.div.style.backgroundRepeat = 'no-repeat'
+    this.div.style.backgroundImage = `url(${backgroundImage})`
   }
 }

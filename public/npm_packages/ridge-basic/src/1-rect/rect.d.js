@@ -19,7 +19,7 @@ export default {
     name: 'borderStyle',
     type: 'select',
     value: 'solid',
-    width: 86,
+    width: 72,
     options: [{
       label: '实线',
       value: 'solid'
@@ -37,19 +37,17 @@ export default {
     name: 'borderColor',
     width: 28,
     type: 'color',
-    connect: true,
     value: '#AAA'
   }, {
     name: 'borderRadius',
     label: '圆角',
     width: '50%',
-    type: 'number',
-    value: 0
+    type: 'string',
+    value: '0px'
   }, {
     name: 'backgroundColor',
     label: '背景色',
     width: '40%',
-    connect: true,
     type: 'color'
   }, {
     name: 'backgroundImage',

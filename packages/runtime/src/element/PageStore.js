@@ -42,7 +42,9 @@ export default class PageStore {
   subscribe (expr, cb) {
     const [storeKey, stateExpr] = expr.split('.')
 
-    this.watcherCallbacks[storeKey][stateExpr].push(cb)
+    if (this.watcherCallbacks[storeKey] && this.watcherCallbacks[storeKey][stateExpr]) {
+      this.watcherCallbacks[storeKey][stateExpr].push(cb)
+    }
 
     // this.stores[storeKey].$subscribe((mutation, state) => {
     //   if (!mutation.payload) {
@@ -89,9 +91,7 @@ export default class PageStore {
           const treeState = this.storeTrees[moduleName].states
 
           for (const state of treeState) {
-            console.log('state', state, 'type', typeof this.stores[moduleName][state.key])
             watch(refs[state.key], (val) => {
-              console.log('key', state.key, ' -> ', val)
               for (const cb of this.watcherCallbacks[moduleName][state.key]) {
                 cb()
               }

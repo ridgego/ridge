@@ -5,6 +5,7 @@ export default {
   icon: 'bi bi-volume-up',
   type: 'vanilla',
   title: '音频',
+  order: 10,
   width: 120,
   height: 28,
   props: [{

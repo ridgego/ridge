@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import * as SEMI_ICONS from '@douyinfe/semi-icons'
 import { withField, TextArea, RadioGroup, Radio } from '@douyinfe/semi-ui'
 
 const RadioGroupEdit = withField(({
@@ -16,8 +15,8 @@ const RadioGroupEdit = withField(({
       {options &&
       options.map(option => {
         if (option.icon) {
-          const Icon = SEMI_ICONS[option.icon]
-          return <Radio key={option.value} value={option.value}><Icon rotate={option.rotate || 0} /></Radio>
+          // const Icon = SEMI_ICONS[option.icon]
+          return <Radio key={option.value} value={option.value}><i className={option.icon} style={{ fontSize: 18 }} /></Radio>
         } else if (option.label) {
           return (
             <Radio key={option.value} value={option.value}>

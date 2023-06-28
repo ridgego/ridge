@@ -6,6 +6,7 @@ export default {
   icon: 'bi bi-image',
   title: '图片',
   type: 'vanilla',
+  order: 3,
   width: 260,
   height: 160,
   props: [{
@@ -30,18 +31,48 @@ export default {
     }, {
       label: '原尺寸',
       value: 'none'
+    }],
+    value: 'cover'
+  }, {
+    name: 'borderWidth',
+    label: '边框',
+    type: 'number',
+    width: 96,
+    value: 1
+  }, {
+    name: 'borderStyle',
+    type: 'select',
+    value: 'solid',
+    width: 72,
+    options: [{
+      label: '实线',
+      value: 'solid'
+    }, {
+      label: '虚线',
+      value: 'dashed'
+    }, {
+      label: '点线',
+      value: 'dotted'
+    }, {
+      label: '双实线',
+      value: 'double'
     }]
+  }, {
+    name: 'borderColor',
+    width: 28,
+    type: 'color',
+    value: '#AAA'
   }, {
     name: 'borderRadius',
     label: '圆角',
-    type: 'padding',
-    position: 'corner',
-    value: '0 0 0 0'
+    width: '50%',
+    type: 'string',
+    value: '0px'
   }, {
-    name: 'border',
-    label: '边框',
-    type: 'border',
-    value: '0px solid #CCC'
+    name: 'fillColor',
+    label: '填充色',
+    width: '50%',
+    type: 'color'
   }, {
     name: 'className',
     label: '样式',

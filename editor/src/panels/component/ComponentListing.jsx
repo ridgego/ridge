@@ -70,7 +70,7 @@ class ComponentListing extends React.Component {
 
   getFilteredComponents (components) {
     if (!components) {
-      return null
+      return []
     }
     if (this.context) {
       return components.filter(component => (component.title || component.label).indexOf(this.context) > -1)
@@ -123,7 +123,7 @@ class ComponentListing extends React.Component {
           onChange={key => tabChange(key)}
         >
           {packages && packages.map(pkg => {
-            const filteredComponents = this.getFilteredComponents(pkg.componentLoaded)
+            const filteredComponents = this.getFilteredComponents(pkg.componentLoaded).sort((a, b) => (a.order || 10) - (b.order || 10))
             return (
               <TabPane
                 style={{

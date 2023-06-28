@@ -6,7 +6,6 @@ export default {
   icon: 'bi bi-image',
   title: '图片',
   type: 'vanilla',
-  order: 3,
   width: 260,
   height: 160,
   props: [{

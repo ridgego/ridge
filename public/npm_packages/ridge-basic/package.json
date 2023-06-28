@@ -21,10 +21,12 @@
     "checkbox",
     "image",
     "input",
+    "radio",
     "range",
     "rect",
-    "svg",
-    "text"
+    "select",
+    "text",
+    "textarea"
   ],
   "dependencies": {
     "ridge-prop-utils": "^1.0.0"

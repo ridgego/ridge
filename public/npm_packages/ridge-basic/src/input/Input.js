@@ -6,6 +6,8 @@ export default class Input {
   async mount (el) {
     this.el = el
     this.input = document.createElement('input')
+    this.input.style.width = '100%'
+    this.input.style.height = '100%'
     this.el.append(this.input)
     this.input.oninput = (e) => {
       this.props.input && this.props.input(e.currentTarget.value)
@@ -19,34 +21,33 @@ export default class Input {
   }
 
   update (props) {
-    Object.assign(this.props, props)
+    this.props = props
     this.render()
   }
 
   render () {
-    if (this.props.placeholder) {
-      this.input.placeholder = this.props.placeholder
+    const {
+      value, placeholder, fontFamily, fontSize, color, textAlign,
+      backgroundColor, borderWidth, borderStyle, borderColor, borderRadius, classNames
+    } = this.props
+
+    if (placeholder != null) {
+      this.input.placeholder = placeholder
+    } else {
+      this.input.placeholder = ''
     }
-    if (this.props.value != null) {
-      this.input.value = this.props.value
+    if (value != null) {
+      this.input.value = value
     } else {
       this.input.value = ''
     }
-    Object.assign(this.input.style, this.getStyle())
-  }
-
-  getStyle () {
-    const style = {
-      width: '100%',
-      height: '100%',
-      boxSizing: 'border-box'
-    }
-    if (this.props.color) {
-      style.color = this.props.color
-    }
-    if (this.props.font) {
-      Object.assign(style, this.props.font)
-    }
-    return style
+    this.input.style.textAlign = textAlign
+    this.input.style.fontFamily = fontFamily
+    this.input.style.fontSize = fontSize + 'px'
+    this.input.style.color = color
+    this.input.style.border = `${borderWidth || 0}px ${borderStyle || 'solid'} ${borderColor || '#ccc'}`
+    this.input.style.borderRadius = borderRadius + 'px'
+    this.input.style.backgroundColor = backgroundColor
+    this.input.className = (classNames || []).join(' ')
   }
 }

@@ -18,7 +18,7 @@ const ClassEdit = ({
   })
 
   return (
-    <Select multiple value={value} onChange={onChange}>
+    <Select size='small' multiple value={value} onChange={onChange}>
       {classNames.map(clz => <Select.Option value={clz.value} key={clz.value}>{clz.label}</Select.Option>)}
     </Select>
   )
