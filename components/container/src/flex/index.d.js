@@ -5,7 +5,8 @@ export default {
   component: FlexBoxContainer,
   label: '弹性容器',
   type: 'vanilla',
-  icon: 'IconKanban',
+  order: 3,
+  icon: 'bi bi-layout-sidebar',
   props: [{
     name: 'direction',
     label: '排列方向',

@@ -4,7 +4,8 @@ export default {
   component: InlineContainer,
   label: '行内容器',
   type: 'vanilla',
-  icon: 'IconTestScoreStroked',
+  icon: 'bi bi-text-wrap',
+  order: 2,
   props: [{
     name: 'children',
     hidden: true,

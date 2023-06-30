@@ -4,7 +4,8 @@ export default {
   name: 'button',
   title: '按钮',
   component: Button,
-  icon: 'IconButtonStroked',
+  icon: 'bi bi-arrow-down-square',
+  order: 1,
   type: 'vanilla',
   props: [{
     name: 'text',

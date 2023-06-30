@@ -1,7 +1,7 @@
 {
   "name": "ridge-echarts",
   "version": "1.0.0",
-  "icon": "icon.svg",
+  "icon": "bi bi-graph-up",
   "description": "",
   "main": "index.js",
   "scripts": {

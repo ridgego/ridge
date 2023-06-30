@@ -20,13 +20,10 @@ class ComponentLoader {
   constructor ({
     baseUrl,
     unpkgUrl,
-    debugUrl,
     externalOptions
   }) {
     this.baseUrl = baseUrl ?? ''
     this.unpkgUrl = unpkgUrl ?? 'http://unpkg.com'
-    // 调试服务的地址
-    this.debugUrl = debugUrl
 
     log('RidgeLoader baseUrl: ' + this.baseUrl)
 

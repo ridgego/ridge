@@ -7,24 +7,21 @@ import './style.less'
 const EmptyIcon = () => <span style={{ width: '21px' }} />
 export default props => {
   const {
-    dataPanelVisible,
-    componentPanelVisible,
-    propPanelVisible,
-    outlinePanelVisible,
-    pagesPanelVisible,
     modeRun,
     currentPageId,
-    toggleVisible,
+    visible,
     toggleContainerMask,
     zoom,
     zoomChange,
     toggoleRunMode,
+    closeCurrentPage,
     containerMask
   } = props
 
   return (
     <div
       className='menu-bar'
+      style={{ display: visible ? '' : 'none' }}
     >
       <Space className='bar-content'>
         <Dropdown
@@ -80,6 +77,12 @@ export default props => {
         >
           <Button disabled={modeRun} icon={<IconSetting />} theme='borderless' size='small' type='tertiary' />
         </Popover> */}
+        <Button
+          type='tertiary'
+          theme='borderless'
+          icon={<i class='bi bi-x-lg' />} onClick={closeCurrentPage}
+        >关闭
+        </Button>
         <Button
           disabled={!currentPageId}
           type={modeRun ? 'primary' : 'tertiary'}

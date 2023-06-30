@@ -12,7 +12,24 @@ import { stringToBlob } from '../../utils/blob.js'
 
 const trace = debug('ridge:file')
 const { Text } = Typography
-
+const JS_TEMPLATE = `
+window.moduleName = {
+  state: () => {
+    return {
+      name: ''
+    }
+  },
+  getters: {
+    hello: (state) => {
+      return 'Hello ' + state.name
+    }
+  },
+  actions: {
+  },
+  alias: {
+    "name": "姓名"
+  }
+}`
 const ACCEPT_FILES = 'image/*,video/*,audio/*,.woff,.json,.css,.js'
 class AppFileList extends React.Component {
   constructor () {
@@ -90,10 +107,20 @@ class AppFileList extends React.Component {
   }
 
   getCurrentSiblings () {
-    if (this.state.currentSelectedNode && this.state.currentSelectedNode.parentNode) {
-      return this.state.currentSelectedNode.parentNode.children
+    const { currentEditKey } = this.state
+
+    if (currentEditKey) {
+      if (this.state.currentSelectedNode && this.state.currentSelectedNode.parentNode) {
+        return this.state.currentSelectedNode.parentNode.children
+      } else {
+        return this.state.treeData
+      }
     } else {
-      return this.state.treeData
+      if (this.state.currentSelectedNode) {
+        return this.state.currentSelectedNode.children
+      } else {
+        return this.state.treeData
+      }
     }
   }
 
@@ -197,7 +224,7 @@ class AppFileList extends React.Component {
     const { isCreateFile, createFileType } = this.state
     if (isCreateFile) {
       if (createFileType === 'js') {
-        await appService.createFile(this.state.currentParent, this.state.currentEditFileName, stringToBlob('', 'text/javascript'))
+        await appService.createFile(this.state.currentParent, this.state.currentEditFileName, stringToBlob(JS_TEMPLATE, 'text/javascript'))
       } else if (createFileType === 'css') {
         await appService.createFile(this.state.currentParent, this.state.currentEditFileName, stringToBlob('', 'text/css'))
       } else {

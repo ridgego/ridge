@@ -4,20 +4,14 @@ export default {
   component: ColumnContainer,
   label: '多行容器',
   type: 'vanilla',
-  icon: 'IconSectionStroked',
+  order: 1,
+  icon: 'bi bi-text-center',
   props: [{
     name: 'children',
     hidden: true,
     type: 'children'
   }, {
-    name: 'padding',
-    label: '内边',
-    type: 'string',
-    control: 'px4',
-    value: '8px'
-  }, {
     name: 'rectStyle',
-    label: '块样式',
     type: 'rect',
     value: {}
   }],

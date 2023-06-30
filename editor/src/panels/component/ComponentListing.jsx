@@ -124,6 +124,12 @@ class ComponentListing extends React.Component {
         >
           {packages && packages.map(pkg => {
             const filteredComponents = this.getFilteredComponents(pkg.componentLoaded).sort((a, b) => (a.order || 10) - (b.order || 10))
+            let TabContent = <div className={'package-icon ' + pkg.icon} />
+            if (pkg.icon) {
+              if (pkg.icon.startsWith('data:image')) {
+                TabContent = <div className='package-icon'><img src={pkg.icon} /></div>
+              }
+            }
             return (
               <TabPane
                 style={{
@@ -131,9 +137,7 @@ class ComponentListing extends React.Component {
                 }}
                 className='tab-title'
                 collapsible
-                tab={
-                  <div className={'package-icon ' + pkg.icon} />
-                }
+                tab={TabContent}
                 key={pkg.name}
                 itemKey={pkg.name}
               >

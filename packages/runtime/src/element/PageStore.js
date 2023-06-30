@@ -80,7 +80,6 @@ export default class PageStore {
           scriptDiv.classList.add('page-' + id)
           scriptDiv.textContent = file.textContent
           document.head.append(scriptDiv)
-
           this.storeObjects[moduleName] = globalThis[moduleName]
           const definedStore = defineStore('store', globalThis[moduleName])
           this.stores[moduleName] = definedStore(this.ridge.pinia)

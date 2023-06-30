@@ -4,7 +4,8 @@ export default {
   component: ColumnContainer,
   label: '多行容器',
   type: 'vanilla',
-  icon: 'IconSectionStroked',
+  order: 1,
+  icon: 'bi bi-text-center',
   props: [{
     name: 'children',
     hidden: true,

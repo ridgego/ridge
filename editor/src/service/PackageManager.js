@@ -3,7 +3,7 @@ import { ridge } from './RidgeEditService'
 export default class PackageManager {
   constructor () {
     /** @property 组件加载器 */
-    this.packageNames = ['ridge-basic', 'ridge-bulma', 'ridge-container', 'ridge-echarts']
+    this.packageNames = ['ridge-basic', 'ridge-container', 'ridge-bootstrap', 'ridge-bulma', 'ridge-echarts']
     this.packagesDetails = []
   }
 

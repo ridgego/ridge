@@ -285,7 +285,7 @@ class ElementWrapper {
     this.el.elementWrapper = this
     this.el.wrapper = this
     this.el.componentPath = this.componentPath
-    this.classList.forEach(className => this.el.classList.add(className))
+
     this.style = Object.assign({}, this.config.style)
 
     if (!this.componentDefinition) {
@@ -293,6 +293,7 @@ class ElementWrapper {
       return
     }
     this.initPropsAndEvents()
+    this.classList.forEach(className => this.el.classList.add(className))
 
     this.updateStyle()
     this.updateAssetsProperties()
@@ -587,7 +588,7 @@ class ElementWrapper {
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
       if (this.config.propEx.value) {
-        this.pageStore.dispatchStateChange(this.config.propEx.value, payload[0])
+        this.pageStore.dispatchStateChange(this.config.propEx.value, payload)
       }
       return
     }

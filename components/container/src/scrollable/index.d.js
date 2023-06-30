@@ -4,8 +4,9 @@ export default {
   name: 'scroll-container',
   component: ScrollContainer,
   label: '滚动容器',
+  order: 6,
   type: 'vanilla',
-  icon: 'IconFingerLeftStroked',
+  icon: 'bi bi-back',
   props: [{
     label: '横向滚动',
     name: 'overflowX',

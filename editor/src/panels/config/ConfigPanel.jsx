@@ -324,6 +324,7 @@ export default class ComponentPanel extends React.Component {
           field: 'cssFiles',
           label: '样式表',
           control: 'select',
+          placeholder: '请选择样式表',
           optionList: appService.filterFiles(node => node.mimeType === 'text/css').map(file => {
             return {
               value: file.path,
@@ -336,6 +337,7 @@ export default class ComponentPanel extends React.Component {
           field: 'jsFiles',
           label: '脚本库',
           control: 'select',
+          placeholder: '请选择脚本',
           optionList: appService.filterFiles(node => node.mimeType === 'text/javascript').map(file => {
             return {
               value: file.path,
@@ -348,6 +350,7 @@ export default class ComponentPanel extends React.Component {
           field: 'classNames',
           label: '样式',
           control: 'select',
+          placeholder: '请选择背景样式',
           optionList: ridge.pageElementManager.classNames.map(c => {
             return {
               label: c.label,
@@ -358,6 +361,13 @@ export default class ComponentPanel extends React.Component {
           multiple: true
         }]
       })
+
+      const properties = ridge.pageElementManager.pageConfig.properties
+      for (const key in properties) {
+        this.pagePropFormApi.setValue(key, properties[key], {
+          notNotify: true
+        })
+      }
     }
   }
 

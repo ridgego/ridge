@@ -46,7 +46,7 @@ export default class ObjectForm extends React.Component {
       checkbox: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
       boolean: (col, readonly) => <BooleanEdit {...col} />,
       select: (col, readonly) => {
-        return <Select size='small' label={col.label} showClear={col.required === false} field={col.field} optionList={col.optionList} multiple={col.multiple} optionList={col.options || col.optionList} disabled={readonly} />
+        return <Select size='small' label={col.label} showClear={col.required === false} field={col.field} placeholder={col.placeholder} multiple={col.multiple} optionList={col.options || col.optionList} disabled={readonly} />
       },
       radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
       checkboxgroup: (col, readonly) => <CheckBoxGroupEdit label={col.label} field={col.field} optionList={col.optionList} selectAll={col.selectAll} disabled={readonly} />,

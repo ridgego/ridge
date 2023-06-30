@@ -8,9 +8,7 @@ import MenuBar from './menu/MenuBar.jsx'
 import debounce from 'lodash/debounce'
 import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
 import { ridge, emit, on, workspaceControl } from './service/RidgeEditService.js'
-
 import './editor.less'
-
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
   EVENT_ELEMENT_CREATED,
@@ -30,6 +28,7 @@ export default class Editor extends React.Component {
       propPanelVisible: false,
       outlinePanelVisible: false,
       appFilePanelVisible: true,
+      menuBarVisible: false,
       modeRun: false,
       zoom: 1,
       containerMask: true,
@@ -119,6 +118,11 @@ export default class Editor extends React.Component {
     workspaceControl.disable()
     this.pageElementManager.unmount()
     this.pageElementManager = null
+    this.setState({
+      outlinePanelVisible: false,
+      menuBarVisible: false,
+      propPanelVisible: false
+    })
   }
 
   /**
@@ -131,6 +135,7 @@ export default class Editor extends React.Component {
     this.setState({
       currentPageId: pageConfig.id,
       propPanelVisible: true,
+      menuBarVisible: true,
       outlinePanelVisible: true
     })
     this.pageConfig = pageConfig
@@ -206,8 +211,11 @@ export default class Editor extends React.Component {
       propPanelVisible,
       outlinePanelVisible,
       modeRun,
+      zoom,
       panelPosition,
-      containerMask
+      containerMask,
+      menuBarVisible,
+      currentPageId
     } = state
     return (
       <>
@@ -218,7 +226,9 @@ export default class Editor extends React.Component {
         >
           <div className='viewport-container' />
           <MenuBar
-            {...state}
+            zoom={zoom}
+            currentPageId={currentPageId}
+            visible={menuBarVisible}
             toggleVisible={name => {
               this.setState({
                 [name]: !this.state[name]
@@ -228,6 +238,9 @@ export default class Editor extends React.Component {
               this.setState({
                 containerMask: !containerMask
               })
+            }}
+            closeCurrentPage={() => {
+              this.saveCloseCurrentPage()
             }}
             toggoleRunMode={this.toggoleRunMode.bind(this)}
             zoomChange={zoom => {

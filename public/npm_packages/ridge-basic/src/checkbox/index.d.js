@@ -5,8 +5,9 @@ export default {
   component: CheckBox,
   icon: 'bi bi-check2-circle',
   type: 'vanilla',
-  title: '单选框',
-  width: 24,
+  title: '复选框',
+  order: 9,
+  width: 90,
   height: 24,
   props: [{
     label: '选中',

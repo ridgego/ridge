@@ -103,6 +103,9 @@ export default class ApplicationService {
       reducers: [],
       properties: {
         type: 'static',
+        cssFiles: [],
+        jsFiles: [],
+        classNames: [],
         width: 1366,
         height: 768
       },

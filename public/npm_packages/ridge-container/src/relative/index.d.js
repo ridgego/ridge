@@ -4,7 +4,8 @@ export default {
   component: RelativeContainer,
   label: '绝对容器',
   type: 'vanilla',
-  icon: 'IconMarginStroked',
+  order: 4,
+  icon: 'bi bi-pip',
   props: [{
     name: 'children',
     hidden: true,

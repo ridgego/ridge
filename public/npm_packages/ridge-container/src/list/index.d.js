@@ -3,7 +3,7 @@ export default {
   name: 'list-container',
   component: ListContainer,
   label: '列表容器',
-  icon: 'IconCheckChoiceStroked',
+  icon: 'bi bi-view-stacked',
   type: 'vanilla',
   props: [{
     name: 'dataSource',
