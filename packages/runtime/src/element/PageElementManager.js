@@ -5,6 +5,7 @@ import PageStore from './PageStore'
 
 class PageElementManager {
   constructor (pageConfig, ridge, mode) {
+    this.id = pageConfig.id
     this.pageConfig = pageConfig
     this.ridge = ridge
     this.mode = mode
@@ -82,7 +83,7 @@ class PageElementManager {
   }
 
   getStoreTrees () {
-    return this.pageStore.storeTrees
+    return this.pageStore.getStoreTrees()
   }
 
   /**

@@ -25,9 +25,6 @@ window.moduleName = {
     }
   },
   actions: {
-  },
-  alias: {
-    "name": "姓名"
   }
 }`
 const ACCEPT_FILES = 'image/*,video/*,audio/*,.woff,.json,.css,.js'
@@ -79,6 +76,12 @@ class AppFileList extends React.Component {
       })
       this.setState({
         treeData
+      })
+    })
+
+    on(EVENT_WORKSPACE_RESET, () => {
+      this.setState({
+        currentOpenId: null
       })
     })
   }
@@ -197,9 +200,6 @@ class AppFileList extends React.Component {
       )
     ) {
       emit(EVENT_WORKSPACE_RESET)
-      this.setState({
-        currentOpenId: null
-      })
     }
 
     await appService.trash(data.key)

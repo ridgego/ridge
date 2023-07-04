@@ -86,8 +86,6 @@ const EventEdit = withField(({
 
   const renderActionEdit = (data) => {
     const storeTrees = ridge.pageElementManager.getStoreTrees()
-    Object.entries(storeTrees)
-
     return (
       <>
         <div className='label-content'>

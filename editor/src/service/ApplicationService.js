@@ -238,7 +238,7 @@ export default class ApplicationService {
   }
 
   // 删除一个节点到回收站
-  async trash (id) {
+  async trash (id, updateTree = true) {
     const existed = await this.collection.findOne({ id })
     if (existed) {
       if (existed.type !== 'directory') {
@@ -250,11 +250,14 @@ export default class ApplicationService {
       })
       if (children.length) {
         for (const child of children) {
-          await this.trash(child.id)
+          await this.trash(child.id, false)
         }
       }
       await this.collection.remove({ id })
-      await this.updateAppFileTree(true)
+
+      if (updateTree) {
+        await this.updateAppFileTree(true)
+      }
     }
   }
 

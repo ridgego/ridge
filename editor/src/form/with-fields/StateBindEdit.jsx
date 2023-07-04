@@ -11,21 +11,17 @@ const StateBindEdit = withField(({
   const [visible, setVisible] = useState()
 
   const updateStateTree = () => {
-    const storeTrees = ridge.pageElementManager.getStoreTrees()
     const treeData = []
-    for (const [storeName, tree] of Object.entries(storeTrees)) {
-      const storeTree = {
-        label: storeName,
+    const storeTrees = ridge.pageElementManager.getStoreTrees()
+    Object.keys(storeTrees).forEach(storeName => {
+      treeData.push({
         key: storeName,
+        label: storeName,
         disabled: true,
-        children: tree.states.map(state => ({
-          label: state.alias,
-          key: state.key,
-          value: storeName + '.' + state.key
-        }))
-      }
-      treeData.push(storeTree)
-    }
+        value: storeName,
+        children: storeTrees[storeName].states
+      })
+    })
     setStoreTreeData(treeData)
   }
   const renderSelectState = () => {

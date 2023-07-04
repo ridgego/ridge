@@ -9,6 +9,19 @@ module.exports = {
       directory: path.join(__dirname, '../public')
     },
     compress: true,
+    proxy: {
+      '/weather': {
+        target: 'https://weather.cma.cn',
+        secure: false,
+        changeOrigin: true,
+        pathRewrite: { '^/weather': '' },
+        onProxyReq: (proxyReq, req, res) => {
+          proxyReq.setHeader('host', 'weather.cma.cn')
+          proxyReq.setHeader('referer', 'http://weather.cma.cn/')
+          /* handle proxyReq */
+        }
+      }
+    },
     port: 9000
   },
   devtool: 'eval-source-map',

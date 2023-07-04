@@ -119,6 +119,7 @@ export default class Editor extends React.Component {
     this.pageElementManager.unmount()
     this.pageElementManager = null
     this.setState({
+      currentPageId: null,
       outlinePanelVisible: false,
       menuBarVisible: false,
       propPanelVisible: false
@@ -152,7 +153,7 @@ export default class Editor extends React.Component {
     // 从HTML初始化页面管理器
     // this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
 
-    this.pageElementManager = this.ridge.createPageManager(content, 'edit')
+    this.pageElementManager = this.ridge.createPageManager({ id: pageConfig.id, ...content }, 'edit')
     this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
     this.pageElementManager.mount(document.querySelector('.viewport-container'))
@@ -240,7 +241,7 @@ export default class Editor extends React.Component {
               })
             }}
             closeCurrentPage={() => {
-              this.saveCloseCurrentPage()
+              emit(EVENT_WORKSPACE_RESET)
             }}
             toggoleRunMode={this.toggoleRunMode.bind(this)}
             zoomChange={zoom => {
