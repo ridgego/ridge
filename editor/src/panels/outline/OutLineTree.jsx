@@ -81,7 +81,7 @@ class OutLineTree extends React.Component {
   getElementTree (element, elements, tags) {
     const treeNodeObject = {
       key: element.id,
-      label: element.config.title,
+      label: element.config.props.text || element.config.title,
       value: element.id,
       tags,
       element,

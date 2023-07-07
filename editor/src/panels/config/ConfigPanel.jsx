@@ -51,15 +51,15 @@ const COMPONENT_ROOT_FIELDS = [
     control: 'number',
     field: 'style.height',
     fieldEx: 'styleEx.height'
-  }, {
-    label: '填满页面',
-    width: '50%',
-    type: 'boolean',
-    field: 'style.full'
   }
 ]
 
 const COMPONENT_STYLE_FIELDS = [{
+  label: '填满页面',
+  width: '50%',
+  type: 'boolean',
+  field: 'style.full'
+}, {
   label: '显示',
   type: 'boolean',
   control: 'checkbox',
@@ -73,47 +73,10 @@ const COMPONENT_STYLE_FIELDS = [{
   field: 'style.opacity',
   fieldEx: 'styleEx.opacity'
 }, {
-  label: '层',
+  label: '层高',
   type: 'number',
   width: '50%',
   field: 'style.zIndex'
-}, {
-  label: '内边距',
-  type: 'padding',
-  field: 'style.padding'
-}, {
-  label: '圆角',
-  type: 'padding',
-  position: 'corner',
-  field: 'style.borderRadius'
-}, {
-  label: '边框',
-  type: 'color',
-  width: '72px',
-  field: 'style.borderColor'
-}, {
-  type: 'select',
-  width: '80px',
-  field: 'style.borderStyle',
-  optionList: [{
-    label: '实线',
-    value: 'solid'
-  }, {
-    label: '虚线',
-    value: 'dashed'
-  }]
-}, {
-  type: 'padding',
-  width: 140,
-  field: 'style.borderWidth'
-}, {
-  label: '背景',
-  control: 'background',
-  field: 'style.background'
-}, {
-  label: '阴影',
-  control: 'boxshadow',
-  field: 'style.boxShadow'
 }]
 
 const PAGE_FIELDS = [

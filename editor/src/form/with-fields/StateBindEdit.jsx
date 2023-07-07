@@ -54,7 +54,7 @@ const StateBindEdit = withField(({
               onChange(null)
               setVisible(false)
             }}
-          >取消绑点
+          >取消连接
           </Button>
         </Space>
       </div>
@@ -77,7 +77,7 @@ const StateBindEdit = withField(({
       >
         <Button
           className='btn-code'
-          placeholder='绑定表达式'
+          placeholder='连接数据'
           type={value ? 'primary' : 'tertiary'}
           size='small'
           theme='borderless'

@@ -10,6 +10,9 @@ export default class Rect {
     this.div.style.height = '100%'
     this.el.append(this.div)
     this.render()
+    this.div.onclick = e => {
+      this.props.onClick && this.props.onClick()
+    }
   }
 
   update (props) {
@@ -23,14 +26,19 @@ export default class Rect {
       borderColor,
       borderStyle,
       borderWidth,
-      backgroundColor,
-      backgroundImage
+      backgroundImage,
+      background
     } = this.props
     this.div.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`
     this.div.style.borderRadius = (borderRadius || 0) + 'px'
-    this.div.style.backgroundColor = backgroundColor
-    this.div.style.backgroundSize = '100%'
-    this.div.style.backgroundRepeat = 'no-repeat'
-    this.div.style.backgroundImage = `url(${backgroundImage})`
+
+    if (backgroundImage) {
+      this.div.style.backgroundImage = `url(${backgroundImage})`
+      this.div.style.backgroundSize = '100%'
+      this.div.style.backgroundRepeat = 'no-repeat'
+    } else {
+      this.div.style.backgroundImage = ''
+    }
+    this.div.style.background = background
   }
 }

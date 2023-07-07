@@ -130,7 +130,10 @@ class PageElementManager {
   // 配置根节点容器的样式 （可能是body）
   updateRootElStyle () {
     if (this.pageConfig.properties.background) {
-      Object.assign(this.el.style, getBackground(this.pageConfig.properties.background, this.ridge, this.mode))
+      Object.assign(this.el.style, {
+        background: this.pageConfig.properties.background
+      })
+      // getBackground(this.pageConfig.properties.background, this.ridge, this.mode))
     } else {
       this.el.style.background = ''
     }

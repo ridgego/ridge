@@ -42,19 +42,20 @@ export default {
   }, {
     name: 'borderRadius',
     label: '圆角',
-    width: '50%',
     type: 'number',
     value: 0
   }, {
-    name: 'backgroundColor',
+    name: 'background',
     label: '背景色',
-    width: '40%',
-    connect: true,
-    type: 'color'
+    type: 'background',
+    connect: true
   }, {
     name: 'backgroundImage',
-    label: '图片',
-    width: '60%',
+    label: '背景图片',
     type: 'image'
+  }],
+  events: [{
+    label: '点击事件',
+    name: 'onClick'
   }]
 }

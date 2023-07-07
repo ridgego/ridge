@@ -23,11 +23,6 @@ const EventEdit = withField(({
 
   const [actionIndexList, setActionIndexList] = useState([])
   const actions = value || []
-  const {
-    pageReducers,
-    appStates,
-    pageStates
-  } = options
 
   const getTreeData = () => {
     const tree = [{
@@ -55,7 +50,7 @@ const EventEdit = withField(({
     if (storeTrees[target] && storeTrees[target].actions) {
       const action = storeTrees[target].actions.filter(ac => ac.key === method)[0]
       if (action) {
-        return action.alias
+        return action.label
       } else {
         return ''
       }
@@ -98,7 +93,7 @@ const EventEdit = withField(({
               return (
                 <Select.OptGroup label={storeName} key={storeName}>
                   {tree.actions.map(action => {
-                    return <Select.Option key={action.key} value={storeName + '.' + action.key}>{action.alias}</Select.Option>
+                    return <Select.Option key={action.key} value={storeName + '.' + action.key}>{action.label}</Select.Option>
                   })}
                 </Select.OptGroup>
               )
@@ -192,35 +187,6 @@ const EventEdit = withField(({
     setVisible(false)
   }
 
-  const FormRender = ({ formState, formApi, values }) => {
-    return (
-      <>
-        <Select field='name' label='动作'>
-          {ACTION_OPTIONS.map(action => <Option key={action.value} value={action.value}>{action.label}</Option>)}
-        </Select>
-        {values.name === 'setState' &&
-          <Select field='target' label='目标' placeholder='' filter style={{ width: 176 }}>
-            {pageStates &&
-              <Select.OptGroup label='页面状态'>
-                {pageStates.map(state => <Select.Option key={state.name} value={state.name}>{state.label || state.name}</Select.Option>)}
-              </Select.OptGroup>}
-            {appStates &&
-              <Select.OptGroup label='应用状态'>
-                {pageStates.map(state => <Select.Option key={state.name} value={state.name}>{state.label || state.name}</Select.Option>)}
-              </Select.OptGroup>}
-          </Select>}
-        {values.name === 'doReduce' &&
-          <Select field='target' label='目标' placeholder='' filter style={{ width: 176 }}>
-            {pageReducers &&
-              <Select.OptGroup label='页面函数'>
-                {pageReducers.map(reducer => <Select.Option key={reducer.name} value={reducer.name}>{reducer.label || reducer.name}</Select.Option>)}
-              </Select.OptGroup>}
-          </Select>}
-        <Form.TextArea field='value' label='取值' />
-      </>
-    )
-  }
-
   const treeData = getTreeData()
 
   return (
@@ -232,58 +198,6 @@ const EventEdit = withField(({
         renderLabel={renderTreeLabel}
         treeData={treeData}
       />
-      {/* <Modal
-        lazyRender={false}
-        onCancel={() => {
-          setVisible(false)
-        }}
-        onOk={saveUpdateAction}
-        keepDOM
-        title='组件事件处理'
-        visible={visible}
-      >
-        <Form labelPosition='left' ref={formRef} render={FormRender} />
-      </Modal> */}
-      {/* <Collapse>
-        <Collapse.Panel header={options.label} itemKey='label'> */}
-      {/* <Table size='small' dataSource={actions} pagination={false}>
-            <Column
-              title='动作' dataIndex='name' key='name'
-              render={text => ACTION_OPTIONS.filter(a => a.value === text)[0]?.label}
-            />
-            <Column
-              title='目标' dataIndex='target' width={100} key='label'
-              render={(text, record) => {
-                if (record.name === 'setState') {
-                  const state = pageStates.filter(s => s.name === text)[0]
-                  return state ? state.label : text
-                } else if (record.name === 'doReduce') {
-                  const reducer = pageReducers.filter(r => r.name === text)[0]
-                  return reducer ? reducer.label : text
-                }
-              }}
-            />
-            <Column
-              width={64}
-              title='-' dataIndex='operate' key='operate'
-              render={(text, record, index) => {
-                return (
-                  <>
-                    <Button size='small' theme='borderless' icon={<IconEdit />} onClick={() => editAction(record, index)} />
-                    <Button size='small' theme='borderless' type='danger' icon={<IconDelete />} onClick={() => removeAction(index)} />
-                  </>
-                )
-              }}
-            />
-          </Table> */}
-      {/* <Button
-            size='small' icon={<IconPlus />} onClick={() => {
-              editAction(null, -1)
-            }}
-          >增加
-          </Button>
-        </Collapse.Panel>
-      </Collapse> */}
     </div>
   )
 })

@@ -21,7 +21,8 @@
     "inline",
     "list",
     "relative",
-    "scrollable"
+    "scrollable",
+    "tab"
   ],
   "author": "",
   "license": "ISC",

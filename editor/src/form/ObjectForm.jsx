@@ -20,6 +20,7 @@ import RectEdit from './with-fields/RectEdit.jsx'
 import FontEdit from './with-fields/FontEdit.jsx'
 import ArrayEdit from './with-fields/ArrayEdit.jsx'
 import SeriesTableEdit from './with-fields/SeriesTableEdit.jsx'
+import StateListEdit from './with-fields/StateListEdit.jsx'
 import './form.less'
 import ClassEdit from './with-fields/ClassEdit.jsx'
 import AudioEdit from './with-fields/AudioEdit.jsx'
@@ -41,6 +42,7 @@ export default class ObjectForm extends React.Component {
     this.controlGeneratorMap = {
       divider: (col) => <Divider margin='0' align='center'>{col.label}</Divider>,
       number: (col, readonly) => <InputNumber size='small' label={col.label} disabled={readonly} field={col.field} />,
+      length: (col, readonly) => <InputNumber size='small' label={col.label} disabled={readonly} field={col.field} />,
       string: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
       text: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
       checkbox: (col, readonly) => <Checkbox size='small' label={col.label} field={col.field} disabled={readonly} />,
@@ -50,6 +52,7 @@ export default class ObjectForm extends React.Component {
       },
       radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
       checkboxgroup: (col, readonly) => <CheckBoxGroupEdit label={col.label} field={col.field} optionList={col.optionList} selectAll={col.selectAll} disabled={readonly} />,
+      states: (col, readonly) => <StateListEdit label={col.label} field={col.field} options={col.optionList} />,
       fontFamily: (col, readonly) => <FontFamilyEdit label={col.label} field={col.field} disabled={readonly} />,
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
       padding: (col, readonly) => <PaddingEdit disabled={readonly} {...col} />,
