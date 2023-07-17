@@ -108,7 +108,27 @@
         }
     }
 
-
+    .state-list-edit {
+      display: flex;
+      .state-list {
+        flex: 1;
+        .list-item {
+          display: flex;
+          align-items: center;
+          box-sizing: border-box;
+          &:hover {
+            background-color: var(--semi-color-fill-1);
+          }
+          &.is-current {
+            border: 1px solid var(--semi-color-info-light-active);
+            background-color: var(--semi-color-info-light-default); 
+          }
+          .state-name {
+            padding: 0 5px;
+          }
+        }
+      }
+    }
     .semi-input-number.digit2 {
         width: 46px;
     }

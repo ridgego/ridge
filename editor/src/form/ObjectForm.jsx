@@ -52,7 +52,7 @@ export default class ObjectForm extends React.Component {
       },
       radiogroup: (col, readonly) => <RadioGroupEdit label={col.label} field={col.field} options={col.optionList} disabled={readonly} />,
       checkboxgroup: (col, readonly) => <CheckBoxGroupEdit label={col.label} field={col.field} optionList={col.optionList} selectAll={col.selectAll} disabled={readonly} />,
-      states: (col, readonly) => <StateListEdit label={col.label} field={col.field} options={col.optionList} />,
+      states: (col, readonly) => <StateListEdit label={col.label} field={col.field} {...col} />,
       fontFamily: (col, readonly) => <FontFamilyEdit label={col.label} field={col.field} disabled={readonly} />,
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
       padding: (col, readonly) => <PaddingEdit disabled={readonly} {...col} />,
@@ -106,7 +106,9 @@ export default class ObjectForm extends React.Component {
       // 封装动态绑定的支持
       return (
         <div className={'field-block with-code-expr ' + (field.width ? '' : 'full-width')} style={{ width: field.width || '100%' }}>
-          {RenderField}
+          <div style={{ flex: 1 }}>
+            {RenderField}
+          </div>
           <StateBindEdit className='field-code-expr' noLabel field={field.fieldEx} options={options} />
         </div>
       )

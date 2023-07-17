@@ -242,7 +242,7 @@ class PageElementManager {
   }
 
   /**
-   * 移出一个元素（递归进行）
+   * 移除一个元素（递归进行）
    * @param {*} id
    */
   removeElement (id) {

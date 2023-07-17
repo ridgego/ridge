@@ -6,8 +6,6 @@ const BooleanEdit = ({
   onChange,
   ...options
 }) => {
-  console.log('Bool')
-
   if (options.icon) {
     return (
       <Button

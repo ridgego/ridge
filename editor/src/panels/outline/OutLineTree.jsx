@@ -106,7 +106,9 @@ class OutLineTree extends React.Component {
         for (const childProp of childProps) {
           if (element.config.props[childProp.name] && element.config.props[childProp.name].length) {
             for (const elementId of element.config.props[childProp.name]) {
-              treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, childProps.label))
+              if (elementId) {
+                treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, childProps.label))
+              }
             }
           }
         }

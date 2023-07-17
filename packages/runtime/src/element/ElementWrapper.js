@@ -227,7 +227,6 @@ class ElementWrapper {
       }
 
       if (prop.name === 'children') {
-        this.children = []
         this.isContainer = true
         this.classList.push('ridge-container')
 

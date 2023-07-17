@@ -5,79 +5,104 @@ const StateListEdit = ({
   value,
   onChange
 }) => {
+  const stateValue = value || { current: '', list: [] }
+
+  const { current, list } = stateValue
   const [currentEditIndex, setCurrentEditIndex] = useState(-1)
   const [currentStateName, setCurrentStateName] = useState('')
+  const [stateEditValid, setStateEditValid] = useState(true)
 
   const addState = () => {
     let name = 'State'
 
     let index = 1
-    while (value.indexOf(name) > -1) {
+    while (list.indexOf(name) > -1) {
       name = 'State' + index
       index++
     }
 
+    onChange({ current, list: [...list, name] })
     setCurrentStateName(name)
-    onChange([...value, name])
-    setCurrentEditIndex(value.length)
+    setCurrentEditIndex(list.length)
   }
 
-  const removeState = state => {
-    onChange(value.filter(v => v !== state))
+  const removeState = index => {
+    list.splice(index, 1)
+    onChange({ current, list })
     setCurrentEditIndex(-1)
   }
 
-  const editState = state => {
-    setCurrentEditIndex(value.indexOf(state))
+  const editState = index => {
+    setCurrentEditIndex(index)
+    setCurrentStateName(list[index])
+  }
+
+  const checkStateNameValid = (name) => {
+    if (name.trim() === '') {
+      setStateEditValid(false)
+    } else if (list.filter((v, index) => index !== currentEditIndex).indexOf(name) === -1) {
+      setStateEditValid(true)
+    } else {
+      setStateEditValid(false)
+    }
   }
 
   const confirmState = () => {
-    if (value.filter((v, index) => index !== currentEditIndex).indexOf(currentStateName) === -1) {
-      value[currentEditIndex] = currentStateName
+    if (list.filter((v, index) => index !== currentEditIndex).indexOf(currentStateName) === -1) {
+      list[currentEditIndex] = currentStateName
       setCurrentEditIndex(-1)
       setCurrentStateName('')
-      onChange(value)
+      onChange({ current, list })
     } else {
       // dup
     }
   }
+
+  const setCurrentState = (index) => {
+    onChange({ current: list[index], list })
+  }
   return (
-    <>
+    <div className='state-list-edit'>
       <List
         className='state-list'
-        dataSource={value}
+        dataSource={list}
         split
         size='small'
-        style={{ flexBasis: '100%', flexShrink: 0, borderBottom: '1px solid var(--semi-color-border)' }}
         renderItem={(item, index) => {
           if (index === currentEditIndex) {
             return (
-              <div style={{ display: 'flex' }}>
+              <div style={{ display: 'flex', height: '32px', alignItems: 'center' }} className='list-item'>
                 <div style={{ flex: 1 }}>
                   <Input
+                    validateStatus={stateEditValid ? '' : 'error'}
                     value={currentStateName} size='small' onChange={val => {
                       setCurrentStateName(val)
+                      checkStateNameValid(val)
                     }}
                   />
                 </div>
-                <Button type='danger' size='small' theme='borderless' icon={<i class='bi bi-check-lg' />} onClick={() => confirmState(item)} style={{ marginRight: 4 }} />
+                <Button disabled={!stateEditValid} type='danger' size='small' theme='borderless' icon={<i class='bi bi-check-lg' />} onClick={() => confirmState(item)} style={{ marginRight: 4 }} />
               </div>
             )
           } else {
             return (
-              <div style={{ display: 'flex' }} className='list-item'>
-                <div style={{ flex: 1 }}>{item}</div>
-                <Button type='danger' theme='borderless' icon={<i class='bi bi-pencil' />} onClick={() => editState(item)} style={{ marginRight: 4 }} />
-                <Button theme='borderless' icon={<i class='bi bi-x-lg' />} onClick={() => removeState(item)} style={{ marginRight: 4 }} />
+              <div
+                className={'list-item' + (current === item ? ' is-current' : '')} onClick={() => {
+                  setCurrentState(index)
+                }}
+              >
+                <div className='state-name' style={{ flex: 1 }}>{item}</div>
+                <Button type='danger' theme='borderless' icon={<i class='bi bi-pencil' />} onClick={() => editState(index)} style={{ marginRight: 4 }} />
+                <Button theme='borderless' icon={<i class='bi bi-trash' />} onClick={() => removeState(index)} style={{ marginRight: 4 }} />
               </div>
             )
           }
         }}
       />
       <div style={{ margin: 4, fontSize: 14 }} onClick={() => addState()}>
-        <Button size='small' theme='borderless' icon={<i class='bi bi-plus-lg' />} style={{ marginRight: 4, color: 'var(--semi-color-info)' }}>新增</Button>
+        <Button size='small' theme='borderless' icon={<i class='bi bi-plus-lg' />} style={{ marginRight: 4, color: 'var(--semi-color-info)' }} />
       </div>
-    </>
+    </div>
   )
 }
 

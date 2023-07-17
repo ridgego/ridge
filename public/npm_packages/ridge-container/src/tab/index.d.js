@@ -5,16 +5,45 @@ export default {
   label: '切换容器',
   type: 'vanilla',
   order: 7,
-  icon: 'bi bi-pip',
+  icon: 'bi bi-collection',
   props: [{
     name: 'states',
     label: '状态',
+    connect: true,
     type: 'states',
-    value: []
+    value: {
+      current: 'State1',
+      list: ['State1', 'State2']
+    }
+  }, {
+    name: 'effect',
+    label: '切换效果',
+    type: 'string',
+    control: 'select',
+    optionList: [{
+      label: '无效果',
+      value: 'none'
+    }, {
+      label: '横向平移',
+      value: 'v-slide'
+    }, {
+      label: '纵向平移',
+      value: 'h-slide'
+    }, {
+      label: '渐变',
+      value: 'fade'
+    }],
+    value: 'none'
+  }, {
+    name: 'preload',
+    label: '预加载',
+    type: 'boolean',
+    value: true
   }, {
     name: 'children',
     hidden: true,
-    type: 'children'
+    type: 'children',
+    value: {}
   }],
   childStyle: [],
   width: 540,

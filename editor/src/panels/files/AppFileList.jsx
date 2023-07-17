@@ -202,6 +202,11 @@ class AppFileList extends React.Component {
       emit(EVENT_WORKSPACE_RESET)
     }
 
+    if (this.state.currentSelectedNode && this.state.currentSelectedNode.id === data.key) {
+      this.setState({
+        currentSelectedNode: null
+      })
+    }
     await appService.trash(data.key)
     this.setState({
       currentParent: -1
