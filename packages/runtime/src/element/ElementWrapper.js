@@ -171,7 +171,9 @@ class ElementWrapper {
       for (const childProp of childProps) {
         if (this.config.props[childProp.name] && this.config.props[childProp.name].length) {
           for (let i = 0; i < this.config.props[childProp.name].length; i++) {
-            cb(this.pageManager.pageElements[this.config.props[childProp.name][i]], 'children', childProp.name, i)
+            if (this.config.props[childProp.name][i]) {
+              cb(this.pageManager.pageElements[this.config.props[childProp.name][i]], 'children', childProp.name, i)
+            }
           }
         }
       }
@@ -238,7 +240,7 @@ class ElementWrapper {
             } else {
               return element
             }
-          }).filter(child => child)
+          })
         }
       } else if (prop.type === 'slot') {
         this.isContainer = true

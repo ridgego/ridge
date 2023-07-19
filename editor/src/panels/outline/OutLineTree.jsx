@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tree, Space, Typography, Button } from '@douyinfe/semi-ui'
+import { Tree, Space, Typography, Button, Tag } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
 import { EVENT_PAGE_LOADED, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
 import RawSvgIcon from '../../utils/RawSvgIcon.jsx'
@@ -105,9 +105,16 @@ class OutLineTree extends React.Component {
       if (childProps.length) {
         for (const childProp of childProps) {
           if (element.config.props[childProp.name] && element.config.props[childProp.name].length) {
-            for (const elementId of element.config.props[childProp.name]) {
-              if (elementId) {
-                treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, childProps.label))
+            for (let i = 0; i < element.config.props[childProp.name].length; i++) {
+              const elementId = element.config.props[childProp.name][i]
+              if (elementId && elements[elementId]) {
+                if (element.componentDefinition.name === 'switch-container') {
+                  elements[elementId].parent = element
+                  const stateName = element.config.props.states.list[i]
+                  treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, [stateName]))
+                } else {
+                  treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, [childProps.label]))
+                }
               }
             }
           }
@@ -160,6 +167,7 @@ class OutLineTree extends React.Component {
       <div className='tree-label'>
         <Space className='label-content'>
           <Text className='label-text'>{label || data.key}</Text>
+          {data.tags && data.tags.map(tag => <Tag size='small' color='amber' key={tag}> {tag} </Tag>)}
         </Space>
         <Space spacing={0}>
           <Button

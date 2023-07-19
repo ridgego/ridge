@@ -43,7 +43,7 @@ export default {
     name: 'children',
     hidden: true,
     type: 'children',
-    value: {}
+    value: []
   }],
   childStyle: [],
   width: 540,

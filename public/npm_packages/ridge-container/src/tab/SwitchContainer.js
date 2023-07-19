@@ -1,13 +1,22 @@
 import Container from '../Container'
 import './style.css'
 
+/**
+ * 内容切换显示容器
+ */
 export default class SwitchContainer extends Container {
   constructor (props) {
     super(props)
-    this.isRuntime = props.__mode !== 'edit'
+    this.isEdit = props.__mode === 'edit'
     this.pageManager = props.__pageManager
+    // 子state节点
+    this.childWrapperIds = []
   }
 
+  /**
+   * 容器挂载
+   * @param {*} el
+   */
   async mount (el) {
     const { states, children, effect } = this.props
     const { list } = states
@@ -20,12 +29,12 @@ export default class SwitchContainer extends Container {
     this.contentWrapperEl = document.createElement('div')
     this.contentWrapperEl.classList.add('content-wrapper')
     this.updateContentContainerStyle()
-
     containerEl.appendChild(this.contentWrapperEl)
-    this.childWrapperIds = []
+
     // 补充所有状态
     this.ensureStateContainers(this.contentWrapperEl, list, effect)
 
+    // 从children写回id数组
     if (children && children.length) {
       this.childWrapperIds = children.map(wrapper => {
         if (wrapper) {
@@ -35,7 +44,15 @@ export default class SwitchContainer extends Container {
         }
       })
     }
-    this.toggleState()
+
+    if (this.isEdit && children) {
+      for (let i = 0; i < children.length; i++) {
+        if (children[i] && children[i].loadAndMount) {
+          await children[i].loadAndMount(this.contentWrapperEl.children[i])
+        }
+      }
+    }
+    await this.toggleState()
   }
 
   /**
@@ -65,29 +82,42 @@ export default class SwitchContainer extends Container {
    */
   update (props) {
     if (props.effect !== this.props.effect) {
-      this.props = props
       // 显示效果切换
       this.updateContentContainerStyle()
-      // 补充所有状态
-      this.ensureStateContainers(this.contentWrapperEl, this.props.states.list, this.props.effect)
+      // this.ensureStateContainers(this.contentWrapperEl, this.props.states.list, this.props.effect)
       this.toggleState()
+      this.props.effect = props.effect
     } else if (this.props.states.current !== props.states.current) {
       // 切换状态
       this.toggleState(props.states.current)
+      this.props.states.current = props.states.current
     } else if (this.props.states.list.length < props.states.list.length) {
       // 新增state
       // 补充所有状态
-      this.ensureStateContainers(this.contentWrapperEl, this.props.states.list, this.props.effect)
+      this.ensureStateContainers(this.contentWrapperEl, props.states.list, this.props.effect)
       this.toggleState()
+      this.props.states.list = JSON.parse(JSON.stringify(props.states.list))
     } else if (this.props.states.list.length > props.states.list.length) {
       // 删除state
-      for (let i = 0; i < props.states.list.length; i++) {
+      let removeIndex = -1
+      for (let i = 0; i < this.props.states.list.length; i++) {
         if (this.props.states.list[i] !== props.states.list[i]) {
-          this.removeState(i)
+          removeIndex = i
+          // this.removeState(i)
+          break
         }
       }
-      this.ensureStateContainers(this.contentWrapperEl, this.props.states.list, this.props.effect)
+      if (this.props.states.list.indexOf(this.props.states.current) === removeIndex) {
+        // 删除的正好是选中的
+        if (removeIndex === this.props.states.list.length - 1) { // 删除最后一个
+          this.props.states.current = this.props.states.list[removeIndex - 1]
+        } else {
+          this.props.states.current = props.states.list[removeIndex]
+        }
+      }
+      this.removeState(removeIndex)
       this.toggleState()
+      this.props.states.list = JSON.parse(JSON.stringify(props.states.list))
     } else {
       for (let i = 0; i < props.states.list.length; i++) {
         if (this.props.states.list[i] !== props.states.list[i]) {
@@ -95,10 +125,16 @@ export default class SwitchContainer extends Container {
         }
       }
       // 重命名state
+      this.props.states.list = JSON.parse(JSON.stringify(props.states.list))
     }
-    this.props = props
   }
 
+  /**
+   * 初始化状态列表
+   * @param {*} contentWrapperEl
+   * @param {*} stateList
+   * @param {*} effect
+   */
   ensureStateContainers (contentWrapperEl, stateList, effect) {
     for (let index = 0; index < stateList.length; index++) {
       let stateEl = contentWrapperEl.querySelector(`div[state="${stateList[index]}"]`)
@@ -126,10 +162,6 @@ export default class SwitchContainer extends Container {
     }
   }
 
-  ensureStateContent (stateName) {
-
-  }
-
   /**
    * 删除状态
    * @param {*} index
@@ -141,7 +173,7 @@ export default class SwitchContainer extends Container {
     }
 
     if (this.childWrapperIds[index]) {
-      this.pageManager.removeElement(this.props.children[index])
+      this.pageManager.removeElement(this.childWrapperIds[index])
     }
     this.childWrapperIds.splice(index, 1)
   }
@@ -153,10 +185,8 @@ export default class SwitchContainer extends Container {
     const { states } = this.props
     const { current, list } = states
 
-    const oldName = list[index]
-
     // 修改对应的div[state]
-    const stateEl = this.containerEl.querySelector(`div[state="${oldName}"]`)
+    const stateEl = this.contentWrapperEl.children[index]
     stateEl.setAttribute('state', newName)
 
     // 无论是否有子节点，索引关系是不变的
@@ -165,7 +195,7 @@ export default class SwitchContainer extends Container {
   /**
    * 切换到显示某个内容元素, 当未加载时,执行加载和初始化动作
    */
-  toggleState (stateName) {
+  async toggleState (stateName) {
     const { contentWrapperEl } = this
     const { states, children, effect } = this.props
     const { current, list } = states
@@ -198,14 +228,14 @@ export default class SwitchContainer extends Container {
       }
       // 未加载则执行加载动作
       if (children && children[currentIndex] && !children[currentIndex].el && children[currentIndex].loadAndMount) {
-        children[currentIndex].loadAndMount(this.currentStateEl)
+        await children[currentIndex].loadAndMount(this.currentStateEl)
       }
     }
   }
 
   // 拖动进入
   onDragOver (wrapper) {
-    if (this.currentStateEl) {
+    if (this.currentStateEl && !this.currentStateEl.querySelector('.ridge-element')) {
       const shadowNode = this.currentStateEl.querySelector(':scope > .drop-shadow')
 
       if (!shadowNode) {
@@ -267,7 +297,7 @@ export default class SwitchContainer extends Container {
     if (childWrapper.el.parentElement === this.currentStateEl) {
       // 不删除仅仅解除父子关系，这时要检测放置阴影
       if (!isDelete) {
-        this.checkInsertDropShadowEl(childWrapper.el.getBoundingClientRect(), childWrapper.el, childWrapper.config.style)
+        this.onDragOver()
       }
       this.currentStateEl.removeChild(childWrapper.el)
     } else {
@@ -277,7 +307,7 @@ export default class SwitchContainer extends Container {
     this.childWrapperIds[list.indexOf(current)] = null
 
     return {
-      children: this.childWrappers
+      children: this.childWrapperIds
     }
   }
 
