@@ -86,8 +86,8 @@ export default class Editor extends React.Component {
         if (!workspaceControl.enabled) {
           workspaceControl.enable()
         }
-        workspaceControl.selectElements([], true)
         this.loadPage(file)
+        workspaceControl.selectElements([])
       }
     })
 
@@ -140,6 +140,7 @@ export default class Editor extends React.Component {
       outlinePanelVisible: true
     })
     this.pageConfig = pageConfig
+    window.page = pageConfig
     const { content } = this.pageConfig
     const zoom = workspaceControl.fitToCenter(content.properties.width, content.properties.height, this.state.zoom)
     workspaceControl.zoomBack = val => {

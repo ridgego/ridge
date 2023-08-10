@@ -86,42 +86,44 @@ const BackgroundEdit = ({
   }
 
   return (
-    <>
-      <List
-        dataSource={listColors}
-        size='small'
-        renderItem={(item, index) => {
-          let percent = item.percent || 0
-          let disabled = false
-          if (index === 0) {
-            percent = 0
-            disabled = true
-          }
-          if (index === listColors.length - 1) {
-            percent = 100
-            disabled = true
-          }
-          return (
-            <Space style={{ width: '100%' }}>
-              <PopColorPicker value={item.color} onChange={val => colorChange(index, val)} />
-              {index > 0 &&
-                <div style={{ flex: 1 }}>
-                  <Slider value={percent} disabled={disabled} onChange={val => percentChange(index, val)} />
-                </div>}
-              {/* {(index !== 0 && index !== listColors.length - 1) && <InputNumber width={100} size='small' value={item.percent || 0} />} */}
-              {index > 0 && <Button icon={<i class='bi bi-x-lg' />} size='small' type='danger' onClick={() => updateList(index)} style={{ marginRight: 4 }} />}
-            </Space>
-          )
-        }}
-      />
-      {listColors.length > 1 &&
-        <Space>
-          <InputNumber insetLabel='渐变角度' size='small' value={deg} onChange={val => degChange(val)} />
-        </Space>}
-      <div style={{ fontSize: 14 }}>
-        <Button theme='borderless' onClick={() => updateList()} style={{ marginRight: 4, color: 'var(--semi-color-info)' }}>增加颜色</Button>
+    <div className='background-edit'>
+      <div className='color-list'>
+        <List
+          dataSource={listColors}
+          size='small'
+          renderItem={(item, index) => {
+            let percent = item.percent || 0
+            let disabled = false
+            if (index === 0) {
+              percent = 0
+              disabled = true
+            }
+            if (index === listColors.length - 1) {
+              percent = 100
+              disabled = true
+            }
+            return (
+              <Space style={{ width: '100%' }}>
+                <PopColorPicker value={item.color} onChange={val => colorChange(index, val)} />
+                {index > 0 &&
+                  <div style={{ flex: 1 }}>
+                    <Slider value={percent} disabled={disabled} onChange={val => percentChange(index, val)} />
+                  </div>}
+                {/* {(index !== 0 && index !== listColors.length - 1) && <InputNumber width={100} size='small' value={item.percent || 0} />} */}
+                {index > 0 && <Button icon={<i class='bi bi-x-lg' />} size='small' type='danger' onClick={() => updateList(index)} style={{ marginRight: 4 }} />}
+              </Space>
+            )
+          }}
+        />
+        {listColors.length > 1 &&
+          <Space>
+            <InputNumber insetLabel='渐变角度' size='small' value={deg} onChange={val => degChange(val)} />
+          </Space>}
       </div>
-    </>
+      <div style={{ fontSize: 14 }}>
+        <Button size='small' theme='borderless' icon={<i class='bi bi-plus-lg' />} onClick={() => updateList()} />
+      </div>
+    </div>
   )
 }
 

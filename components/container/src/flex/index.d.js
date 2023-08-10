@@ -13,29 +13,26 @@ export default {
     type: 'string',
     control: 'radiogroup',
     optionList: [{
-      icon: 'IconSortStroked',
-      rotate: 90,
+      label: '横向',
       value: 'row'
     }, {
-      icon: 'IconSortStroked',
+      label: '纵向',
       value: 'column'
     }],
     value: 'row'
   }, {
     name: 'justify',
-    label: '对齐方式',
+    label: '排列对齐',
     type: 'string',
     control: 'radiogroup',
     optionList: [{
-      icon: 'IconCenterLeftStroked',
+      label: '开始',
       value: 'flex-start'
     }, {
       label: '正中',
-      icon: 'IconCarouselStroked',
       value: 'center'
     }, {
-      icon: 'IconCenterRightStroked',
-      label: '底部',
+      label: '结束',
       value: 'flex-end'
     }],
     value: 'flex-start'
@@ -45,21 +42,17 @@ export default {
     type: 'string',
     control: 'radiogroup',
     optionList: [{
-      label: '起点对齐',
-      icon: 'IconAlignHLeftStroked',
+      label: '起点',
       value: 'flex-start'
     }, {
-      label: '正中对齐',
-      icon: 'IconAlignHCenterStroked',
+      label: '正中',
       value: 'center'
     }, {
-      label: '填充对齐',
-      icon: 'IconSectionStroked',
+      label: '填充',
       value: 'stretch'
     },
     {
-      label: '终点对齐',
-      icon: 'IconAlignHRightStroked',
+      label: '终点',
       value: 'flex-end'
     }],
     value: 'flex-start'
@@ -74,11 +67,6 @@ export default {
     party: true,
     type: 'number',
     value: 8
-  }, {
-    name: 'rectStyle',
-    label: '块样式',
-    type: 'rect',
-    value: {}
   }],
   childStyle: [{
     label: 'W',
@@ -103,6 +91,6 @@ export default {
     type: 'string',
     width: '50%'
   }],
-  width: 180,
-  height: 60
+  width: 360,
+  height: 240
 }

@@ -48,7 +48,9 @@ export default class SwitchContainer extends Container {
     if (this.isEdit && children) {
       for (let i = 0; i < children.length; i++) {
         if (children[i] && children[i].loadAndMount) {
-          await children[i].loadAndMount(this.contentWrapperEl.children[i])
+          const el = document.createElement('div')
+          this.contentWrapperEl.children[i].appendChild(el)
+          await children[i].loadAndMount(el)
         }
       }
     }
@@ -81,6 +83,10 @@ export default class SwitchContainer extends Container {
    * @param {*} props
    */
   update (props) {
+    if (typeof props.states === 'string') {
+      this.toggleState(props.states)
+      return
+    }
     if (props.effect !== this.props.effect) {
       // 显示效果切换
       this.updateContentContainerStyle()

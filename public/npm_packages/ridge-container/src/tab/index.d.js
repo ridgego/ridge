@@ -9,7 +9,7 @@ export default {
   props: [{
     name: 'states',
     label: '状态',
-    connect: true,
+    connect: 'current',
     type: 'states',
     value: {
       current: 'State1',

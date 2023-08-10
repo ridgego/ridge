@@ -212,7 +212,7 @@ export default class ComponentPanel extends React.Component {
       })
       for (const prop of elementWrapper.componentDefinition.props) {
         const field = {}
-        if (prop.connect === true) {
+        if (prop.connect) {
           Object.assign(field, prop, {
             field: 'props.' + prop.name,
             fieldEx: 'propsEx.' + prop.name

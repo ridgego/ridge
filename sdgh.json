@@ -1,14 +1,3812 @@
 {
-    "dayGenerated": {
-        "value|1200-2400.2": 1,
-        "label": "日发电量",
-        "unit": "万KWh"
-    },
-    "dayGeneratedPercent": {
-        "value|1-120.2": 1,
-        "unit": "%"
-    },
-    "number|1-100": 100,
     "code": "0",
-    "msg": "-"
+    "msg": "成功",
+    "data": {
+        "platform": [],
+        "app": [
+            {
+                "name": "@ant-design/icons",
+                "version": "4.6.2",
+                "main": "./lib/index.js",
+                "module": "./es/index.js",
+                "unpkg": "./dist/index.umd.js",
+                "sideEffects": false,
+                "repository": "https://github.com/ant-design/ant-design-icons/tree/master/packages/icons-react",
+                "contributors": [
+                    "HeskeyBaozi<hezhiyu233@foxmail.com>",
+                    "vagusX<vagusxl@gmail.com>"
+                ],
+                "license": "MIT",
+                "engines": {
+                    "node": ">=8"
+                },
+                "publishConfig": {
+                    "access": "public",
+                    "registry": "https://registry.npmjs.org"
+                },
+                "scripts": {
+                    "clean": "./scripts/cleanup.sh",
+                    "start": "cross-env NODE_ENV=development father doc dev --storybook",
+                    "lint": "eslint src/ --ext .tsx,.ts",
+                    "compile": "father build",
+                    "test": "father test",
+                    "ci": "NODE_ENV=ci npm run prepublishOnly",
+                    "test:local": "npm run generate && npm run compile && npm run test",
+                    "prepublishOnly": "npm run generate && npm run compile && npm run lint && npm run test",
+                    "generate": "rimraf src/icons && TS_NODE_PROJECT=scripts/tsconfig.json node -r ts-node/register scripts/generate.ts --target=icon",
+                    "postcompile": "npm run clean && TS_NODE_PROJECT=scripts/tsconfig.json node -r ts-node/register scripts/generate.ts --target=entry"
+                },
+                "peerDependencies": {
+                    "react": ">=16.0.0"
+                },
+                "devDependencies": {
+                    "@types/classnames": "^2.2.9",
+                    "@types/enzyme": "^3.10.3",
+                    "@types/jest": "^24.9.1",
+                    "@types/lodash": "^4.14.136",
+                    "@types/node": "^13.9.3",
+                    "@types/react": "^16.9.23",
+                    "@types/react-dom": "^16.9.5",
+                    "@umijs/fabric": "^2.2.2",
+                    "antd": "^4.8.2",
+                    "cross-env": "^5.2.0",
+                    "enzyme": "^3.10.0",
+                    "enzyme-to-json": "^3.3.5",
+                    "eslint": "^7.1.0",
+                    "father": "^2.29.11",
+                    "lodash": "^4.17.15",
+                    "mobx": "^5.1.0",
+                    "mobx-react": "^6.1.3",
+                    "prettier": "^2.2.1",
+                    "react": "^16.4.2",
+                    "react-dom": "^16.4.2",
+                    "rimraf": "^3.0.0",
+                    "styled-components": "^3.3.3",
+                    "ts-node": "^8.0.0",
+                    "typescript": "^4.0.2"
+                },
+                "dependencies": {
+                    "@ant-design/colors": "^6.0.0",
+                    "@ant-design/icons-svg": "^4.0.0",
+                    "@babel/runtime": "^7.11.2",
+                    "classnames": "^2.2.6",
+                    "rc-util": "^5.9.4"
+                },
+                "resolutions": {
+                    "@types/react": "^16.9.23",
+                    "@types/react-dom": "^16.9.5",
+                    "@typescript-eslint/eslint-plugin": "^4.10.0",
+                    "@typescript-eslint/parser": "^4.10.0"
+                },
+                "gitHead": "225d4d2189720ee3b7e4a4d7a6d80e076fa15cbc",
+                "fcps": null
+            },
+            {
+                "name": "@antv/data-set",
+                "version": "0.11.8",
+                "description": "data set with state management",
+                "main": "lib/index.js",
+                "browser": "build/data-set.js",
+                "module": "lib/index.js",
+                "dependencies": {
+                    "@antv/hierarchy": "^0.6.0",
+                    "@antv/util": "^2.0.0",
+                    "d3-composite-projections": "^1.2.0",
+                    "d3-dsv": "^1.0.5",
+                    "d3-geo": "~1.6.4",
+                    "d3-geo-projection": "~2.1.2",
+                    "d3-hexjson": "^1.0.1",
+                    "d3-hierarchy": "^1.1.5",
+                    "d3-sankey": "^0.9.1",
+                    "d3-voronoi": "^1.1.2",
+                    "dagre": "^0.8.2",
+                    "point-at-length": "^1.0.2",
+                    "regression": "^2.0.0",
+                    "simple-statistics": "^6.1.0",
+                    "topojson-client": "^3.0.0",
+                    "wolfy87-eventemitter": "^5.1.0"
+                },
+                "homepage": "https://github.com/antvis/data-set",
+                "repository": {
+                    "type": "git",
+                    "url": "git@github.com:antvis/data-set.git"
+                },
+                "bugs": {
+                    "url": "https://github.com/antvis/data-set/issues"
+                },
+                "keywords": [
+                    "antv",
+                    "data-set",
+                    "dataSet"
+                ],
+                "author": "https://github.com/orgs/antvis/people",
+                "license": "MIT",
+                "scripts": {
+                    "build": "rm -rf build && webpack",
+                    "build-lib": "rm -rf lib && tsc",
+                    "bundler": "electron ./bundler/app.js",
+                    "ci": "npm run lint && npm run test && npm run test-bugs",
+                    "coverage": "npm run coverage-generator && npm run coverage-viewer",
+                    "coverage-generator": "torch --coverage --renderer --source-pattern src/**/*.js,src/*.js --recursive test/unit",
+                    "coverage-viewer": "torch-coverage",
+                    "demos": "electron ./demos/app.js",
+                    "demos-web": "node ./demos/app.js --web --port 2045",
+                    "dev": "npm run watch & npm run demos-web",
+                    "dist": "rm -rf dist && webpack --output-path=./dist --mode=production",
+                    "lint": "eslint --ext .ts ./src",
+                    "lint-fix": "eslint --ext .ts --fix ./src",
+                    "prepublishOnly": "npm run build-lib && npm run build && npm run dist",
+                    "screenshot": "node ./bin/screenshot.js",
+                    "start": "npm run dev",
+                    "test": "torch --compile --renderer --recursive ./test/unit",
+                    "test-bugs": "torch --compile --renderer --recursive ./test/bugs",
+                    "test-live": "torch --compile --interactive --watch --recursive ./test/unit",
+                    "test-bugs-live": "torch --compile --interactive --watch --recursive ./test/bugs",
+                    "watch": "webpack --config webpack-dev.config.js",
+                    "win-dev": "node ./bin/win-dev.js"
+                },
+                "pre-commit": {
+                    "run": [
+                        "lint",
+                        "test",
+                        "test-bugs"
+                    ],
+                    "silent": false
+                },
+                "devDependencies": {
+                    "@antv/torch": "^1.0.6",
+                    "@types/chai": "^4.2.7",
+                    "@types/d3-dsv": "^1.0.36",
+                    "@types/d3-geo": "^1.11.1",
+                    "@types/d3-hierarchy": "^1.1.6",
+                    "@types/d3-sankey": "^0.11.0",
+                    "@types/d3-voronoi": "^1.1.9",
+                    "@types/dagre": "^0.7.42",
+                    "@types/lodash": "^4.14.149",
+                    "@types/regression": "^2.0.0",
+                    "@types/topojson-client": "^3.0.0",
+                    "@typescript-eslint/eslint-plugin": "^2.0.0",
+                    "@typescript-eslint/parser": "^2.0.0",
+                    "awesome-typescript-loader": "^5.2.1",
+                    "body-parser": "^1.18.2",
+                    "chai": "~4.1.2",
+                    "cheerio": "~1.0.0-rc.2",
+                    "commander": "~2.12.2",
+                    "connect": "~3.6.5",
+                    "d3-queue": "~3.0.7",
+                    "debug": "~3.1.0",
+                    "eslint": "^6.1.0",
+                    "eslint-config-prettier": "^6.0.0",
+                    "eslint-plugin-prettier": "^3.1.0",
+                    "get-port": "~3.2.0",
+                    "jszip": "^3.1.5",
+                    "lodash": "~4.17.4",
+                    "nightmare": "~2.10.0",
+                    "nunjucks": "~3.0.1",
+                    "open": "~0.0.5",
+                    "parseurl": "~1.3.2",
+                    "pre-commit": "~1.2.2",
+                    "prettier": "^1.19.1",
+                    "serve-static": "~1.13.1",
+                    "shelljs": "~0.7.8",
+                    "string-replace-loader": "^2.1.1",
+                    "typescript": "^3.7.3",
+                    "webpack": "^4.41.3",
+                    "webpack-cli": "^3.3.10"
+                },
+                "fcps": []
+            },
+            {
+                "name": "@gw/apollo-frame-components",
+                "version": "1.0.69",
+                "description": "框架组件",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build && npm publish",
+                    "build": "build-fc"
+                },
+                "author": {
+                    "name": "acity"
+                },
+                "dependencies": {
+                    "react": "^16.14.0",
+                    "react-dom": "^16.14.0"
+                },
+                "devDependencies": {},
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "files": [
+                    "build",
+                    "previews"
+                ],
+                "browsers": [
+                    "last 5 versions"
+                ],
+                "fcps": [
+                    "about-index.fcp.js",
+                    "footer-index.fcp.js",
+                    "header-index.fcp.js",
+                    "header_logo-index.fcp.js",
+                    "header_menu-index.fcp.js",
+                    "sidebar-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-scada-common",
+                "version": "1.2.55",
+                "description": "SCADA应用通用组件",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "bs_order-index.fcp.js",
+                    "open_tab-index.fcp.js",
+                    "process_chart_params-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-standard-basic",
+                "version": "2.120.0-snapshot-26",
+                "description": "基础组件",
+                "releaseNote": "支持多语言",
+                "releaseTime": "2022-08-31",
+                "apolloVersion": "V8.1.120.0",
+                "main": "index.js",
+                "scripts": {
+                    "postversion": "npm run build-src && npm publish  --tag snapshot",
+                    "build": "build-fc",
+                    "build-src": "build-fc -s",
+                    "storybook": "start-storybook -p 6006",
+                    "debug": "build-fc -w -a -s -p 8700",
+                    "pd": "npm publish --tag dev",
+                    "build-storybook": "build-storybook",
+                    "storybook-docs": "start-storybook --docs --no-manager-cache",
+                    "build-storybook-docs": "build-storybook --docs"
+                },
+                "author": {
+                    "name": "张昊",
+                    "email": "zhanghao2@goldwind.com.cn"
+                },
+                "contributors": [
+                    {
+                        "name": "刘晗",
+                        "email": "liuhan@goldwind.com"
+                    }
+                ],
+                "dependencies": {
+                    "enhanced-resolve": "^5.8.2",
+                    "eventemitter3": "^4.0.7",
+                    "loadjs": "^4.2.0",
+                    "antd": "^4.21.0",
+                    "lodash": "^4.17.21",
+                    "react": "^17.0.2",
+                    "react-dom": "^17.0.2"
+                },
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "devDependencies": {
+                    "typescript": "^4.4.4",
+                    "webpack-cli": "^4.8.0"
+                },
+                "ccv": {
+                    "list": [
+                        "bgGrayT_100A_60",
+                        "bgC1",
+                        "bgC2",
+                        "fgC1",
+                        "fgC2",
+                        "fgGray",
+                        "ucBgC1",
+                        "fgGrayT100",
+                        "ucBgC2",
+                        "fgGrayA_100"
+                    ]
+                },
+                "i18nProps": {
+                    "build/tab-index.fcp.js": [
+                        "tabs.+text$"
+                    ],
+                    "build/basic_style_props.js": [
+                        "text"
+                    ]
+                },
+                "fcps": [
+                    "audio-video.fcp.js",
+                    "ht3d-ht3d.fcp.js",
+                    "image-image.fcp.js",
+                    "line-line.fcp.js",
+                    "rectangle-rectangle.fcp.js",
+                    "region-region.fcp.js",
+                    "svg-index.fcp.js",
+                    "tab-index.fcp.js",
+                    "text-index.fcp.js",
+                    "time-status.fcp.js",
+                    "video-video.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-standard-charts",
+                "version": "2.120.0-snapshot-108",
+                "description": "图表控件",
+                "main": "index.js",
+                "releaseNote": "支持多语言",
+                "releaseTime": "2022-08-31",
+                "apolloVersion": "V8.1.120.0",
+                "scripts": {
+                    "storybook": "start-storybook -p 6006",
+                    "postversion": "npm run build && npm publish",
+                    "build": "build-fc",
+                    "debug": "build-fc -w -s -p 8700",
+                    "build-src": "build-fc --no-minimize",
+                    "storybook-docs": "start-storybook --docs --no-manager-cache",
+                    "build-storybook-docs": "build-storybook --docs"
+                },
+                "author": {
+                    "name": "刘晗",
+                    "email": "liuhan@goldwind.com.cn"
+                },
+                "dependencies": {
+                    "@antv/data-set": "^0.11.8",
+                    "@storybook/theming": "^6.1.21",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "bizcharts": "^4.1.7",
+                    "echarts": "^5.1.1",
+                    "highcharts": "^9.1.1",
+                    "antd": "^4.21.0",
+                    "highcharts-react-official": "^3.0.0",
+                    "lodash": "^4.17.21",
+                    "ts-loader": "~9.2.2",
+                    "typescript": "~4.2.3",
+                    "use-deep-compare-effect": "^1.6.1",
+                    "react": "^17.0.2",
+                    "react-dom": "^17.0.2"
+                },
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "files": [
+                    "build",
+                    "previews",
+                    "locale"
+                ],
+                "ccv": {
+                    "list": [
+                        "fgGrayT100",
+                        "fgGrayT100A_60",
+                        "fgGray",
+                        "fgGrayT_100A_10",
+                        "fgC1",
+                        "fgGrayA_100",
+                        "fgGrayA_40",
+                        "ucBgC1",
+                        "fgGrayA_90",
+                        "ucBgC2",
+                        "bgC1"
+                    ]
+                },
+                "i18nProps": {
+                    "build/chart_lines-spline.fcp.js": [
+                        "secondYAxisTitle"
+                    ],
+                    "build/chart_lines-line.fcp.js": [
+                        "secondYAxisTitle"
+                    ],
+                    "build/chart_3dbarLineMix-status.fcp.js": [
+                        "yAxisTitle1",
+                        "yAxisTitle2",
+                        "markLineValue"
+                    ],
+                    "build/chart_borderMap-status.fcp.js": [
+                        "farmMess.+name$"
+                    ],
+                    "build/chart_combination-status.fcp.js": [
+                        "firstYAxisTitle",
+                        "secondYAxisTitle",
+                        "markLineText"
+                    ],
+                    "build/chart_lines-area.fcp.js": [
+                        "secondYAxisTitle"
+                    ],
+                    "build/chart_map-status.fcp.js": [
+                        "config.+name$"
+                    ],
+                    "build/chart_polarScatter-status.fcp.js": [
+                        "xAxisTitle",
+                        "yAxisTitle"
+                    ],
+                    "build/chart_rose-status.fcp.js": [
+                        "markLineText"
+                    ],
+                    "build/chart_ring-status.fcp.js": [
+                        "selectKey"
+                    ],
+                    "build/chart_topology-status.fcp.js": [
+                        "centerText",
+                        "statistics.+name$"
+                    ],
+                    "build/utils-constant.js": [
+                        "tooltipTitleText",
+                        "xAxisTitle",
+                        "yAxisTitle"
+                    ]
+                },
+                "fcps": [
+                    "chart_2dPieProgress-index.fcp.js",
+                    "chart_2dPieProgress-status.fcp.js",
+                    "chart_3dBubble-index.fcp.js",
+                    "chart_3dBubble-status.fcp.js",
+                    "chart_3dCylinder-index.fcp.js",
+                    "chart_3dCylinder-status.fcp.js",
+                    "chart_3dHistogram-index.fcp.js",
+                    "chart_3dHistogram-status.fcp.js",
+                    "chart_3dMap-status.fcp.js",
+                    "chart_3dProgress-index.fcp.js",
+                    "chart_3dProgress-status.fcp.js",
+                    "chart_3dRing-index.fcp.js",
+                    "chart_3dRing-status.fcp.js",
+                    "chart_3dbarLineMix-index.fcp.js",
+                    "chart_3dbarLineMix-status.fcp.js",
+                    "chart_area-index.fcp.js",
+                    "chart_area-status.fcp.js",
+                    "chart_barGraph-index.fcp.js",
+                    "chart_barGraph-status.fcp.js",
+                    "chart_borderMap-index.fcp.js",
+                    "chart_borderMap-status.fcp.js",
+                    "chart_bubble-index.fcp.js",
+                    "chart_bubble-status.fcp.js",
+                    "chart_circularProgress-index.fcp.js",
+                    "chart_circularProgress-status.fcp.js",
+                    "chart_combination-index.fcp.js",
+                    "chart_combination-status.fcp.js",
+                    "chart_complexProgress-index.fcp.js",
+                    "chart_complexProgress-status.fcp.js",
+                    "chart_complexProgress-status23-7-19.fcp.js",
+                    "chart_dashBoard-index.fcp.js",
+                    "chart_dashBoard-status.fcp.js",
+                    "chart_histogram-index.fcp.js",
+                    "chart_histogram-status.fcp.js",
+                    "chart_ladder-status.fcp.js",
+                    "chart_legendList-index.fcp.js",
+                    "chart_legendList-status.fcp.js",
+                    "chart_line-index.fcp.js",
+                    "chart_line-status.fcp.js",
+                    "chart_lineScatterMix-status.fcp.js",
+                    "chart_lines-area.fcp.js",
+                    "chart_lines-index.fcp.js",
+                    "chart_lines-line.fcp.js",
+                    "chart_lines-spline.fcp.js",
+                    "chart_map-index.fcp.js",
+                    "chart_map-status.fcp.js",
+                    "chart_negativeDashboard-index.fcp.js",
+                    "chart_negativeDashboard-status.fcp.js",
+                    "chart_nestedRing-status.fcp.js",
+                    "chart_pie-index.fcp.js",
+                    "chart_pie-status.fcp.js",
+                    "chart_polarScatter-index.fcp.js",
+                    "chart_polarScatter-status.fcp.js",
+                    "chart_radar-status.fcp.js",
+                    "chart_rectangularTree-index.fcp.js",
+                    "chart_rectangularTree-status.fcp.js",
+                    "chart_ring-index.fcp.js",
+                    "chart_ring-status.fcp.js",
+                    "chart_rose-index.fcp.js",
+                    "chart_rose-status.fcp.js",
+                    "chart_scatter-status.fcp.js",
+                    "chart_segmentedProgress-index.fcp.js",
+                    "chart_segmentedProgress-status.fcp.js",
+                    "chart_spider-status.fcp.js",
+                    "chart_spline-status.fcp.js",
+                    "chart_topology-index.fcp.js",
+                    "chart_topology-status.fcp.js",
+                    "chart_windDirection-status.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-standard-containers",
+                "version": "2.120.0-snapshot-9",
+                "description": "容器组件",
+                "releaseNote": "支持多语言",
+                "releaseTime": "2022-10-17",
+                "apolloVersion": "V8.1.120.0",
+                "scripts": {
+                    "storybook": "start-storybook -p 9003",
+                    "build": "build-fc",
+                    "watch": "build-fc -w",
+                    "help": "build-fc --help",
+                    "debug": "build-fc -w -a -s -p 8700",
+                    "bs": "build-fc -s",
+                    "pd": "npm publish --tag dev",
+                    "ps": "npm publish --tag snapshot",
+                    "storybook-docs": "start-storybook --docs --no-manager-cache",
+                    "build-storybook-docs": "build-storybook --docs"
+                },
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "author": {
+                    "name": "刘晗",
+                    "email": "liuhan@goldwind.com.cn"
+                },
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build",
+                    "icons"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@ant-design/icons": "^4.6.2",
+                    "lodash": "^4.17.21",
+                    "lodash.isequal": "^4.5.0",
+                    "antd": "^4.21.0"
+                },
+                "ccv": {
+                    "list": [
+                        "bgGrayT_100A_60",
+                        "bgGrayC3T17",
+                        "bgC1",
+                        "bgGrayT_100A_80",
+                        "fgGray",
+                        "ucBgC2",
+                        "fgGrayT100",
+                        "fgC1"
+                    ]
+                },
+                "i18nProps": {
+                    "build/modal-index.fcp.js": [
+                        "title",
+                        "confirmBtnText",
+                        "cancelBtnText"
+                    ],
+                    "build/basic_style_props.js": [
+                        "text"
+                    ]
+                },
+                "fcps": [
+                    "flex-container-index.fcp.js",
+                    "iframe-index.fcp.js",
+                    "modal-index.fcp.js",
+                    "popup-status.fcp.js",
+                    "relative-container-index.fcp.js",
+                    "simple-list-index.fcp.js",
+                    "slide-list-index.fcp.js",
+                    "tab-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-standard-data",
+                "version": "2.120.1-snapshot-5",
+                "description": "数据处理",
+                "releaseNote": "支持多语言",
+                "releaseTime": "2022-08-31",
+                "apolloVersion": "V8.1.120.0",
+                "keywords": [
+                    "Container"
+                ],
+                "main": "src/index.js",
+                "packageType": "fc",
+                "scripts": {
+                    "build": "build-fc",
+                    "bs": "build-fc -s",
+                    "storybook": "start-storybook -p 9003",
+                    "build-storybook-docs": "build-storybook --docs",
+                    "debug": "build-fc -s -a -w -p 8700",
+                    "pd": "npm publish --tag dev",
+                    "ps": "npm publish --tag snapshot",
+                    "test": "jest",
+                    "coverage": "jest --coverage"
+                },
+                "author": {
+                    "name": "刘晗",
+                    "email": "liuhan@goldwind.com"
+                },
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build",
+                    "previews"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "axios": "^0.19.2",
+                    "html2canvas": "^1.3.2",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "lodash.isequal": "^4.5.0",
+                    "object-path": "^0.11.5",
+                    "qs": "^6.5.2"
+                },
+                "devDependencies": {
+                    "@babel/plugin-proposal-logical-assignment-operators": "^7.16.5",
+                    "@babel/plugin-proposal-optional-chaining": "^7.16.5"
+                },
+                "ccv": {
+                    "list": [
+                        "fgGray"
+                    ]
+                },
+                "i18nProps": {},
+                "fcps": [
+                    "caculator-index.fcp.js",
+                    "concat-index.fcp.js",
+                    "data_config-index.fcp.js",
+                    "data_display-index.fcp.js",
+                    "debounce-index.fcp.js",
+                    "env-parser-parse.fcp.js",
+                    "fetch-fetch.fcp.js",
+                    "filter-index.fcp.js",
+                    "gather-index.fcp.js",
+                    "map-index.fcp.js",
+                    "modify-entry.fcp.js",
+                    "modify-series.fcp.js",
+                    "object_path-index.fcp.js",
+                    "open_link-index.fcp.js",
+                    "operate-index.fcp.js",
+                    "sort-index.fcp.js",
+                    "sum_by-index.fcp.js",
+                    "switcher-index.fcp.js",
+                    "ticker-index.fcp.js",
+                    "tocanvas-index.fcp.js",
+                    "visible-index.fcp.js",
+                    "xor-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-standard-form",
+                "version": "2.120.0",
+                "description": "表单组件",
+                "releaseNote": "支持多语言",
+                "releaseTime": "2022-08-31",
+                "apolloVersion": "V8.1.120.0",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "main": "src/index.js",
+                "author": "梁旭茹 <liangxuru@goldwind.com.cn>",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "src",
+                    "lib",
+                    "build",
+                    "previews",
+                    "locale"
+                ],
+                "scripts": {
+                    "storybook": "start-storybook -p 9002",
+                    "build": "build-fc",
+                    "build-src": "build-fc --no-minimize",
+                    "build-lib": "babel src -d lib",
+                    "postversion": "npm run build && npm publish",
+                    "storybook-docs": "start-storybook --docs --no-manager-cache",
+                    "build-storybook-docs": "build-storybook --docs",
+                    "debug": "build-fc -w -a -s -p 8700"
+                },
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@ant-design/icons": "^4.6.2",
+                    "html2canvas": "^1.3.2",
+                    "lodash": "^4.17.21",
+                    "moment": "^2.29.1",
+                    "xlsx-populate": "^1.21.0",
+                    "antd": "^4.21.0"
+                },
+                "devDependencies": {
+                    "@storybook/addon-essentials": "^6.2.9",
+                    "@storybook/preset-scss": "^1.0.3",
+                    "@storybook/react": "^6.2.9",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "react-to-print": "^2.14.3",
+                    "sass": "^1.32.8",
+                    "sass-loader": "^10.1.1",
+                    "ts-loader": "^8.0.18",
+                    "typescript": "^4.2.3"
+                },
+                "ccv": {
+                    "list": [
+                        "fgGray",
+                        "fgC1",
+                        "fgGrayT100",
+                        "fgC1C4T12",
+                        "fgC1C4T12A_60",
+                        "fgGrayT100A_60",
+                        "fgGrayA_60",
+                        "ucBgC1A_60",
+                        "ucBgC2C10T10",
+                        "ucBgC2",
+                        "ucBgC1",
+                        "fgC1A_80",
+                        "ucBgC2A_60",
+                        "fgC1A_60",
+                        "bgC1C_4T_10",
+                        "bgC1C5T5",
+                        "bgGrayC3T17",
+                        "warnH1C_31T6",
+                        "warnL1C_35T_34A_10",
+                        "warnL2A_60",
+                        "warnH2C_33T_43A_10",
+                        "warnH2A_60",
+                        "warnH1C_54T_36A_10",
+                        "warnH1A_60",
+                        "warnL2C_23T_38A_10",
+                        "warnL1A_60",
+                        "bgC1",
+                        "warnL2A_80",
+                        "warnH2A_80",
+                        "warnH1A_80",
+                        "warnL1A_80"
+                    ]
+                },
+                "i18nProps": {
+                    "build/export_excel-status.fcp.js": [
+                        "fileName",
+                        "sheetName",
+                        "queryConditions",
+                        "text"
+                    ],
+                    "build/button-index.fcp.js": [
+                        "text"
+                    ],
+                    "build/form_checkBox-index.fcp.js": [
+                        "dataArry.+label$"
+                    ],
+                    "build/form_multi_input-index.fcp.js": [
+                        "placehoder"
+                    ],
+                    "build/form_input-index.fcp.js": [
+                        "placehoder",
+                        "prefixText",
+                        "suffixText",
+                        "beforeText",
+                        "afterText"
+                    ],
+                    "build/form_radio-index.fcp.js": [
+                        "dataArry.+label$"
+                    ],
+                    "build/form_select-index.fcp.js": [
+                        "placehoder",
+                        "dataArry.+title$"
+                    ],
+                    "build/form_tree_select-index.fcp.js": [
+                        "placeholder",
+                        "placehoder",
+                        "statistics.+title$",
+                        "expendData.+title$"
+                    ],
+                    "build/form-print-index.fcp.js": [
+                        "text"
+                    ],
+                    "build/form-dragger-index.fcp.js": [
+                        "title",
+                        "subtitle"
+                    ],
+                    "build/form-upload-index.fcp.js": [
+                        "text"
+                    ],
+                    "build/message-index.fcp.js": [
+                        "content"
+                    ],
+                    "build/modal-index.fcp.js": [
+                        "title",
+                        "content",
+                        "okText",
+                        "cancelText"
+                    ],
+                    "build/tooltip-index.fcp.js": [
+                        "content"
+                    ],
+                    "build/menu-index.fcp.js": [
+                        "data.+title$"
+                    ],
+                    "build/tree-index.fcp.js": [
+                        "placehoder",
+                        "statistics.+title$",
+                        "expendData.+title$"
+                    ],
+                    "build/form-hoc-index.js": [
+                        "label",
+                        "errorMsg"
+                    ]
+                },
+                "fcps": [
+                    "button-index.fcp.js",
+                    "export_excel-status.fcp.js",
+                    "form-dragger-index.fcp.js",
+                    "form-print-index.fcp.js",
+                    "form-upload-index.fcp.js",
+                    "form-validate-index.fcp.js",
+                    "form_backTop-index.fcp.js",
+                    "form_checkBox-index.fcp.js",
+                    "form_datepicker-index.fcp.js",
+                    "form_input-index.fcp.js",
+                    "form_monthpicker-index.fcp.js",
+                    "form_multi_input-index.fcp.js",
+                    "form_multi_select-index.fcp.js",
+                    "form_quarterpicker-index.fcp.js",
+                    "form_radio-index.fcp.js",
+                    "form_select-index.fcp.js",
+                    "form_switch-index.fcp.js",
+                    "form_tree_select - ╕▒▒╛-index.fcp.js",
+                    "form_tree_select - 副本-index.fcp.js",
+                    "form_tree_select-index.fcp.js",
+                    "form_weekpicker-index.fcp.js",
+                    "form_yearpicker-index.fcp.js",
+                    "menu-index.fcp.js",
+                    "message-index.fcp.js",
+                    "modal-index.fcp.js",
+                    "slider-index.fcp.js",
+                    "tooltip-index.fcp.js",
+                    "tree-index.fcp.js",
+                    "tree-tree.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-standard-quota",
+                "version": "2.120.0-snapshot-17",
+                "description": "标题、指标组件",
+                "releaseNote": "支持多语言",
+                "releaseTime": "2022-08-15",
+                "apolloVersion": "V8.1.120.0",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build-src && npm publish",
+                    "build": "build-fc",
+                    "build-src": "build-fc --no-minimize",
+                    "debug": "build-fc -w -s -p 8700",
+                    "storybook-docs": "start-storybook --docs --no-manager-cache",
+                    "build-storybook-docs": "build-storybook --docs"
+                },
+                "author": {
+                    "name": "张昊",
+                    "email": "zhanghao2@goldwind.com.cn"
+                },
+                "dependencies": {
+                    "react": "^17.0.2",
+                    "react-dom": "^17.0.2"
+                },
+                "devDependencies": {},
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "ccv": {
+                    "list": [
+                        "fgGray",
+                        "fgC1",
+                        "ucBgC1",
+                        "ucBgC2"
+                    ]
+                },
+                "i18nProps": {
+                    "build/strand_status3-status.fcp.js": [
+                        "customLabel"
+                    ],
+                    "build/title-status.fcp.js": [
+                        "text"
+                    ],
+                    "build/strand_status1-status.fcp.js": [
+                        "customLabel"
+                    ],
+                    "build/chronograph-status.fcp.js": [
+                        "labelText",
+                        "unitText"
+                    ],
+                    "build/strand_status2-status.fcp.js": [
+                        "customLabel"
+                    ]
+                },
+                "fcps": [
+                    "chronograph-status.fcp.js",
+                    "strand_status1-status.fcp.js",
+                    "strand_status2-status.fcp.js",
+                    "strand_status3-status.fcp.js",
+                    "title-status.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-standard-table",
+                "version": "1.0.189",
+                "description": "表格编辑器",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9001",
+                    "build": "build-fc --no-minimize",
+                    "build-src": "build-fc --no-minimize",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "梁旭茹 <liangxuru@goldwind.com.cn>",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build",
+                    "previews"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@gw/editor-upload-control": "^1.0.4",
+                    "@gw/apollo-standard-form": "^1.0.14",
+                    "@gw/editor-form-table": "^1.0.4",
+                    "lodash": "^4.17.21",
+                    "@ant-design/icons": "^4.6.2",
+                    "antd": "^4.15.6",
+                    "object-path": "^0.11.5",
+                    "react-dnd": "~11.1.3",
+                    "react-dnd-html5-backend": "~11.1.3",
+                    "react-rnd": "~10.0.0",
+                    "react-split-pane": "~0.1.92"
+                },
+                "devDependencies": {
+                    "@babel/core": "~7.14.3",
+                    "@babel/plugin-proposal-optional-chaining": "~7.14.2",
+                    "@babel/plugin-syntax-dynamic-import": "~7.8.3",
+                    "@babel/plugin-transform-runtime": "~7.14.3",
+                    "@babel/preset-env": "~7.14.2",
+                    "@babel/preset-react": "~7.13.13",
+                    "@babel/runtime": "~7.14.0",
+                    "@gw/storybook-preset-fc": "^2.0.0",
+                    "babel-plugin-transform-class-properties": "6.24.1",
+                    "babel-loader": "^8.2.2",
+                    "babel-plugin-import": "~1.13.3",
+                    "react-hot-loader": "~4.12.20",
+                    "sass": "^1.32.8",
+                    "sass-loader": "^10.1.1",
+                    "ts-loader": "~9.2.2",
+                    "typescript": "~4.2.3"
+                },
+                "fcps": [
+                    "src-table-editor.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/apollo-xjhd",
+                "version": "1.0.84",
+                "description": "新疆华电",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "getUnionFarmList-index.fcp.js",
+                    "getwarnlist-index.fcp.js",
+                    "load_compare_req-index.fcp.js",
+                    "realTimePower_data-index.fcp.js",
+                    "warnlist_get-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/bdm-service",
+                "version": "3.0.60",
+                "description": "BDM数据模块服务",
+                "main": "src/index.js",
+                "scripts": {
+                    "test": "jest",
+                    "coverage": "jest --coverage",
+                    "ts": "node --inspect=5858 ./work/start.js dev",
+                    "tss": "node --inspect-brk=5858 ./work/start.js dev",
+                    "a": "jest ./test/utils/mock_value.test.js"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/server-configuration.git"
+                },
+                "author": {
+                    "name": "过明辉",
+                    "email": "guominghui32339@goldwind.com.cn"
+                },
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "devDependencies": {
+                    "@gw/configuration-project": "^1.0.40",
+                    "@gw/eslint-config-common": "^2.0.8",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12"
+                },
+                "dependencies": {
+                    "@gw/apollo-app-service": "^1.0.2",
+                    "@gw/dao-nedb": "^0.1.3",
+                    "@gw/wind-boot": "^1.0.5",
+                    "@gw/wind-core-dao": "^1.1.0",
+                    "@gw/wind-core-http": "^1.1.6",
+                    "@gw/wind-core-log": "^0.2.0",
+                    "@gw/wind-websocket": "^1.0.2",
+                    "ajv": "^6.12.6",
+                    "axios": "^0.21.1",
+                    "axios-retry": "^3.1.9",
+                    "debug": "^4.3.2",
+                    "eventemitter3": "^4.0.7",
+                    "faker": "^5.5.3",
+                    "form-data": "^3.0.1",
+                    "lodash.get": "^4.4.2",
+                    "uuid": "^8.3.2"
+                },
+                "fcps": null
+            },
+            {
+                "name": "@gw/fc-view-manager",
+                "version": "2.1.2",
+                "description": "应用运行时前端组件管理器",
+                "main": "src/index.js",
+                "scripts": {
+                    "build": "babel src -d lib",
+                    "web": "webpack serve -c ./test/webpack.config.js --open",
+                    "postversion": "npm run build && git push --follow-tags && npm publish",
+                    "storybook": "start-storybook -p 6006",
+                    "build-storybook": "build-storybook"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/fc-view-manager.git"
+                },
+                "author": {
+                    "name": "刘晗",
+                    "email": "liuhan@goldwind.com.cn"
+                },
+                "license": "ISC",
+                "dependencies": {
+                    "@babel/preset-flow": "^7.16.5",
+                    "@gw/editor-kernel": "^1.0.0",
+                    "@gw/fc-render": "^2.0.2",
+                    "debug": "^4.3.1",
+                    "es6-template-strings": "^2.0.1",
+                    "lodash.template": "^4.5.0",
+                    "lodash.throttle": "^4.1.1",
+                    "object-path": "^0.11.5",
+                    "react": "~17.0.2"
+                },
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "files": [
+                    "src",
+                    "lib"
+                ],
+                "devDependencies": {
+                    "@babel/cli": "~7.14.3",
+                    "@babel/core": "~7.14.3",
+                    "@babel/plugin-proposal-class-properties": "^7.13.0",
+                    "@babel/plugin-syntax-flow": "^7.16.5",
+                    "@babel/preset-env": "~7.14.2",
+                    "@babel/preset-react": "~7.13.13",
+                    "@gw/eslint-config-common": "^2.0.8",
+                    "@gw/fp-interpreter-manager": "^2.0.1",
+                    "@storybook/addon-actions": "^6.1.21",
+                    "@storybook/addon-essentials": "^6.1.21",
+                    "@storybook/addon-links": "^6.1.21",
+                    "@storybook/react": "^6.1.21",
+                    "babel-loader": "~8.2.2",
+                    "clean-webpack-plugin": "^3.0.0",
+                    "esm": "^3.2.25",
+                    "html-webpack-plugin": "~5.3.1"
+                },
+                "fcps": null
+            },
+            {
+                "name": "@gw/interact-data-components",
+                "version": "1.1.18",
+                "description": "交互定时相关处理组件包",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build && git push --follow-tags && npm publish",
+                    "build": "build-fc",
+                    "dev-build": "build-fc --no-minimize",
+                    "test": "jest"
+                },
+                "packageType": "fc",
+                "author": {
+                    "name": "刘晗",
+                    "email": "liuhan@goldwind.com.cn"
+                },
+                "componentPackage": true,
+                "license": "ISC",
+                "dependencies": {
+                    "@gw/storybook-preset-fc": "^1.0.24",
+                    "object-path": "^0.11.5",
+                    "react": "^16.14.0",
+                    "react-dom": "^17.0.1"
+                },
+                "devDependencies": {
+                    "@babel/core": "^7.12.13",
+                    "@babel/plugin-proposal-optional-chaining": "^7.12.13",
+                    "@babel/preset-env": "^7.12.13",
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@gw/map2d": "^1.4.10-snapshot.0",
+                    "@storybook/react": "^6.1.16",
+                    "babel-jest": "^26.6.3",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "sass-loader": "^10.1.1"
+                },
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "fcps": [
+                    "data_display-index.fcp.js",
+                    "direct_mock-index.fcp.js",
+                    "hami_alarm_receive-index.fcp.js",
+                    "hami_capacity_pie_data-index.fcp.js",
+                    "hami_device_protocol-index.fcp.js",
+                    "hami_init_data-index.fcp.js",
+                    "hami_mapclick-index.fcp.js",
+                    "hami_on_tick-index.fcp.js",
+                    "hami_return_region-index.fcp.js",
+                    "mapdatav-map.fcp.js",
+                    "path_pipe-index.fcp.js",
+                    "pathemit-index.fcp.js",
+                    "priority_between-index.fcp.js",
+                    "ticker-index.fcp.js",
+                    "zz_star_map-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-bjln",
+                "version": "1.2.1",
+                "description": "北京鲁能定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "current_electricity-index.fcp.js",
+                    "load_compare-index.fcp.js",
+                    "load_compare_req-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-changqing-hr",
+                "version": "1.0.56",
+                "description": "长庆华润定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "dataResultGet-index.fcp.js",
+                    "getDeviceInfo-index.fcp.js",
+                    "getDeviceList-index.fcp.js",
+                    "getRegionFarmInfo-index.fcp.js",
+                    "getRegionPower-index.fcp.js",
+                    "getRegionStation-index.fcp.js",
+                    "irradianceCurve-index.fcp.js",
+                    "realTimePowerCurve-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-hbgh-gdt",
+                "version": "1.0.42",
+                "description": "河北国华定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "npm": "^7.19.0",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "areaCausal-index.fcp.js",
+                    "contractid_convert_equipname_data-index.fcp.js",
+                    "equalhours_rank_data-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-hebeijt-gdt",
+                "version": "1.3.9",
+                "description": "河北建投定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "agcDataResultGet-index.fcp.js",
+                    "boosterStation-index.fcp.js",
+                    "curve-list-data-catetory.fcp.js",
+                    "curve-list-data-index.fcp.js",
+                    "curve_list_data_refactor-index.fcp.js",
+                    "dataResultGet-index.fcp.js",
+                    "debounce-index.fcp.js",
+                    "device_info-index.fcp.js",
+                    "eqHour_dataReq-index.fcp.js",
+                    "interface_request-fetch.fcp.js",
+                    "loadCurveResultGet-index.fcp.js",
+                    "load_curveData_req-index.fcp.js",
+                    "powerCurvedataResultGet-index.fcp.js",
+                    "request_parameter-index.fcp.js",
+                    "voltageDataResultGet-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-hexinanmeng-zg",
+                "version": "1.2.28",
+                "description": "核心安盟定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "eqHour_dataReq-index.fcp.js",
+                    "equivalent_Utilization-equit_util.fcp.js",
+                    "equivalent_Utilization-index.fcp.js",
+                    "eventTicker-index.fcp.js",
+                    "getAlias-index.fcp.js",
+                    "getDeviceList-index.fcp.js",
+                    "groupEqHourGet-index.fcp.js",
+                    "realTimePower_data-index.fcp.js",
+                    "roseChart_dataProcess - 副本-index.fcp.js",
+                    "roseChart_dataProcess-index.fcp.js",
+                    "station_overview-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-hljcn-gdt",
+                "version": "1.0.2",
+                "description": "黑龙江辰能定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "npm": "^7.19.0",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "on_grid_data-index.fcp.js",
+                    "wind_power_data-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-hm-gdt",
+                "version": "1.0.22",
+                "description": "哈密国电投定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "load_compare_req-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-hn-zny",
+                "version": "1.0.17",
+                "description": "湖南中南院定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "column_data-index.fcp.js",
+                    "trend_curve_data-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-hunanzhongdianjian",
+                "version": "1.0.40",
+                "description": "湖南中电建定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "eqHour_dataReq-index.fcp.js",
+                    "farmListSorted-index.fcp.js",
+                    "trend_curve_data-index.fcp.js",
+                    "yearPowerDataResult-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-jinfengguoji-yz",
+                "version": "1.0.69",
+                "description": "金风国际-亚洲定制包",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build-src && npm publish",
+                    "build": "build-fc",
+                    "build-src": "build-fc --no-minimize"
+                },
+                "author": {
+                    "name": "张昊",
+                    "email": "zhanghao2@goldwind.com.cn"
+                },
+                "dependencies": {
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@gw/fc-build-tools": "^2.0.4",
+                    "@storybook/addon-actions": "^6.3.4",
+                    "@storybook/addon-essentials": "^6.3.4",
+                    "@storybook/addon-links": "^6.3.4",
+                    "@storybook/builder-webpack5": "^6.3.4",
+                    "@storybook/manager-webpack5": "^6.3.4",
+                    "@storybook/react": "^6.3.4",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "lodash": "^4.17.21",
+                    "react": "^16.14.0",
+                    "react-dom": "^16.14.0"
+                },
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "ccv": {
+                    "list": []
+                },
+                "fcps": [
+                    "getAusData-index.fcp.js",
+                    "getFarmInfo-index.fcp.js",
+                    "openTabOfState-index.fcp.js",
+                    "stateModelParams-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-jlgh-gdt",
+                "version": "1.1.1",
+                "description": "吉林国华定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "npm": "^7.19.0",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "series_latest_entity-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-jn-zjk",
+                "version": "1.0.60",
+                "description": "京能张家口定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "npm": "^7.19.0",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "getFarmList-index.fcp.js",
+                    "limitedFan_paramsGet-index.fcp.js",
+                    "load_compare-index.fcp.js",
+                    "load_compare_req-index.fcp.js",
+                    "series_latest_entity-index.fcp.js",
+                    "table_datareset-index.fcp.js",
+                    "winter_olympics-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-jnguanting-ld",
+                "version": "1.0.2-8",
+                "description": "京能官厅",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build-src && npm publish",
+                    "build": "build-fc",
+                    "build-src": "build-fc --no-minimize"
+                },
+                "author": {
+                    "name": "鞠云芳",
+                    "email": "juyunfang@goldwind.com.cn"
+                },
+                "dependencies": {
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@gw/fc-build-tools": "^2.0.4",
+                    "@storybook/addon-actions": "^6.3.4",
+                    "@storybook/addon-essentials": "^6.3.4",
+                    "@storybook/addon-links": "^6.3.4",
+                    "@storybook/builder-webpack5": "^6.3.4",
+                    "@storybook/manager-webpack5": "^6.3.4",
+                    "@storybook/react": "^6.3.4",
+                    "echarts": "^5.1.1",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "lodash": "^4.17.21",
+                    "react": "^16.14.0",
+                    "react-dom": "^16.14.0",
+                    "use-deep-compare-effect": "^1.6.1"
+                },
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "fcps": [
+                    "getHeatPumpList-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-neimeng-ayq",
+                "version": "1.0.12",
+                "description": "内蒙阿右旗定制包",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build-src && npm publish",
+                    "build": "build-fc",
+                    "build-src": "build-fc --no-minimize"
+                },
+                "author": {
+                    "name": "张昊",
+                    "email": "zhanghao2@goldwind.com.cn"
+                },
+                "dependencies": {
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@gw/fc-build-tools": "2.1.7",
+                    "@storybook/addon-actions": "^6.3.4",
+                    "@storybook/addon-essentials": "^6.3.4",
+                    "@storybook/addon-links": "^6.3.4",
+                    "@storybook/builder-webpack5": "^6.3.4",
+                    "@storybook/manager-webpack5": "^6.3.4",
+                    "@storybook/react": "^6.3.4",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "lodash": "^4.17.21",
+                    "react": "^16.14.0",
+                    "react-dom": "^16.14.0"
+                },
+                "license": "ISC",
+                "ccv": {
+                    "list": []
+                },
+                "i18nProps": {},
+                "fcps": [
+                    "eqHour_dataReq-index.fcp.js",
+                    "mapWFStatus-index.fcp.js",
+                    "trend_curve_data-index.fcp.js",
+                    "windSpeedCurve-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-nxgh-gdt",
+                "version": "1.0.7-21",
+                "description": "宁夏国华定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "npm": "^7.19.0",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "month_target_data-index.fcp.js",
+                    "power_curve_data-index.fcp.js",
+                    "powerpredict_curve_data-index.fcp.js",
+                    "process_chart_params-index.fcp.js",
+                    "realTimePower_data-index.fcp.js",
+                    "series_latest_entity-index.fcp.js",
+                    "year_target_data-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-shangdong-gh",
+                "version": "1.2.131",
+                "description": "山东国华定制包",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build-src && npm publish",
+                    "build": "build-fc",
+                    "build-src": "build-fc --no-minimize"
+                },
+                "author": {
+                    "name": "张昊",
+                    "email": "zhanghao2@goldwind.com.cn"
+                },
+                "dependencies": {
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@gw/fc-build-tools": "^2.0.4",
+                    "@storybook/addon-actions": "^6.3.4",
+                    "@storybook/addon-essentials": "^6.3.4",
+                    "@storybook/addon-links": "^6.3.4",
+                    "@storybook/builder-webpack5": "^6.3.4",
+                    "@storybook/manager-webpack5": "^6.3.4",
+                    "@storybook/react": "^6.3.4",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "lodash": "^4.17.21",
+                    "react": "^16.14.0",
+                    "react-dom": "^16.14.0"
+                },
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "ccv": {
+                    "list": [
+                        "bgC2",
+                        "fgC2",
+                        "bgC1"
+                    ]
+                },
+                "i18nProps": {},
+                "fcps": [
+                    "SDGH_map-status.fcp.js",
+                    "assIndicators-index.fcp.js",
+                    "completionReateChart-index.fcp.js",
+                    "eqHour_dataReq-index.fcp.js",
+                    "eqUtilHoursArea-index.fcp.js",
+                    "eqUtilHoursFarm-index.fcp.js",
+                    "failureAnalysis-index.fcp.js",
+                    "failureAnalysisFarm-index.fcp.js",
+                    "failureNumber-index.fcp.js",
+                    "failureTimes-index.fcp.js",
+                    "faultClassification-index.fcp.js",
+                    "feasibilityChart-index.fcp.js",
+                    "feasibilityChartArea-index.fcp.js",
+                    "fieldDeviceChartData-index.fcp.js",
+                    "field_device_data-index.fcp.js",
+                    "filterLimitedPower-index.fcp.js",
+                    "getFieldParams-index.fcp.js",
+                    "getLimitedPower-index.fcp.js",
+                    "interfaceMerging-index.fcp.js",
+                    "interfaceParams-index.fcp.js",
+                    "modelText-index.fcp.js",
+                    "power_generation_chart-index.fcp.js",
+                    "region_right_data-index.fcp.js",
+                    "region_right_data_chart-index.fcp.js",
+                    "region_right_data_chart-index23-7-20.fcp.js",
+                    "safe_run_day-index.fcp.js",
+                    "station_list_data-index.fcp.js",
+                    "station_list_data-index23-7-19.fcp.js",
+                    "stationrunning_list_data-index.fcp.js",
+                    "wind_power_curve-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-standard-status",
+                "version": "0.2.71",
+                "description": "SOAM标准指标图元",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "build": "node ./bin/build.js"
+                },
+                "author": {
+                    "name": "堵一城",
+                    "email": "duyicheng@goldwind.com.cn"
+                },
+                "license": "ISC",
+                "dependencies": {
+                    "react": "^16.13.1",
+                    "react-dom": "^16.13.1",
+                    "webpack-merge": "^5.1.3"
+                },
+                "devDependencies": {
+                    "@babel/core": "^7.11.6",
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@gw/storybook-preset-fc": "1.0.5",
+                    "@gw/wind-pack-externals": "^1.0.11",
+                    "@gw/wind-prop-schema": "^0.1.10",
+                    "@storybook/addon-backgrounds": "^5.3.21",
+                    "@storybook/addon-knobs": "^5.3.21",
+                    "@storybook/addon-viewport": "^5.3.21",
+                    "@storybook/preset-scss": "^1.0.2",
+                    "@storybook/react": "^5.3.21",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "babel-eslint": "^10.1.0",
+                    "babel-loader": "^8.1.0",
+                    "chalk": "^4.1.0",
+                    "clean-webpack-plugin": "^3.0.0",
+                    "css-loader": "^3.6.0",
+                    "eslint": "^6.8.0",
+                    "eslint-plugin-react": "^7.20.6",
+                    "eslint-plugin-sonarjs": "^0.5.0",
+                    "glob": "^7.1.6",
+                    "node-sass": "^4.14.1",
+                    "sass-loader": "^8.0.2",
+                    "style-loader": "^1.2.1"
+                },
+                "files": [
+                    "build",
+                    "previews"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "fcps": [
+                    "a-status.fcp.js",
+                    "soam_alarmList-status.fcp.js",
+                    "soam_datangguangxi_map-status.fcp.js",
+                    "soam_datangguizhou_map-status.fcp.js",
+                    "soam_guangxiFieldList-status.fcp.js",
+                    "soam_status1-status.fcp.js",
+                    "soam_status10-status.fcp.js",
+                    "soam_status2-status.fcp.js",
+                    "soam_status3-status.fcp.js",
+                    "soam_status4-status.fcp.js",
+                    "soam_status5-status.fcp.js",
+                    "soam_status6-status.fcp.js",
+                    "soam_status7-status.fcp.js",
+                    "soam_status8-status.fcp.js",
+                    "soam_status9-status.fcp.js",
+                    "soam_statusWithIcon1-status.fcp.js",
+                    "soam_statusWithIcon2-status.fcp.js",
+                    "soam_statusWithIcon3-status.fcp.js",
+                    "soam_statusWithIcon4-status.fcp.js",
+                    "soam_statusWithIcon5-status.fcp.js",
+                    "soam_time-status.fcp.js",
+                    "table-status.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-tongliao-gh",
+                "version": "1.0.5",
+                "description": "通辽国华定制包",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build-src && npm publish",
+                    "build": "build-fc",
+                    "build-src": "build-fc --no-minimize"
+                },
+                "author": {
+                    "name": "张昊",
+                    "email": "zhanghao2@goldwind.com.cn"
+                },
+                "dependencies": {
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@gw/fc-build-tools": "^2.0.4",
+                    "@storybook/addon-actions": "^6.3.4",
+                    "@storybook/addon-essentials": "^6.3.4",
+                    "@storybook/addon-links": "^6.3.4",
+                    "@storybook/builder-webpack5": "^6.3.4",
+                    "@storybook/manager-webpack5": "^6.3.4",
+                    "@storybook/react": "^6.3.4",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "lodash": "^4.17.21",
+                    "react": "^16.14.0",
+                    "react-dom": "^16.14.0"
+                },
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "fcps": [
+                    "getMonthLine-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-xj-gdt",
+                "version": "1.2.47",
+                "description": "新疆国电投定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "npm": "^7.19.0",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "big_screen-index.fcp.js",
+                    "colum_chart_data_set-index.fcp.js",
+                    "load_compare-index.fcp.js",
+                    "load_compare_req-index.fcp.js",
+                    "series_latest_entity-index.fcp.js",
+                    "unit_conversion-index.fcp.js",
+                    "weilai_data-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-xjlx-xny",
+                "version": "1.1.0",
+                "description": "新疆立新新能源定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "npm": "^7.19.0",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "series_latest_entity-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-xjysd-gdt",
+                "version": "1.0.25",
+                "description": "新疆粤水电定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "npm": "^7.19.0",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "monthongridpower_list_data-index.fcp.js",
+                    "powercurve_list_data-index.fcp.js",
+                    "sortstationbyids_list_data-index.fcp.js",
+                    "stationagc_list_data-index.fcp.js",
+                    "stationagcconnection_data-index.fcp.js",
+                    "stationrunning_list_data-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-zhangjk-gdt",
+                "version": "1.1.1",
+                "description": "张家口国电投定制化包",
+                "keywords": [
+                    "Container"
+                ],
+                "packageType": "fc",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build": "build-fc",
+                    "test": "jest",
+                    "build-src": "build-fc --no-minimize",
+                    "coverage": "jest --coverage",
+                    "postversion": "npm run build && npm publish"
+                },
+                "author": "",
+                "homepage": "",
+                "license": "ISC",
+                "files": [
+                    "build"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873/"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/apollo-standard-components.git"
+                },
+                "dependencies": {
+                    "@babel/plugin-transform-runtime": "^7.13.15",
+                    "@babel/preset-env": "^7.14.1",
+                    "@babel/preset-react": "^7.13.13",
+                    "@gw/apollo-standard-data": "^1.0.47",
+                    "@gw/fc-build-tools": "^1.0.2",
+                    "babel-loader": "^8.2.2",
+                    "jest": "^26.6.3",
+                    "jest-sonar": "^0.2.12",
+                    "lodash": "^4.17.21",
+                    "object-path": "^0.11.5"
+                },
+                "fcps": [
+                    "effect_data-index.fcp.js",
+                    "effect_req-index.fcp.js",
+                    "power_curve-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/soam-zhongguanghe-xam",
+                "version": "1.0.34",
+                "description": "中广核定制包",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build-src && npm publish",
+                    "build": "build-fc",
+                    "build-src": "build-fc --no-minimize"
+                },
+                "author": {
+                    "name": "张昊",
+                    "email": "zhanghao2@goldwind.com.cn"
+                },
+                "dependencies": {
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@gw/fc-build-tools": "^2.0.4",
+                    "@storybook/addon-actions": "^6.3.4",
+                    "@storybook/addon-essentials": "^6.3.4",
+                    "@storybook/addon-links": "^6.3.4",
+                    "@storybook/builder-webpack5": "^6.3.4",
+                    "@storybook/manager-webpack5": "^6.3.4",
+                    "@storybook/react": "^6.3.4",
+                    "echarts": "^5.1.1",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "lodash": "^4.17.21",
+                    "react": "^16.14.0",
+                    "react-dom": "^16.14.0",
+                    "use-deep-compare-effect": "^1.6.1"
+                },
+                "license": "ISC",
+                "publishConfig": {
+                    "registry": "http://10.10.247.1:4873"
+                },
+                "fcps": [
+                    "ZGH_map-status.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/standard-pels",
+                "version": "0.9.94",
+                "description": "前端组态标准图元包",
+                "main": "index.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9009",
+                    "build-storybook": "build-storybook -c .storybook -o storybook-static",
+                    "postversion": "npm run build && git push --follow-tags && npm publish",
+                    "build": "build-fc",
+                    "build-src": "build-fc -nm"
+                },
+                "packageType": "fc",
+                "author": {
+                    "name": "张昊",
+                    "email": "zhanghao2@goldwind.com.cn"
+                },
+                "componentPackage": true,
+                "license": "ISC",
+                "dependencies": {
+                    "@ant-design/icons": "^4.6.2",
+                    "@antv/data-set": "^0.11.8",
+                    "@gw/fc-build-tools": "^2.0.0",
+                    "@gw/map2d": "^1.4.10-snapshot.0",
+                    "@gw/sync-npm": "^1.7.2",
+                    "@gw/wind-pack-externals": "^2.0.9",
+                    "@svgdotjs/svg.js": "^3.0.16",
+                    "antd": "^4.22.8",
+                    "bizcharts": "^4.1.7",
+                    "echarts": "^5.1.1",
+                    "highcharts": "^8.2.2",
+                    "highcharts-react-official": "^3.0.0",
+                    "proj4": "^2.7.2",
+                    "react": "^16.14.0",
+                    "react-dom": "^16.14.0",
+                    "react-highcharts": "16.1.0",
+                    "use-deep-compare-effect": "^1.6.1"
+                },
+                "devDependencies": {
+                    "@babel/plugin-proposal-optional-chaining": "^7.13.0",
+                    "@gw/eslint-config-common": "^1.0.0",
+                    "@gw/eslint-config-react": "^1.0.1",
+                    "@storybook/react": "^6.1.20",
+                    "babel-loader": "^8.2.2",
+                    "sass": "^1.36.0",
+                    "sass-loader": "^10.1.1"
+                },
+                "files": [
+                    "build",
+                    "previews"
+                ],
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "fcps": [
+                    "aaText-status.fcp.js",
+                    "area_navigation_bar-status.fcp.js",
+                    "chart_3dColumns-status.fcp.js",
+                    "chart_3dColumnsLine-status.fcp.js",
+                    "chart_3dCylinder-status.fcp.js",
+                    "chart_3dMap-status.fcp.js",
+                    "chart_3dProgress-status.fcp.js",
+                    "chart_3dRing-status.fcp.js",
+                    "chart_3dbarLineMix-status.fcp.js",
+                    "chart_annotation-status.fcp.js",
+                    "chart_area-status.fcp.js",
+                    "chart_areaBubble-status.fcp.js",
+                    "chart_areaLineWithBg-status.fcp.js",
+                    "chart_circle-status.fcp.js",
+                    "chart_column-status.fcp.js",
+                    "chart_column2-status.fcp.js",
+                    "chart_columnAreas-status.fcp.js",
+                    "chart_cylinder-status.fcp.js",
+                    "chart_dbPointerDashboard-status.fcp.js",
+                    "chart_fourLines-status.fcp.js",
+                    "chart_legendList-status.fcp.js",
+                    "chart_lightLine-status.fcp.js",
+                    "chart_lineColumnMix-status.fcp.js",
+                    "chart_lines-status.fcp.js",
+                    "chart_lines1-area.fcp.js",
+                    "chart_lines1-line.fcp.js",
+                    "chart_lines1-spline.fcp.js",
+                    "chart_linesArea-status.fcp.js",
+                    "chart_nestedRing-status.fcp.js",
+                    "chart_pie-status.fcp.js",
+                    "chart_pyramid-status.fcp.js",
+                    "chart_rectangularTree-status.fcp.js",
+                    "chart_ring-status.fcp.js",
+                    "chart_singleArea-status.fcp.js",
+                    "chart_singleColumn-status.fcp.js",
+                    "chart_spider-status.fcp.js",
+                    "chart_switchColumn-status.fcp.js",
+                    "chart_switchLines-status.fcp.js",
+                    "chronograph-status.fcp.js",
+                    "circle_progressBar-status.fcp.js",
+                    "custom_column-status.fcp.js",
+                    "dashboard-status.fcp.js",
+                    "field_list_heibei-status.fcp.js",
+                    "field_list_heibeiNew-status.fcp.js",
+                    "frame_animation-status.fcp.js",
+                    "highcharts_map-status.fcp.js",
+                    "image-image.fcp.js",
+                    "index_order_list-status.fcp.js",
+                    "indicators_list-status.fcp.js",
+                    "organization_table-status.fcp.js",
+                    "polar_chart-status.fcp.js",
+                    "polar_coordinate-status.fcp.js",
+                    "progress_bar-status.fcp.js",
+                    "progress_bar1-status.fcp.js",
+                    "progress_bar10-status.fcp.js",
+                    "progress_bar11-status.fcp.js",
+                    "progress_bar12-status.fcp.js",
+                    "progress_bar13-status.fcp.js",
+                    "progress_bar2-status.fcp.js",
+                    "progress_bar3-status.fcp.js",
+                    "progress_bar4-status.fcp.js",
+                    "progress_bar5-status.fcp.js",
+                    "progress_bar6-status.fcp.js",
+                    "progress_bar8-status.fcp.js",
+                    "quota1-status.fcp.js",
+                    "quota2-status.fcp.js",
+                    "quota3-status.fcp.js",
+                    "quota4-status.fcp.js",
+                    "quota5-status.fcp.js",
+                    "quota6-status.fcp.js",
+                    "quota7-status.fcp.js",
+                    "rectangle-rectangle.fcp.js",
+                    "select-status.fcp.js",
+                    "select2-status.fcp.js",
+                    "select_bjluneng-status.fcp.js",
+                    "select_huarun-status.fcp.js",
+                    "sort_component-status.fcp.js",
+                    "stack_progress_bar-status.fcp.js",
+                    "strand_IntervalHistogram-status.fcp.js",
+                    "strand_baseArea-status.fcp.js",
+                    "strand_baseBarGraph-status.fcp.js",
+                    "strand_basicAreaCat-status.fcp.js",
+                    "strand_basicHistogram-status.fcp.js",
+                    "strand_intervalArea-status.fcp.js",
+                    "strand_map-status.fcp.js",
+                    "strand_overlappingHistogram-status.fcp.js",
+                    "strand_packedBubbleChart-status.fcp.js",
+                    "strand_percentStackedArea-status.fcp.js",
+                    "strand_polarHistogram-status.fcp.js",
+                    "strand_polyLine-status.fcp.js",
+                    "strand_shadedPolyline-status.fcp.js",
+                    "strand_stackedArea-status.fcp.js",
+                    "strand_stackedHistogram-status.fcp.js",
+                    "strand_status1-status.fcp.js",
+                    "strand_status2-status.fcp.js",
+                    "strand_status3-status.fcp.js",
+                    "strand_table-status.fcp.js",
+                    "strand_triangleList-status.fcp.js",
+                    "tab_chart_pc-status.fcp.js",
+                    "tab_chartline_status-status.fcp.js",
+                    "tabs_hebei-status.fcp.js",
+                    "tabs_switch-status.fcp.js",
+                    "tabs_switch_Interval-status.fcp.js",
+                    "title-status.fcp.js",
+                    "toggle_component-status.fcp.js",
+                    "trapezoid_progress-status.fcp.js",
+                    "wave_chart-status.fcp.js",
+                    "zchart_animation-status.fcp.js",
+                    "zchart_animation2-status.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/standard-web-gis",
+                "version": "2.120.0-dev-41",
+                "description": "GIS地图组件",
+                "releaseNote": "支持多语言",
+                "releaseTime": "2022-08-31",
+                "apolloVersion": "V8.1.120.0",
+                "main": "build/mapdatav-index.fcp.js",
+                "scripts": {
+                    "storybook": "start-storybook -p 9001",
+                    "build": "build-fc",
+                    "build-src": "build-fc -s",
+                    "postversion": "npm run build && npm publish",
+                    "debug": "build-fc -w -a -s -p 8700"
+                },
+                "dependencies": {
+                    "@gw/mapdatav": "^1.5.16",
+                    "lodash.template": "^4.5.0"
+                },
+                "author": "",
+                "license": "ISC",
+                "ccv": {
+                    "list": [
+                        "bgC1",
+                        "fgGrayT100",
+                        "ucBgC1",
+                        "ucBgC2",
+                        "fgGray",
+                        "fgC1"
+                    ]
+                },
+                "i18nProps": {
+                    "build/mapdatav-index.fcp.js": [
+                        "tileLayers.name$"
+                    ]
+                },
+                "fcps": [
+                    "mapdatav-index.fcp.js"
+                ]
+            },
+            {
+                "name": "@gw/web-font-assets",
+                "version": "1.0.8",
+                "description": "金风授权字体包",
+                "main": "index.js",
+                "scripts": {},
+                "repository": {
+                    "type": "git",
+                    "url": "http://gitlab.windinfo.net/ngsp-pfcc/web-font-assets.git"
+                },
+                "author": "",
+                "fonts": {
+                    "Ubuntu-BI": {
+                        "label": "Ubuntu-BI",
+                        "url": "Ubuntu-BI.woff"
+                    },
+                    "HelveticaNeueLTPro-Roman": {
+                        "label": "HelveticaNeueLTPro-Roman",
+                        "url": "HelveticaNeueLTPro-Roman.woff"
+                    },
+                    "fzltzh": {
+                        "label": "方正兰亭准黑",
+                        "url": "方正兰亭准黑_GBK.woff"
+                    },
+                    "fzltzhch": {
+                        "label": "方正兰亭中粗黑",
+                        "url": "方正兰亭中粗黑_GBK.woff"
+                    },
+                    "gats": {
+                        "label": "Gats",
+                        "url": "Gats.woff"
+                    }
+                },
+                "publishConfig": {
+                    "registry": "http://10.12.7.250:8081/repository/npm-hosted"
+                },
+                "license": "ISC",
+                "fcps": null
+            },
+            {
+                "name": "antd",
+                "version": "4.16.8",
+                "description": "An enterprise-class UI design language and React components implementation",
+                "title": "Ant Design",
+                "keywords": [
+                    "ant",
+                    "component",
+                    "components",
+                    "design",
+                    "framework",
+                    "frontend",
+                    "react",
+                    "react-component",
+                    "ui"
+                ],
+                "homepage": "https://ant.design",
+                "bugs": {
+                    "url": "https://github.com/ant-design/ant-design/issues"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/ant-design/ant-design"
+                },
+                "license": "MIT",
+                "contributors": [
+                    "ant"
+                ],
+                "funding": {
+                    "type": "opencollective",
+                    "url": "https://opencollective.com/ant-design"
+                },
+                "files": [
+                    "dist",
+                    "lib",
+                    "es"
+                ],
+                "sideEffects": [
+                    "dist/*",
+                    "es/**/style/*",
+                    "lib/**/style/*",
+                    "*.less"
+                ],
+                "main": "lib/index.js",
+                "module": "es/index.js",
+                "unpkg": "dist/antd.min.js",
+                "typings": "lib/index.d.ts",
+                "scripts": {
+                    "prepare": "husky install",
+                    "api-collection": "antd-tools run api-collection",
+                    "authors": "node ./scripts/generate-authors",
+                    "build": "npm run compile && NODE_OPTIONS='--max-old-space-size=4096' npm run dist",
+                    "bundlesize": "bundlesize",
+                    "check-commit": "node ./scripts/check-commit",
+                    "check-ts-demo": "node ./scripts/check-ts-demo",
+                    "clean": "antd-tools run clean && rm -rf es lib coverage dist report.html",
+                    "clean-lockfiles": "rm -rf package-lock.json yarn.lock",
+                    "prestart": "npm run version",
+                    "precompile": "npm run version",
+                    "pretest": "npm run version",
+                    "predist": "npm run version",
+                    "presite": "npm run version",
+                    "color-less": "node ./scripts/generate-color-less",
+                    "compile": "npm run clean && antd-tools run compile",
+                    "compile:less": "antd-tools run compile:less",
+                    "changelog": "node ./scripts/print-changelog",
+                    "predeploy": "antd-tools run clean && npm run site && cp CNAME _site && npm run site:test",
+                    "deploy": "bisheng gh-pages --push-only --dotfiles",
+                    "deploy:china-mirror": "git checkout gh-pages && git pull origin gh-pages && git push git@gitee.com:ant-design/ant-design.git gh-pages",
+                    "dist": "antd-tools run dist",
+                    "dist:esbuild": "ESBUILD=true npm run dist",
+                    "lint": "npm run tsc && npm run lint:script && npm run lint:demo && npm run lint:style && npm run lint:deps && npm run lint:md",
+                    "lint-fix": "npm run lint-fix:script && npm run lint-fix:demo && npm run lint-fix:style",
+                    "lint-fix:demo": "npm run lint:demo -- --fix",
+                    "lint-fix:script": "npm run lint:script -- --fix",
+                    "lint-fix:style": "npm run lint:style -- --fix",
+                    "lint:demo": "eslint components/*/demo/*.md",
+                    "lint:deps": "antd-tools run deps-lint",
+                    "lint:md": "remark . -f -q",
+                    "lint:script": "eslint . --ext '.js,.jsx,.ts,.tsx'",
+                    "lint:style": "stylelint '{site,components}/**/*.less' --syntax less",
+                    "pre-publish": "npm run test-all -- --skip-build",
+                    "prettier": "prettier -c --write '**/*'",
+                    "pretty-quick": "pretty-quick",
+                    "pub": "npm run version && antd-tools run pub",
+                    "prepublishOnly": "antd-tools run guard",
+                    "site": "cross-env NODE_ICU_DATA=node_modules/full-icu ESBUILD=1 concurrently \"bisheng build --ssr -c ./site/bisheng.config.js\" \"npm run color-less\"",
+                    "sort": "npx sort-package-json",
+                    "sort-api": "antd-tools run sort-api-table",
+                    "start": "antd-tools run clean && cross-env NODE_ENV=development concurrently \"npm run color-less\" \"bisheng start -c ./site/bisheng.config.js\"",
+                    "test": "jest --config .jest.js --cache=false",
+                    "test:update": "jest --config .jest.js --cache=false -u",
+                    "test-all": "sh -e ./scripts/test-all.sh",
+                    "test-node": "jest --config .jest.node.js --cache=false",
+                    "tsc": "tsc --noEmit",
+                    "site:test": "jest --config .jest.site.js --cache=false --force-exit",
+                    "test-image": "npm run compile:less && docker-compose run tests",
+                    "version": "node ./scripts/generate-version",
+                    "install-react-16": "npm i --no-save react@16 react-dom@16 react-test-renderer@16 enzyme-adapter-react-16",
+                    "argos": "argos upload imageSnapshots"
+                },
+                "browserslist": [
+                    "> 0.5%",
+                    "last 2 versions",
+                    "Firefox ESR",
+                    "not dead",
+                    "IE 11",
+                    "not IE 10"
+                ],
+                "dependencies": {
+                    "@ant-design/colors": "^6.0.0",
+                    "@ant-design/icons": "^4.6.2",
+                    "@ant-design/react-slick": "~0.28.1",
+                    "@babel/runtime": "^7.12.5",
+                    "array-tree-filter": "^2.1.0",
+                    "classnames": "^2.2.6",
+                    "copy-to-clipboard": "^3.2.0",
+                    "lodash": "^4.17.21",
+                    "moment": "^2.25.3",
+                    "rc-cascader": "~1.4.0",
+                    "rc-checkbox": "~2.3.0",
+                    "rc-collapse": "~3.1.0",
+                    "rc-dialog": "~8.5.1",
+                    "rc-drawer": "~4.3.0",
+                    "rc-dropdown": "~3.2.0",
+                    "rc-field-form": "~1.20.0",
+                    "rc-image": "~5.2.4",
+                    "rc-input-number": "~7.1.0",
+                    "rc-mentions": "~1.6.1",
+                    "rc-menu": "~9.0.12",
+                    "rc-motion": "^2.4.0",
+                    "rc-notification": "~4.5.7",
+                    "rc-pagination": "~3.1.6",
+                    "rc-picker": "~2.5.10",
+                    "rc-progress": "~3.1.0",
+                    "rc-rate": "~2.9.0",
+                    "rc-resize-observer": "^1.0.0",
+                    "rc-select": "~12.1.6",
+                    "rc-slider": "~9.7.1",
+                    "rc-steps": "~4.1.0",
+                    "rc-switch": "~3.2.0",
+                    "rc-table": "~7.15.1",
+                    "rc-tabs": "~11.9.1",
+                    "rc-textarea": "~0.3.0",
+                    "rc-tooltip": "~5.1.1",
+                    "rc-tree": "~4.2.1",
+                    "rc-tree-select": "~4.3.0",
+                    "rc-trigger": "^5.2.1",
+                    "rc-upload": "~4.3.0",
+                    "rc-util": "^5.13.1",
+                    "scroll-into-view-if-needed": "^2.2.25",
+                    "warning": "^4.0.3"
+                },
+                "devDependencies": {
+                    "@ant-design/bisheng-plugin": "^2.3.0",
+                    "@ant-design/hitu": "^0.0.0-alpha.13",
+                    "@ant-design/tools": "^13.6.0",
+                    "@docsearch/react": "^3.0.0-alpha.37",
+                    "@qixian.cs/github-contributors-list": "^1.0.3",
+                    "@stackblitz/sdk": "^1.3.0",
+                    "@types/classnames": "^2.2.8",
+                    "@types/enzyme": "^3.10.5",
+                    "@types/gtag.js": "^0.0.7",
+                    "@types/jest": "^26.0.0",
+                    "@types/jest-environment-puppeteer": "^4.4.0",
+                    "@types/jest-image-snapshot": "^4.1.0",
+                    "@types/lodash": "^4.14.139",
+                    "@types/puppeteer": "^5.4.0",
+                    "@types/react": "^17.0.0",
+                    "@types/react-color": "^3.0.1",
+                    "@types/react-copy-to-clipboard": "^5.0.0",
+                    "@types/react-dom": "^17.0.0",
+                    "@types/react-window": "^1.8.2",
+                    "@types/warning": "^3.0.0",
+                    "@typescript-eslint/eslint-plugin": "^4.1.1",
+                    "@typescript-eslint/parser": "^4.1.1",
+                    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.0",
+                    "antd-img-crop": "^3.1.1",
+                    "antd-pro-merge-less": "^3.0.11",
+                    "antd-theme-generator": "^1.2.3",
+                    "argos-cli": "^0.3.0",
+                    "array-move": "^3.0.0",
+                    "babel-plugin-add-react-displayname": "^0.0.5",
+                    "bisheng": "^3.0.0",
+                    "bisheng-plugin-description": "^0.1.4",
+                    "bisheng-plugin-react": "^1.1.2",
+                    "bisheng-plugin-toc": "^0.4.4",
+                    "bundlesize": "^0.18.0",
+                    "chalk": "^4.0.0",
+                    "cheerio": "^1.0.0-rc.3",
+                    "concurrently": "^6.0.0",
+                    "cross-env": "^7.0.0",
+                    "dekko": "^0.2.1",
+                    "docsearch.js": "^2.6.3",
+                    "enquire-js": "^0.2.1",
+                    "enzyme": "^3.10.0",
+                    "enzyme-to-json": "^3.6.0",
+                    "esbuild-loader": "^2.13.1",
+                    "eslint": "^7.9.0",
+                    "eslint-config-airbnb": "^18.0.0",
+                    "eslint-config-prettier": "^8.0.0",
+                    "eslint-plugin-babel": "^5.3.0",
+                    "eslint-plugin-compat": "^3.9.0",
+                    "eslint-plugin-import": "^2.21.1",
+                    "eslint-plugin-jest": "^24.0.1",
+                    "eslint-plugin-jsx-a11y": "^6.2.1",
+                    "eslint-plugin-markdown": "^2.0.0",
+                    "eslint-plugin-react": "^7.20.6",
+                    "eslint-plugin-react-hooks": "^4.1.2",
+                    "eslint-plugin-unicorn": "^34.0.0",
+                    "fetch-jsonp": "^1.1.3",
+                    "fs-extra": "^10.0.0",
+                    "full-icu": "^1.3.0",
+                    "glob": "^7.1.4",
+                    "http-server": "^0.12.0",
+                    "husky": "^7.0.0",
+                    "identity-obj-proxy": "^3.0.0",
+                    "ignore-emit-webpack-plugin": "^2.0.6",
+                    "immer": "^9.0.1",
+                    "immutability-helper": "^3.0.0",
+                    "inquirer": "^8.0.0",
+                    "intersection-observer": "^0.12.0",
+                    "jest": "^27.0.3",
+                    "jest-image-snapshot": "^4.5.1",
+                    "jest-puppeteer": "^5.0.1",
+                    "jquery": "^3.4.1",
+                    "jsdom": "^16.0.0",
+                    "jsonml.js": "^0.1.0",
+                    "less-vars-to-js": "^1.3.0",
+                    "lz-string": "^1.4.4",
+                    "mockdate": "^3.0.0",
+                    "node-fetch": "^2.6.0",
+                    "open": "^8.0.1",
+                    "prettier": "^2.3.2",
+                    "prettier-plugin-jsdoc": "^0.3.0",
+                    "pretty-quick": "^3.0.0",
+                    "querystring": "^0.2.0",
+                    "rc-footer": "^0.6.6",
+                    "rc-queue-anim": "^1.6.12",
+                    "rc-scroll-anim": "^2.5.8",
+                    "rc-tween-one": "^2.4.1",
+                    "rc-virtual-list": "^3.2.4",
+                    "react": "^17.0.1",
+                    "react-color": "^2.17.3",
+                    "react-copy-to-clipboard": "^5.0.1",
+                    "react-dnd": "^14.0.1",
+                    "react-dnd-html5-backend": "^14.0.0",
+                    "react-dom": "^17.0.1",
+                    "react-draggable": "^4.4.3",
+                    "react-github-button": "^0.1.11",
+                    "react-helmet-async": "^1.0.4",
+                    "react-highlight-words": "^0.17.0",
+                    "react-infinite-scroller": "^1.2.4",
+                    "react-intl": "^5.20.4",
+                    "react-resizable": "^3.0.1",
+                    "react-router-dom": "^5.0.1",
+                    "react-sortable-hoc": "^2.0.0",
+                    "react-sticky": "^6.0.3",
+                    "react-test-renderer": "^17.0.1",
+                    "react-text-loop": "^2.3.0",
+                    "react-virtualized": "^9.22.0",
+                    "react-window": "^1.8.5",
+                    "remark": "^13.0.0",
+                    "remark-cli": "^9.0.0",
+                    "remark-lint": "^8.0.0",
+                    "remark-preset-lint-recommended": "^5.0.0",
+                    "reqwest": "^2.0.5",
+                    "rimraf": "^3.0.0",
+                    "scrollama": "^2.0.0",
+                    "simple-git": "^2.23.0",
+                    "string-replace-loader": "^3.0.3",
+                    "stylelint": "^13.0.0",
+                    "stylelint-config-prettier": "^8.0.0",
+                    "stylelint-config-rational-order": "^0.1.2",
+                    "stylelint-config-standard": "^22.0.0",
+                    "stylelint-declaration-block-no-ignored-properties": "^2.1.0",
+                    "stylelint-order": "^4.0.0",
+                    "theme-switcher": "^1.0.2",
+                    "typescript": "~4.3.2",
+                    "webpack-bundle-analyzer": "^4.1.0",
+                    "xhr-mock": "^2.4.1",
+                    "xhr2": "^0.2.0",
+                    "yaml-front-matter": "^4.0.0"
+                },
+                "peerDependencies": {
+                    "react": ">=16.9.0",
+                    "react-dom": ">=16.9.0"
+                },
+                "publishConfig": {
+                    "registry": "https://registry.npmjs.org/"
+                },
+                "bundlesize": [
+                    {
+                        "path": "./dist/antd.min.js",
+                        "maxSize": "270 kB"
+                    },
+                    {
+                        "path": "./dist/antd.min.css",
+                        "maxSize": "65 kB"
+                    },
+                    {
+                        "path": "./dist/antd.dark.min.css",
+                        "maxSize": "67 kB"
+                    },
+                    {
+                        "path": "./dist/antd.compact.min.css",
+                        "maxSize": "65 kB"
+                    }
+                ],
+                "tnpm": {
+                    "mode": "npm"
+                },
+                "fcps": null
+            },
+            {
+                "name": "axios",
+                "version": "0.24.0",
+                "description": "Promise based HTTP client for the browser and node.js",
+                "main": "index.js",
+                "types": "index.d.ts",
+                "scripts": {
+                    "test": "grunt test && dtslint",
+                    "start": "node ./sandbox/server.js",
+                    "build": "NODE_ENV=production grunt build",
+                    "preversion": "grunt version && npm test",
+                    "version": "npm run build && git add -A dist && git add CHANGELOG.md bower.json package.json",
+                    "postversion": "git push && git push --tags",
+                    "examples": "node ./examples/server.js",
+                    "coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+                    "fix": "eslint --fix lib/**/*.js"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/axios/axios.git"
+                },
+                "keywords": [
+                    "xhr",
+                    "http",
+                    "ajax",
+                    "promise",
+                    "node"
+                ],
+                "author": "Matt Zabriskie",
+                "license": "MIT",
+                "bugs": {
+                    "url": "https://github.com/axios/axios/issues"
+                },
+                "homepage": "https://axios-http.com",
+                "devDependencies": {
+                    "abortcontroller-polyfill": "^1.5.0",
+                    "coveralls": "^3.0.0",
+                    "dtslint": "^4.1.6",
+                    "es6-promise": "^4.2.4",
+                    "grunt": "^1.3.0",
+                    "grunt-banner": "^0.6.0",
+                    "grunt-cli": "^1.2.0",
+                    "grunt-contrib-clean": "^1.1.0",
+                    "grunt-contrib-watch": "^1.0.0",
+                    "grunt-eslint": "^23.0.0",
+                    "grunt-karma": "^4.0.0",
+                    "grunt-mocha-test": "^0.13.3",
+                    "grunt-webpack": "^4.0.2",
+                    "istanbul-instrumenter-loader": "^1.0.0",
+                    "jasmine-core": "^2.4.1",
+                    "karma": "^6.3.2",
+                    "karma-chrome-launcher": "^3.1.0",
+                    "karma-firefox-launcher": "^2.1.0",
+                    "karma-jasmine": "^1.1.1",
+                    "karma-jasmine-ajax": "^0.1.13",
+                    "karma-safari-launcher": "^1.0.0",
+                    "karma-sauce-launcher": "^4.3.6",
+                    "karma-sinon": "^1.0.5",
+                    "karma-sourcemap-loader": "^0.3.8",
+                    "karma-webpack": "^4.0.2",
+                    "load-grunt-tasks": "^3.5.2",
+                    "minimist": "^1.2.0",
+                    "mocha": "^8.2.1",
+                    "sinon": "^4.5.0",
+                    "terser-webpack-plugin": "^4.2.3",
+                    "typescript": "^4.0.5",
+                    "url-search-params": "^0.10.0",
+                    "webpack": "^4.44.2",
+                    "webpack-dev-server": "^3.11.0"
+                },
+                "browser": {
+                    "./lib/adapters/http.js": "./lib/adapters/xhr.js"
+                },
+                "jsdelivr": "dist/axios.min.js",
+                "unpkg": "dist/axios.min.js",
+                "typings": "./index.d.ts",
+                "dependencies": {
+                    "follow-redirects": "^1.14.4"
+                },
+                "bundlesize": [
+                    {
+                        "path": "./dist/axios.min.js",
+                        "threshold": "5kB"
+                    }
+                ],
+                "fcps": null
+            },
+            {
+                "name": "bizcharts",
+                "version": "4.1.11",
+                "description": "bizcharts",
+                "keywords": [
+                    "bizcharts",
+                    "g2"
+                ],
+                "author": "leannechn",
+                "license": "MIT",
+                "homepage": "https://bizcharts.net",
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/alibaba/BizCharts"
+                },
+                "files": [
+                    "lib",
+                    "src",
+                    "umd",
+                    "es",
+                    "manifest.json"
+                ],
+                "main": "lib/index.js",
+                "types": "lib/index.d.ts",
+                "module": "es/index.js",
+                "browser": "umd/BizCharts.js",
+                "scripts": {
+                    "build": "run-s clean lib:* build:*",
+                    "build:umd": "cross-env NODE_ENV=development gulp",
+                    "build:min": "cross-env NODE_ENV=production gulp",
+                    "clean": "rimraf lib es umd",
+                    "lib:cjs": "tsc -p tsconfig.json --target ES5 --module commonjs --outDir lib",
+                    "lib:es": "tsc -p tsconfig.json --target ES5 --module ESNext --outDir es",
+                    "fix": "tslint 'src/**/*.ts?(x)' --project tsconfig.json",
+                    "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src",
+                    "lint:fix": "eslint --fix --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src",
+                    "prepublishOnly": "npm run build && np --no-cleanup --yolo --no-publish",
+                    "prettier": "prettier -c --write **/*",
+                    "start": "npm run storybook",
+                    "test": "jest",
+                    "test-live": "DEBUG_MODE=1 cross-env RTL_SKIP_AUTO_CLEANUP=true jest --watch",
+                    "storybook": "start-storybook -p 9004",
+                    "uitest:snapshot": "ice-chart-develop-cli test-multi-snapshot",
+                    "uitest": "ice-chart-develop-cli test-multi",
+                    "analyze": "webpack --profile --json > umd/stats.json && webpack-bundle-analyzer ./umd/stats.json"
+                },
+                "dependencies": {
+                    "@antv/component": "*",
+                    "@antv/g2": "4.1.19",
+                    "@antv/g2plot": "2.3.25",
+                    "@antv/util": "*",
+                    "@babel/plugin-transform-modules-commonjs": "^7.12.1",
+                    "@babel/plugin-transform-runtime": "^7.12.10",
+                    "@juggle/resize-observer": "^3.3.1",
+                    "babel-plugin-transform-replace-object-assign": "^2.0.0",
+                    "d3-color": "^1.4.1",
+                    "react-error-boundary": "3.0.2",
+                    "react-reconciler": "^0.25.1",
+                    "simple-statistics": "^7.1.0",
+                    "warning": "^4.0.3"
+                },
+                "peerDependencies": {},
+                "devDependencies": {
+                    "@antv/data-set": "^0.11.4",
+                    "@babel/cli": "^7.7.7",
+                    "@babel/core": "^7.7.7",
+                    "@babel/preset-env": "^7.7.7",
+                    "@babel/preset-es2015": "^7.0.0-beta.53",
+                    "@babel/register": "^7.7.5",
+                    "@babel/runtime": "^7.7.7",
+                    "@storybook/addon-actions": "^5.1.11",
+                    "@storybook/addon-backgrounds": "^5.2.5",
+                    "@storybook/addon-docs": "^5.3.18",
+                    "@storybook/addon-info": "^5.2.5",
+                    "@storybook/addon-knobs": "^5.2.5",
+                    "@storybook/addon-links": "^5.1.11",
+                    "@storybook/addon-options": "^5.1.11",
+                    "@storybook/addons": "^5.1.11",
+                    "@storybook/react": "^5.1.11",
+                    "@storybook/theming": "^5.3.18",
+                    "@testing-library/react": "^11.2.2",
+                    "@types/jest": "^25.2.3",
+                    "@types/react-dom": "^17.0.0",
+                    "@umijs/fabric": "^2.0.0-beta.3",
+                    "@welldone-software/why-did-you-render": "^3.3.1",
+                    "airbnb-js-shims": "^2.2.0",
+                    "aphrodite": "^2.3.1",
+                    "babel-jest": "^26.6.3",
+                    "babel-loader": "^8.0.6",
+                    "babel-plugin-inline-react-svg": "^1.1.0",
+                    "babel-plugin-inline-svg": "^1.0.1",
+                    "babel-plugin-istanbul": "^5.2.0",
+                    "babel-preset-airbnb": "^4.0.1",
+                    "babel-preset-react": "^6.24.1",
+                    "babel-preset-umi": "^1.8.1",
+                    "babel-runtime": "^6.26.0",
+                    "bx-jest-electron": "^0.1.0",
+                    "clean-css": "^4.2.1",
+                    "coveralls": "^3.0.6",
+                    "cross-env": "^5.2.0",
+                    "d3-scale": "^3.2.3",
+                    "declaration-bundler-webpack-plugin": "^1.0.3",
+                    "eslint": "^6.2.1",
+                    "git-directory-deploy": "^1.5.1",
+                    "gulp": "^4.0.2",
+                    "gulp-typescript": "^6.0.0-alpha.1",
+                    "gulp-util": "^3.0.8",
+                    "imports-loader": "^0.8.0",
+                    "in-publish": "^2.0.0",
+                    "jest": "^26.0.1",
+                    "jest-extended": "^0.11.5",
+                    "js-beautify": "^1.10.2",
+                    "moment": "^2.24.0",
+                    "moment-jalaali": "^0.7.4",
+                    "node-sass": "^4.12.0",
+                    "np": "^5.1.3",
+                    "npm-run-all": "^4.1.5",
+                    "numeral": "^2.0.6",
+                    "nyc": "^14.1.1",
+                    "pre-commit": "^1.2.2",
+                    "prettier": "^1.19.1",
+                    "raw-loader": "^0.5.1",
+                    "react": "^16.9.0",
+                    "react-dom": "^16.9.0",
+                    "react-with-styles-interface-aphrodite": "^6.0.0",
+                    "react-with-styles-interface-css-compiler": "^2.2.0",
+                    "rimraf": "^3.0.2",
+                    "safe-publish-latest": "^1.1.3",
+                    "sass-loader": "^7.2.0",
+                    "snapshot-diff": "^0.8.1",
+                    "style-loader": "^0.20.3",
+                    "ts-jest": "^26.1.0",
+                    "ts-loader": "^8.0.17",
+                    "typescript": "^3.6.4",
+                    "webpack": "^4.41.2",
+                    "webpack-bundle-analyzer": "^3.6.0",
+                    "webpack-cli": "^3.3.11"
+                },
+                "jest": {
+                    "runner": "bx-jest-electron/runner",
+                    "testEnvironment": "bx-jest-electron/environment",
+                    "preset": "ts-jest",
+                    "collectCoverage": false,
+                    "collectCoverageFrom": [
+                        "src/**/*.{ts,js,tsx}",
+                        "!**/node_modules/**",
+                        "!**/vendor/**"
+                    ],
+                    "testRegex": "/unittest/.*-spec\\.tsx?$",
+                    "moduleFileExtensions": [
+                        "ts",
+                        "tsx",
+                        "js",
+                        "json"
+                    ]
+                },
+                "greenkeeper": {
+                    "ignore": [
+                        "mocha",
+                        "webpack"
+                    ]
+                },
+                "fcps": null
+            },
+            {
+                "name": "echarts",
+                "version": "5.1.2",
+                "description": "Apache ECharts is a powerful, interactive charting and data visualization library for browser",
+                "license": "Apache-2.0",
+                "keywords": [
+                    "echarts",
+                    "data-visualization",
+                    "charts",
+                    "charting-library",
+                    "visualization",
+                    "apache",
+                    "data-viz",
+                    "canvas",
+                    "svg"
+                ],
+                "main": "dist/echarts.js",
+                "module": "index.js",
+                "jsdelivr": "dist/echarts.min.js",
+                "types": "index.d.ts",
+                "homepage": "http://echarts.apache.org",
+                "bugs": {
+                    "url": "https://github.com/apache/echarts/issues",
+                    "email": "dev@echarts.apache.org"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/apache/echarts.git"
+                },
+                "sideEffects": [
+                    "index.js",
+                    "index.blank.js",
+                    "index.common.js",
+                    "index.simple.js",
+                    "lib/echarts.js",
+                    "lib/chart/*.js",
+                    "lib/component/*.js",
+                    "extension/**/*.js",
+                    "theme/*.js",
+                    "i18n/*.js"
+                ],
+                "scripts": {
+                    "build": "node build/build.js --type all,common,simple --min",
+                    "build:esm": "node build/build.js --type all --min --format esm",
+                    "build:i18n": "node build/build-i18n.js",
+                    "build:lib": "node build/build.js --prepublish",
+                    "build:extension": "node build/build.js --type extension",
+                    "dev:fast": "node build/build-i18n.js && node build/dev-fast.js",
+                    "dev": "npm run dev:fast",
+                    "prepublish": "npm run build:lib",
+                    "release": "npm run build:lib && npm run build:i18n && npm run build && npm run build:esm && npm run build:extension",
+                    "help": "node build/build.js --help",
+                    "test:visual": "node test/runTest/server.js",
+                    "test": "npx jest --config test/ut/jest.config.js",
+                    "test:single": "npx jest --config test/ut/jest.config.js --coverage=false -t",
+                    "test:single:debug": "npx --node-arg=--inspect-brk jest --runInBand --config test/ut/jest.config.js --coverage=false -t",
+                    "test:dts": "node build/testDts.js",
+                    "mktest": "node test/build/mktest.js",
+                    "mktest:help": "node test/build/mktest.js -h",
+                    "checktype": "tsc --noEmit",
+                    "lint": "npx eslint src/**/*.ts extension-src/**/*.ts",
+                    "lint:fix": "npx eslint --fix src/**/*.ts extension-src/**/*.ts",
+                    "lint:dist": "echo 'It might take a while. Please wait ...' && npx jshint --config .jshintrc-dist dist/echarts.js"
+                },
+                "dependencies": {
+                    "tslib": "2.0.3",
+                    "zrender": "5.1.1"
+                },
+                "devDependencies": {
+                    "@babel/code-frame": "7.10.4",
+                    "@babel/core": "7.3.4",
+                    "@babel/types": "7.10.5",
+                    "@definitelytyped/typescript-versions": "0.0.64",
+                    "@definitelytyped/utils": "0.0.64",
+                    "@lang/rollup-plugin-dts": "2.0.2",
+                    "@microsoft/api-extractor": "7.7.2",
+                    "@rollup/plugin-commonjs": "^17.0.0",
+                    "@rollup/plugin-node-resolve": "^11.0.0",
+                    "@rollup/plugin-replace": "^2.3.4",
+                    "@types/jest": "^26.0.14",
+                    "@typescript-eslint/eslint-plugin": "^4.9.1",
+                    "@typescript-eslint/parser": "^4.9.1",
+                    "chalk": "^3.0.0",
+                    "commander": "2.11.0",
+                    "cwebp-bin": "^6.1.1",
+                    "dtslint": "^4.0.5",
+                    "esbuild": "^0.8.39",
+                    "eslint": "^7.15.0",
+                    "fs-extra": "^10.0.0",
+                    "glob": "7.0.0",
+                    "globby": "11.0.0",
+                    "husky": "^4.2.5",
+                    "jest": "^26.6.1",
+                    "jest-canvas-mock": "^2.2.0",
+                    "jshint": "2.10.2",
+                    "magic-string": "^0.25.7",
+                    "open": "6.4.0",
+                    "pixelmatch": "5.0.2",
+                    "pngjs": "3.4.0",
+                    "rollup": "2.34.2",
+                    "rollup-plugin-terser": "^7.0.2",
+                    "seedrandom": "3.0.3",
+                    "semver": "6.3.0",
+                    "serve-handler": "6.1.1",
+                    "slugify": "1.3.4",
+                    "socket.io": "2.2.0",
+                    "terser": "^5.3.8",
+                    "ts-jest": "^26.4.3",
+                    "typescript": "4.1.2"
+                },
+                "fcps": []
+            },
+            {
+                "name": "echarts-gl",
+                "description": "Extension pack of ECharts providing 3D plots and globe visualization",
+                "version": "2.0.6",
+                "maintainers": [
+                    {
+                        "name": "Yi Shen"
+                    }
+                ],
+                "scripts": {
+                    "build": "node build/glsl2js.js && node node_modules/webpack/bin/webpack.js --mode development --devtool source-map && node node_modules/webpack/bin/webpack.js --mode production",
+                    "dev": "node node_modules/webpack/bin/webpack.js --mode development -w --devtool eval-cheap-module-source-map",
+                    "prepublish": "node build/glsl2js.js && ./node_modules/.bin/babel src -d lib",
+                    "release": "npm run prepublish && npm run build"
+                },
+                "dependencies": {
+                    "claygl": "^1.2.1",
+                    "zrender": "^5.1.1"
+                },
+                "peerDependencies": {
+                    "echarts": "^5.1.2"
+                },
+                "main": "dist/echarts-gl.js",
+                "module": "index.js",
+                "repository": "https://github.com/ecomfe/echarts-gl",
+                "sideEffects": [
+                    "lib/chart/*.js",
+                    "lib/component/*.js",
+                    "lib/echarts-gl.js",
+                    "lib/export/all.js",
+                    "src/chart/*.js",
+                    "src/component/*.js",
+                    "src/echarts-gl.js",
+                    "src/export/all.js",
+                    "index.js"
+                ],
+                "devDependencies": {
+                    "@babel/cli": "^7.12.10",
+                    "@babel/core": "^7.12.10",
+                    "@babel/plugin-transform-modules-commonjs": "^7.12.1",
+                    "babel-plugin-module-resolver": "^4.1.0",
+                    "benchmark": "^2.1.3",
+                    "case-sensitive-paths-webpack-plugin": "^2.1.1",
+                    "echarts": "^5.1.2",
+                    "fs-extra": "^4.0.2",
+                    "glob": "^7.1.1",
+                    "http-server": "^0.10.0",
+                    "maptalks": "^0.38.0",
+                    "webpack": "^5.4.0",
+                    "webpack-cli": "^4.2.0"
+                },
+                "fcps": null
+            },
+            {
+                "name": "highcharts",
+                "description": "JavaScript charting framework",
+                "homepage": "http://www.highcharts.com",
+                "version": "9.1.2",
+                "author": "Highsoft AS <support@highcharts.com> (http://www.highcharts.com/about)",
+                "main": "highcharts.js",
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/highcharts/highcharts-dist"
+                },
+                "keywords": [
+                    "charts",
+                    "dataviz",
+                    "graphs",
+                    "visualization",
+                    "data",
+                    "browserify",
+                    "webpack"
+                ],
+                "bugs": "https://github.com/highcharts/highcharts/issues",
+                "license": "https://www.highcharts.com/license",
+                "types": "highcharts.d.ts",
+                "fcps": null
+            },
+            {
+                "title": "html2canvas",
+                "name": "html2canvas",
+                "description": "Screenshots with JavaScript",
+                "main": "dist/html2canvas.js",
+                "module": "dist/html2canvas.esm.js",
+                "typings": "dist/types/index.d.ts",
+                "browser": "dist/html2canvas.js",
+                "version": "1.3.3",
+                "author": {
+                    "name": "Niklas von Hertzen",
+                    "email": "niklasvh@gmail.com",
+                    "url": "https://hertzen.com"
+                },
+                "engines": {
+                    "node": ">=8.0.0"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "git@github.com:niklasvh/html2canvas.git"
+                },
+                "bugs": {
+                    "url": "https://github.com/niklasvh/html2canvas/issues"
+                },
+                "devDependencies": {
+                    "@babel/cli": "^7.4.3",
+                    "@babel/core": "^7.4.3",
+                    "@babel/preset-env": "^7.4.3",
+                    "@babel/preset-flow": "^7.0.0",
+                    "@rollup/plugin-commonjs": "^19.0.0",
+                    "@rollup/plugin-json": "^4.1.0",
+                    "@rollup/plugin-node-resolve": "^13.0.0",
+                    "@rollup/plugin-typescript": "^8.2.1",
+                    "@types/chai": "^4.1.7",
+                    "@types/express": "^4.17.13",
+                    "@types/glob": "^7.1.1",
+                    "@types/jest": "^26.0.24",
+                    "@types/jest-image-snapshot": "^4.3.1",
+                    "@types/karma": "^6.3.0",
+                    "@types/mocha": "^8.2.3",
+                    "@types/node": "^16.3.1",
+                    "@types/platform": "^1.3.4",
+                    "@types/promise-polyfill": "^6.0.3",
+                    "@typescript-eslint/eslint-plugin": "^4.28.2",
+                    "@typescript-eslint/parser": "^4.28.2",
+                    "appium-ios-simulator": "^3.10.0",
+                    "babel-eslint": "^10.0.1",
+                    "babel-loader": "^8.0.5",
+                    "babel-plugin-add-module-exports": "^1.0.2",
+                    "babel-plugin-dev-expression": "^0.2.1",
+                    "base64-arraybuffer": "1.0.1",
+                    "body-parser": "^1.19.0",
+                    "chai": "4.1.1",
+                    "chromeless": "^1.5.2",
+                    "cors": "^2.8.5",
+                    "es6-promise": "^4.2.8",
+                    "eslint": "^7.30.0",
+                    "eslint-config-prettier": "^8.3.0",
+                    "eslint-plugin-prettier": "3.4.0",
+                    "express": "^4.17.1",
+                    "filenamify-url": "1.0.0",
+                    "glob": "7.1.3",
+                    "html2canvas-proxy": "1.0.1",
+                    "jest": "^27.0.6",
+                    "jest-image-snapshot": "^4.5.1",
+                    "jquery": "^3.5.1",
+                    "js-polyfills": "^0.1.42",
+                    "karma": "^6.3.2",
+                    "karma-chrome-launcher": "^3.1.0",
+                    "karma-edge-launcher": "^0.4.2",
+                    "karma-firefox-launcher": "^2.1.0",
+                    "karma-ie-launcher": "^1.0.0",
+                    "karma-junit-reporter": "^2.0.1",
+                    "karma-mocha": "^2.0.1",
+                    "karma-safarinative-launcher": "^1.1.0",
+                    "karma-sauce-launcher": "^2.0.2",
+                    "mocha": "^9.0.2",
+                    "node-simctl": "^5.3.0",
+                    "platform": "^1.3.6",
+                    "prettier": "^2.3.2",
+                    "replace-in-file": "^3.0.0",
+                    "rimraf": "^3.0.2",
+                    "rollup": "^2.53.1",
+                    "rollup-plugin-sourcemaps": "^0.6.3",
+                    "serve-index": "^1.9.1",
+                    "slash": "1.0.0",
+                    "standard-version": "^8.0.2",
+                    "ts-jest": "^27.0.3",
+                    "ts-loader": "^8.3.0",
+                    "ts-node": "^10.1.0",
+                    "tslib": "^2.3.0",
+                    "typescript": "^4.3.5",
+                    "uglify-js": "^3.13.10",
+                    "uglifyjs-webpack-plugin": "^2.2.0",
+                    "webpack": "^4.46.0",
+                    "webpack-cli": "^3.3.12",
+                    "yargs": "^17.0.1"
+                },
+                "scripts": {
+                    "prebuild": "rimraf dist/ && rimraf build/ && mkdirp dist && mkdirp build",
+                    "build": "tsc --module commonjs && rollup -c rollup.config.ts && npm run build:create-reftest-list && npm run build:testrunner && npm run build:minify",
+                    "build:testrunner": "rollup -c tests/rollup.config.ts",
+                    "build:minify": "uglifyjs --compress --comments /^!/ -o dist/html2canvas.min.js --mangle -- dist/html2canvas.js",
+                    "build:reftest-result-list": "ts-node scripts/create-reftest-result-list.ts",
+                    "build:create-reftest-list": "ts-node scripts/create-reftest-list.ts tests/reftests/ignore.txt build/reftests.ts",
+                    "build:reftest-preview": "webpack --config www/webpack.config.js",
+                    "release": "standard-version",
+                    "format": "prettier --write \"{src,www/src,tests,scripts}/**/*.ts\"",
+                    "lint": "eslint src/**/*.ts --max-warnings 0",
+                    "test": "npm run lint && npm run unittest && npm run karma",
+                    "unittest": "jest",
+                    "reftests-diff": "mkdirp tmp/snapshots && jest --roots=tests --testMatch=**/reftest-diff.ts",
+                    "karma": "ts-node tests/karma",
+                    "watch": "rollup -c rollup.config.ts -w",
+                    "watch:unittest": "mocha --require ts-node/register --watch-extensions ts -w src/**/__tests__/*.ts",
+                    "start": "ts-node tests/server --port=8080 --cors=8081"
+                },
+                "homepage": "https://html2canvas.hertzen.com",
+                "license": "MIT",
+                "dependencies": {
+                    "css-line-break": "2.0.1",
+                    "text-segmentation": "^1.0.2"
+                },
+                "fcps": null
+            },
+            {
+                "name": "moment",
+                "version": "2.29.1",
+                "description": "Parse, validate, manipulate, and display dates",
+                "homepage": "https://momentjs.com",
+                "author": "Iskren Ivov Chernev <iskren.chernev@gmail.com> (https://github.com/ichernev)",
+                "contributors": [
+                    "Tim Wood <washwithcare@gmail.com> (http://timwoodcreates.com/)",
+                    "Rocky Meza (http://rockymeza.com)",
+                    "Matt Johnson <mj1856@hotmail.com> (http://codeofmatt.com)",
+                    "Isaac Cambron <isaac@isaaccambron.com> (http://isaaccambron.com)",
+                    "Andre Polykanine <andre@oire.org> (https://github.com/oire)"
+                ],
+                "keywords": [
+                    "moment",
+                    "date",
+                    "time",
+                    "parse",
+                    "format",
+                    "validate",
+                    "i18n",
+                    "l10n",
+                    "ender"
+                ],
+                "main": "./moment.js",
+                "jsnext:main": "./dist/moment.js",
+                "typings": "./moment.d.ts",
+                "typesVersions": {
+                    ">=3.1": {
+                        "*": [
+                            "ts3.1-typings/*"
+                        ]
+                    }
+                },
+                "engines": {
+                    "node": "*"
+                },
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/moment/moment.git"
+                },
+                "bugs": {
+                    "url": "https://github.com/moment/moment/issues"
+                },
+                "license": "MIT",
+                "devDependencies": {
+                    "benchmark": "latest",
+                    "coveralls": "latest",
+                    "cross-env": "^6.0.3",
+                    "es6-promise": "latest",
+                    "eslint": "~6",
+                    "grunt": "latest",
+                    "grunt-benchmark": "latest",
+                    "grunt-cli": "latest",
+                    "grunt-contrib-clean": "latest",
+                    "grunt-contrib-concat": "latest",
+                    "grunt-contrib-copy": "latest",
+                    "grunt-contrib-uglify": "latest",
+                    "grunt-contrib-watch": "latest",
+                    "grunt-env": "latest",
+                    "grunt-exec": "latest",
+                    "grunt-karma": "latest",
+                    "grunt-nuget": "latest",
+                    "grunt-string-replace": "latest",
+                    "karma": "latest",
+                    "karma-chrome-launcher": "latest",
+                    "karma-firefox-launcher": "latest",
+                    "karma-qunit": "latest",
+                    "karma-sauce-launcher": "4.1.4",
+                    "load-grunt-tasks": "latest",
+                    "lodash": ">=4.17.19",
+                    "node-qunit": "latest",
+                    "nyc": "latest",
+                    "prettier": "latest",
+                    "qunit": "^2.10.0",
+                    "rollup": "2.17.1",
+                    "typescript": "^1.8.10",
+                    "typescript3": "npm:typescript@^3.1.6",
+                    "uglify-js": "latest"
+                },
+                "ender": "./ender.js",
+                "dojoBuild": "package.js",
+                "jspm": {
+                    "files": [
+                        "moment.js",
+                        "moment.d.ts",
+                        "locale"
+                    ],
+                    "map": {
+                        "moment": "./moment"
+                    },
+                    "buildConfig": {
+                        "uglify": true
+                    }
+                },
+                "scripts": {
+                    "ts3.1-typescript-test": "cross-env node_modules/typescript3/bin/tsc --project ts3.1-typing-tests",
+                    "typescript-test": "cross-env node_modules/typescript/bin/tsc --project typing-tests",
+                    "test": "grunt test",
+                    "eslint": "eslint Gruntfile.js tasks src",
+                    "prettier-check": "prettier --check Gruntfile.js tasks src",
+                    "prettier-fmt": "prettier --write Gruntfile.js tasks src",
+                    "coverage": "nyc npm test && nyc report",
+                    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
+                },
+                "spm": {
+                    "main": "moment.js",
+                    "output": [
+                        "locale/*.js"
+                    ]
+                },
+                "fcps": null
+            },
+            {
+                "name": "react",
+                "description": "React is a JavaScript library for building user interfaces.",
+                "keywords": [
+                    "react"
+                ],
+                "version": "17.0.2",
+                "homepage": "https://reactjs.org/",
+                "bugs": "https://github.com/facebook/react/issues",
+                "license": "MIT",
+                "files": [
+                    "LICENSE",
+                    "README.md",
+                    "build-info.json",
+                    "index.js",
+                    "cjs/",
+                    "umd/",
+                    "jsx-runtime.js",
+                    "jsx-dev-runtime.js"
+                ],
+                "main": "index.js",
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/facebook/react.git",
+                    "directory": "packages/react"
+                },
+                "engines": {
+                    "node": ">=0.10.0"
+                },
+                "dependencies": {
+                    "loose-envify": "^1.1.0",
+                    "object-assign": "^4.1.1"
+                },
+                "browserify": {
+                    "transform": [
+                        "loose-envify"
+                    ]
+                },
+                "fcps": null
+            },
+            {
+                "name": "react-dom",
+                "version": "17.0.2",
+                "description": "React package for working with the DOM.",
+                "main": "index.js",
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/facebook/react.git",
+                    "directory": "packages/react-dom"
+                },
+                "keywords": [
+                    "react"
+                ],
+                "license": "MIT",
+                "bugs": {
+                    "url": "https://github.com/facebook/react/issues"
+                },
+                "homepage": "https://reactjs.org/",
+                "dependencies": {
+                    "loose-envify": "^1.1.0",
+                    "object-assign": "^4.1.1",
+                    "scheduler": "^0.20.2"
+                },
+                "peerDependencies": {
+                    "react": "17.0.2"
+                },
+                "files": [
+                    "LICENSE",
+                    "README.md",
+                    "build-info.json",
+                    "index.js",
+                    "profiling.js",
+                    "server.js",
+                    "server.browser.js",
+                    "server.node.js",
+                    "test-utils.js",
+                    "cjs/",
+                    "umd/"
+                ],
+                "browser": {
+                    "./server.js": "./server.browser.js",
+                    "./unstable-fizz.js": "./unstable-fizz.browser.js"
+                },
+                "browserify": {
+                    "transform": [
+                        "loose-envify"
+                    ]
+                },
+                "fcps": null
+            },
+            {
+                "name": "react-highcharts",
+                "version": "16.1.0",
+                "description": "React wrapper for highcharts",
+                "main": "dist/ReactHighcharts.js",
+                "scripts": {
+                    "test": "webpack && mocha test/unit",
+                    "e2e": "nightwatch test/e2e/e2e-launcher.js -e local --config nightwatch.js ",
+                    "e2e-sc": "nightwatch test/e2e/e2e-launcher.js -e saucelabs --config nightwatch.js ",
+                    "build": "webpack && webpack --env.p && webpack --env.b && webpack --env.p --env.b",
+                    "demo": "cd demo && webpack &&  sh generate-contents.sh && ../node_modules/.bin/webpack-dev-server --content-base dist/",
+                    "copy-bundles": "sh ./src/copy-bundles.sh",
+                    "deploy-demo": "./demo/deploy.sh",
+                    "generate-modules": "(cd src; sh ./generate-modules.sh)",
+                    "preversion": "npm test",
+                    "version": "npm run prepublish",
+                    "postversion": "git push && git push --tags"
+                },
+                "author": "Kirill Cherkashin",
+                "lic  ense": "MIT",
+                "repository": {
+                    "type": "git",
+                    "url": "https://github.com/kirjs/react-highcharts"
+                },
+                "peerDependencies": {
+                    "react": "~0.14 || ^15.0.0 || ^16.0.0",
+                    "react-dom": "~0.14 || ^15.0.0 || ^16.0.0"
+                },
+                "bugs": "https://github.com/kirjs/react-highcharts/issues",
+                "keywords": [
+                    "chart",
+                    "react",
+                    "highcharts",
+                    "graph"
+                ],
+                "devDependencies": {
+                    "babel-cli": "^6.26.0",
+                    "babel-core": "^6.24.0",
+                    "babel-loader": "^7.1.2",
+                    "babel-plugin-add-module-exports": "^0.2.1",
+                    "babel-plugin-transform-export-default": "^7.0.0-alpha.20",
+                    "babel-preset-env": "^1.6.1",
+                    "babel-preset-react": "^6.24.1",
+                    "babel-preset-stage-2": "^6.24.1",
+                    "create-react-class": "^15.6.2",
+                    "css-loader": "^0.28.8",
+                    "exports-loader": "^0.6.4",
+                    "file-loader": "^1.1.6",
+                    "highlight.js": "^9.12.0",
+                    "imports-loader": "^0.7.1",
+                    "jsdom": "^11.5.1",
+                    "mocha": "^4.1.0",
+                    "mock-require": "^2.0.2",
+                    "nightwatch": "^0.9.19",
+                    "prop-types": "^15.6.0",
+                    "raw-loader": "^0.5.1",
+                    "react": "^16.2.0",
+                    "react-dom": "^16.2.0",
+                    "sinon": "^4.1.3",
+                    "style-loader": "^0.19.1",
+                    "uglifyjs-webpack-plugin": "^1.1.6",
+                    "webpack": "^3.10.0",
+                    "webpack-dev-server": "^2.9.6",
+                    "prismjs": "^1.9.0",
+                    "react-prism": "^4.3.2"
+                },
+                "dependencies": {
+                    "highcharts": "^6.0.4"
+                },
+                "fcps": null
+            }
+        ]
+    }
 }

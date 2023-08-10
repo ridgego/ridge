@@ -2,6 +2,7 @@ import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import { nanoid } from '../utils/string'
+import { objectSet } from '../utils/object'
 import getBackground from './style/getBackground'
 const log = debug('ridge:element')
 const error = debug('error:element')
@@ -22,6 +23,7 @@ class ElementWrapper {
     this.isCreate = isCreate
 
     this.mode = mode
+    this.isEdit = mode === 'edit'
     this.pageManager = pageManager
     this.pageStore = pageManager.pageStore
     this.ridge = pageManager.ridge
@@ -211,20 +213,24 @@ class ElementWrapper {
         }
       }
 
-      // 处理属性的input情况 类似 vue的 v-model
-      if (prop.name === 'value') {
-        this.properties.input = val => {
-          this.emit('input', val)
+      if (!this.isEdit) {
+        // 处理属性的input情况 类似 vue的 v-model
+        if (prop.name === 'value') {
+          this.properties.input = val => {
+            this.emit('input', val)
+          }
         }
-      }
+        if (prop.input === true) {
+          // input相当于v-model，只能设置到一个属性上面
+          const eventName = 'set' + prop.name.substr(0, 1).toUpperCase() + prop.name.substr(1)
 
-      if (prop.input === true) {
-        // input相当于v-model，只能设置到一个属性上面
-        const eventName = 'set' + prop.name.substr(0, 1).toUpperCase() + prop.name.substr(1)
-
-        // 当双向绑定时， 获取动态绑定部分配置的属性值
-        this.properties[eventName] = val => {
-          this.emit(eventName, val)
+          // 当双向绑定时， 获取动态绑定部分配置的属性值
+          this.properties[eventName] = val => {
+            this.emit(eventName, val)
+          }
+        }
+        if (this.config.props[prop.name] != null) {
+          this.properties[prop.name] = this.config.props[prop.name]
         }
       }
 
@@ -261,6 +267,18 @@ class ElementWrapper {
         this.emit(event.name, args)
       }
     }
+  }
+
+  /**
+   * 根据属性名称获取对应的属性定义
+   * @param {*} name 属性名称
+   * @returns
+   */
+  getPropDefinationByName (name) {
+    if (!this.componentDefinition || !this.componentDefinition.props) {
+      return null
+    }
+    return this.componentDefinition.props.filter(prop => prop.name === name)[0]
   }
 
   isMounted () {
@@ -547,7 +565,18 @@ class ElementWrapper {
       if (value == null || value === '') {
         continue
       }
-      this.properties[key] = this.pageStore.getStoreValue(value, this.getScopeItems())
+      const storeValue = this.pageStore.getStoreValue(value, this.getScopeItems())
+      const propDef = this.getPropDefinationByName(key)
+
+      if (propDef && typeof propDef.connect === 'string') {
+        // 判断 connect为path的情况 按path设置属性的路径数据
+        // 因为是对象类型， 直接只改path值可能会直接改动
+        const value = JSON.parse(JSON.stringify(this.properties[key]))
+        objectSet(value, propDef.connect, storeValue)
+        this.properties[key] = value
+      } else {
+        this.properties[key] = storeValue
+      }
     }
   }
 

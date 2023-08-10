@@ -352,18 +352,26 @@ export default class WorkSpaceControl {
       // }
 
       // 清除既有选中
-      if (this.moveable.target && this.moveable.target.length) {
-        this.moveable.target = []
-      }
+      // if (this.moveable.target && this.moveable.target.length) {
+      //   this.moveable.target = []
+      // }
 
       if (closestRidgeNode.classList.contains('is-locked') || closestRidgeNode.classList.contains('is-full')) {
         this.moveable.resizable = false
       } else {
         this.moveable.resizable = true
       }
-      this.moveable.target = closestRidgeNode
+
+      // 穿透选择
+      if (this.moveable.target && this.moveable.target.length === 1 && this.moveable.target[0].contains(closestRidgeNode) && this.disableClickThrough) {
+        // 当前已经选择target并且包含了点击的节点，并且设置了禁用穿透选择，则不选择到子节点
+        // 不改变对象
+      } else {
+        this.moveable.target = closestRidgeNode
+      }
+
       this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
-        return el !== closestRidgeNode && el.closest('.ridge-element') !== closestRidgeNode
+        return el !== this.moveable.target && el.closest('.ridge-element') !== this.moveable.target
       })]
       this.moveable.elementGuidelines = this.guidelines
       this.moveable.elementSnapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
@@ -516,9 +524,10 @@ export default class WorkSpaceControl {
   /**
    * 设置选择元素，包含选择“空”的情况
    * @param {*} elements
-   * @param {*} notNotify
+   * @param {*} disableClickThrough 选择后是否可以直接选择当前节点的下级节点, 从面板发起的选择一般不允许向下选择
    */
-  selectElements (elements, notNotify) {
+  selectElements (elements, disableClickThrough) {
+    this.disableClickThrough = false
     const filtered = elements.filter(el => !el.classList.contains('is-hidden'))
     // 单选支持选中并设置为不可resize/move
     if (filtered.length === 1) {
@@ -527,6 +536,7 @@ export default class WorkSpaceControl {
       } else {
         this.moveable.resizable = true
       }
+      this.disableClickThrough = disableClickThrough
       this.selected = filtered
       this.moveable.target = filtered
     } else {
@@ -537,7 +547,7 @@ export default class WorkSpaceControl {
     }
 
     this.moveable.updateTarget()
-    if (!notNotify && filtered && filtered.length <= 1) {
+    if (filtered && filtered.length <= 1) {
       emit(EVENT_ELEMENT_SELECTED, {
         from: 'workspace',
         element: filtered[0],

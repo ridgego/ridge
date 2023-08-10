@@ -66,7 +66,21 @@ class OutLineTree extends React.Component {
     this.setState({
       selected: val
     })
-    workspaceControl.selectElements([this.state.elements[val].el])
+    const element = this.state.elements[val]
+
+    if (element.parentWrapper && element.parentWrapper.componentDefinition && element.parentWrapper.componentDefinition.name === 'switch-container') {
+      // 在切换容器内，需要切换容器当前状态
+      const index = element.parentWrapper.config.props.children.indexOf(val)
+
+      element.parentWrapper.setPropsConfig(null, {
+        'props.states': {
+          current: element.parentWrapper.config.props.states.list[index],
+          list: element.parentWrapper.config.props.states.list
+        }
+      })
+    }
+
+    workspaceControl.selectElements([this.state.elements[val].el], true)
   }
 
   buildElementTree (elements) {
