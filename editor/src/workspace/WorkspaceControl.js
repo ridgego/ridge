@@ -717,6 +717,11 @@ export default class WorkSpaceControl {
     Mousetrap.bind('ctrl+c', () => {
       if (this.selected) {
         this.copied = this.selected
+
+        this.copied.forEach(el => {
+          el.dataset.copy_x = el.elementWrapper.config.style.x
+          el.dataset.copy_y = el.elementWrapper.config.style.y
+        })
       } else {
         this.copied = []
       }
@@ -728,9 +733,18 @@ export default class WorkSpaceControl {
           const newWrapper = el.wrapper.clone(this.pageManager)
           const div = document.createElement('div')
           newWrapper.loadAndMount(div).then(() => {
+            let parentWrapper = null
             if (this.selected && this.selected.length === 1) {
-              trace('从页面到父容器')
-              const result = this.pageManager.attachToParent(this.selected[0].elementWrapper, newWrapper)
+              if (this.selected[0] === el && this.selected[0].elementWrapper.parentWrapper) {
+                parentWrapper = this.selected[0].elementWrapper.parentWrapper
+              } else {
+                parentWrapper = this.selected[0].elementWrapper
+              }
+            }
+
+            if (parentWrapper) {
+              trace('复制到父容器内', parentWrapper)
+              const result = this.pageManager.attachToParent(parentWrapper, newWrapper)
               if (result === false) {
                 newWrapper.setConfigStyle({
                   x: newWrapper.config.style.x + 20,

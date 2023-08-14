@@ -228,6 +228,7 @@ export default class Editor extends React.Component {
         >
           <div className='viewport-container' />
           <MenuBar
+            containerMask={containerMask}
             zoom={zoom}
             currentPageId={currentPageId}
             visible={menuBarVisible}

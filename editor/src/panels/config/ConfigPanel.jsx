@@ -207,8 +207,7 @@ export default class ComponentPanel extends React.Component {
     // 能加载到节点定义
     if (elementWrapper.componentDefinition) {
       nodePropFields.push({
-        type: 'divider',
-        label: '组件属性'
+        type: 'divider'
       })
       for (const prop of elementWrapper.componentDefinition.props) {
         const field = {}

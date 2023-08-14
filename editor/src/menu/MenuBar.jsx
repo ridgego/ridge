@@ -1,7 +1,8 @@
 import React from 'react'
-import { Button, Divider, Dropdown, Popover, Space, Slider } from '@douyinfe/semi-ui'
-import { IconPlus, IconTemplate, IconTick, IconSetting, IconPause, IconGridSquare, IconGridView1, IconGift, IconPlay } from '@douyinfe/semi-icons'
+import { Button, Divider, Dropdown, Popover, Space, Slider, Icon } from '@douyinfe/semi-ui'
+import { IconPlus, IconTemplate, IconTick, IconCopy, IconPause, IconGridSquare, IconGridView1, IconGift, IconPlay } from '@douyinfe/semi-icons'
 import AppSettingPanel from './setting/AppSettingPanel.jsx'
+import IconBrush from '../icons/IconBrush.jsx'
 import './style.less'
 
 const EmptyIcon = () => <span style={{ width: '21px' }} />
@@ -53,6 +54,10 @@ export default props => {
           type={containerMask ? 'primary' : 'tertiary'}
           theme={containerMask ? 'solid' : 'borderless'}
           onClick={toggleContainerMask}
+        />
+        <Button
+          icon={<Icon svg={<IconBrush />} />}
+          size='small'
         />
         {/* <Dropdown
           trigger='click'
