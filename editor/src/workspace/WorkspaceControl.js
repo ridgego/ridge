@@ -325,12 +325,13 @@ export default class WorkSpaceControl {
       return
     }
 
+    // 组件重叠时处理  起到何种作用？
     if (this.moveable.target && this.moveable.target.length === 1 && !this.moveable.target[0].contains(target)) {
       const { clientX, clientY } = inputEvent
       const bc = this.moveable.target[0].getBoundingClientRect()
       if (clientX > bc.x && clientX < (bc.x + bc.width) && clientY > bc.y && clientY < (bc.y + bc.height)) {
-        e.stop()
-        return
+        // e.stop()
+        // return
       }
     }
 

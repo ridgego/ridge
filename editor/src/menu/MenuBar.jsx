@@ -55,10 +55,6 @@ export default props => {
           theme={containerMask ? 'solid' : 'borderless'}
           onClick={toggleContainerMask}
         />
-        <Button
-          icon={<Icon svg={<IconBrush />} />}
-          size='small'
-        />
         {/* <Dropdown
           trigger='click'
           position='rightTop'

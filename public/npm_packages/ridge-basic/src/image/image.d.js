@@ -38,7 +38,7 @@ export default {
     label: '边框',
     type: 'number',
     width: 96,
-    value: 1
+    value: 0
   }, {
     name: 'borderStyle',
     type: 'select',
