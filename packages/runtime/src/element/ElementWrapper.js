@@ -627,7 +627,7 @@ class ElementWrapper {
       for (const action of this.config.events[eventName]) {
         if (action.method) {
           const [target, method] = action.method.split('.')
-          this.pageStore.doStoreAction(target, method, [...payload, ...this.getScopeItems()])
+          this.pageStore.doStoreAction(target, method, [...payload, action.payload, ...this.getScopeItems()])
         }
       }
     }

@@ -1,7 +1,7 @@
 import debug from 'debug'
 import loadjs from 'loadjs'
 import ky from 'ky'
-import _ from 'lodash'
+import memoize from 'lodash/memoize'
 const log = debug('ridge:loader')
 /**
  * 组件定义（js及其依赖）加载服务类
@@ -19,10 +19,10 @@ class Loader {
     log('RidgeLoader baseUrl: ' + this.baseUrl)
 
     this.packageJSONCache = {}
-    this.getPackageJSON = _.memoize(this._getPackageJSON)
-    this.loadComponent = _.memoize(this._loadComponent)
-    this.loadScript = _.memoize(this._loadScript)
-    this.confirmPackageDependencies = _.memoize(this._confirmPackageDependencies)
+    this.getPackageJSON = memoize(this._getPackageJSON)
+    this.loadComponent = memoize(this._loadComponent)
+    this.loadScript = memoize(this._loadScript)
+    this.confirmPackageDependencies = memoize(this._confirmPackageDependencies)
   }
 
   /**

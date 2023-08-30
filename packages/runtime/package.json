@@ -4,7 +4,8 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint",
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.prod.js",
+    "runtime": "webpack serve --config ./page/webpack.config.js --open"
   },
   "license": "ISC",
   "dependencies": {

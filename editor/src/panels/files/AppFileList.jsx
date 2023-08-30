@@ -2,7 +2,7 @@ import React from 'react'
 import trim from 'lodash/trim'
 import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
-import { IconTick, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
+import { IconImport, IconSetting, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import { ridge, emit, on, appService } from '../../service/RidgeEditService.js'
 import { eachNode, getFileTree } from './buildFileTree.js'
 import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_WORKSPACE_RESET, EVENT_FILE_TREE_CHANGE } from '../../constant'
@@ -13,7 +13,7 @@ import { stringToBlob } from '../../utils/blob.js'
 const trace = debug('ridge:file')
 const { Text } = Typography
 const JS_TEMPLATE = `
-window.moduleName = {
+export default {
   state: () => {
     return {
       name: ''
@@ -51,7 +51,9 @@ class AppFileList extends React.Component {
       codeEditNodeId: null,
       codeEditType: '',
       codeEditText: '',
-      codeEditVisible: false
+      codeEditVisible: false,
+
+      exportToastId: null
     }
   }
 
@@ -570,6 +572,73 @@ class AppFileList extends React.Component {
     )
   }
 
+  async exportApp () {
+    if (this.state.exportToastId) {
+      return
+    }
+    const id = Toast.info({
+      content: '正在导出应用，请稍侯...',
+      duration: 0,
+      onClose: () => {
+        this.setState({
+          exportToastId: null
+        })
+      }
+    })
+    this.setState({
+      exportToastId: id
+    })
+    await ridge.appService.exportAppArchive()
+    Toast.close(id)
+    this.setState({
+      exportToastId: null
+    })
+  }
+
+  renderAppDropDown () {
+    return (
+      <Dropdown
+        trigger='click'
+        render={
+          <Dropdown.Menu>
+            <Dropdown.Item
+              icon={<IconExport />} onClick={() => {
+                this.exportApp()
+              }}
+            >导出应用
+            </Dropdown.Item>
+            <Dropdown.Item
+              icon={<IconImport />}
+            >
+              <Upload
+                showUploadList={false} uploadTrigger='custom' onFileChange={files => {
+                  Modal.confirm({
+                    zIndex: 10001,
+                    title: '确认导入应用',
+                    content: '导入应用会首先覆盖现有应用，如果有需要的工作，建议您首先导出备份。 是否继续?',
+                    onOk: async () => {
+                      const result = await ridge.backUpService.importAppArchive(files[0])
+                      Toast.info('成功导入应用，共' + result.length + '个文件')
+                      emit(EVENT_WORKSPACE_RESET)
+                      // emit(EVENT_APP_OPEN)
+                    }
+                  })
+                }} accept='.zip'
+              >
+                导入应用
+              </Upload>
+            </Dropdown.Item>
+            <Dropdown.Item disabled>
+              Menu Item 3
+            </Dropdown.Item>
+          </Dropdown.Menu>
+      }
+      >
+        <Button size='samll' theme='borderless' type='tertiary' icon={<IconSetting />} />
+      </Dropdown>
+    )
+  }
+
   render () {
     const { renderFullLabel, showCreateDialog, renderCreateModal, state } = this
     const { treeData, currentSelectedNode, expandedKeys, imagePreviewSrc, imagePreviewVisible, codeEditText, codeEditVisible, codeEditType } = state
@@ -634,6 +703,7 @@ class AppFileList extends React.Component {
             }}
           />}
         {!treeData && <div className='tree-loading'><Spin size='middle' /></div>}
+        {this.renderAppDropDown()}
       </>
     )
   }

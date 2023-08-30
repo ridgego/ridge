@@ -15,6 +15,8 @@ const workspaceControl = new WorkSpaceControl()
 const ridge = new Ridge({
   debugUrl: config.debug ? config.debugUrl : null
 })
+
+ridge.loader.loadScript('./plugins/bootstraps/main.js')
 ridge.configService = configService
 ridge.appService = appService
 ridge.backUpService = backUpService

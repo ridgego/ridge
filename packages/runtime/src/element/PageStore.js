@@ -105,7 +105,12 @@ export default class PageStore {
             const scriptDiv = document.createElement('script')
             // scriptDiv.setAttribute('type', 'module')
             scriptDiv.classList.add('page-' + id)
-            scriptDiv.textContent = file.textContent
+
+            let jsContent = file.textContent
+            if (jsContent.startsWith('export default')) {
+              jsContent = 'window.' + moduleName + '= ' + jsContent.substring(14)
+            }
+            scriptDiv.textContent = jsContent
             document.head.append(scriptDiv)
             // Store类型，做相关pinia初始化
             if (globalThis[moduleName] && globalThis[moduleName].state) {

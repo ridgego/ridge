@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { IconDelete, IconEdit, IconPlus, IconTick } from '@douyinfe/semi-icons'
-import { withField, Button, Space, Form, Tree, Typography, Select, Tag } from '@douyinfe/semi-ui'
+import { IconDelete, IconEdit, IconPlus, IconTick, IconBrackets } from '@douyinfe/semi-icons'
+import { withField, Button, Space, Form, TextArea, Tree, Popover, Typography, Select, Tag } from '@douyinfe/semi-ui'
 import { ridge } from '../../service/RidgeEditService'
 const { Text } = Typography
 const { Option } = Select
@@ -21,6 +21,8 @@ const EventEdit = withField(({
   const formRef = React.createRef()
   const [visible, setVisible] = useState(false)
 
+  const [payloadValue, setPayloadValue] = useState('')
+
   const [actionIndexList, setActionIndexList] = useState([])
   const actions = value || []
 
@@ -35,6 +37,7 @@ const EventEdit = withField(({
         leafData.key = 'node-' + index
         leafData.index = index
         leafData.method = action.method
+        leafData.payload = action.payload || ''
         leafData.label = getActionLabel(action)
         return leafData
       })]
@@ -99,6 +102,36 @@ const EventEdit = withField(({
               )
             })}
           </Select>
+          <Popover
+            trigger='click'
+            content={
+              <div style={{ padding: 10 }}>
+                <Text>请输入方法参数</Text>
+                <TextArea
+                  value={payloadValue} onChange={val => {
+                    setPayloadValue(val)
+                  }}
+                />
+                <Button
+                  aria-label='确定' onClick={() => {
+                    data.payload = payloadValue
+                    confirmActionEdit(data)
+                  }}
+                >确定
+                </Button>
+              </div>
+              }
+          >
+            <Button
+              theme='borderless'
+              type='primary'
+              onClick={() => {
+                setPayloadValue(data.payload)
+              }}
+              size='small'
+              icon={<IconBrackets />}
+            />
+          </Popover>
 
         </div>
         <Space className='action'>
@@ -116,7 +149,11 @@ const EventEdit = withField(({
   const renderActionNode = (data) => {
     return (
       <>
-        <Text className='label-content'>{data.label || '未配置动作'}</Text>
+        <Text className='label-content'>
+          {data.label || '未配置动作'}
+          {data.payload ? `(${data.payload})` : ''}
+        </Text>
+
         <Space className='action'>
           <Button
             size='small' icon={<IconEdit />} theme='borderless' type='tertiary' onClick={() => {
@@ -161,7 +198,8 @@ const EventEdit = withField(({
     onChange(actions.map((action, index) => {
       if (index === data.index) {
         return {
-          method: data.method
+          method: data.method,
+          payload: data.payload
         }
       } else {
         return action

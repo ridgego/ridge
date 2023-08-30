@@ -2,7 +2,7 @@ import webpackExternals from 'ridge-externals'
 import ky from 'ky'
 import debug from 'debug'
 import loadjs from 'loadjs'
-import _ from 'lodash'
+import memoize from 'lodash/memoize'
 
 const log = debug('ridge:loader')
 
@@ -63,8 +63,8 @@ class ComponentLoader {
     // 组件加载中的Map
     this.componentLoading = new Map()
 
-    this.getPackageJSON = _.memoize(this.getPackageJSONOnce)
-    this.loadComponent = _.memoize(this.loadComponentOnce)
+    this.getPackageJSON = memoize(this.getPackageJSONOnce)
+    this.loadComponent = memoize(this.loadComponentOnce)
   }
 
   async getDebugPackage () {

@@ -12,6 +12,7 @@ const bootApp = new Boostrap(Object.assign({
   nedb: {
     store: basicStoreRoot
   },
+  public: basicStoreRoot,
   proxy: {},
   // 启用CORS 默认启用
   cors: {

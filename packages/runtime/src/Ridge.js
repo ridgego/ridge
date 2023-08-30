@@ -18,8 +18,10 @@ class Ridge {
     this.pageElementManagers = {}
 
     this.icons = {}
+  }
 
-    this.loader.loadScript('./plugins/bootstraps/main.js')
+  static async init () {
+
   }
 
   static async load (json) {
@@ -37,6 +39,12 @@ class Ridge {
    */
   loadComponent (componentPath) {
     return this.loader.loadComponent(componentPath)
+  }
+
+  async mountPage (el, app, pagePath) {
+    const pageJSONObject = await this.loader.loadJSON(`/apps/${app}/${pagePath}`)
+
+    this.loadPage(el, pageJSONObject)
   }
 
   /**

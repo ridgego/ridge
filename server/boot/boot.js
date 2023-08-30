@@ -1,4 +1,5 @@
-const basicStoreRoot = '../../public'
+const path = require('path')
+const basicStoreRoot = path.resolve(__dirname, '../../public')
 const Boostrap = require('ridge-boot') // 启动器
 const bootApp = new Boostrap(Object.assign({
   api: '/api',
@@ -15,8 +16,7 @@ const bootApp = new Boostrap(Object.assign({
   cors: {
     credentials: true
   },
-  // 静态托管地址 默认使用应用的public目录 110版本存储目录及应用部署根目录
-  // 静态资源未找到进行的重定向302相关处理
+  public: [basicStoreRoot],
   redirects: [{
     match: /\/[^/]+\/npm_packages/,
     replace: '/npm_packages'

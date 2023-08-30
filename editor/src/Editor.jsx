@@ -114,7 +114,7 @@ export default class Editor extends React.Component {
   }
 
   async saveCloseCurrentPage () {
-    await this.saveCurrentPage()
+    this.saveCurrentPage()
     workspaceControl.disable()
     this.pageElementManager.unmount()
     this.pageElementManager = null
