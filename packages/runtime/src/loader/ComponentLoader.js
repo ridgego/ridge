@@ -1,4 +1,3 @@
-import webpackExternals from 'ridge-externals'
 import ky from 'ky'
 import debug from 'debug'
 import loadjs from 'loadjs'
@@ -18,15 +17,10 @@ class ComponentLoader {
    * @param {object} externalOptions 第三方依赖定义信息，这个配置会覆盖 wind-pack-externals 中webpackExternals 定义
    */
   constructor ({
-    baseUrl,
-    unpkgUrl,
-    externalOptions
+    baseUrl
   }) {
-    this.baseUrl = baseUrl ?? ''
-    this.unpkgUrl = unpkgUrl ?? 'http://unpkg.com'
-
+    this.baseUrl = baseUrl
     log('RidgeLoader baseUrl: ' + this.baseUrl)
-
     /** @property 前端组件加载缓存 key: 组件lib名称或加载地址  value: 组件fcp */
     this.componentCache = {}
 
@@ -43,8 +37,6 @@ class ComponentLoader {
     this.debugPackageName = null
 
     this.packageLoadingPromises = {}
-
-    this.externalOptions = externalOptions ?? {}
 
     if (window.top.ridgeConfig && window.top.ridgeConfig.loaderExternalOptions) {
       Object.assign(this.externalOptions, window.top.ridgeConfig.loaderExternalOptions)
@@ -67,22 +59,6 @@ class ComponentLoader {
     this.loadComponent = memoize(this.loadComponentOnce)
   }
 
-  async getDebugPackage () {
-    if (this.debugPackage !== undefined) {
-      return this.debugPackage
-    }
-    if (this.debugUrl) {
-      try {
-        this.debugPackage = await ky.get(this.debugUrl + '/package.json').json()
-      } catch (e) {
-        this.debugPackage = null
-      }
-    } else {
-      this.debugPackage = null
-    }
-    return this.debugPackage
-  }
-
   /**
      * 设置第三方库的加载额外定义信息
      * @param {object} opts 这个配置会覆盖 webpackExternals 定义
@@ -103,14 +79,6 @@ class ComponentLoader {
     }
   }
 
-  setDebugUrl (debugUrl) {
-    this.debugUrl = debugUrl
-  }
-
-  setDebugPackageName (debugPackageName) {
-    this.debugPackageName = debugPackageName
-  }
-
   getServePath (isProject) {
     if (isProject && this.projectId) {
       return this.baseUrl + '/' + this.appName + '/' + this.projectId
@@ -127,11 +95,7 @@ class ComponentLoader {
    * @returns {string}
    */
   getComponentUrl ({ packageName, path }) {
-    if (this.debugPackage && packageName === this.debugPackage.name) {
-      return `${this.debugUrl}/${path}`
-    } else {
-      return `${this.baseUrl}/${packageName}/${path}`
-    }
+    return `${this.baseUrl}/${packageName}/${path}`
   }
 
   getPackageJSONUrl (packageName) {
@@ -288,81 +252,6 @@ class ComponentLoader {
   }
 
   /**
-    * 加载图元对外部的代码依赖
-    * @param {Array} externals 外部依赖库列表
-    */
-  async loadExternals (externals) {
-    const webpackExternalsMerged = Object.assign(webpackExternals, window.globalExternalConfig)
-
-    for (const external of externals) {
-      // 获取外部依赖库的下载地址 external为图元中声明的依赖库名称 例如 'echarts'
-      const externalModule = webpackExternalsMerged.externals.filter(ex => external === ex.module)[0]
-
-      // 有声明则下载，否则忽略
-      if (externalModule) {
-        // 判断第三方库如果已经在全局加载，则直接使用全局的库
-        if (externalModule.root && window[externalModule.root]) {
-          continue
-        }
-
-        // 首先递归下载依赖的依赖
-        if (externalModule.dependencies) {
-          await this.loadExternals(externalModule.dependencies)
-        }
-
-        const externalLibPath = `${this.unpkgUrl}/${externalModule.dist}`
-
-        if (externalModule.style) {
-          // 外界定义的样式加载地址
-          if (this.externalOptions[externalModule.module] != null) {
-            if (Array.isArray(this.externalOptions[externalModule.module])) {
-              try {
-                for (const externalCssPath of this.externalOptions[externalModule.module]) {
-                  await this.loadScript(externalCssPath)
-                }
-              } catch (e) {
-                console.warn('加载应用定义的样式失败 地址是:' + this.externalOptions[externalModule.module])
-              }
-            } else if (typeof this.externalOptions[externalModule.module] === 'string') {
-              try {
-                await this.loadScript(this.externalOptions[externalModule.module])
-              } catch (e) {
-                console.warn('加载应用定义的样式失败 地址是:' + this.externalOptions[externalModule.module])
-              }
-            }
-          } else if (typeof externalModule.style === 'string') {
-            await this.loadScript(`${this.unpkgUrl}/${externalModule.style}`)
-          }
-        }
-
-        if (!this.scriptLoadingPromises[externalLibPath]) {
-          // loadjs会自动处理重复加载的问题，因此此处无需做额外处理
-          this.scriptLoadingPromises[externalLibPath] = (async () => {
-            try {
-              log('加载第三方库:' + externalLibPath)
-
-              await loadjs(externalLibPath, {
-                returnPromise: true,
-                before: function (scriptPath, scriptEl) {
-                  scriptEl.crossOrigin = true
-                }
-              })
-            } catch (e) {
-              console.error('第三方库加载异常 ', `${externalModule.module}`)
-            }
-          })()
-        }
-
-        await this.scriptLoadingPromises[externalLibPath]
-        // 这里必须加载完成才标志为loaded。否则外部可能请求并发下载，那么后面的并发判断成功但加载未完成
-        window.fcExternalLoaded.push(externalModule.module)
-      } else {
-        log('忽略库:' + external)
-      }
-    }
-  }
-
-  /**
      * 加载指定的字体（按名称）
      * @param name 字体名称
      * @param pkg 字体所在的图元包,包括名称和版本默认为@gw/web-font-assets@latest
@@ -447,25 +336,6 @@ class ComponentLoader {
   }
 
   /**
-     * 刷新Debug模式下从本地开发服务加载的组件
-     */
-  async reloadDebugCache () {
-    for (const cacheKey of Object.keys(this.fcCache)) {
-      if (cacheKey.startsWith('https://')) {
-        delete this.scriptLoadingPromises[cacheKey]
-        await this.loadScript(cacheKey)
-
-        if (window[this.scriptUrlLibName[cacheKey]]) {
-          const fcp = window[this.scriptUrlLibName[cacheKey]].default
-
-          await this.initFcp(fcp, this.pelCacheByLibName[this.scriptUrlLibName[cacheKey]])
-          this.fcCache[cacheKey] = fcp
-        }
-      }
-    }
-  }
-
-  /**
    * 获取package.json定义对象
    * @param {*} packageName
    * @returns
@@ -473,15 +343,6 @@ class ComponentLoader {
   async getPackageJSONOnce (packageName) {
     if (this.packageJSONCache[packageName]) {
       return this.packageJSONCache[packageName]
-    }
-
-    if (this.debugUrl) {
-      const packageObject = await this.getDebugPackage()
-      if (packageObject && packageObject.name === packageName) {
-        this.prefixPackageJSON(packageObject, this.debugUrl)
-        this.setPackageCache(packageObject.name, packageObject)
-        return packageObject
-      }
     }
 
     const packageJSONUrl = this.getPackageJSONUrl(packageName)
@@ -520,9 +381,6 @@ class ComponentLoader {
   async confirmPackageDependencies (packageName) {
     const packageObject = await this.getPackageJSON(packageName)
     if (packageObject) {
-      if (packageObject.dependencies) {
-        await this.loadExternals(Object.keys(packageObject.dependencies))
-      }
       if (packageObject.externals) {
         for (const external of packageObject.externals) {
           await this.loadScript(`${this.baseUrl}/${packageName}/${external}`)

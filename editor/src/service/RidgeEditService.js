@@ -13,10 +13,9 @@ const config = configService.getConfig()
 const workspaceControl = new WorkSpaceControl()
 
 const ridge = new Ridge({
-  debugUrl: config.debug ? config.debugUrl : null
+  baseUrl: window.NPM_PACKAGE_PATH ?? '/npm_packages'
 })
 
-ridge.loader.loadScript('./plugins/bootstraps/main.js')
 ridge.configService = configService
 ridge.appService = appService
 ridge.backUpService = backUpService

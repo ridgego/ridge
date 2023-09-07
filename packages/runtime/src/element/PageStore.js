@@ -1,6 +1,8 @@
+import loadjs from 'loadjs'
 import { defineStore, createPinia, storeToRefs } from 'pinia'
 import { watch } from 'vue'
 import { isObject } from '../utils/is'
+import { filename, nanoid } from '../utils/string'
 
 export default class PageStore {
   constructor (pageElementManager) {
@@ -65,6 +67,12 @@ export default class PageStore {
   dispatchStateChange (expr, val) {
     const [storeKey, ...path] = expr.split('.')
 
+    if (!this.stores[storeKey]) {
+      if (globalThis[storeKey] && globalThis[storeKey].state) {
+        this.registerPageStore(storeKey, globalThis[storeKey])
+      }
+    }
+
     if (this.stores[storeKey]) {
       this.stores[storeKey].$patch({
         [path.join('.')]: val
@@ -86,10 +94,14 @@ export default class PageStore {
     }
   }
 
-  updateStore () {
+  /**
+   * 更新/加载页面的storejs
+   */
+  async updateStore () {
     const { pageConfig } = this.pageElementManager
     const { properties, id } = pageConfig
     const scriptEls = document.querySelectorAll('script.page-' + id)
+    // 删除旧的store代码
     for (const el of scriptEls) {
       document.head.removeChild(el)
     }
@@ -97,11 +109,11 @@ export default class PageStore {
 
     if (properties.jsFiles && properties.jsFiles.length) {
       for (const jsFilePath of properties.jsFiles) {
+        const moduleName = filename(jsFilePath)
         if (this.pageElementManager.mode !== 'hosted') {
           // 从localStorage读取JS内容
           const file = this.ridge.appService.filterFiles(f => f.path === jsFilePath)[0]
           if (file) {
-            const moduleName = file.label.substring(0, file.label.length - 3)
             const scriptDiv = document.createElement('script')
             // scriptDiv.setAttribute('type', 'module')
             scriptDiv.classList.add('page-' + id)
@@ -117,6 +129,26 @@ export default class PageStore {
               this.registerPageStore(moduleName, globalThis[moduleName])
             }
           }
+        } else {
+          const scriptDiv = document.createElement('script')
+          scriptDiv.setAttribute('type', 'module')
+          scriptDiv.setAttribute('async', true)
+          scriptDiv.classList.add('page-' + id)
+          document.head.append(scriptDiv)
+          await new Promise((resolve, reject) => {
+            const resolveKey = 'resolve' + nanoid(5)
+            window[resolveKey] = (Module) => {
+              if (Module.default) {
+                this.registerPageStore(moduleName, Module.default)
+              }
+              if (window[moduleName] && window[moduleName].state && window[moduleName].actions) {
+                this.registerPageStore(moduleName, window[moduleName])
+              }
+              delete window[resolveKey]
+              resolve()
+            }
+            scriptDiv.textContent = `import * as Module from 'https://ridgego.github.io/apps/${this.pageElementManager.app}${jsFilePath}'; window['${resolveKey}'](Module);`
+          })
         }
       }
     }

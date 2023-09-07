@@ -1,19 +1,16 @@
 import ComponentLoader from './loader/ComponentLoader'
 import PageElementManager from './element/PageElementManager'
+import ky from 'ky'
 /**
  * The Ridge Platform Runtime
  */
 class Ridge {
   constructor (opts = {}) {
     this.VERSION = '1.0.0'
-    const baseUrl = opts.baseUrl ?? '/npm_packages'
-    const unpkgUrl = opts.unkpgUrl ?? baseUrl
-    const debugUrl = opts.debugUrl
+    this.opts = opts
 
     this.loader = new ComponentLoader({
-      baseUrl,
-      debugUrl,
-      unpkgUrl
+      baseUrl: opts.baseUrl
     })
     this.pageElementManagers = {}
 
@@ -42,9 +39,8 @@ class Ridge {
   }
 
   async mountPage (el, app, pagePath) {
-    const pageJSONObject = await this.loader.loadJSON(`/apps/${app}/${pagePath}`)
-
-    this.loadPage(el, pageJSONObject)
+    const pageJSONObject = await ky.get(this.opts.baseUrl + `/apps/${app}/${pagePath}`).json()
+    this.loadPage(el, pageJSONObject, 'hosted', app)
   }
 
   /**
@@ -54,8 +50,8 @@ class Ridge {
    * @param {*} mode 模式 edit/run
    * @returns
    */
-  loadPage (el, pageConfig, mode) {
-    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, mode)
+  loadPage (el, pageConfig, mode, app) {
+    const pageManager = new PageElementManager({ pageConfig: JSON.parse(JSON.stringify(pageConfig)), ridge: this, mode, app })
     pageManager.mount(el || document.body)
     return pageManager
   }
@@ -67,7 +63,7 @@ class Ridge {
    * @returns
    */
   createPageManager (pageConfig, mode) {
-    const pageManager = new PageElementManager(JSON.parse(JSON.stringify(pageConfig)), this, mode)
+    const pageManager = new PageElementManager({ pageConfig: JSON.parse(JSON.stringify(pageConfig)), ridge: this, mode })
 
     return pageManager
   }

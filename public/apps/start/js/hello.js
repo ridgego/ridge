@@ -1,7 +1,7 @@
-window.hello = {
+export default {
   state: () => {
     return {
-      name: ""
+      name: ''
     }
   },
   getters: {
@@ -12,6 +12,6 @@ window.hello = {
   actions: {
   },
   alias: {
-    "name": "姓名"
+    name: '姓名'
   }
 }

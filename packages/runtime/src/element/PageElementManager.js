@@ -1,14 +1,14 @@
 import ElementWrapper from './ElementWrapper'
 import { nanoid } from '../utils/string'
-import getBackground from './style/getBackground'
 import PageStore from './PageStore'
 
 class PageElementManager {
-  constructor (pageConfig, ridge, mode) {
+  constructor ({ pageConfig, ridge, mode, app }) {
     this.id = pageConfig.id
     this.pageConfig = pageConfig
     this.ridge = ridge
     this.mode = mode
+    this.app = app
     this.decorators = {}
     this.mounted = []
     this.classNames = []
@@ -78,8 +78,8 @@ class PageElementManager {
   /**
    * 更新页面引入的样式表
    */
-  updateImportedJS () {
-    this.pageStore.updateStore()
+  async updateImportedJS () {
+    await this.pageStore.updateStore()
   }
 
   getStoreTrees () {
@@ -114,7 +114,7 @@ class PageElementManager {
     this.rootClassList = Array.from(this.el.classList)
     this.updateRootElStyle()
     this.updateImportedStyle()
-    this.updateImportedJS()
+    await this.updateImportedJS()
 
     const promises = []
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
