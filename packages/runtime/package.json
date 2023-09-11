@@ -5,6 +5,7 @@
   "scripts": {
     "lint": "eslint",
     "runtime": "webpack serve --config ./page/webpack.config.js --open",
+    "build-js": "webpack --config ./webpack.prod.js",
     "build": "webpack --config ./page/webpack.prod.js"
   },
   "license": "ISC",
@@ -27,6 +28,7 @@
     "@babel/plugin-syntax-flow": "^7.16.5",
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
-    "@rollup/plugin-node-resolve": "^15.0.1"
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "copy-webpack-plugin": "^11.0.0"
   }
 }

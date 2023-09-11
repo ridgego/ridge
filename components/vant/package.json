@@ -1,0 +1,25 @@
+{
+  "name": "ridge-vant",
+  "version": "1.0.0",
+  "description": "背景",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w",
+    "help": "build-fc --help",
+    "debug": "build-fc -w -s -p 8700",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "icon": "antd.svg",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "antd": "^4.23.2"
+  }
+}

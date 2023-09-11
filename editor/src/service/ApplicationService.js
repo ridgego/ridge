@@ -51,6 +51,8 @@ export default class ApplicationService {
   }
 
   async updateAppFileTree () {
+    const t = new Date().getTime()
+    console.log('before')
     const files = await this.getFiles()
     this.fileTree = getFileTree(files)
 
@@ -73,6 +75,8 @@ export default class ApplicationService {
       }
     })
 
+
+    console.log('dura', new Date().getTime() - t)
     emit(EVENT_FILE_TREE_CHANGE, this.fileTree)
     return this.fileTree
   }

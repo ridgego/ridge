@@ -13,7 +13,7 @@ const config = configService.getConfig()
 const workspaceControl = new WorkSpaceControl()
 
 const ridge = new Ridge({
-  baseUrl: window.NPM_PACKAGE_PATH ?? '/npm_packages'
+  baseUrl: window.NPM_PACKAGE_PATH ?? ''
 })
 
 ridge.configService = configService

@@ -87,6 +87,7 @@ module.exports = {
   },
   externals: {
     react: 'React',
+    'bootstrap-icons': 'BootStrapIcons',
     'react-dom': 'ReactDOM',
     '@douyinfe/semi-ui': 'SemiUI'
     // moveable: 'Moveable'
