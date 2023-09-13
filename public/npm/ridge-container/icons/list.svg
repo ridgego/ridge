@@ -1,0 +1,13 @@
+<svg width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+ <g id="Layer_1">
+  <title>Layer 1</title>
+  <rect id="svg_1" height="121" width="130" y="21.33331" x="14.00001" stroke="#000" fill="#9acee6"/>
+  <rect stroke="#000" id="svg_2" height="46.00004" width="56.50012" y="26.16667" x="20" fill="#ffebff"/>
+  <rect stroke="#000" stroke-dasharray="5,5" id="svg_4" height="45.49938" width="54.99926" y="26.99855" x="82.99996" fill="#ffffff"/>
+  <rect stroke="#000" stroke-dasharray="5,5" id="svg_5" height="45.49938" width="55.99925" y="80.99782" x="20.50081" fill="#ffffff"/>
+  <text transform="matrix(1 0 0 0.926636 0 8.57874)" stroke="#000" font-weight="bold" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="36" stroke-width="0" id="svg_6" y="105.33914" x="93.99981" fill="#000000">...</text>
+  <rect stroke="#DDDDDD" id="svg_7" height="6.83329" width="42.49977" y="30.9994" x="25.66695" fill="#DDDDDD"/>
+  <path stroke="#DDDDDD" id="svg_8" d="m25.66695,42.49932l27.16645,0l0,9.49995l-27.16645,0l0,-9.49995z" opacity="undefined" fill="#DDDDDD"/>
+  <rect stroke="#DDDDDD" id="svg_10" height="9.33333" width="34.66664" y="56.33321" x="25.66671" fill="#DDDDDD"/>
+ </g>
+</svg>

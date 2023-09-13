@@ -12,8 +12,11 @@ const backUpService = new BackUpService(appService)
 const config = configService.getConfig()
 const workspaceControl = new WorkSpaceControl()
 
+window.NPM_CDN_URL = ''
+// eslint-disable-next-line
+const baseUrl = (location.host.startsWith('localhost') || location.host.startsWith('127.0.0.1')) ? '/npm' : NPM_CDN_SERVER
 const ridge = new Ridge({
-  baseUrl: window.NPM_PACKAGE_PATH ?? ''
+  baseUrl
 })
 
 ridge.configService = configService

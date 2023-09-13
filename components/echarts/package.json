@@ -24,5 +24,8 @@
     "bar-base",
     "bar-race",
     "line-base"
-  ]
+  ],
+  "dependencies": {
+    "echarts": "^5.4.3"
+  }
 }

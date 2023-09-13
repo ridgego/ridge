@@ -1,4 +1,4 @@
-process.env.DEBUG = 'wind:*, apollo:*'
+process.env.DEBUG = 'wind:*'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 const path = require('path')
 const basicStoreRoot = path.resolve(__dirname, '../../public')
@@ -12,7 +12,7 @@ const bootApp = new Boostrap(Object.assign({
   nedb: {
     store: basicStoreRoot
   },
-  public: basicStoreRoot,
+  public: ['D:\\gitee\\ridgego.github.io'],
   proxy: {},
   // 启用CORS 默认启用
   cors: {

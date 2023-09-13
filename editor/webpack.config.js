@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { DefinePlugin } = require('webpack')
 const path = require('path')
 
 module.exports = {
@@ -29,6 +30,9 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './src/index.html'),
       title: 'Output Management'
+    }),
+    new DefinePlugin({
+      NPM_CDN_SERVER: JSON.stringify('https://cdn.jsdelivr.net/npm')
     })
   ],
   resolve: {
@@ -80,7 +84,7 @@ module.exports = {
     ]
   },
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].min.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
     publicPath: '/'
@@ -89,7 +93,9 @@ module.exports = {
     react: 'React',
     'bootstrap-icons': 'BootStrapIcons',
     'react-dom': 'ReactDOM',
-    '@douyinfe/semi-ui': 'SemiUI'
-    // moveable: 'Moveable'
+    '@douyinfe/semi-ui': 'SemiUI',
+    // moveable: 'Moveable',
+    // vue: 'Vue',
+    '@douyinfe/semi-icons': 'SemiIcons'
   }
 }

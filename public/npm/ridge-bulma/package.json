@@ -1,0 +1,39 @@
+{
+  "name": "ridge-bulma",
+  "version": "1.0.0",
+  "icon": "bi bi-bookmark-check",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w -s",
+    "help": "build-fc --help",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "externals": [
+    "bulma.min.css"
+  ],
+  "files": [
+    "build"
+  ],
+  "author": "",
+  "license": "ISC",
+  "components": [
+    "button",
+    "checkbox",
+    "deleteBtn",
+    "dropdown",
+    "icon",
+    "image",
+    "input",
+    "progress",
+    "radio",
+    "select",
+    "tabs",
+    "tag",
+    "text",
+    "textarea",
+    "title"
+  ]
+}

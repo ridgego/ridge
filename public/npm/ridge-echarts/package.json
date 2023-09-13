@@ -1,0 +1,28 @@
+{
+  "name": "ridge-echarts",
+  "version": "1.0.0",
+  "icon": "bi bi-graph-up",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w -s",
+    "help": "build-fc --help",
+    "debug": "build-fc -w -s -p 5151",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "externals": [
+    "echarts.min.js"
+  ],
+  "files": [
+    "build"
+  ],
+  "author": "",
+  "license": "ISC",
+  "components": [
+    "bar-base",
+    "bar-race",
+    "line-base"
+  ]
+}

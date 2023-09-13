@@ -1,0 +1,14 @@
+<svg width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+ <g id="Layer_1">
+  <title>Layer 1</title>
+  <rect stroke-dasharray="5,5" stroke="#000000" id="svg_3" height="74" width="109" y="57" x="33" fill="#9acee6"/>
+  <rect stroke-dasharray="5,5" stroke="#000000" id="svg_2" height="74" width="109" y="48" x="26" fill="#9acee6"/>
+  <rect stroke="#000000" id="svg_1" height="74" width="109" y="41" x="19" fill="#9acee6"/>
+  <path id="svg_4" d="m19,23l32.50001,0l0,18l-32.50001,0l0,-18z" opacity="undefined" stroke="#000000" fill="#D1FFB4"/>
+  <rect stroke="#000000" id="svg_6" height="18" width="32.50001" y="23" x="54.49997" fill="#DDDDDD"/>
+  <rect stroke="#000000" id="svg_7" height="18" width="32.50001" y="23" x="90.49994" fill="#DDDDDD"/>
+  <text font-style="normal" font-weight="normal" transform="matrix(0.960656 0 0 0.73566 -1.20166 13.0623)" stroke="#000000" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="18" id="svg_8" y="31.85923" x="31.95909" fill="#000000">A</text>
+  <text font-style="normal" font-weight="normal" transform="matrix(0.960656 0 0 0.73566 33.2983 13.0623)" stroke="#000000" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="18" id="svg_9" y="32.53889" x="33.00005" fill="#000000">B</text>
+  <text font-style="normal" font-weight="normal" transform="matrix(0.960656 0 0 0.73566 70.2983 12.5623)" stroke="#000000" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="18" id="svg_10" y="33.21855" x="30.91814" fill="#000000">C</text>
+ </g>
+</svg>

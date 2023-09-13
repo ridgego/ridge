@@ -5,7 +5,7 @@ const bootApp = new Boostrap(Object.assign({
   api: '/api',
   port: 4977,
   // npm 全局资源服务器地址，非研发环境无法访问。应用内的资源安装时使用
-  npmServer: 'http://10.12.7.250:8081/repository/npm-group',
+  npmServer: 'https://registry.npmmirror.com',
   // 文件上传临时保存的目录
   assetsPackageStorage: basicStoreRoot + '/npm_packages',
   nedb: {

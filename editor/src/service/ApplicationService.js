@@ -75,7 +75,6 @@ export default class ApplicationService {
       }
     })
 
-
     console.log('dura', new Date().getTime() - t)
     emit(EVENT_FILE_TREE_CHANGE, this.fileTree)
     return this.fileTree

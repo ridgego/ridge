@@ -1,0 +1,23 @@
+{
+  "name": "ridge-bootstrap",
+  "version": "1.0.0",
+  "icon": "bi bi-bootstrap",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w -s",
+    "help": "build-fc --help",
+    "pd": "npm publish --tag dev"
+  },
+  "externals": [
+    "bootstrap.min.css",
+    "bootstrap.bundle.min.js"
+  ],
+  "files": [
+    "build"
+  ],
+  "author": "",
+  "license": "ISC",
+  "components": []
+}

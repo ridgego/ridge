@@ -1,0 +1,36 @@
+{
+  "name": "ridge-basic",
+  "version": "1.0.0",
+  "description": "基本组件",
+  "icon": "bi bi-bag",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -s -w",
+    "help": "build-fc --help",
+    "debug": "build-fc -w -s -p 5151",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "components": [
+    "audio",
+    "button",
+    "checkbox",
+    "image",
+    "input",
+    "radio",
+    "range",
+    "rect",
+    "select",
+    "text",
+    "textarea"
+  ],
+  "dependencies": {
+    "ridge-prop-utils": "^1.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

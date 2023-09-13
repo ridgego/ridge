@@ -1,0 +1,50 @@
+{
+  "name": "ridge-antd",
+  "version": "1.0.0",
+  "description": "Antd组件",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w",
+    "help": "build-fc --help",
+    "debug": "build-fc -w -s -p 8700",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "icon": "antd.svg",
+  "components": [{
+    "title": "单行文本",
+    "icon": "img/Text.svg",
+    "path": "build/typography-text.d.js",
+    "width": 100,
+    "height": 24
+  }, {
+    "title": "按钮",
+    "icon": "img/Button.svg",
+    "path": "build/button-button.d.js",
+    "width": 80,
+    "height": 35
+  }, {
+    "title": "输入框",
+    "icon": "img/Input.svg",
+    "path": "build/input-input.d.js",
+    "width": 160,
+    "height": 35
+  }, {
+    "title": "选择器",
+    "icon": "img/Select.svg",
+    "path": "build/select-select.d.js",
+    "width": 160,
+    "height": 35
+  }],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "antd": "^4.23.2"
+  }
+}

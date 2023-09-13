@@ -1,0 +1,66 @@
+{
+  "name": "ridge-highchart",
+  "version": "1.0.0",
+  "description": "highchart图表",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-fc",
+    "watch": "build-fc -w",
+    "help": "build-fc --help",
+    "debug": "build-fc -w -s -p 5151",
+    "bs": "build-fc -s",
+    "pd": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "icon": "icon.svg",
+  "components": [{
+    "title": "文本",
+    "icon": "img/text.svg",
+    "path": "build/text-text.d.js",
+    "width": 100,
+    "height": 32
+  }, {
+    "title": "矩形",
+    "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-bounding-box-circles' viewBox='0 0 16 16'%3E%3Cpath d='M2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM0 2a2 2 0 0 1 3.937-.5h8.126A2 2 0 1 1 14.5 3.937v8.126a2 2 0 1 1-2.437 2.437H3.937A2 2 0 1 1 1.5 12.063V3.937A2 2 0 0 1 0 2zm2.5 1.937v8.126c.703.18 1.256.734 1.437 1.437h8.126a2.004 2.004 0 0 1 1.437-1.437V3.937A2.004 2.004 0 0 1 12.063 2.5H3.937A2.004 2.004 0 0 1 2.5 3.937zM14 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM2 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'/%3E%3C/svg%3E",
+    "path": "build/rect-rect.d.js",
+    "width": 100,
+    "height": 100
+  }, {
+    "title": "图片",
+    "path": "build/image-image.d.js",
+    "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-image' viewBox='0 0 16 16'%3E%3Cpath d='M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z'/%3E%3Cpath d='M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z'/%3E%3C/svg%3E",
+    "width": 160,
+    "height": 160
+  }, {
+    "title": "图标",
+    "path": "build/svg-index.d.js",
+    "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-images' viewBox='0 0 16 16'%3E%3Cpath d='M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z'/%3E%3Cpath d='M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z'/%3E%3C/svg%3E",
+    "width": 64,
+    "height": 64
+  }, {
+    "title": "输入框",
+    "path": "build/input-input.d.js",
+    "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-input-cursor-text' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M5 2a.5.5 0 0 1 .5-.5c.862 0 1.573.287 2.06.566.174.099.321.198.44.286.119-.088.266-.187.44-.286A4.165 4.165 0 0 1 10.5 1.5a.5.5 0 0 1 0 1c-.638 0-1.177.213-1.564.434a3.49 3.49 0 0 0-.436.294V7.5H9a.5.5 0 0 1 0 1h-.5v4.272c.1.08.248.187.436.294.387.221.926.434 1.564.434a.5.5 0 0 1 0 1 4.165 4.165 0 0 1-2.06-.566A4.561 4.561 0 0 1 8 13.65a4.561 4.561 0 0 1-.44.285 4.165 4.165 0 0 1-2.06.566.5.5 0 0 1 0-1c.638 0 1.177-.213 1.564-.434.188-.107.335-.214.436-.294V8.5H7a.5.5 0 0 1 0-1h.5V3.228a3.49 3.49 0 0 0-.436-.294A3.166 3.166 0 0 0 5.5 2.5.5.5 0 0 1 5 2z'/%3E%3Cpath d='M10 5h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4v1h4a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-4v1zM6 5V4H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v-1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4z'/%3E%3C/svg%3E",
+    "width": 160,
+    "height": 28
+  }, {
+    "title": "单选框",
+    "path": "build/checkbox-index.d.js",
+    "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-check2-circle' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z'/%3E%3Cpath d='M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z'/%3E%3C/svg%3E",
+    "width": 28,
+    "height": 28
+  }, {
+    "title": "按钮",
+    "path": "build/button-index.d.js",
+    "icon": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='Icon__StyledSVGIcon-sc-17rwnqw-0 kwZSXH icon art_board/widget/button svg-icon' viewBox='0 0 30 30'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M26 8H4a2 2 0 00-2 2v10a2 2 0 002 2h22a2 2 0 002-2V10a2 2 0 00-2-2zM4 6a4 4 0 00-4 4v10a4 4 0 004 4h22a4 4 0 004-4V10a4 4 0 00-4-4H4z' fill='%23666'%3E%3C/path%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M6.656 18.485h3.266c1.574 0 2.55-.778 2.55-2.023 0-.935-.736-1.636-1.738-1.71v-.038c.782-.113 1.385-.76 1.385-1.533 0-1.083-.869-1.764-2.254-1.764H6.656v7.068zM8.2 12.52v1.837h1.11c.822 0 1.292-.348 1.292-.945 0-.568-.414-.892-1.134-.892H8.199zm1.33 4.864h-1.33v-2.052h1.293c.91 0 1.406.353 1.406 1.014 0 .676-.48 1.038-1.37 1.038z' fill='%23666'%3E%3C/path%3E%3Cpath d='M14.285 12.025h1.492v1.21h1.012v1.077h-1.012v2.513c0 .402.205.593.644.593.133 0 .27-.01.363-.025v1.053a3.573 3.573 0 01-.71.059c-1.288 0-1.79-.411-1.79-1.435v-2.758h-.77v-1.078h.77v-1.21zM19.356 13.234h-1.44v5.251h1.491v-3.012c0-.68.424-1.151 1.094-1.151.67 0 1.007.392 1.007 1.078v3.085H23v-3.384c0-1.23-.685-1.965-1.901-1.965-.843 0-1.42.383-1.712 1.034h-.03v-.936z' fill='%23666'%3E%3C/path%3E%3C/svg%3E",
+    "width": 64,
+    "height": 28
+  }],
+  "dependencies": {
+    "ridge-prop-utils": "^1.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -19,7 +19,7 @@ class ComponentLoader {
   constructor ({
     baseUrl
   }) {
-    this.baseUrl = (baseUrl || '') + '/npm_packages'
+    this.baseUrl = baseUrl
     log('RidgeLoader baseUrl: ' + this.baseUrl)
     /** @property 前端组件加载缓存 key: 组件lib名称或加载地址  value: 组件fcp */
     this.componentCache = {}

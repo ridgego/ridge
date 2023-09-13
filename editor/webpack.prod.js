@@ -8,10 +8,14 @@ module.exports = merge(config, {
   devtool: false,
   optimization: {
     minimize: true,
-    usedExports: true
+    usedExports: true,
+    splitChunks: {
+      chunks: 'all',
+      name: 'vendor'
+    }
   },
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].min.js',
     path: path.resolve(__dirname, '../../ridgego.github.io/editor'),
     clean: true,
     publicPath: './'
