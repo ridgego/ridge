@@ -163,19 +163,17 @@ export default class BackUpService {
       if (!zipObject.dir) {
         const dirNode = await appService.ensureDir(dirname(filePath))
         const parentId = dirNode ? dirNode.id : -1
+        const filename = basename(zipObject.name)
+        const ext = extname(zipObject.name)
         if (filePath.endsWith('.json')) { // 对json文件判断是否为图纸，是图纸则导入
           const jsonObject = JSON.parse(await zipObject.async('text'))
           if (jsonObject.elements) {
-            await appService.createPage(parentId, basename(filePath, '.json'), jsonObject)
+            await appService.createPage(parentId, basename(filename, '.json'), jsonObject)
           } else {
-            await appService.createFile(parentId, new File([JSON.stringify(jsonObject)], basename(zipObject.name), {
-              type: 'text/plain'
-            }))
+            await appService.createFile(parentId, filename, new File([JSON.stringify(jsonObject)], filename), 'text/json')
           }
         } else {
-          await appService.createFile(parentId, new File([await zipObject.async('blob')], basename(zipObject.name), {
-            type: getByMimeType(extname(zipObject.name))
-          }))
+          await appService.createFile(parentId, filename, new File([await zipObject.async('blob')], filename), getByMimeType(ext))
         }
       } else {
         await appService.ensureDir(filePath)

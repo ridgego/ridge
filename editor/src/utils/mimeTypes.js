@@ -1,7 +1,7 @@
 const MimeType = new Map()
 
-MimeType.set('.js', 'application/javascript')
-MimeType.set('.json', 'application/json')
+MimeType.set('.js', 'text/javascript')
+MimeType.set('.json', 'text/json')
 MimeType.set('.doc', 'application/msword')
 MimeType.set('.pdf', 'application/pdf')
 MimeType.set('.woff', 'application/font-woff')

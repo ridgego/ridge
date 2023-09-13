@@ -18,7 +18,7 @@ export default class MoveablePanel extends React.Component {
       state: 'normal',
       errors: null,
       openSearch: false,
-      search: '',
+      search: null,
       hasError: false
     }
   }
@@ -70,7 +70,7 @@ export default class MoveablePanel extends React.Component {
     const closeSearch = () => {
       this.setState({
         openSearch: false,
-        search: ''
+        search: null
       })
     }
 

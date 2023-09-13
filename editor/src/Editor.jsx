@@ -114,16 +114,18 @@ export default class Editor extends React.Component {
   }
 
   async saveCloseCurrentPage () {
-    this.saveCurrentPage()
-    workspaceControl.disable()
-    this.pageElementManager.unmount()
-    this.pageElementManager = null
-    this.setState({
-      currentPageId: null,
-      outlinePanelVisible: false,
-      menuBarVisible: false,
-      propPanelVisible: false
-    })
+    if (this.pageElementManager) {
+      this.saveCurrentPage()
+      workspaceControl.disable()
+      this.pageElementManager.unmount()
+      this.pageElementManager = null
+      this.setState({
+        currentPageId: null,
+        outlinePanelVisible: false,
+        menuBarVisible: false,
+        propPanelVisible: false
+      })
+    }
   }
 
   /**

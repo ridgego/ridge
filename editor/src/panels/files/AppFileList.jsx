@@ -6,6 +6,7 @@ import { IconImport, IconSetting, IconFolderOpen, IconMusic, IconImage, IconExpo
 import { ridge, emit, on, appService } from '../../service/RidgeEditService.js'
 import { eachNode, getFileTree } from './buildFileTree.js'
 import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_WORKSPACE_RESET, EVENT_FILE_TREE_CHANGE } from '../../constant'
+import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import './file-list.less'
 import DialogCodeEdit from './DialogCodeEdit.jsx'
 import { stringToBlob } from '../../utils/blob.js'
@@ -56,6 +57,8 @@ class AppFileList extends React.Component {
       exportToastId: null
     }
   }
+
+  static contextType = ThemeContext
 
   componentDidMount () {
     // this.updateFileTree()
@@ -121,7 +124,7 @@ class AppFileList extends React.Component {
         return this.state.treeData
       }
     } else {
-      if (this.state.currentSelectedNode) {
+      if (this.state.currentSelectedNode && this.state.currentSelectedNode.children) {
         return this.state.currentSelectedNode.children
       } else {
         return this.state.treeData
@@ -616,10 +619,11 @@ class AppFileList extends React.Component {
                     zIndex: 10001,
                     title: '确认导入应用',
                     content: '导入应用会首先覆盖现有应用，如果有需要的工作，建议您首先导出备份。 是否继续?',
-                    onOk: async () => {
-                      const result = await ridge.backUpService.importAppArchive(files[0])
-                      Toast.info('成功导入应用，共' + result.length + '个文件')
-                      emit(EVENT_WORKSPACE_RESET)
+                    onOk: () => {
+                      ridge.backUpService.importAppArchive(files[0]).then(result => {
+                        Toast.info('成功导入应用，共' + result.length + '个文件')
+                        emit(EVENT_WORKSPACE_RESET)
+                      })
                       // emit(EVENT_APP_OPEN)
                     }
                   })
@@ -640,12 +644,16 @@ class AppFileList extends React.Component {
   }
 
   render () {
-    const { renderFullLabel, showCreateDialog, renderCreateModal, state } = this
+    const { renderFullLabel, showCreateDialog, renderCreateModal, state, context } = this
     const { treeData, currentSelectedNode, expandedKeys, imagePreviewSrc, imagePreviewVisible, codeEditText, codeEditVisible, codeEditType } = state
 
     return (
       <>
-        <div className='file-actions'>
+        <div
+          className='file-actions' style={{
+            display: context == null ? '' : 'none'
+          }}
+        >
           <div className='align-right'>
             <Button icon={<IconBriefStroked />} size='small' theme='borderless' type='tertiary' onClick={() => showCreateDialog(true)} />
             <Upload
@@ -680,6 +688,9 @@ class AppFileList extends React.Component {
         {treeData &&
           <Tree
             className='file-tree'
+            style={{
+              display: context == null ? '' : 'none'
+            }}
             directory
             draggable
             expandedKeys={expandedKeys}
@@ -703,6 +714,7 @@ class AppFileList extends React.Component {
             }}
           />}
         {!treeData && <div className='tree-loading'><Spin size='middle' /></div>}
+        {context != null && <div>搜索功能暂时未提供</div>}
         {this.renderAppDropDown()}
       </>
     )
