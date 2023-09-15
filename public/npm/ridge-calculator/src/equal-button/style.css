@@ -1,0 +1,17 @@
+.calculator-equal-button {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    background-color: #FF900B;
+    color: #FFFAF9;
+    font-size: 55px;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.calculator-equal-button:active {
+    background-color: #FE7C0C;
+}

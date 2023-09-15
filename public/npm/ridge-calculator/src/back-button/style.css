@@ -1,0 +1,21 @@
+.calculator-back-button {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    background-color: #FFFBF2;
+    color: #FA9316;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.calculator-back-button img {
+    width: 50px;
+    height: 50px;
+}
+
+.calculator-back-button:active {
+    background-color: #FEF2DA;
+}
