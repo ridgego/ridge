@@ -4,11 +4,11 @@
   "description": "背景",
   "main": "index.js",
   "scripts": {
-    "build": "build-fc",
-    "watch": "build-fc -w",
-    "help": "build-fc --help",
-    "debug": "build-fc -w -s -p 8700",
-    "bs": "build-fc -s",
+    "build": "rcbuild",
+    "watch": "rcbuild -w",
+    "help": "rcbuild --help",
+    "debug": "rcbuild -w -s -p 8700",
+    "bs": "rcbuild -s",
     "pd": "npm publish --tag dev"
   },
   "files": [

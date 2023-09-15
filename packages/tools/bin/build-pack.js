@@ -273,8 +273,3 @@ args.option('dir', 'The Front Component Project Root Path', './')
     };
 
 build(flags.dir);
-
-if (flags.port) {
-    const servePack = require('./serve-pack');
-    servePack(flags.port, signals, buildResult);
-}

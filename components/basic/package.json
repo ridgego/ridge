@@ -5,10 +5,10 @@
   "icon": "bi bi-bag",
   "main": "index.js",
   "scripts": {
-    "build": "build-fc",
-    "watch": "build-fc -s -w",
-    "help": "build-fc --help",
-    "bs": "build-fc -s",
+    "build": "rcbuild",
+    "watch": "rcbuild -s -w",
+    "help": "rcbuild --help",
+    "bs": "rcbuild -s",
     "pd": "npm publish --tag dev"
   },
   "files": [

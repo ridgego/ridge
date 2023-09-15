@@ -76,24 +76,12 @@ module.exports = {
       use: [
         'file-loader'
       ]
-    }, /* {
-            test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-            use: [{
-                loader: 'url-loader',
-                options: {
-                    limit: 3145728
-                    // 暂时不使用mini-datauri  在110的一些组件测试过程中发现 使用这个功能 svg不能显示
-                    // generator: (content) => svgToMiniDataURI(content.toString())
-                }
-            }]
-        }, */ {
+    }, {
       test: /\.svg$/i,
       use: [{
         loader: 'url-loader',
         options: {
           limit: 3145728
-          // 暂时不使用mini-datauri  在110的一些组件测试过程中发现 使用这个功能 svg不能显示
-          // generator: (content) => svgToMiniDataURI(content.toString())
         }
       }],
       resourceQuery: { not: [/inline/] } // exclude *.svg?inline

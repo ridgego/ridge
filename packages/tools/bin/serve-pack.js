@@ -1,5 +1,5 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
-const Boostrap = require('ridge-boot') // 启动器
+const Boostrap = require('ridge-boot')
 const path = require('path')
 const fs = require('fs')
 const coreHttp = require('ridge-http')

@@ -5,11 +5,10 @@
   "main": "index.js",
   "icon": "bi bi-grid-1x2",
   "scripts": {
-    "build": "build-fc",
-    "watch": "build-fc -w -s",
-    "help": "build-fc --help",
-    "bs": "build-fc -s",
-    "pd": "npm publish --tag dev"
+    "build": "rcbuild",
+    "watch": "rcbuild -w -s",
+    "help": "rcbuild --help",
+    "bs": "rcbuild -s"
   },
   "files": [
     "build"

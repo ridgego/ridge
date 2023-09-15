@@ -5,11 +5,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "build-fc",
-    "watch": "build-fc -w -s",
-    "help": "build-fc --help",
-    "debug": "build-fc -w -s -p 5151",
-    "bs": "build-fc -s",
+    "build": "rcbuild",
+    "watch": "rcbuild -w -s",
+    "help": "rcbuild --help",
+    "debug": "rcbuild -w -s -p 5151",
+    "bs": "rcbuild -s",
     "pd": "npm publish --tag dev"
   },
   "externals": [

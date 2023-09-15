@@ -1,12 +1,12 @@
 {
-  "name": "ridge-tools",
+  "name": "ridge-build",
   "version": "1.0.0",
   "description": "Ridge Component Build & Debug Tool",
   "main": "src/index.js",
   "homepage": "",
   "license": "ISC",
   "bin": {
-    "build-fc": "bin/build.js"
+    "rcbuild": "bin/build.js"
   },
   "scripts": {},
   "dependencies": {
