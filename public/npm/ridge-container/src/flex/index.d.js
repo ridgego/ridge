@@ -67,6 +67,11 @@ export default {
     party: true,
     type: 'number',
     value: 8
+  }, {
+    name: 'classNames',
+    label: '样式',
+    type: 'class',
+    value: []
   }],
   childStyle: [{
     label: 'W',

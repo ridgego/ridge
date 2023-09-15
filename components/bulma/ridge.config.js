@@ -1,5 +1,5 @@
 module.exports = {
-  copy: '../../public/npm_packages/ridge-bulma'
+  copy: '../../public/npm/ridge-bulma'
   // concat: true,
   // bundleExternal: true
 }

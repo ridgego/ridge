@@ -1,6 +1,6 @@
 {
   "name": "ridge-container",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "容器",
   "main": "index.js",
   "icon": "bi bi-grid-1x2",
@@ -8,7 +8,6 @@
     "build": "build-fc",
     "watch": "build-fc -w -s",
     "help": "build-fc --help",
-    "debug": "build-fc -w -s -p 5151",
     "bs": "build-fc -s",
     "pd": "npm publish --tag dev"
   },

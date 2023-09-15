@@ -1,3 +1,3 @@
 module.exports = {
-  copy: '../../public/npm_packages/ridge-container'
+  copy: '../../public/npm/ridge-container'
 }

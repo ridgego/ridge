@@ -33,6 +33,11 @@ export default {
     name: 'coverContainer',
     label: '填充',
     type: 'boolean'
+  }, {
+    name: 'classNames',
+    label: '样式',
+    type: 'class',
+    value: []
   }],
   width: 420,
   height: 360

@@ -40,6 +40,11 @@ export default {
     type: 'boolean',
     value: true
   }, {
+    name: 'classNames',
+    label: '样式',
+    type: 'class',
+    value: []
+  }, {
     name: 'children',
     hidden: true,
     type: 'children',

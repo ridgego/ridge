@@ -605,10 +605,11 @@ export default class WorkSpaceControl {
       droppableElements = droppableElements.concat(Array.from(document.querySelectorAll(selector)))
     }
     const filtered = Array.from(droppableElements).filter(el => {
+      if (!el.wrapper) return false
       const { x, y, width, height } = el.getBoundingClientRect()
       // Exclude: droppables in the dragging element
       // 容器判断 isDroppable为false
-      if (el.invoke('isDroppable', [dragEl]) === false) {
+      if (el.invoke && el.invoke('isDroppable', [dragEl]) === false) {
         return false
       }
 
@@ -646,14 +647,14 @@ export default class WorkSpaceControl {
     // 拖拽更新位置
     if (updateDragOver) {
       try {
-        target && target.invoke('onDragOver', dragEl ? [dragEl.elementWrapper || {}] : [pointPos])
+        target && target.invoke && target.invoke('onDragOver', dragEl ? [dragEl.elementWrapper || {}] : [pointPos])
       } catch (e) {
         console.error('Container dragOver Error', target)
       }
 
       droppableElements.forEach(el => {
         if (el !== target) {
-          el.invoke('onDragOut')
+          el.invoke && el.invoke('onDragOut')
         }
       })
     }

@@ -39,6 +39,11 @@ export default {
     control: 'number',
     field: 'style.height',
     fieldEx: 'styleEx.height'
+  }, {
+    name: 'classNames',
+    label: '样式',
+    type: 'class',
+    value: []
   }],
   width: 540,
   height: 360

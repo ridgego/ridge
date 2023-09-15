@@ -68,6 +68,11 @@ export default {
       icon: 'IconAlignVCenterStroked',
       value: 'vcenter'
     }]
+  }, {
+    name: 'classNames',
+    label: '样式',
+    type: 'class',
+    value: []
   }],
   width: 540,
   height: 360

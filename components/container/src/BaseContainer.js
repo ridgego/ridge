@@ -55,9 +55,8 @@ export default class BaseContainer {
     const containerDiv = document.createElement('div')
     this.containerEl = containerDiv
 
-    if (this.className) {
-      containerDiv.classList.add(this.className)
-    }
+    this.containerEl.className = (this.props.classNames || []).join(' ')
+
     el.appendChild(containerDiv)
 
     this.wrapper = this.props.__elementWrapper
@@ -197,6 +196,7 @@ export default class BaseContainer {
     this.props = props
     Object.assign(this.containerEl.style, this.getContainerStyle())
 
+    this.containerEl.className = (this.props.classNames || []).join(' ')
     if (this.props.children) {
       for (const childWrapper of this.props.children) {
         childWrapper.forceUpdate()

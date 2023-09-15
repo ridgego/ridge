@@ -1,0 +1,9 @@
+/*按钮区域样式*/
+.button-panel {
+    background-color: #fff;
+    border-radius: 20px 20px 0 0;
+}
+/*计算区域样式*/
+.result-panel {
+    background-color: #F3F3FB;
+}
