@@ -2,8 +2,8 @@ import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
 import * as SemiIcon from '@douyinfe/semi-icons'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import PackageManager from '../../service/PackageManager'
-import { ridge } from '../../service/RidgeEditService.js'
+import { ridge, appService, on } from '../../service/RidgeEditService.js'
+import { EVENT_FILE_TREE_CHANGE } from '../../constant.js'
 const trace = require('debug')('ridge:component-panel')
 const { Text } = Typography
 class ComponentListing extends React.Component {
@@ -11,11 +11,10 @@ class ComponentListing extends React.Component {
     super()
     this.el = document.createElement('div')
     this.ref = React.createRef()
-    this.packageManager = new PackageManager()
     this.state = {
       packages: [],
-      currentPackage: 'ridge-basic',
-      packageListingLoaded: false
+      currentPackage: '',
+      fullLoading: true
     }
   }
 
@@ -43,9 +42,40 @@ class ComponentListing extends React.Component {
     })
   }
 
+  async loadPackages () {
+    this.setState({
+      fullLoading: true
+    })
+    const packageObject = appService.getPackageJSONObject()
+    if (packageObject == null) {
+      return
+    }
+
+    const packagesLoading = []
+
+    // Load Package
+    for (const pkname of this.packageNames) {
+      packagesLoading.push(await ridge.loader.getPackageJSON(pkname))
+    }
+
+    await Promise.allSettled(packagesLoading)
+    this.packagesDetails = packagesLoading.filter(n => n != null)
+
+    return this.packagesDetails
+  }
+
   componentDidMount () {
-    if (!this.state.packageListingLoaded) {
+    this.loadPackages()
+    on(EVENT_FILE_TREE_CHANGE, () => {
+      this.loadPackages()
+    })
+
+    if (this.state.fullLoading) {
       trace('Request package listing')
+      const packageObject = appService.getFileByPath('/package.json')
+      if (packageObject == null) {
+
+      }
       this.packageManager.getBuildInPackages().then(result => {
         trace('App Package Loaded')
         this.setState({
@@ -81,14 +111,11 @@ class ComponentListing extends React.Component {
 
   renderComponentIcon (icon) {
     if (icon) {
-      if (icon.startsWith('data:image')) {
+      if (icon.startsWith('data:image') || icon.startsWith('/') || icon.startsWith('http')) {
         return (
-          <div
-            className='component-icon' style={{
-              '-webkit-mask-image': `url("${decodeURI(icon)}")`,
-              'mask-image': `url("${decodeURI(icon)}")`
-            }}
-          />
+          <div className='image-icon'>
+            <img src={icon} />
+          </div>
         )
       } else if (icon.indexOf(' ') > -1) {
         return <div className={icon + ' font-icon'} />
@@ -103,7 +130,7 @@ class ComponentListing extends React.Component {
         )
       }
     } else {
-      return null
+      return <Text>{item.title || item.label} </Text>
     }
   }
 
@@ -126,9 +153,9 @@ class ComponentListing extends React.Component {
             const filteredComponents = this.getFilteredComponents(pkg.componentLoaded).sort((a, b) => (a.order || 10) - (b.order || 10))
             let TabContent = <div className={'package-icon ' + pkg.icon} />
             if (pkg.icon) {
-              if (pkg.icon.startsWith('data:image')) {
-                TabContent = <div className='package-icon'><img src={pkg.icon} /></div>
-              }
+              // if (pkg.icon.startsWith('data:image')) {
+              TabContent = <div className='package-icon'><img src={pkg.icon} /></div>
+              // }
             }
             return (
               <TabPane
@@ -160,7 +187,6 @@ class ComponentListing extends React.Component {
                             className='component-container'
                           >
                             {renderComponentIcon(item.icon)}
-                            <Text>{item.title || item.label} </Text>
                           </div>
                         </List.Item>
                       )

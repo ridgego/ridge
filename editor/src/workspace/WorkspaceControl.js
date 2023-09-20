@@ -661,6 +661,27 @@ export default class WorkSpaceControl {
     return target
   }
 
+  capture () {
+    if (this.moveable.target) {
+      window.html2canvas(this.moveable.target[0].firstChild, {
+        backgroundColor: null
+      }).then(canvas => {
+        const url = canvas.toDataURL('image/png')
+
+        this.downloadImg('capture.png', url)
+      })
+    }
+  }
+
+  downloadImg (name, canvasImg) {
+    const a = document.createElement('a') // 生成一个a元素
+    const event = new window.MouseEvent('click') // 创建一个单击事件
+
+    a.download = name || this.props.photoName || 'photo' // 设置图片名称
+    a.href = canvasImg
+    a.dispatchEvent(event) // 触发a的点击事件
+  }
+
   initKeyBind () {
     Mousetrap.bind('del', () => {
       if (!this.enabled) {

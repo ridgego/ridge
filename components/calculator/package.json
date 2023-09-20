@@ -1,0 +1,19 @@
+{
+  "name": "ridge-calculator",
+  "version": "1.0.0",
+  "description": "计算器相关元素组件",
+  "icon": "icons/calculator.svg",
+  "main": "index.js",
+  "scripts": {
+    "build": "rcbuild",
+    "watch": "rcbuild -w"
+  },
+  "author": "",
+  "license": "ISC",
+  "components": [
+    "back-button",
+    "equal-button",
+    "number-button",
+    "operator-button"
+  ]
+}

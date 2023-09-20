@@ -16,6 +16,7 @@ export default props => {
     zoomChange,
     toggoleRunMode,
     closeCurrentPage,
+    capture,
     containerMask
   } = props
 
@@ -25,6 +26,11 @@ export default props => {
       style={{ display: visible ? '' : 'none' }}
     >
       <Space className='bar-content'>
+        <Button
+          icon={<IconGridView1 />}
+          size='small'
+          onClick={capture}
+        />
         <Dropdown
           trigger='click'
           position='top'

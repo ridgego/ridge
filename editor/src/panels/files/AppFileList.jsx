@@ -243,7 +243,7 @@ class AppFileList extends React.Component {
     } else {
       await appService.createDirectory(this.state.currentParent, this.state.currentEditFileName)
     }
-
+    appService.updateAppFileTree()
     this.setState({
       createDialogShow: false
     })
@@ -448,7 +448,7 @@ class AppFileList extends React.Component {
           创建样式文件
         </Dropdown.Item>
       )
-    } else {
+    } else if (data.type === 'page') {
       MORE_MENUS.push(
         <Dropdown.Item
           icon={<IconFolderOpen />} onClick={() => {

@@ -234,6 +234,9 @@ export default class Editor extends React.Component {
             zoom={zoom}
             currentPageId={currentPageId}
             visible={menuBarVisible}
+            capture={() => {
+              workspaceControl.capture()
+            }}
             toggleVisible={name => {
               this.setState({
                 [name]: !this.state[name]

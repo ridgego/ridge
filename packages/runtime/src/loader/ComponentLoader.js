@@ -188,6 +188,9 @@ class ComponentLoader {
       await this.loadExternals(fcp.requires)
     }
 
+    if (fcp.icon) {
+      fcp.icon = `${this.baseUrl}/${packageName}/${fcp.icon}`
+    }
     // if (packageJSONObject.components) {
     //   const filtered = packageJSONObject.components.filter(component => component.path === path)
     //   if (filtered.length === 1) {
@@ -361,7 +364,7 @@ class ComponentLoader {
   prefixPackageJSON (packageObject, prefix) {
     if (packageObject.icon) {
       if (!packageObject.icon.startsWith('data:image')) {
-      //  packageObject.icon = `${prefix}/${packageObject.icon}`
+        packageObject.icon = `${prefix}/${packageObject.icon}`
       }
     } else {
       packageObject.icon = `${prefix}/icon.svg`

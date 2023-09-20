@@ -1,0 +1,17 @@
+.calculator-operator-button {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    background-color: #FFFBF2;
+    color: #FA9316;
+    font-size: 55px;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.calculator-operator-button:active {
+    background-color: #FEF2DA;
+}

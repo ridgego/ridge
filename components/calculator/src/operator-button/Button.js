@@ -1,0 +1,30 @@
+import './style.css'
+export default class Button {
+  constructor (props) {
+    this.props = props
+  }
+
+  async mount (el) {
+    this.el = el
+    this.button = document.createElement('button')
+    this.button.setAttribute('type', 'button')
+    this.button.className = 'calculator-operator-button'
+
+    this.el.append(this.button)
+    this.button.onclick = (e) => {
+      this.props.onClick && this.props.onClick()
+    }
+
+    this.render()
+  }
+
+  render () {
+    const { text } = this.props
+    this.button.innerHTML = text || ''
+  }
+
+  update (props) {
+    this.props = props
+    this.render()
+  }
+}

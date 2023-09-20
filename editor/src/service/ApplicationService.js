@@ -1,13 +1,15 @@
 import NeCollection from './NeCollection.js'
-
+import debug from 'debug'
 // import LowCollection from './LowCollection.js'
 import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
 import { ridge, emit } from './RidgeEditService.js'
 import { EVENT_APP_OPEN, EVENT_FILE_TREE_CHANGE } from '../constant.js'
-import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToDataUrl } from '../utils/blob.js'
+import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToBlob, stringToDataUrl } from '../utils/blob.js'
 import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
 const { nanoid } = require('../utils/string')
+
+const trace = debug('ridge:app-service')
 
 /**
  * 应用管理服务，用于创建、修改、查询应用下资源（包括页面、图片、音视频、组件包等）
@@ -32,31 +34,13 @@ export default class ApplicationService {
     return filterTree(this.fileTree, filter)
   }
 
-  /**
-   * 获取新的文件名称（去重）
-   * @param {*} parent
-   * @param {*} baseName
-   * @param {*} nextNameFunc
-   * @returns
-   */
-  async getNewFileName (parent, baseName, nextNameFunc) {
-    let n = 0
-    while (await this.collection.findOne({
-      parent,
-      name: n === 0 ? baseName : (baseName + nextNameFunc(n))
-    })) {
-      n++
-    }
-    return n === 0 ? baseName : (baseName + nextNameFunc(n))
-  }
-
   async updateAppFileTree () {
-    const t = new Date().getTime()
-    console.log('before')
+    trace('Start Update File Tree')
     const files = await this.getFiles()
-    this.fileTree = getFileTree(files)
+    trace('Files', files)
+    const fileTree = getFileTree(files)
 
-    await eachNode(this.fileTree, async (file) => {
+    await eachNode(fileTree, async (file) => {
       if (file.mimeType && (file.mimeType.indexOf('image/') > -1 || file.mimeType.indexOf('audio/') > -1)) {
         if (this.dataUrlByPath[file.path] == null) {
           const dataUrl = await this.store.getItem(file.key)
@@ -75,7 +59,8 @@ export default class ApplicationService {
       }
     })
 
-    console.log('dura', new Date().getTime() - t)
+    trace('Files Tree Built', fileTree)
+    this.fileTree = fileTree
     emit(EVENT_FILE_TREE_CHANGE, this.fileTree)
     return this.fileTree
   }
@@ -138,15 +123,24 @@ export default class ApplicationService {
     const dataUrl = await blobToDataUrl(blob)
 
     await this.store.setItem(id, dataUrl)
-    await this.collection.insert({
-      id,
-      mimeType: blob.type || mimeType,
-      size: blob.size,
-      name: await this.getNewFileName(parentId, blob.name || name, n => `(${n})`),
-      parent: parentId
+
+    const one = await this.collection.findOne({
+      parent: parentId,
+      name
     })
-    await this.updateAppFileTree()
-    return true
+
+    if (one) {
+      return null
+    } else {
+      return await this.collection.insert({
+        id,
+        mimeType: blob.type || mimeType,
+        size: blob.size,
+        name,
+        parent: parentId
+      })
+    }
+    // await this.updateAppFileTree()
   }
 
   /**
@@ -264,12 +258,34 @@ export default class ApplicationService {
     }
   }
 
+  getPackageJSONObject () {
+    const file = this.getFileByPath('package.json')
+    if (file == null) {
+      return null
+    } else {
+
+    }
+  }
+
   async getFiles (filter) {
     const query = {}
     if (filter) {
       query.name = new RegExp(filter)
     }
     const files = await this.collection.find(query)
+
+    const packageJSONFile = files.filter(file => file.parent === -1 && file.name === 'package.json')[0]
+
+    if (!packageJSONFile) {
+      files.push(await this.createFile(-1, 'package.json', stringToBlob(JSON.stringify({
+        name: 'ridge-app-hello',
+        description: '#RidgeApp My First Ridge App',
+        version: '1.0.0',
+        dependencies: {
+          'ridge-basic': '1.0.0'
+        }
+      }), 'text/json')))
+    }
     return files
   }
 
@@ -285,21 +301,22 @@ export default class ApplicationService {
   /**
    * 根据路径获取文件
    */
-  async getFileByPath (filePath) {
-    const parentNames = filePath.split('/')
-    let parentId = -1
+  getFileByPath (filePath) {
+    if (!this.fileTree) {
+      return null
+    }
+    const fileNames = filePath.split('/').filter(fileName => fileName)
+    let siblingNodes = this.fileTree
     let currentFile = null
 
-    for (const fileName of parentNames) {
+    for (const fileName of fileNames) {
       if (fileName) {
-        currentFile = await this.collection.findOne({
-          parent: parentId,
-          name: fileName
-        })
+        currentFile = siblingNodes && siblingNodes.filter(file => file.name === fileName)[0]
+
         if (currentFile == null) {
           return null
         } else {
-          parentId = currentFile.id
+          siblingNodes = currentFile.children || []
         }
       }
     }

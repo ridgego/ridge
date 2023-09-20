@@ -1,5 +1,5 @@
 const NeDataStore = require('nedb/browser-version/out/nedb.min.js')
-const debug = require('debug')('db:nedb')
+const debug = require('debug')('ridge:nedb')
 
 class NeCollection {
   constructor (filename) {
