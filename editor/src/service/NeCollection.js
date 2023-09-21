@@ -10,7 +10,7 @@ class NeCollection {
       autoload: true
     })
     // 自动每四个小时刷新一次磁盘存储
-    this.store.persistence.setAutocompactionInterval(4 * 60 * 60 * 1000)
+    // this.store.persistence.setAutocompactionInterval(4 * 60 * 60 * 1000)
   }
 
   async compactDatafile () {
@@ -205,8 +205,9 @@ class NeCollection {
       if (limit > 0) {
         cursor = cursor.limit(limit)
       }
-
+      debug('cursor exec', query, projection)
       cursor.exec(function (err, docs) {
+        debug('cursor exec result ', err, docs)
         if (err) {
           reject(err)
         } else {

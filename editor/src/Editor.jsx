@@ -7,7 +7,7 @@ import LeftBottomPanel from './panels/files/index.jsx'
 import MenuBar from './menu/MenuBar.jsx'
 import debounce from 'lodash/debounce'
 import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
-import { ridge, emit, on, workspaceControl } from './service/RidgeEditService.js'
+import { ridge, emit, on, workspaceControl, appService } from './service/RidgeEditService.js'
 import './editor.less'
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
@@ -202,6 +202,10 @@ export default class Editor extends React.Component {
       workspaceEl: document.querySelector('.workspace'),
       viewPortEl: document.querySelector('.viewport-container')
     })
+
+    setTimeout(() => {
+      appService.updateAppFileTree()
+    }, 10)
   }
 
   render () {

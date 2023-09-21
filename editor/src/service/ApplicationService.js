@@ -23,7 +23,7 @@ export default class ApplicationService {
     this.dataUrls = {}
     this.fileTree = []
 
-    this.updateAppFileTree()
+    // this.updateAppFileTree()
   }
 
   getFileTree () {
@@ -40,6 +40,7 @@ export default class ApplicationService {
     trace('Files', files)
     const fileTree = getFileTree(files)
 
+    /*
     await eachNode(fileTree, async (file) => {
       if (file.mimeType && (file.mimeType.indexOf('image/') > -1 || file.mimeType.indexOf('audio/') > -1)) {
         if (this.dataUrlByPath[file.path] == null) {
@@ -59,6 +60,7 @@ export default class ApplicationService {
       }
     })
 
+    */
     trace('Files Tree Built', fileTree)
     this.fileTree = fileTree
     emit(EVENT_FILE_TREE_CHANGE, this.fileTree)
@@ -258,12 +260,17 @@ export default class ApplicationService {
     }
   }
 
-  getPackageJSONObject () {
+  async getPackageJSONObject () {
     const file = this.getFileByPath('package.json')
     if (file == null) {
       return null
     } else {
-
+      const dataUrl = await this.store.getItem(file.key)
+      try {
+        return JSON.parse(await dataURLToString(dataUrl))
+      } catch (e) {
+        return {}
+      }
     }
   }
 
@@ -311,7 +318,7 @@ export default class ApplicationService {
 
     for (const fileName of fileNames) {
       if (fileName) {
-        currentFile = siblingNodes && siblingNodes.filter(file => file.name === fileName)[0]
+        currentFile = siblingNodes && siblingNodes.filter(file => file.label === fileName)[0]
 
         if (currentFile == null) {
           return null

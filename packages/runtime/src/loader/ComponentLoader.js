@@ -24,8 +24,6 @@ class ComponentLoader {
     /** @property 前端组件加载缓存 key: 组件lib名称或加载地址  value: 组件fcp */
     this.componentCache = {}
 
-    /** @property 加载的前端npm包描述缓存 */
-    this.packageJSONCache = {}
     // 未安装的组件包列表
     this.packageNotInstalled = []
     // 加载的字体列表
@@ -42,8 +40,6 @@ class ComponentLoader {
       Object.assign(this.externalOptions, window.top.ridgeConfig.loaderExternalOptions)
     }
 
-    this.scriptLoadingPromises = {}
-
     // 组件加载器回调事件
     this.eventCallbacks = []
 
@@ -57,6 +53,7 @@ class ComponentLoader {
 
     this.getPackageJSON = memoize(this.getPackageJSONOnce)
     this.loadComponent = memoize(this.loadComponentOnce)
+    this.loadScript = memoize(this._loadScript)
   }
 
   /**
@@ -158,7 +155,8 @@ class ComponentLoader {
     packageName, path
   }) {
     // 加载包依赖的js （必须首先加载否则组件加载会出错）
-    const packageJSONObject = await this.confirmPackageDependencies(packageName)
+    const packageJSONObject = await this.getPackageJSON(packageName)
+    await this.confirmPackageDependencies(packageJSONObject)
     const fcp = await this.loadComponentScript({ packageName, path })
     if (fcp) {
       await this.prepareComponent(fcp, { packageName, path }, packageJSONObject)
@@ -227,12 +225,10 @@ class ComponentLoader {
     packageName,
     path
   }) {
-    const scriptUrl = `${this.baseUrl}/${packageName}/build/${path}.js`
-    const scriptLibName = `${packageName}/${path}`
-
     // 加载图元脚本，其中每个图元在编译时都已经设置到了window根上，以图元url为可以key
-    await this.loadScript(scriptUrl)
+    await this.loadScript(`${this.baseUrl}/${packageName}/build/${path}.js`)
 
+    const scriptLibName = `${packageName}/${path}`
     // globalThis方式
     if (window[scriptLibName]) {
       return window[scriptLibName].default
@@ -314,28 +310,19 @@ class ComponentLoader {
     document.getElementsByTagName('HEAD')[0].appendChild(link)
   }
 
-  async loadScript (url) {
-    if (!this.scriptLoadingPromises[url]) {
-      // loadjs会自动处理重复加载的问题，因此此处无需做额外处理
-      this.scriptLoadingPromises[url] = (async () => {
-        try {
-          log('加载库:' + url)
-          await loadjs(url, {
-            returnPromise: true,
-            before: function (scriptPath, scriptEl) {
-              scriptEl.crossOrigin = true
-            }
-          })
-        } catch (e) {
-          console.error('第三方库加载异常 ', `${url}`)
+  async _loadScript (url) {
+    try {
+      log('加载库:' + url)
+      await loadjs(url, {
+        returnPromise: true,
+        before: function (scriptPath, scriptEl) {
+          scriptEl.crossOrigin = true
         }
-      })()
+      })
+    } catch (e) {
+      console.error('第三方库加载异常 ', `${url}`)
     }
-    await this.scriptLoadingPromises[url]
-  }
-
-  setPackageCache (packageName, packageObject) {
-    this.packageJSONCache[packageName] = packageObject
+    return url
   }
 
   /**
@@ -344,36 +331,12 @@ class ComponentLoader {
    * @returns
    */
   async getPackageJSONOnce (packageName) {
-    if (this.packageJSONCache[packageName]) {
-      return this.packageJSONCache[packageName]
-    }
-
     const packageJSONUrl = this.getPackageJSONUrl(packageName)
-
     try {
-      const packageObject = await ky.get(packageJSONUrl).json()
-      this.prefixPackageJSON(packageObject, this.baseUrl + '/' + packageName)
-      this.setPackageCache(packageObject)
-
-      return packageObject
+      return await ky.get(packageJSONUrl).json()
     } catch (e) {
       console.error('NPM Package Not Loaded: ', packageName, e)
-    }
-  }
-
-  prefixPackageJSON (packageObject, prefix) {
-    if (packageObject.icon) {
-      if (!packageObject.icon.startsWith('data:image')) {
-        packageObject.icon = `${prefix}/${packageObject.icon}`
-      }
-    } else {
-      packageObject.icon = `${prefix}/icon.svg`
-    }
-
-    for (const com of packageObject.components ?? []) {
-      if (com.icon && !com.icon.startsWith('data:image')) {
-        com.icon = `${prefix}/${com.icon}`
-      }
+      return null
     }
   }
 
@@ -381,17 +344,12 @@ class ComponentLoader {
    * 加载组件包的依赖资源
    * @param {String} packageName 组件包名称
    */
-  async confirmPackageDependencies (packageName) {
-    const packageObject = await this.getPackageJSON(packageName)
-    if (packageObject) {
-      if (packageObject.externals) {
-        for (const external of packageObject.externals) {
-          await this.loadScript(`${this.baseUrl}/${packageName}/${external}`)
-        }
+  async confirmPackageDependencies (packageObject) {
+    if (packageObject.externals) {
+      for (const external of packageObject.externals) {
+        await this.loadScript(`${this.baseUrl}/${packageObject.name}/${external}`)
       }
     }
-
-    return packageObject
   }
 
   /**
