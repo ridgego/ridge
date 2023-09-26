@@ -114,6 +114,8 @@ class ElementWrapper {
   }
 
   async loadAndMount (el) {
+    this.el = el
+    this.updateStyle()
     await this.preload()
     this.mount(el)
   }
@@ -136,10 +138,10 @@ class ElementWrapper {
       }
     }
     if (this.componentDefinition) {
-      this.removeStatus('Loading')
+      this.removeStatus('initializing')
       this.preloaded = true
     } else {
-      this.setStatus('Error')
+      this.setStatus('error', '组件未加载')
     }
   }
 
@@ -147,12 +149,6 @@ class ElementWrapper {
     // 加载组件定义信息
     if (this.componentPath) {
       const componentDefinition = await this.pageManager.ridge.loadComponent(this.componentPath)
-
-      if (!componentDefinition || !componentDefinition.component) {
-        log('加载图元失败: 未获取组件', this.componentPath)
-        this.setStatus('加载失败')
-        return null
-      }
       return componentDefinition
     } else {
       return null
@@ -652,11 +648,18 @@ class ElementWrapper {
     }
   }
 
-  setStatus (status, el) {
+  setStatus (status, msg) {
     this.status = status
+
+    const overlays = this.el.querySelectorAll('.ridge-overlay')
+
+    for (const overlay of overlays) {
+      overlay.parentElement.removeChild(overlay)
+    }
     this.addMaskLayer({
-      el: el || this.el,
+      el: this.el,
       name: status,
+      text: msg,
       className: 'status-' + status
     })
   }
@@ -685,15 +688,9 @@ class ElementWrapper {
     if (!el) {
       return
     }
-    if (el.querySelector('[name="' + name + '"]')) {
-      return
-    }
     const layer = document.createElement('div')
-
     layer.setAttribute('name', name)
-
     layer.classList.add('ridge-overlay')
-
     layer.style.position = 'absolute'
     layer.style.left = 0
     layer.style.right = 0
@@ -706,8 +703,9 @@ class ElementWrapper {
     if (zIndex) {
       layer.style.zIndex = zIndex
     }
-    layer.innerHTML = content || text || ''
-    el.insertBefore(layer, el.firstChild)
+    layer.textContent = text
+    el.appendChild(layer)
+    // el.insertBefore(layer, el.firstChild)
   }
 
   /**

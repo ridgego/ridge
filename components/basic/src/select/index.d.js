@@ -2,7 +2,7 @@ import Select from './Select'
 export default {
   name: 'select',
   component: Select,
-  icon: 'bi bi-menu-button',
+  icon: 'icon/form-select.svg',
   type: 'vanilla',
   title: '下拉框',
   order: 8,

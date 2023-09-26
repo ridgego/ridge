@@ -2,7 +2,7 @@ import Input from './Input'
 export default {
   name: 'input',
   component: Input,
-  icon: 'bi bi-textarea-resize',
+  icon: 'icon/input-field.svg',
   type: 'vanilla',
   title: '输入框',
   order: 5,

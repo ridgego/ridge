@@ -424,6 +424,16 @@ export default class ApplicationService {
     }
   }
 
+  async getFileContent (file) {
+    const dataUrl = await this.store.getItem(file.key)
+
+    if (file.mimeType && file.mimeType.indexOf('text') > -1) {
+      return await dataURLToString(dataUrl)
+    } else {
+      return await dataURLtoBlob(dataUrl)
+    }
+  }
+
   async exportAppArchive () {
     await this.backUpService.exportAppArchive(this.collection, this.store)
   }

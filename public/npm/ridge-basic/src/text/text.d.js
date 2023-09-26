@@ -3,7 +3,7 @@ export default {
   name: 'text',
   title: '文本',
   type: 'vanilla',
-  icon: 'bi bi-fonts',
+  icon: 'icon/text-outline.svg',
   order: 2,
   width: 100,
   height: 32,
@@ -131,10 +131,5 @@ export default {
     label: '背景色',
     width: '40%',
     type: 'color'
-  }, {
-    name: 'backgroundImage',
-    label: '图片',
-    width: '60%',
-    type: 'image'
   }]
 }

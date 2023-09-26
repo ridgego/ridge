@@ -2,7 +2,7 @@
   "name": "ridge-basic",
   "version": "1.0.0",
   "description": "基本组件",
-  "icon": "bi bi-bag",
+  "icon": "icon/icon.svg",
   "main": "index.js",
   "scripts": {
     "build": "rcbuild",
@@ -21,7 +21,6 @@
     "image",
     "input",
     "radio",
-    "range",
     "rect",
     "select",
     "text",

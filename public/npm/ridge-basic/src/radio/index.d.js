@@ -2,7 +2,7 @@ import Radio from './Radio'
 export default {
   name: 'radio',
   component: Radio,
-  icon: 'bi bi-ui-radios',
+  icon: 'icon/radio.svg',
   type: 'vanilla',
   title: '单选',
   order: 7,

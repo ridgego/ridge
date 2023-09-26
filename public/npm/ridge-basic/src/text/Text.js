@@ -16,8 +16,7 @@ export default class Text {
   render () {
     const {
       text, textAlign,
-      fontFamily, fontSize, color, fontWeight, fontItalic, borderWidth,
-      borderStyle, borderColor, padding, borderRadius, verticalAlign, backgroundColor, backgroundImage
+      fontFamily, fontSize, color, fontWeight, fontItalic, borderRadius, verticalAlign, backgroundColor
     } = this.props
     this.textDiv.innerHTML = text || ''
     this.textDiv.style.fontFamily = fontFamily
@@ -39,13 +38,8 @@ export default class Text {
 
     this.textDiv.style.fontSize = fontSize + 'px'
     this.textDiv.style.color = color
-    this.textDiv.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`
-    this.textDiv.style.padding = padding
     this.textDiv.style.borderRadius = borderRadius || 0
     this.textDiv.style.backgroundColor = backgroundColor
-    this.textDiv.style.backgroundSize = '100%'
-    this.textDiv.style.backgroundRepeat = 'no-repeat'
-    this.textDiv.style.backgroundImage = `url(${backgroundImage})`
   }
 
   update (props) {

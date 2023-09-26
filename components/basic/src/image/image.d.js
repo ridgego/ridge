@@ -3,7 +3,7 @@ import Image from './Image.js'
 export default {
   name: 'image',
   component: Image,
-  icon: 'bi bi-image',
+  icon: 'icon/image.svg',
   title: '图片',
   type: 'vanilla',
   order: 3,

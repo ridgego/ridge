@@ -3,7 +3,7 @@ import CheckBox from './CheckBox'
 export default {
   name: 'checkbox',
   component: CheckBox,
-  icon: 'bi bi-check2-circle',
+  icon: 'icon/checkbox.svg',
   type: 'vanilla',
   title: '复选框',
   order: 9,

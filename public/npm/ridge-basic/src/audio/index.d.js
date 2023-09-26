@@ -2,7 +2,7 @@ import Audio from './Audio'
 export default {
   name: 'audio',
   component: Audio,
-  icon: 'bi bi-volume-up',
+  icon: 'icon/sound-high.svg',
   type: 'vanilla',
   title: '音频',
   order: 10,

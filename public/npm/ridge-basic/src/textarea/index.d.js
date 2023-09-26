@@ -2,7 +2,7 @@ import TextArea from './TextArea'
 export default {
   name: 'input',
   component: TextArea,
-  icon: 'bi bi-textarea',
+  icon: 'icon/textarea-resize.svg',
   type: 'vanilla',
   title: '多行输入',
   order: 6,

@@ -118,7 +118,8 @@ export default class PageStore {
             // scriptDiv.setAttribute('type', 'module')
             scriptDiv.classList.add('page-' + id)
 
-            let jsContent = file.textContent
+            let jsContent = await this.ridge.appService.getFileContent(file)
+            // file.textContent
             if (jsContent.startsWith('export default')) {
               jsContent = 'window.' + moduleName + '= ' + jsContent.substring(14)
             }

@@ -5,13 +5,19 @@ html, body {
     height: 100%;
 }
 
-  
-
 .status-Loading {
     background: linear-gradient(90deg,#2e32380d 25%,#2e323817 44%,#2e32380d 88%);
     background-size: 400% 100%;
     animation: skeleton-loading 3s ease infinite;
     animation-fill-mode: forwards;
+}
+
+.status-error {
+    background-color: rgba(253, 185, 165, .3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(142, 8, 5);
 }
 
 @keyframes skeleton-loading {
@@ -22,8 +28,4 @@ html, body {
     to {
         background-position: 0 50%
     }
-}
-
-.status-Error {
-
 }

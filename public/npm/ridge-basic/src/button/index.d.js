@@ -2,7 +2,7 @@ import Button from './Button'
 export default {
   name: 'button',
   component: Button,
-  icon: 'bi bi-pause-btn',
+  icon: 'icon/button.svg',
   type: 'vanilla',
   title: '按钮',
   order: 4,

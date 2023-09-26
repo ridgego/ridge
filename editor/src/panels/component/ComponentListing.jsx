@@ -113,28 +113,16 @@ class ComponentListing extends React.Component {
     }
   }
 
-  renderComponentIcon (icon) {
+  renderComponentIcon (icon, label) {
     if (icon) {
-      if (icon.startsWith('data:image') || icon.startsWith('/') || icon.startsWith('http')) {
-        return (
-          <div className='image-icon'>
-            <img src={icon} />
-          </div>
-        )
-      } else if (icon.indexOf(' ') > -1) {
-        return <div className={icon + ' font-icon'} />
-      } else if (SemiIcon[icon]) {
-        const Icon = SemiIcon[icon]
-        return (
-          <Icon
-            style={{
-              color: 'var( --semi-color-secondary)'
-            }}
-          />
-        )
-      }
+      return (
+        <div className='image-icon'>
+          <img src={icon} />
+          <Text>{label} </Text>
+        </div>
+      )
     } else {
-      return <Text>{item.title || item.label} </Text>
+      return <Text>{label} </Text>
     }
   }
 
@@ -194,7 +182,7 @@ class ComponentListing extends React.Component {
                               }))}
                               className='component-container'
                             >
-                              {renderComponentIcon(loadedComponent.icon)}
+                              {renderComponentIcon(loadedComponent.icon, loadedComponent.title)}
                             </div>
                           </List.Item>
                         )
