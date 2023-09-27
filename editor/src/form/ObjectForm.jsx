@@ -41,7 +41,7 @@ export default class ObjectForm extends React.Component {
 
     this.controlGeneratorMap = {
       divider: (col) => <Divider margin='0' align='center'>{col.label}</Divider>,
-      number: (col, readonly) => <InputNumber size='small' label={col.label} disabled={readonly} field={col.field} />,
+      number: (col, readonly) => <InputNumber size='small' label={col.label} disabled={readonly} innerButtons field={col.field} />,
       length: (col, readonly) => <InputNumber size='small' label={col.label} disabled={readonly} field={col.field} />,
       string: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
       text: (col, readonly) => <Input size='small' label={col.label} field={col.field} disabled={readonly} />,
@@ -169,7 +169,7 @@ export default class ObjectForm extends React.Component {
       <div className='object-form' style={style}>
         {!tableStyle && <Form
           size='small'
-          labelAlign='left'
+          labelAlign='right'
           labelPosition={labelPosition}
           layout='horizontal'
           getFormApi={callback}

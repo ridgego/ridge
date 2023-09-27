@@ -103,7 +103,7 @@ export default class ApplicationService {
     }
     const pageObject = {
       id,
-      name: await this.getNewFileName(parentId, name || '新建页面', n => `(${n})`),
+      name,
       type: 'page',
       parent: parentId,
       mimeType: 'text/json'

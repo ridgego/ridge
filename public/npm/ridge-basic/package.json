@@ -2,14 +2,13 @@
   "name": "ridge-basic",
   "version": "1.0.0",
   "description": "基本组件",
-  "icon": "bi bi-bag",
+  "icon": "icon/icon.svg",
   "main": "index.js",
   "scripts": {
     "build": "rcbuild",
     "watch": "rcbuild -s -w",
     "help": "rcbuild --help",
-    "bs": "rcbuild -s",
-    "pd": "npm publish --tag dev"
+    "pubdev": "npm publish --tag dev"
   },
   "files": [
     "build"

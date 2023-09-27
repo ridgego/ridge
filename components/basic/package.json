@@ -8,8 +8,7 @@
     "build": "rcbuild",
     "watch": "rcbuild -s -w",
     "help": "rcbuild --help",
-    "bs": "rcbuild -s",
-    "pd": "npm publish --tag dev"
+    "pubdev": "npm publish --tag dev"
   },
   "files": [
     "build"

@@ -51,6 +51,13 @@ const COMPONENT_ROOT_FIELDS = [
     control: 'number',
     field: 'style.height',
     fieldEx: 'styleEx.height'
+  }, {
+    label: '显示',
+    type: 'boolean',
+    control: 'checkbox',
+    width: '50%',
+    field: 'style.visible',
+    fieldEx: 'styleEx.visible'
   }
 ]
 
@@ -59,13 +66,6 @@ const COMPONENT_STYLE_FIELDS = [{
   width: '50%',
   type: 'boolean',
   field: 'style.full'
-}, {
-  label: '显示',
-  type: 'boolean',
-  control: 'checkbox',
-  width: '50%',
-  field: 'style.visible',
-  fieldEx: 'styleEx.visible'
 }, {
   label: '透明度',
   type: 'number',
@@ -206,9 +206,6 @@ export default class ComponentPanel extends React.Component {
     const nodeEventFields = []
     // 能加载到节点定义
     if (elementWrapper.componentDefinition) {
-      nodePropFields.push({
-        type: 'divider'
-      })
       for (const prop of elementWrapper.componentDefinition.props) {
         const field = {}
         if (prop.connect) {

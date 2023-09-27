@@ -1,13 +1,14 @@
 import React from 'react'
+import debug from 'debug'
 import { Tree, Space, Typography, Button, Tag } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
 import { EVENT_PAGE_LOADED, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
-import RawSvgIcon from '../../utils/RawSvgIcon.jsx'
-import { workspaceControl, on, emit } from '../../service/RidgeEditService.js'
+import { workspaceControl, ridge, on, emit } from '../../service/RidgeEditService.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 
 const { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } = SemiIcons
 const { Text } = Typography
+const log = debug('ridge:outline')
 
 class OutLineTree extends React.Component {
   constructor () {
@@ -16,6 +17,7 @@ class OutLineTree extends React.Component {
       elements: [],
       selected: null
     }
+    ridge.services.outline = this
   }
 
   static contextType = ThemeContext
@@ -62,6 +64,12 @@ class OutLineTree extends React.Component {
     })
   }
 
+  updateTree (elements) {
+    this.setState({
+      elements
+    })
+  }
+
   onNodeSelected (val) {
     this.setState({
       selected: val
@@ -85,7 +93,7 @@ class OutLineTree extends React.Component {
 
   buildElementTree (elements) {
     const treeData = []
-    const rootElements = Object.values(elements).filter(el => el.isRoot())
+    const rootElements = Object.values(elements).filter(el => el.isRoot()).sort((a, b) => a.i - b.i)
     for (const element of rootElements) {
       treeData.push(this.getElementTree(element, elements))
     }
@@ -201,9 +209,16 @@ class OutLineTree extends React.Component {
     )
   }
 
+  onTreeDrop ({ event, node, dragNode, dragNodesKeys, dropPosition, dropToGap }) {
+    log(node, dragNode, dropPosition, dropToGap)
+    if (dropToGap) {
+      dragNode.element.pageManager.setOrderInSiblings(dragNode.element, node.element.config.parent, dropPosition)
+    }
+  }
+
   render () {
     const { selected, elements } = this.state
-    const { renderFullLabel } = this
+    const { renderFullLabel, onTreeDrop } = this
     const treeData = this.buildElementTree(elements)
     return (
       <Tree
@@ -211,8 +226,10 @@ class OutLineTree extends React.Component {
           height: '100%',
           overflow: 'auto'
         }}
+        draggable
         value={selected}
         renderLabel={renderFullLabel}
+        onDrop={onTreeDrop}
         onChange={(value) => {
           this.onNodeSelected(value)
         }}

@@ -4,8 +4,7 @@ import VanillaRender from '../render/VanillaRenderer'
 import { nanoid } from '../utils/string'
 import { objectSet } from '../utils/object'
 import getBackground from './style/getBackground'
-const log = debug('ridge:element')
-const error = debug('error:element')
+const log = debug('ridge:el')
 
 /**
  * 组件封装类
@@ -15,10 +14,12 @@ class ElementWrapper {
     config,
     mode,
     pageManager,
+    i,
     isCreate
   }) {
     this.config = config
     this.id = config.id
+    this.i = i
     this.componentPath = config.path
     this.isCreate = isCreate
 
@@ -126,7 +127,7 @@ class ElementWrapper {
   async preload (deepPreload) {
     if (this.preloaded) return
 
-    this.setStatus('Loading')
+    this.setStatus('loading')
     this.componentDefinition = await this.loadComponentDefinition()
 
     if (deepPreload) {
@@ -138,10 +139,10 @@ class ElementWrapper {
       }
     }
     if (this.componentDefinition) {
-      this.removeStatus('initializing')
+      this.setStatus('initializing')
       this.preloaded = true
     } else {
-      this.setStatus('error', '组件未加载')
+      this.setStatus('not-found')
     }
   }
 
@@ -347,14 +348,17 @@ class ElementWrapper {
     try {
       if (this.componentDefinition.type === 'vanilla') {
         const render = new VanillaRender(this.componentDefinition.component, this.getProperties())
+        this.removeStatus()
         render.mount(this.el)
         return render
       } else {
         const render = new ReactRenderer(this.componentDefinition.component, this.getProperties())
+        this.removeStatus()
         render.mount(this.el)
         return render
       }
     } catch (e) {
+      this.setStatus('render-error')
       console.error('组件初始化渲染异常', this.componentDefinition, e)
     }
     return null
@@ -393,6 +397,14 @@ class ElementWrapper {
         continue
       }
       this.style[styleName] = this.pageStore.getStoreValue(this.config.styleEx[styleName], this.getScopeItems())
+    }
+  }
+
+  setIndex (index) {
+    this.i = index
+
+    if (this.el.style.position === 'absolute') {
+      this.el.style.zIndex = index
     }
   }
 
@@ -441,6 +453,7 @@ class ElementWrapper {
           style.transform = `translate(${configStyle.x}px, ${configStyle.y}px)`
           style.width = configStyle.width ? (configStyle.width + 'px') : ''
           style.height = configStyle.height ? (configStyle.height + 'px') : ''
+          style.zIndex = this.i
         }
         Object.assign(this.el.style, style)
       }
@@ -466,41 +479,6 @@ class ElementWrapper {
         el.classList.add('is-locked')
       }
     }
-
-    if (configStyle.zIndex) {
-      el.style.zIndex = configStyle.zIndex
-    }
-    if (configStyle.borderRadius) {
-      el.style.borderRadius = configStyle.borderRadius
-    }
-
-    if (configStyle.opacity != null) {
-      el.style.opacity = configStyle.opacity + '%'
-    }
-    if (configStyle.padding) {
-      el.style.padding = configStyle.padding
-    }
-    if (configStyle.margin) {
-      el.style.margin = configStyle.margin
-    }
-    if (configStyle.borderStyle) {
-      el.style.borderStyle = configStyle.borderStyle
-    }
-    if (configStyle.borderColor) {
-      el.style.borderColor = configStyle.borderColor
-    }
-    if (configStyle.borderWidth) {
-      el.style.borderWidth = configStyle.borderWidth
-    }
-
-    if (configStyle.boxShadow) {
-      el.style.boxShadow = configStyle.boxShadow
-    }
-
-    Object.assign(
-      el.style,
-      getBackground(configStyle.background, this.ridge, this.mode)
-    )
   }
 
   /**
@@ -660,15 +638,18 @@ class ElementWrapper {
       el: this.el,
       name: status,
       text: msg,
+      zIndex: 10,
       className: 'status-' + status
     })
   }
 
-  removeStatus (status, el) {
-    if (this.status === status) {
-      this.status = null
-      this.removeMaskLayer(status, el || this.el)
+  removeStatus () {
+    const overlays = this.el.querySelectorAll('.ridge-overlay')
+
+    for (const overlay of overlays) {
+      overlay.parentElement.removeChild(overlay)
     }
+    this.status = null
   }
 
   removeMaskLayer (name, el) {

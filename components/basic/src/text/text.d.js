@@ -124,8 +124,8 @@ export default {
     name: 'borderRadius',
     label: '圆角',
     width: '50%',
-    type: 'string',
-    value: '0px'
+    type: 'number',
+    value: 0
   }, {
     name: 'backgroundColor',
     label: '背景色',

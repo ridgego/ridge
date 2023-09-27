@@ -1,6 +1,8 @@
 import ElementWrapper from './ElementWrapper'
+import debug from 'debug'
 import { nanoid } from '../utils/string'
 import PageStore from './PageStore'
+const log = debug('ridge:manager')
 
 class PageElementManager {
   constructor ({ pageConfig, ridge, mode, app }) {
@@ -28,11 +30,12 @@ class PageElementManager {
   initialize () {
     this.id = this.pageConfig.id
     this.pageElements = {}
-    for (const element of this.pageConfig.elements) {
+    for (let i = 0; i < this.pageConfig.elements.length; i++) {
       const elementWrapper = new ElementWrapper({
         pageManager: this,
         mode: this.mode,
-        config: element
+        config: this.pageConfig.elements[i],
+        i
       })
       this.pageElements[elementWrapper.id] = elementWrapper
     }
@@ -307,12 +310,46 @@ class PageElementManager {
   }
 
   /**
+   * 设置zOrder位置
+   * @param {*} wrapper
+   * @param {*} index
+   */
+  setOrderInSiblings (wrapper, parent, index) {
+    if (parent == null) {
+      const siblings = Object.values(this.pageElements).filter(wrapper => wrapper.config.parent == null).sort((a, b) => {
+        return a.i - b.i
+      })
+      const newSortedList = this.resort(siblings, wrapper, index)
+      for (let i = 0; i < newSortedList.length; i++) {
+        newSortedList[i].setIndex(i)
+      }
+    }
+
+    this.ridge.services.outline && this.ridge.services.outline.updateTree(this.pageElements)
+  }
+
+  resort (elements, one, index) {
+    const result = []
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i]
+      if (element === one) continue
+      if (i === index) {
+        result.push(one)
+        result.push(element)
+      } else {
+        result.push(element)
+      }
+    }
+    return result
+  }
+
+  /**
      * 获取页面的定义信息
      * @returns JSON
      */
   getPageJSON () {
     this.pageConfig.elements = []
-    for (const element of Object.values(this.pageElements)) {
+    for (const element of Object.values(this.pageElements).sort((a, b) => a.i - b.i)) {
       this.pageConfig.elements.push(element.toJSON())
     }
     return this.pageConfig

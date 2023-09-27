@@ -15,6 +15,7 @@ class Ridge {
     this.pageElementManagers = {}
 
     this.icons = {}
+    this.services = {}
   }
 
   static async init () {

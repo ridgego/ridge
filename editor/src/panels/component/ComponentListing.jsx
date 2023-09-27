@@ -1,10 +1,9 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
-import * as SemiIcon from '@douyinfe/semi-icons'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import { ridge, appService, on } from '../../service/RidgeEditService.js'
 import { EVENT_FILE_TREE_CHANGE } from '../../constant.js'
-const trace = require('debug')('ridge:component-panel')
+const trace = require('debug')('ridge:cl')
 const { Text } = Typography
 class ComponentListing extends React.Component {
   constructor () {
@@ -96,11 +95,23 @@ class ComponentListing extends React.Component {
 
   dragStart (ev, info) {
     window.dragComponent = info
+
     ev.dataTransfer.setData('text/plain', JSON.stringify(info))
 
     const img = new window.Image()
     img.src = info.icon
-    ev.dataTransfer.setDragImage(img, 60, 60)
+    img.style.width = '50px'
+    img.style.height = '50px'
+
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 50
+
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(img, 0, 0, 50, 50)
+
+    trace('drag start', info, img)
+
+    ev.dataTransfer.setDragImage(canvas, 25, 25)
   }
 
   getFilteredComponents (pkgName) {
