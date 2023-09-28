@@ -14,98 +14,27 @@ class ComponentLoader {
    * 构造器
    * @param {string} baseUrl  元素下载基础地址
    * @param {string} unpkgUrl  第三方库下载地址
-   * @param {object} externalOptions 第三方依赖定义信息，这个配置会覆盖 wind-pack-externals 中webpackExternals 定义
    */
   constructor ({
     baseUrl
   }) {
     this.baseUrl = baseUrl
     log('RidgeLoader baseUrl: ' + this.baseUrl)
-    /** @property 前端组件加载缓存 key: 组件lib名称或加载地址  value: 组件fcp */
-    this.componentCache = {}
 
-    // 未安装的组件包列表
-    this.packageNotInstalled = []
     // 加载的字体列表
     this.loadedFonts = []
-    // 已经加载的前端组件的第三方依赖库
-    window.fcExternalLoaded = []
 
-    // 调试组件包名称
-    this.debugPackageName = null
-
-    this.packageLoadingPromises = {}
-
-    if (window.top.ridgeConfig && window.top.ridgeConfig.loaderExternalOptions) {
-      Object.assign(this.externalOptions, window.top.ridgeConfig.loaderExternalOptions)
-    }
-
-    // 组件加载器回调事件
-    this.eventCallbacks = []
-
-    // 脚本地址对应的lib名称
-    this.scriptUrlLibName = {}
-
-    this.pelCacheByLibName = {}
-
-    // 组件加载中的Map
-    this.componentLoading = new Map()
-
-    this.getPackageJSON = memoize(this.getPackageJSONOnce)
-    this.loadComponent = memoize(this.loadComponentOnce)
+    this.getPackageJSON = memoize(this._getPackageJSON)
+    this.loadComponent = memoize(this._loadComponent)
     this.loadScript = memoize(this._loadScript)
   }
 
-  /**
-     * 设置第三方库的加载额外定义信息
-     * @param {object} opts 这个配置会覆盖 webpackExternals 定义
-     */
-  setExternalOptions (opts) {
-    this.externalOptions = opts
-  }
-
-  setAppName (appName) {
-    if (appName) {
-      this.appName = appName
-    }
-  }
-
-  setProjectId (projectId) {
-    if (projectId) {
-      this.projectId = projectId
-    }
-  }
-
-  getServePath (isProject) {
-    if (isProject && this.projectId) {
-      return this.baseUrl + '/' + this.appName + '/' + this.projectId
-    } else if (this.appName) {
-      return this.baseUrl + '/' + this.appName
-    } else {
-      return this.baseUrl
-    }
-  }
-
-  /**
-   * 获取图元的url地址， 图元url将作为图元的唯一标识，此方法根据图元定义->图元url进行统一转换
-   * @param {object} pel 图元定义 {packageName, version, path} 键值对象
-   * @returns {string}
-   */
   getComponentUrl ({ packageName, path }) {
     return `${this.baseUrl}/${packageName}/${path}`
   }
 
   getPackageJSONUrl (packageName) {
     return `${this.baseUrl}/${packageName}/package.json`
-  }
-
-  /**
-   * 获取图元的服务对象的名称
-   * @param {object} pel 图元定义
-   * @returns {string}
-   */
-  getComponentLibName ({ packageName, path }) {
-    return `/${packageName}/${path}`
   }
 
   /**
@@ -121,7 +50,7 @@ class ComponentLoader {
    * @param {String} packageName Npm包名
    * @param {String} path 相对于包的组件路径
    */
-  async loadComponentOnce (componentPath) {
+  async _loadComponent (componentPath) {
     let packageName, path
     if (typeof componentPath === 'object') {
       packageName = componentPath.packageName
@@ -137,13 +66,7 @@ class ComponentLoader {
         path = paths.join('/')
       }
     }
-    try {
-      const fcp = await this.doLoadComponent({ packageName, path })
-      return fcp
-    } catch (e) {
-      log('组件加载异常', e)
-      return null
-    }
+    return await this.doLoadComponent({ packageName, path })
   }
 
   /**
@@ -156,14 +79,18 @@ class ComponentLoader {
   }) {
     // 加载包依赖的js （必须首先加载否则组件加载会出错）
     const packageJSONObject = await this.getPackageJSON(packageName)
-    await this.confirmPackageDependencies(packageJSONObject)
-    const fcp = await this.loadComponentScript({ packageName, path })
-    if (fcp) {
-      await this.prepareComponent(fcp, { packageName, path }, packageJSONObject)
-    } else {
-      throw new Error()
+
+    if (packageJSONObject == null) {
+      return null
     }
-    return fcp
+
+    await this.confirmPackageDependencies(packageJSONObject)
+
+    const rcd = await this.loadComponentScript({ packageName, path })
+    if (rcd) {
+      await this.prepareComponent(rcd, { packageName, path }, packageJSONObject)
+    }
+    return rcd
   }
 
   /**
@@ -172,42 +99,35 @@ class ComponentLoader {
    * @param {*} param1
    * @param {*} packageJSONObject
    */
-  async prepareComponent (fcp, {
+  async prepareComponent (rcd, {
     packageName,
     path
   }, packageJSONObject) {
-    fcp.packageName = packageName
-    fcp.path = path
+    rcd.packageName = packageName
+    rcd.path = path
 
     // 标题统一是title
-    fcp.title = fcp.title || fcp.label
+    rcd.title = rcd.title || rcd.label
     // 加载单独的依赖
-    if (fcp.requires && fcp.requires.length) {
-      await this.loadExternals(fcp.requires)
+    if (rcd.requires && rcd.requires.length) {
+      await this.loadExternals(rcd.requires)
     }
 
-    if (fcp.icon) {
-      fcp.icon = `${this.baseUrl}/${packageName}/${fcp.icon}`
+    if (rcd.icon) {
+      rcd.icon = `${this.baseUrl}/${packageName}/${rcd.icon}`
     }
-    // if (packageJSONObject.components) {
-    //   const filtered = packageJSONObject.components.filter(component => component.path === path)
-    //   if (filtered.length === 1) {
-    //     fcp.icon = filtered[0].icon
-    //   }
-    // }
 
     // 处理渲染器，加载渲染器依赖
-    if (fcp.component) {
-      let fc = fcp.component
+    if (rcd.component) {
 
       // 支持异步的加载情况
-      if (typeof fc === 'function') {
-        if (fc.constructor.name === 'AsyncFunction') {
-          fc = (await fc()).default
+      if (typeof rcd.component === 'function') {
+        if (rcd.component.constructor.name === 'AsyncFunction') {
+          rcd.component = (await rcd.component()).default
         }
       }
     } else {
-      log('组件 Component定义未加载到', fcp)
+      log('组件 Component定义未加载到', rcd)
     }
   }
 
@@ -250,50 +170,6 @@ class ComponentLoader {
     }
   }
 
-  /**
-     * 加载指定的字体（按名称）
-     * @param name 字体名称
-     * @param pkg 字体所在的图元包,包括名称和版本默认为@gw/web-font-assets@latest
-     */
-  async loadFont (pkg, name, url) {
-    if (!name || this.loadedFonts.indexOf(name) > -1) {
-      return
-    }
-    if (name === 'default') {
-      // 默认字体不需要加载
-      return
-    }
-    try {
-      const fontFaceName = pkg ? (pkg + '/' + url) : name
-      let fontUrl = this.getServePath() + '/npm_packages/' + (pkg ? (pkg + '/' + url) : name)
-
-      // 这是对110的字体加载的兼容， 110图纸中，字体是直接按名称保存到图元中的 例如 groteskia，没有直接提供字体地址的url。 所以需要根据字体包中JSON的定义获取具体的字体url
-      // 进行进一步的加载
-      if (!pkg && !url && name.indexOf('.woff') === -1) {
-        await this.confirmPackageDependencies('@gw/web-font-assets')
-        if (this.packageJSONCache['@gw/web-font-assets']) {
-          if (this.packageJSONCache['@gw/web-font-assets'].fonts[name]) {
-            fontUrl = this.getServePath() + '/npm_packages/@gw/web-font-assets/' + this.packageJSONCache['@gw/web-font-assets'].fonts[name].url
-          }
-        } else {
-          console.error('加载字体地址未找到', name)
-        }
-
-        // https://localhost:3001/scada/npm_packages/@gw/web-font-assets/package.json
-      }
-
-      // name 直接提供完整地址的情况
-      const ff = new FontFace(fontFaceName, `url(${fontUrl})`)
-
-      await ff.load()
-      document.fonts.add(ff)
-
-      this.loadedFonts.push(name)
-    } catch (e) {
-      console.error('加载字体异常', name, pkg, e)
-    }
-  }
-
   async loadCss (href) {
     // Create new link Element
     const link = document.createElement('link')
@@ -330,12 +206,12 @@ class ComponentLoader {
    * @param {*} packageName
    * @returns
    */
-  async getPackageJSONOnce (packageName) {
+  async _getPackageJSON (packageName) {
     const packageJSONUrl = this.getPackageJSONUrl(packageName)
     try {
       return await ky.get(packageJSONUrl).json()
     } catch (e) {
-      console.error('NPM Package Not Loaded: ', packageName, e)
+      log('NPM Package Not Loaded:', packageJSONUrl)
       return null
     }
   }
@@ -350,23 +226,6 @@ class ComponentLoader {
         await this.loadScript(`${this.baseUrl}/${packageObject.name}/${external}`)
       }
     }
-  }
-
-  /**
-   * 全加载组件包
-   */
-  async loadPackageAndComponents (pkgName) {
-    const packageJSON = await this.getPackageJSON(pkgName)
-
-    const components = []
-    if (packageJSON.components && packageJSON.components.length) {
-      for (const componentPath of packageJSON.components) {
-        components.push(await this.loadComponent(pkgName + '/' + componentPath))
-      }
-      await Promise.allSettled(components)
-    }
-    packageJSON.componentLoaded = components
-    return packageJSON
   }
 
   async loadJSON (path) {

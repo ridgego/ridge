@@ -68,24 +68,6 @@ class Ridge {
 
     return pageManager
   }
-
-  getPageElementManager (id) {
-    return this.pageElementManagers[id]
-  }
-
-  registerMethod (name, method) {
-    this[name] = method
-  }
-
-  setIcons (key, icons, options) {
-    this.icons[key] = {
-      icons,
-      options
-    }
-    if (options.css) {
-      this.loader.loadCss('/plugins/' + key + '/' + options.css)
-    }
-  }
 }
 
 export default Ridge

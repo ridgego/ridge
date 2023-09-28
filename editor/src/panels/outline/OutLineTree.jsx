@@ -210,9 +210,17 @@ class OutLineTree extends React.Component {
   }
 
   onTreeDrop ({ event, node, dragNode, dragNodesKeys, dropPosition, dropToGap }) {
+    const targetNodePos = node.pos.split('-') // 放置对比目标
+    const dragNodePos = dragNode.pos.split('-') // 拖拽的节点
+
     log(node, dragNode, dropPosition, dropToGap)
     if (dropToGap) {
-      dragNode.element.pageManager.setOrderInSiblings(dragNode.element, node.element.config.parent, dropPosition)
+      if (parseInt(targetNodePos[targetNodePos.length - 1]) > parseInt(dragNodePos[dragNodePos.length - 1])) { // 向后拖拽
+        dragNode.element.pageManager.setPositionAfter(dragNode.element, node.element)
+      } else {
+        // 向前拖拽
+        dragNode.element.pageManager.setPositionBefore(dragNode.element, node.element)
+      }
     }
   }
 

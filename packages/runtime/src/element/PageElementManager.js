@@ -309,6 +309,52 @@ class PageElementManager {
     return element
   }
 
+  // 放置wrapper到target之后，
+  setPositionAfter (wrapper, target) {
+    const siblings = Object.values(this.pageElements).filter(one => one.config.parent == target.config.parent).sort((a, b) => {
+      return a.i - b.i
+    })
+
+    let begin = false
+    for (let i = 0; i < siblings.length; i++) {
+      if (siblings[i] === wrapper) {
+        begin = true
+        continue
+      }
+      if (begin) {
+        siblings[i].setIndex(i - 1)
+      }
+      if (siblings[i] === target) {
+        wrapper.setIndex(i)
+        break
+      }
+    }
+    this.ridge.services.outline && this.ridge.services.outline.updateTree(this.pageElements)
+  }
+
+  // 放置wrapper到target之前（之前wrapper在target之后）
+  setPositionBefore (wrapper, target) {
+    const siblings = Object.values(this.pageElements).filter(one => one.config.parent == target.config.parent).sort((a, b) => {
+      return a.i - b.i
+    })
+
+    let begin = false
+    for (let i = 0; i < siblings.length; i++) {
+      if (begin) {
+        siblings[i].setIndex(i + 1)
+      }
+      if (siblings[i] === target) {
+        begin = true
+        wrapper.setIndex(i)
+        continue
+      }
+      if (siblings[i] === wrapper) {
+        break
+      }
+    }
+    this.ridge.services.outline && this.ridge.services.outline.updateTree(this.pageElements)
+  }
+
   /**
    * 设置zOrder位置
    * @param {*} wrapper
