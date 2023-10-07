@@ -15,12 +15,14 @@ export default ({
     ridge.mountPage(ref.current, app, page)
   }, [app, page])
 
-  return <div
-    ref={ref}
-    className='ridge-view'
-    style={{
-      width: '100%',
-      height: '100%'
-    }}
-  />
+  return (
+    <div
+      ref={ref}
+      className='ridge-view'
+      style={{
+        width: '100%',
+        height: '100%'
+      }}
+    />
+  )
 }
