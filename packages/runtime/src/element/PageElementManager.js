@@ -1,8 +1,8 @@
 import ElementWrapper from './ElementWrapper'
-import debug from 'debug'
+import Debug from 'debug'
 import { nanoid } from '../utils/string'
 import PageStore from './PageStore'
-const log = debug('ridge:manager')
+const debug = Debug('ridge:manager')
 
 class PageElementManager {
   constructor ({ pageConfig, ridge, mode, app }) {
@@ -150,13 +150,11 @@ class PageElementManager {
         this.el.classList.add(c)
       })
     }
+    this.el.style.position = 'relative'
 
     if (this.mode === 'edit') {
       this.el.style.width = this.pageConfig.properties.width + 'px'
       this.el.style.height = this.pageConfig.properties.height + 'px'
-    } else {
-      this.el.style.width = '100%'
-      this.el.style.height = '100%'
     }
   }
 
@@ -329,7 +327,6 @@ class PageElementManager {
         break
       }
     }
-    this.ridge.services.outline && this.ridge.services.outline.updateTree(this.pageElements)
   }
 
   // 放置wrapper到target之前（之前wrapper在target之后）
@@ -352,41 +349,6 @@ class PageElementManager {
         break
       }
     }
-    this.ridge.services.outline && this.ridge.services.outline.updateTree(this.pageElements)
-  }
-
-  /**
-   * 设置zOrder位置
-   * @param {*} wrapper
-   * @param {*} index
-   */
-  setOrderInSiblings (wrapper, parent, index) {
-    if (parent == null) {
-      const siblings = Object.values(this.pageElements).filter(wrapper => wrapper.config.parent == null).sort((a, b) => {
-        return a.i - b.i
-      })
-      const newSortedList = this.resort(siblings, wrapper, index)
-      for (let i = 0; i < newSortedList.length; i++) {
-        newSortedList[i].setIndex(i)
-      }
-    }
-
-    this.ridge.services.outline && this.ridge.services.outline.updateTree(this.pageElements)
-  }
-
-  resort (elements, one, index) {
-    const result = []
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements[i]
-      if (element === one) continue
-      if (i === index) {
-        result.push(one)
-        result.push(element)
-      } else {
-        result.push(element)
-      }
-    }
-    return result
   }
 
   /**

@@ -1,4 +1,3 @@
-import loadjs from 'loadjs'
 import { defineStore, createPinia, storeToRefs } from 'pinia'
 import { watch } from 'vue'
 import { isObject } from '../utils/is'
@@ -148,7 +147,7 @@ export default class PageStore {
               delete window[resolveKey]
               resolve()
             }
-            scriptDiv.textContent = `import * as Module from 'https://ridgego.github.io/apps/${this.pageElementManager.app}${jsFilePath}'; window['${resolveKey}'](Module);`
+            scriptDiv.textContent = `import * as Module from '${this.ridge.baseUrl}/${this.pageElementManager.app}${jsFilePath}'; window['${resolveKey}'](Module);`
           })
         }
       }

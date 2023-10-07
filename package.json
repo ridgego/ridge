@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "npm run start --workspace=ridge-editor",
+    "editor": "npm run start --workspace=ridge-editor",
+    "runtime": "npm run runtime --workspace=ridge-runtime",
     "build-editor": "npm run build --workspace=ridge-editor"
   },
   "workspaces": [

@@ -14,9 +14,6 @@ const ridge = new Ridge({
   baseUrl
 })
 
-ridge.appService = appService
-ridge.workspaceControl = workspaceControl
-
 window.Ridge = ridge
 
 const ee = new EventEmitter()

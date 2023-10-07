@@ -3,7 +3,6 @@ import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import { nanoid } from '../utils/string'
 import { objectSet } from '../utils/object'
-import getBackground from './style/getBackground'
 const log = debug('ridge:el')
 
 /**

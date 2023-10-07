@@ -161,10 +161,6 @@ class AppFileList extends React.Component {
     }
   }
 
-  exportPage = (data) => {
-    trace('导出页面', data)
-    ridge.backUpService.exportFileArchive(data.key)
-  }
 
   /**
    * 更新并保存命名修改
@@ -468,7 +464,8 @@ class AppFileList extends React.Component {
       MORE_MENUS.push(
         <Dropdown.Item
           icon={<IconExport />} onClick={() => {
-            this.exportPage(data)
+            trace('导出页面', data)
+            appService.exportPage(data.key)
           }}
         >导出
         </Dropdown.Item>
@@ -591,7 +588,7 @@ class AppFileList extends React.Component {
     this.setState({
       exportToastId: id
     })
-    await ridge.appService.exportAppArchive()
+    await appService.exportAppArchive()
     Toast.close(id)
     this.setState({
       exportToastId: null

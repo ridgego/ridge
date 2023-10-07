@@ -1,3 +1,6 @@
+import './style.css'
+import './normalize.css'
+
 import ComponentLoader from './loader/ComponentLoader'
 import PageElementManager from './element/PageElementManager'
 import ky from 'ky'
@@ -8,9 +11,10 @@ class Ridge {
   constructor (opts = {}) {
     this.VERSION = '1.0.0'
     this.opts = opts
+    this.baseUrl = opts.baseUrl || 'https://ridgego.github.io'
 
     this.loader = new ComponentLoader({
-      baseUrl: opts.baseUrl
+      baseUrl: this.baseUrl
     })
     this.pageElementManagers = {}
 
@@ -39,9 +43,10 @@ class Ridge {
     return this.loader.loadComponent(componentPath)
   }
 
-  async mountPage (el, app, pagePath) {
-    const pageJSONObject = await ky.get(this.opts.baseUrl + `/apps/${app}/${pagePath}`).json()
-    this.loadPage(el, pageJSONObject, 'hosted', app)
+  async mountPage (el, appName, pagePath) {
+    const jsonPath = (this.opts.baseUrl + '/' + appName + '/' + pagePath).replace(/\/\//g, '/')
+    const pageJSONObject = await ky.get(jsonPath).json()
+    this.loadPage(el, pageJSONObject, 'hosted', appName)
   }
 
   /**

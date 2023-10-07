@@ -221,6 +221,8 @@ class OutLineTree extends React.Component {
         // 向前拖拽
         dragNode.element.pageManager.setPositionBefore(dragNode.element, node.element)
       }
+      // 按更新后节点关系重新更新树结构
+      this.updateTree(dragNode.element.pageManager.getPageElements())
     }
   }
 

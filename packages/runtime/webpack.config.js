@@ -60,5 +60,9 @@ module.exports = {
     path: path.resolve(__dirname, 'build'),
     clean: true,
     publicPath: '/'
+  },
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM'
   }
 }

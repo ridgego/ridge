@@ -77,7 +77,7 @@ export default class Editor extends React.Component {
     })
 
     on(EVENT_PAGE_OPEN, async (id) => {
-      const file = await this.ridge.appService.getFile(id)
+      const file = await appService.getFile(id)
       if (file.type === 'page') {
         if (this.pageElementManager) {
           await this.saveCurrentPage()
@@ -106,7 +106,7 @@ export default class Editor extends React.Component {
       this.pageConfig.content = pageJSONObject
       trace('Save Page', this.pageConfig.id, pageJSONObject)
       try {
-        await this.ridge.appService.savePageContent(this.pageConfig.id, pageJSONObject)
+        await appService.savePageContent(this.pageConfig.id, pageJSONObject)
       } catch (e) {
         console.error('save page error', e)
       }

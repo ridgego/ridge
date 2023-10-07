@@ -5,7 +5,7 @@ import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
 import { ridge, emit } from './RidgeEditService.js'
 import { EVENT_APP_OPEN, EVENT_FILE_TREE_CHANGE } from '../constant.js'
-import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToBlob, stringToDataUrl } from '../utils/blob.js'
+import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToBlob, stringToDataUrl, saveAs } from '../utils/blob.js'
 import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
 const { nanoid } = require('../utils/string')
 
@@ -439,7 +439,18 @@ export default class ApplicationService {
   }
 
   async exportPage (id) {
-    await this.backUpService.exportFileArchive(this.collection, id, this.store)
+    const document = await this.collection.findOne({
+      id
+    })
+    const content = await this.store.getItem(id)
+
+    if (content) {
+      if (document.type === 'page') {
+        saveAs(new Blob([JSON.stringify(content)]), document.name + '.json')
+      } else {
+        saveAs(await dataURLtoBlob(content), document.name)
+      }
+    }
   }
 
   async importAppArchive (file) {

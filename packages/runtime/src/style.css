@@ -5,6 +5,10 @@ html, body {
     height: 100%;
 }
 
+:focus-visible {
+  outline: none;
+}
+
 .status-Loading {
     background: linear-gradient(90deg,#2e32380d 25%,#2e323817 44%,#2e32380d 88%);
     background-size: 400% 100%;
