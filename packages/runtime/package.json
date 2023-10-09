@@ -15,9 +15,10 @@
     "loadjs": "^4.2.0",
     "lodash": "^4.17.15",
     "nanoid": "^4.0.0",
+    "pinia": "^2.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "pinia": "^2.1.4"
+    "valtio": "^1.11.2"
   },
   "files": [
     "src",

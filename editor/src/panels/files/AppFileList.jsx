@@ -161,7 +161,6 @@ class AppFileList extends React.Component {
     }
   }
 
-
   /**
    * 更新并保存命名修改
    */
@@ -301,10 +300,11 @@ class AppFileList extends React.Component {
         imagePreviewVisible: true
       })
     } else if (node.mimeType && (node.mimeType === 'text/css' || node.mimeType === 'text/javascript')) {
+      const textContent = await appService.getFileContent(node)
       this.setState({
         codeEditType: node.mimeType,
         codeEditNodeId: node.key,
-        codeEditText: node.textContent,
+        codeEditText: textContent,
         codeEditVisible: true
       })
     }

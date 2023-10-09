@@ -44,6 +44,7 @@ export default ({
       closeOnEsc={false}
       maskClosable={false}
       title='代码编辑'
+      zIndex='2001'
       width='80%'
       height='80%'
       bodyStyle={{

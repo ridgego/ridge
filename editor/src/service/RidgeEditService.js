@@ -13,7 +13,7 @@ const baseUrl = (location.host.startsWith('localhost') || location.host.startsWi
 const ridge = new Ridge({
   baseUrl
 })
-
+ridge.appService = appService
 window.Ridge = ridge
 
 const ee = new EventEmitter()

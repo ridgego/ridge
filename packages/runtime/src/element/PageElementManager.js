@@ -1,7 +1,8 @@
 import ElementWrapper from './ElementWrapper'
 import Debug from 'debug'
 import { nanoid } from '../utils/string'
-import PageStore from './PageStore'
+// import PageStore from './PageStore'
+import ValtioStore from './ValtioStore'
 const debug = Debug('ridge:manager')
 
 class PageElementManager {
@@ -14,7 +15,7 @@ class PageElementManager {
     this.decorators = {}
     this.mounted = []
     this.classNames = []
-    this.pageStore = new PageStore(this)
+    this.pageStore = new ValtioStore(this)
 
     this.initialize()
   }

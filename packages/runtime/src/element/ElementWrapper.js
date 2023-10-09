@@ -313,7 +313,7 @@ class ElementWrapper {
     this.updateStyle()
     this.updateAssetsProperties()
     this.updateExpressionedStyle()
-    this.updateExpressionedProperties()
+    this.updateConnectedProperties()
 
     // 数据订阅
     if (this.mode !== 'edit') {
@@ -523,7 +523,7 @@ class ElementWrapper {
       this.updateExpressionedStyle()
       this.updateStyle()
 
-      this.updateExpressionedProperties()
+      this.updateConnectedProperties()
       this.renderUpdate()
     }
   }
@@ -531,7 +531,7 @@ class ElementWrapper {
   /**
    * 计算所有表达式值
    */
-  updateExpressionedProperties () {
+  updateConnectedProperties () {
     // 编辑模式不计算
     if (this.pageManager.mode === 'edit') return
     for (const [key, value] of Object.entries(this.config.propEx)) {
