@@ -27,6 +27,9 @@ class ComponentListing extends React.Component {
       const componentPath = pkg.name + '/' + componentName
       if (this.loadedComponents.filter(component => component.componentPath === componentPath).length === 0) {
         ridge.loader.loadComponent(componentPath).then(componentLoaded => {
+          if (!componentLoaded) {
+            return
+          }
           componentLoaded.packageName = pkg.name
           componentLoaded.componentName = componentName
           componentLoaded.componentPath = componentPath

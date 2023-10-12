@@ -4,9 +4,9 @@ import { proxy, subscribe } from 'valtio/vanilla'
 import { subscribeKey } from 'valtio/utils'
 
 export default class ValtioStore {
-  constructor (pageElementManager) {
-    this.pageElementManager = pageElementManager
-    this.ridge = pageElementManager.ridge
+  constructor (app, storeFiles) {
+    this.storeFiles = storeFiles
+    this.app = app
     // 一个页面支持多个store
     this.storeObjects = {} // 定义
     this.stores = {} // valtio state registry
@@ -14,6 +14,7 @@ export default class ValtioStore {
 
     this.watcherCallbacks = {}
   }
+
 
   /**
    * 获取状态值，支持以下格式

@@ -96,28 +96,29 @@ export default class PageStore {
   /**
    * 更新/加载页面的storejs
    */
-  async updateStore () {
-    const { pageConfig } = this.pageElementManager
-    const { properties, id } = pageConfig
-    const scriptEls = document.querySelectorAll('script.page-' + id)
-    // 删除旧的store代码
-    for (const el of scriptEls) {
-      document.head.removeChild(el)
-    }
+  async updateStore (jsFiles, mode) {
     this.stores = {}
 
-    if (properties.jsFiles && properties.jsFiles.length) {
-      for (const jsFilePath of properties.jsFiles) {
-        const moduleName = filename(jsFilePath)
-        if (this.pageElementManager.mode !== 'hosted') {
-          // 从localStorage读取JS内容
-          const file = this.ridge.appService.filterFiles(f => f.path === jsFilePath)[0]
-          if (file) {
-            const scriptDiv = document.createElement('script')
-            // scriptDiv.setAttribute('type', 'module')
-            scriptDiv.classList.add('page-' + id)
+    for (const jsFilePath of jsFiles) {
+      const moduleName = filename(jsFilePath)
 
-            let jsContent = await this.ridge.appService.getFileContent(file)
+      // 删除旧的store代码
+      const scriptEls = document.querySelectorAll('script[data-jspath="' + jsFilePath + '"]')
+      for (const el of scriptEls) {
+        document.head.removeChild(el)
+      }
+
+      if (mode !== 'hosted') {
+        // 从localStorage读取JS内容
+        const file = this.ridge.appService.filterFiles(f => f.path === jsFilePath)[0]
+        if (file) {
+          const scriptDiv = document.createElement('script')
+          // scriptDiv.setAttribute('type', 'module')
+          scriptDiv.setAttribute('data-jspath', jsFilePath)
+
+          let jsContent = await this.ridge.appService.getFileContent(file)
+
+          if (jsContent) {
             // file.textContent
             if (jsContent.startsWith('export default')) {
               jsContent = 'window.' + moduleName + '= ' + jsContent.substring(14)
@@ -125,31 +126,31 @@ export default class PageStore {
             scriptDiv.textContent = jsContent
             document.head.append(scriptDiv)
             // Store类型，做相关pinia初始化
-            if (globalThis[moduleName] && globalThis[moduleName].state) {
+            if (globalThis[moduleName]) {
               this.registerPageStore(moduleName, globalThis[moduleName])
             }
           }
-        } else {
-          const scriptDiv = document.createElement('script')
-          scriptDiv.setAttribute('type', 'module')
-          scriptDiv.setAttribute('async', true)
-          scriptDiv.classList.add('page-' + id)
-          document.head.append(scriptDiv)
-          await new Promise((resolve, reject) => {
-            const resolveKey = 'resolve' + nanoid(5)
-            window[resolveKey] = (Module) => {
-              if (Module.default) {
-                this.registerPageStore(moduleName, Module.default)
-              }
-              if (window[moduleName] && window[moduleName].state && window[moduleName].actions) {
-                this.registerPageStore(moduleName, window[moduleName])
-              }
-              delete window[resolveKey]
-              resolve()
-            }
-            scriptDiv.textContent = `import * as Module from '${this.ridge.baseUrl}/${this.pageElementManager.app}${jsFilePath}'; window['${resolveKey}'](Module);`
-          })
         }
+      } else {
+        const scriptDiv = document.createElement('script')
+        scriptDiv.setAttribute('type', 'module')
+        scriptDiv.setAttribute('async', true)
+        scriptDiv.setAttribute('data-jspath', jsFilePath)
+        document.head.append(scriptDiv)
+        await new Promise((resolve, reject) => {
+          const resolveKey = 'resolve' + nanoid(5)
+          window[resolveKey] = (Module) => {
+            if (Module.default) {
+              this.registerPageStore(moduleName, Module.default)
+            }
+            if (window[moduleName] && window[moduleName].state && window[moduleName].actions) {
+              this.registerPageStore(moduleName, window[moduleName])
+            }
+            delete window[resolveKey]
+            resolve()
+          }
+          scriptDiv.textContent = `import * as Module from '${this.ridge.baseUrl}/${this.pageElementManager.app}${jsFilePath}'; window['${resolveKey}'](Module);`
+        })
       }
     }
   }

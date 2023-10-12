@@ -88,37 +88,21 @@ const PAGE_FIELDS = [
     field: 'name'
   },
   {
-    label: '运行区域',
-    bindable: false,
-    control: 'select',
-    field: 'type',
-    optionList: [{
-      label: '固定宽高',
-      value: 'static'
-    }, {
-      label: '宽度自适应',
-      value: 'responsive'
-    }, {
-      label: '宽高自适应',
-      value: 'full-responsive'
-    }]
-  },
-  {
     label: '宽度',
     bindable: false,
     control: 'number',
     width: '50%',
-    field: 'width'
+    field: 'style.width'
   }, {
     label: '高度',
     bindable: false,
     width: '50%',
     control: 'number',
-    field: 'height'
+    field: 'style.height'
   }, {
     label: '背景',
     control: 'background',
-    field: 'background'
+    field: 'style.background'
   }
 ]
 
@@ -146,7 +130,7 @@ export default class ComponentPanel extends React.Component {
   }
 
   initEvents () {
-    on(EVENT_PAGE_LOADED, ({ name, properties, states, reducers }) => {
+    on(EVENT_PAGE_LOADED, ({ name, properties }) => {
       for (const key of Object.keys(properties)) {
         this.pagePropFormApi.setValue(key, properties[key], {
           notNotify: true
@@ -162,15 +146,15 @@ export default class ComponentPanel extends React.Component {
         notNotify: true
       })
     })
-    on(EVENT_PAGE_PROP_CHANGE, ({ from, properties }) => {
-      if (from === 'workspace') {
-        for (const key of Object.keys(properties)) {
-          this.pagePropFormApi.setValue(key, properties[key], {
-            notNotify: true
-          })
-        }
-      }
-    })
+    // on(EVENT_PAGE_PROP_CHANGE, ({ from, properties }) => {
+    //   if (from === 'workspace') {
+    //     for (const key of Object.keys(properties)) {
+    //       this.pagePropFormApi.setValue(key, properties[key], {
+    //         notNotify: true
+    //       })
+    //     }
+    //   }
+    // })
 
     on(EVENT_FILE_TREE_CHANGE, payload => {
       this.updatePageConfigFields()
@@ -283,7 +267,7 @@ export default class ComponentPanel extends React.Component {
           field: 'cssFiles',
           label: '样式表',
           control: 'select',
-          placeholder: '请选择样式表',
+          placeholder: '请选择样式文件',
           optionList: appService.filterFiles(node => node.mimeType === 'text/css').map(file => {
             return {
               value: file.path,
@@ -296,7 +280,7 @@ export default class ComponentPanel extends React.Component {
           field: 'jsFiles',
           label: '脚本库',
           control: 'select',
-          placeholder: '请选择脚本',
+          placeholder: '请选择脚本文件',
           optionList: appService.filterFiles(node => node.mimeType === 'text/javascript').map(file => {
             return {
               value: file.path,
@@ -306,10 +290,23 @@ export default class ComponentPanel extends React.Component {
           required: false,
           multiple: true
         }, {
-          field: 'classNames',
-          label: '样式',
+          field: 'storeFiles',
+          label: '状态库',
           control: 'select',
-          placeholder: '请选择背景样式',
+          placeholder: '请选择脚本文件',
+          optionList: appService.filterFiles(node => node.mimeType === 'text/javascript' && node.label.endsWith('.store.js')).map(file => {
+            return {
+              value: file.path,
+              label: file.label
+            }
+          }),
+          required: false,
+          multiple: true
+        }, {
+          field: 'style.classNames',
+          label: '样式库',
+          control: 'select',
+          placeholder: '请选择样式',
           optionList: ridge.pageElementManager.classNames.map(c => {
             return {
               label: c.label,
@@ -321,12 +318,20 @@ export default class ComponentPanel extends React.Component {
         }]
       })
 
-      const properties = ridge.pageElementManager.pageConfig.properties
-      for (const key in properties) {
-        this.pagePropFormApi.setValue(key, properties[key], {
-          notNotify: true
-        })
-      }
+      const { cssFiles, jsFiles, storeFiles, style } = ridge.pageElementManager.pageConfig
+
+      this.pagePropFormApi.setValue('cssFiles', cssFiles, {
+        notNotify: true
+      })
+      this.pagePropFormApi.setValue('jsFiles', jsFiles, {
+        notNotify: true
+      })
+      this.pagePropFormApi.setValue('storeFiles', storeFiles, {
+        notNotify: true
+      })
+      this.pagePropFormApi.setValue('style', style, {
+        notNotify: true
+      })
     }
   }
 
@@ -412,10 +417,7 @@ export default class ComponentPanel extends React.Component {
     }
 
     const pagePropValueChange = (values, field) => {
-      emit(EVENT_PAGE_PROP_CHANGE, {
-        from: 'panel',
-        properties: values
-      })
+      ridge.pageElementManager.updatePageConfig(field)
     }
 
     return (

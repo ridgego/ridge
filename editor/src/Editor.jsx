@@ -7,7 +7,9 @@ import LeftBottomPanel from './panels/files/index.jsx'
 import MenuBar from './menu/MenuBar.jsx'
 import debounce from 'lodash/debounce'
 import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
-import { ridge, emit, on, workspaceControl, appService } from './service/RidgeEditService.js'
+import { editorService } from './service/RidgeEditService.js'
+
+// import { ridge, emit, on, workspaceControl, appService } from './service/RidgeEditService.js'
 import './editor.less'
 import {
   EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
@@ -23,6 +25,9 @@ const trace = debug('ridge:editor')
 export default class Editor extends React.Component {
   constructor (props) {
     super(props)
+    this.editorService = editorService
+
+    this.editorService.setEditor(this)
     this.state = {
       componentPanelVisible: true,
       propPanelVisible: false,
@@ -40,6 +45,17 @@ export default class Editor extends React.Component {
     }
     this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 50)
     this.initialize()
+  }
+
+  componentDidMount () {
+    workspaceControl.init({
+      workspaceEl: document.querySelector('.workspace'),
+      viewPortEl: document.querySelector('.viewport-container')
+    })
+
+    setTimeout(() => {
+      appService.updateAppFileTree()
+    }, 10)
   }
 
   /**
@@ -101,16 +117,7 @@ export default class Editor extends React.Component {
   }
 
   async saveCurrentPage () {
-    if (this.pageElementManager && !this.state.modeRun) {
-      const pageJSONObject = this.pageElementManager.getPageJSON()
-      this.pageConfig.content = pageJSONObject
-      trace('Save Page', this.pageConfig.id, pageJSONObject)
-      try {
-        await appService.savePageContent(this.pageConfig.id, pageJSONObject)
-      } catch (e) {
-        console.error('save page error', e)
-      }
-    }
+   
   }
 
   async saveCloseCurrentPage () {
@@ -136,7 +143,6 @@ export default class Editor extends React.Component {
   loadPage (pageConfig) {
     trace('loadPage', pageConfig)
     this.setState({
-      currentPageId: pageConfig.id,
       propPanelVisible: true,
       menuBarVisible: true,
       outlinePanelVisible: true
@@ -157,7 +163,7 @@ export default class Editor extends React.Component {
     // this.pageElementManager = this.ridge.loadPage(document.querySelector('.viewport-container'), pageConfig.content, false)
 
     this.pageElementManager = this.ridge.createPageManager({ id: pageConfig.id, ...content }, 'edit')
-    this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
+    // this.pageElementManager.addDecorators('element', new ImageDataUrlDecorator())
 
     this.pageElementManager.mount(document.querySelector('.viewport-container'))
 
@@ -197,17 +203,6 @@ export default class Editor extends React.Component {
     })
   }
 
-  componentDidMount () {
-    workspaceControl.init({
-      workspaceEl: document.querySelector('.workspace'),
-      viewPortEl: document.querySelector('.viewport-container')
-    })
-
-    setTimeout(() => {
-      appService.updateAppFileTree()
-    }, 10)
-  }
-
   render () {
     const {
       state
@@ -228,11 +223,12 @@ export default class Editor extends React.Component {
     return (
       <>
         <div
+          ref={workspace}
           className={'workspace ' + (containerMask ? 'show-container' : '')} style={{
             display: modeRun ? 'none' : ''
           }}
         >
-          <div className='viewport-container' />
+          <div className='viewport-container' ref={viewContainer}/>
           <MenuBar
             containerMask={containerMask}
             zoom={zoom}

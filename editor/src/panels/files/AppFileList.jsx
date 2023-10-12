@@ -52,6 +52,7 @@ class AppFileList extends React.Component {
       codeEditNodeId: null,
       codeEditType: '',
       codeEditText: '',
+      codeEditTitle: '',
       codeEditVisible: false,
 
       exportToastId: null
@@ -304,13 +305,14 @@ class AppFileList extends React.Component {
       this.setState({
         codeEditType: node.mimeType,
         codeEditNodeId: node.key,
+        codeEditTitle: node.label,
         codeEditText: textContent,
         codeEditVisible: true
       })
     }
   }
 
-  async completeCodeEdit (code) {
+  async completeCodeEdit (code, close) {
     const {
       codeEditNodeId,
       codeEditType
@@ -321,9 +323,14 @@ class AppFileList extends React.Component {
       ridge.pageElementManager.updateImportedStyle()
       ridge.pageElementManager.updateImportedJS()
     }
-    this.setState({
-      codeEditVisible: false
-    })
+
+    Toast.success('编辑内容已保存')
+
+    if (close) {
+      this.setState({
+        codeEditVisible: false
+      })
+    }
   }
 
   move = async (node, dragNode, dropToGap) => {
@@ -642,7 +649,7 @@ class AppFileList extends React.Component {
 
   render () {
     const { renderFullLabel, showCreateDialog, renderCreateModal, state, context } = this
-    const { treeData, currentSelectedNode, expandedKeys, imagePreviewSrc, imagePreviewVisible, codeEditText, codeEditVisible, codeEditType } = state
+    const { treeData, currentSelectedNode, expandedKeys, imagePreviewSrc, imagePreviewVisible, codeEditText, codeEditVisible, codeEditType, codeEditTitle } = state
 
     return (
       <>
@@ -671,8 +678,9 @@ class AppFileList extends React.Component {
           }}
         />
         <DialogCodeEdit
-          value={codeEditText} visible={codeEditVisible} lang='css' onChange={code => {
-            this.completeCodeEdit(code)
+          title={codeEditTitle}
+          value={codeEditText} visible={codeEditVisible} lang='css' onChange={(code, close) => {
+            this.completeCodeEdit(code, close)
           }}
           type={codeEditType}
           onClose={() => {

@@ -1,24 +1,41 @@
 import React, { useRef, useEffect } from 'react'
-import Ridge from '../Ridge.js'
+import RidgeContext from '../Ridge.js'
 
-const ridge = new Ridge({
+const ridge = new RidgeContext({
   baseUrl: '/npm'
 })
 
 export default ({
   app,
-  page
+  page,
+  globalContext = true,
+  baseUrl
 }) => {
   const ref = useRef(null)
 
+
   useEffect(() => {
-    ridge.mountPage(ref.current, app, page)
+    let context = ref.ridgeContext
+    if (globalContext) {
+      context = globalThis.ridgeContext
+      if (context == null) {
+        globalThis.ridgeContext = new RidgeContext({
+          baseUrl: baseUrl || '/npm'
+        })
+        context = globalThis.ridgeContext
+      }
+    } else {
+      context = ref.ridgeContext = new RidgeContext({
+        baseUrl: baseUrl || '/npm'
+      })
+    }
+    ref.ridgeContext.mountPage(ref.current, app, page)
   }, [app, page])
 
   return (
     <div
       ref={ref}
-      className='ridge-view'
+      className='composite-view'
       style={{
         width: '100%',
         height: '100%'

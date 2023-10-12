@@ -187,18 +187,22 @@ class ComponentLoader {
   }
 
   async _loadScript (url) {
+    if (url == null) {
+      return
+    }
     try {
-      log('加载库:' + url)
-      await loadjs(url, {
+      const loadUrl = url.replace(/\/\//g, '/')
+      log('加载库:' + loadUrl)
+      await loadjs(loadUrl, {
         returnPromise: true,
         before: function (scriptPath, scriptEl) {
           scriptEl.crossOrigin = true
         }
       })
+      return loadUrl
     } catch (e) {
-      console.error('第三方库加载异常 ', `${url}`)
+      console.error('JS Load Error:', `${url}`)
     }
-    return url
   }
 
   /**

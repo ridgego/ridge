@@ -55,9 +55,9 @@ export default class MoveablePanel extends React.Component {
     mov.on('drag', ev => {
       ev.target.style.transform = ev.transform
       Array.from(document.querySelectorAll('.movable-panel')).forEach(panelEl => {
-        panelEl.style.zIndex = 1000
+        panelEl.style.zIndex = 300
       })
-      this.ref.current.style.zIndex = 1001
+      this.ref.current.style.zIndex = 301
     })
   }
 

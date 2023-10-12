@@ -8,6 +8,7 @@ import { EVENT_APP_OPEN, EVENT_FILE_TREE_CHANGE } from '../constant.js'
 import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToBlob, stringToDataUrl, saveAs } from '../utils/blob.js'
 import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
 const { nanoid } = require('../utils/string')
+import pageJSONTemplate from '../json/page.js'
 
 const trace = debug('ridge:app-service')
 
@@ -85,21 +86,12 @@ export default class ApplicationService {
    * @param {*} name
    * @param {*} content
    */
-  async createPage (parentId, name, content) {
+  async createPage (parentId, name, content, style) {
     const id = nanoid(10)
-    const pageContent = content || {
-      version: ridge.VERSION,
-      states: [],
-      reducers: [],
-      properties: {
-        type: 'static',
-        cssFiles: [],
-        jsFiles: [],
-        classNames: [],
-        width: 1366,
-        height: 768
-      },
-      elements: []
+    const pageContent = content || pageJSONTemplate
+
+    if (style) {
+      Object.assign(pageContent.style, style)
     }
     const pageObject = {
       id,

@@ -1,13 +1,15 @@
 import React, { useRef, useEffect } from 'react'
-import { Modal } from '@douyinfe/semi-ui'
+import { Button, SideSheet } from '@douyinfe/semi-ui'
 import { EditorView, basicSetup } from 'codemirror'
-import { tooltips } from '@codemirror/view'
+import { tooltips, keymap } from '@codemirror/view'
+import { indentWithTab } from '@codemirror/commands'
 import { javascript } from '@codemirror/lang-javascript'
 
 import { css } from '@codemirror/lang-css'
 
 export default ({
   value,
+  title,
   type,
   visible,
   onChange,
@@ -26,7 +28,7 @@ export default ({
       }
       ref.current.editorView = new EditorView({
         doc: value,
-        extensions: [basicSetup, langfunc, tooltips({
+        extensions: [basicSetup, keymap.of([indentWithTab]), langfunc, tooltips({
           position: 'absolute'
         })],
         parent: ref.current
@@ -37,20 +39,34 @@ export default ({
         ref.current.editorView.destroy()
       }
     }
-  }, [visible])
+  }, [visible, value])
+
+  const confirmCodeEdit = (close) => {
+    const result = ref.current.editorView.state.doc.toString()
+    onChange(result, close)
+  }
+
+  const footer = (
+    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Button style={{ marginRight: 8 }} onClick={onClose}>关闭</Button>
+      <Button style={{ marginRight: 8 }} theme='solid' onClick={() => confirmCodeEdit(false)}>保存</Button>
+      <Button theme='solid' onClick={() => confirmCodeEdit(true)}>保存并关闭</Button>
+    </div>
+  )
 
   return (
-    <Modal
+    <SideSheet
       closeOnEsc={false}
+      size='large'
+      mask={false}
       maskClosable={false}
-      title='代码编辑'
-      zIndex='2001'
-      width='80%'
-      height='80%'
-      bodyStyle={{
-        height: 'calc(100% - 150px)'
-      }}
+      title={title || '代码编辑'}
+      zIndex='1001'
       visible={visible}
+      footer={footer}
+      bodyStyle={{
+        overflow: 'hidden'
+      }}
       onOk={() => {
         const result = ref.current.editorView.state.doc.toString()
         onChange(result)
@@ -65,6 +81,7 @@ export default ({
           width: '100%'
         }} className='code-editor-container' ref={ref}
       />
-    </Modal>
+
+    </SideSheet>
   )
 }

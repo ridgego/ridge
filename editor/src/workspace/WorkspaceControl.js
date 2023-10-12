@@ -133,17 +133,6 @@ export default class WorkSpaceControl {
         // this.viewPortEl.style.transform = ev.transform
       }
     })
-    // this.workspaceMovable.on('resize', ev => {
-    //   if (ev.delta && ev.delta[0] && ev.delta[1]) {
-    //     emit(EVENT_PAGE_PROP_CHANGE, {
-    //       from: 'workspace',
-    //       properties: {
-    //         width: ev.width,
-    //         height: ev.height
-    //       }
-    //     })
-    //   }
-    // })
   }
 
   isElementMovable (el) {

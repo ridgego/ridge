@@ -12,11 +12,8 @@ class PageElementManager {
     this.ridge = ridge
     this.mode = mode
     this.app = app
-    this.decorators = {}
-    this.mounted = []
     this.classNames = []
     this.pageStore = new ValtioStore(this)
-
     this.initialize()
   }
 
@@ -29,6 +26,7 @@ class PageElementManager {
    * @param {Element} el DOM 根元素
    */
   initialize () {
+    debug('Ridge Page initialize:', this.pageConfig)
     this.id = this.pageConfig.id
     this.pageElements = {}
     for (let i = 0; i < this.pageConfig.elements.length; i++) {
@@ -46,46 +44,6 @@ class PageElementManager {
     return this.pageConfig.properties
   }
 
-  /**
-   * 更新页面引入的样式表
-   */
-  updateImportedStyle () {
-    let styleEl = document.querySelector('#ridgePageStyle')
-    if (!styleEl) {
-      styleEl = document.createElement('style')
-      styleEl.id = 'ridgePageStyle'
-      document.head.appendChild(styleEl)
-    }
-    styleEl.textContent = ''
-    this.classNames = []
-    const { properties } = this.pageConfig
-    if (properties.cssFiles && properties.cssFiles.length) {
-      for (const filePath of properties.cssFiles) {
-        const file = this.ridge.appService.filterFiles(f => f.path === filePath)[0]
-        if (file) {
-          const matches = file.textContent.match(/\/\*.+\*\/[^{]+{/g)
-          styleEl.textContent = '\r\n' + file.textContent
-          for (const m of matches) {
-            const label = m.match(/\/\*.+\*\//)[0].replace(/[/*]/g, '')
-            const className = m.match(/\n[^{]+/g)[0].trim().substring(1)
-
-            this.classNames.push({
-              className,
-              label
-            })
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * 更新页面引入的样式表
-   */
-  async updateImportedJS () {
-    await this.pageStore.updateStore()
-  }
-
   getStoreTrees () {
     return this.pageStore.getStoreTrees()
   }
@@ -94,11 +52,12 @@ class PageElementManager {
    * 更新页面变量取值
    * @param {*} values 新的页面变量对
    */
-  updatePageConfig (change) {
+  async updatePageConfig (change) {
     Object.assign(this.pageConfig, change)
-    this.updateImportedStyle()
     this.updateRootElStyle()
-    this.updateImportedJS()
+    await this.updateImportedStyle()
+    await this.updateImportedJS()
+    await this.updateStore()
   }
 
   getElement (id) {
@@ -117,8 +76,9 @@ class PageElementManager {
     this.el = el
     this.rootClassList = Array.from(this.el.classList)
     this.updateRootElStyle()
-    this.updateImportedStyle()
+    await this.updateImportedStyle()
     await this.updateImportedJS()
+    this.updateStore()
 
     const promises = []
     for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
@@ -131,32 +91,72 @@ class PageElementManager {
     this.onPageLoaded && this.onPageLoaded()
   }
 
-  // 配置根节点容器的样式 （可能是body）
+  // 配置根节点容器的样式
   updateRootElStyle () {
-    if (this.pageConfig.properties.background) {
-      Object.assign(this.el.style, {
-        background: this.pageConfig.properties.background
+    this.el.style.background = ''
+    if (this.pageConfig.style) {
+      const { background, classNames, width, height } = this.pageConfig.style
+      background && Object.assign(this.el.style, {
+        background
       })
-      // getBackground(this.pageConfig.properties.background, this.ridge, this.mode))
-    } else {
-      this.el.style.background = ''
-    }
-
-    this.el.classList.value = ''
-    this.rootClassList.forEach(c => {
-      this.el.classList.add(c)
-    })
-    if (this.pageConfig.properties.classNames && this.pageConfig.properties.classNames.length) {
-      this.pageConfig.properties.classNames.forEach(c => {
-        this.el.classList.add(c)
+      classNames && classNames.forEach(cn => {
+        this.el.classList.add(cn)
       })
+      if (this.mode === 'edit') {
+        this.el.style.width = width + 'px'
+        this.el.style.height = height + 'px'
+      }
     }
     this.el.style.position = 'relative'
+  }
 
-    if (this.mode === 'edit') {
-      this.el.style.width = this.pageConfig.properties.width + 'px'
-      this.el.style.height = this.pageConfig.properties.height + 'px'
+  /**
+   * 更新页面引入的样式表
+   */
+  async updateImportedStyle () {
+    const mode = this.mode
+    const cssFiles = this.pageConfig.cssFiles
+    this.classNames = []
+    for (const filePath of cssFiles) {
+      if (mode !== 'hosted') {
+        const file = this.ridge.appService.filterFiles(f => f.path === filePath)[0]
+        if (file) {
+          const fileContent = await this.ridge.appService.getFileContent(file)
+          if (fileContent) {
+            let styleEl = document.querySelector('style[ridge-path="' + filePath + '"]')
+            if (!styleEl) {
+              styleEl = document.createElement('style')
+              styleEl.setAttribute('ridge-path', filePath)
+              document.head.appendChild(styleEl)
+            }
+
+            styleEl.textContent = '\r\n' + fileContent
+            // 计算使用的样式
+            const matches = fileContent.match(/\/\*.+\*\/[^{]+{/g)
+            for (const m of matches) {
+              const label = m.match(/\/\*.+\*\//)[0].replace(/[/*]/g, '')
+              const className = m.match(/\n[^{]+/g)[0].trim().substring(1)
+
+              this.classNames.push({
+                className,
+                label
+              })
+            }
+          }
+        }
+      }
     }
+  }
+
+  /**
+   * 更新页面引入的样式表
+   */
+  async updateStore () {
+    await this.pageStore.updateStore(this.pageConfig.jsFiles || [], this.mode)
+  }
+
+  async updateImportedJS () {
+
   }
 
   /**
@@ -362,13 +362,6 @@ class PageElementManager {
       this.pageConfig.elements.push(element.toJSON())
     }
     return this.pageConfig
-  }
-
-  addDecorators (type, decorator) {
-    if (!this.decorators[type]) {
-      this.decorators[type] = []
-    }
-    this.decorators[type].push(decorator)
   }
 }
 

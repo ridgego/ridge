@@ -4,21 +4,24 @@ import './normalize.css'
 import ComponentLoader from './loader/ComponentLoader'
 import PageElementManager from './element/PageElementManager'
 import ky from 'ky'
+
+const VERSION = '1.0.1'
+
 /**
  * The Ridge Platform Runtime
  */
-class Ridge {
+class RidgeContext {
   constructor (opts = {}) {
-    this.VERSION = '1.0.0'
+    this.VERSION = VERSION
+    this.ky = ky
     this.opts = opts
     this.baseUrl = opts.baseUrl || 'https://ridgego.github.io'
 
     this.loader = new ComponentLoader({
       baseUrl: this.baseUrl
     })
-    this.pageElementManagers = {}
 
-    this.icons = {}
+    this.loadScript = this.loader.loadScript
     this.services = {}
   }
 
@@ -75,4 +78,8 @@ class Ridge {
   }
 }
 
-export default Ridge
+export default RidgeContext
+
+export {
+  VERSION
+}
