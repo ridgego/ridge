@@ -2,8 +2,9 @@ import React from 'react'
 import { Tabs, TabPane } from '@douyinfe/semi-ui'
 import ObjectForm from '../../form/ObjectForm.jsx'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import { emit, on, ridge, appService } from '../../service/RidgeEditService.js'
 import debug from 'debug'
+
+import ridgeEditService from '../../service/RidgeEditService.js'
 
 import {
   EVENT_FILE_TREE_CHANGE, EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
@@ -113,6 +114,8 @@ export default class ComponentPanel extends React.Component {
     this.componentPropFormApi = null
     this.componentEventFormApi = null
     this.pagePropFormApi = null
+
+    ridgeEditService.panels.configPanel = this
 
     this.state = {
       pageFields: PAGE_FIELDS,

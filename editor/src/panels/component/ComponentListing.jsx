@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import { ridge, appService, on } from '../../service/RidgeEditService.js'
+import ridgeEditService from '../../service/RidgeEditService.js'
 import { EVENT_FILE_TREE_CHANGE } from '../../constant.js'
 const trace = require('debug')('ridge:cl')
 const { Text } = Typography
@@ -16,7 +16,7 @@ class ComponentListing extends React.Component {
       currentPackage: '',
       fullLoading: true
     }
-
+    ridgeEditService.panels.componentListPanel = this
     this.loadedComponents = []
   }
 
@@ -26,7 +26,7 @@ class ComponentListing extends React.Component {
     for (const componentName of pkg.components) {
       const componentPath = pkg.name + '/' + componentName
       if (this.loadedComponents.filter(component => component.componentPath === componentPath).length === 0) {
-        ridge.loader.loadComponent(componentPath).then(componentLoaded => {
+        ridgeEditService.ridge.loader.loadComponent(componentPath).then(componentLoaded => {
           if (!componentLoaded) {
             return
           }
@@ -54,25 +54,7 @@ class ComponentListing extends React.Component {
     this.setState({
       fullLoading: true
     })
-    const packageObject = await appService.getPackageJSONObject()
-    if (packageObject == null) {
-      return
-    }
-
-    const packageNames = Object.keys(packageObject.dependencies)
-    const packagesLoading = []
-    // Load Package
-    for (const pkname of packageNames) {
-      packagesLoading.push(await ridge.loader.getPackageJSON(pkname))
-    }
-    await Promise.allSettled(packagesLoading)
-    const loadedPackages = packagesLoading.filter(n => n != null).map(pkg => {
-      pkg.componentLoaded = false
-      if (pkg.icon) {
-        pkg.icon = ridge.loader.baseUrl + '/' + pkg.name + '/' + pkg.icon
-      }
-      return pkg
-    })
+    const loadedPackages = await ridgeEditService.loadPackages()
 
     if (loadedPackages.length) {
       this.setState({
@@ -81,6 +63,7 @@ class ComponentListing extends React.Component {
         currentPackage: loadedPackages[0].name
       })
     } else {
+      // Please Install Package
       this.setState({
         fullLoading: false
       })
@@ -91,9 +74,6 @@ class ComponentListing extends React.Component {
 
   componentDidMount () {
     this.loadPackages()
-    on(EVENT_FILE_TREE_CHANGE, () => {
-      this.loadPackages()
-    })
   }
 
   dragStart (ev, info) {

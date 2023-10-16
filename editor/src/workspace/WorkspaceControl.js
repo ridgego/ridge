@@ -1,8 +1,6 @@
 import Selecto from 'selecto'
 import { createMoveable } from './moveable'
 import Mousetrap from 'mousetrap'
-import { EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END, EVENT_ELEMENT_SELECTED, EVENT_ELEMENT_UNSELECT, EVENT_PAGE_PROP_CHANGE } from '../constant.js'
-import { emit, on } from '../service/RidgeEditService'
 
 import debug from 'debug'
 import { fitRectIntoBounds } from '../utils/rectUtils'
@@ -14,24 +12,24 @@ const trace = debug('ridge:workspace')
 export default class WorkSpaceControl {
   init ({
     workspaceEl,
-    viewPortEl
+    viewPortEl,
+    ridgeEditorService
   }) {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
+    this.ridgeEditorService = ridgeEditorService
     this.zoom = 0.8
     this.selectorDropableTarget = ['.ridge-container', '.ridge-droppable']
 
-    on(EVENT_ELEMENT_SELECTED, payload => {
-      if (payload.from === 'outline' &&
-        !payload.element.classList.contains('is-locked') &&
-        !payload.element.classList.contains('is-hidden') &&
-        !payload.element.classList.contains('is-full')) {
-        this.selectElements([payload.element])
-      }
-    })
-    on(EVENT_ELEMENT_UNSELECT, ({ element }) => {
-      this.selectElements([])
-    })
+    // on(EVENT_ELEMENT_SELECTED, payload => {
+    //   if (payload.from === 'outline' &&
+    //     !payload.element.classList.contains('is-locked') &&
+    //     !payload.element.classList.contains('is-hidden') &&
+    //     !payload.element.classList.contains('is-full')) {
+    //     this.selectElements([payload.element])
+    //   }
+    // })
+
     this.initKeyBind()
     this.initComponentDrop()
 
@@ -538,11 +536,7 @@ export default class WorkSpaceControl {
 
     this.moveable.updateTarget()
     if (filtered && filtered.length <= 1) {
-      emit(EVENT_ELEMENT_SELECTED, {
-        from: 'workspace',
-        element: filtered[0],
-        elements: this.pageManager.getPageElements()
-      })
+      this.ridgeEditorService.onElementSelected(filtered[0])
     }
 
     if (filtered) {

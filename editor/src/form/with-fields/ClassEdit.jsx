@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Select, withField } from '@douyinfe/semi-ui'
-import { ridge } from '../../service/RidgeEditService'
+import ridgeEditService from '../../service/RidgeEditService'
 
 const ClassEdit = ({
   value,
@@ -9,7 +9,7 @@ const ClassEdit = ({
   const [classNames, setClassNames] = useState([])
 
   useEffect(() => {
-    setClassNames(ridge.pageElementManager.classNames.map(c => {
+    setClassNames(ridgeEditService.pageElementManager.classNames.map(c => {
       return {
         label: c.label,
         value: c.className

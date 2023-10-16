@@ -3,9 +3,8 @@ import trim from 'lodash/trim'
 import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
 import { IconImport, IconSetting, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
-import { ridge, emit, on, appService } from '../../service/RidgeEditService.js'
+import ridgeEditorService from '../../service/RidgeEditService.js'
 import { eachNode, getFileTree } from './buildFileTree.js'
-import { EVENT_PAGE_OPEN, EVENT_PAGE_RENAMED, EVENT_WORKSPACE_RESET, EVENT_FILE_TREE_CHANGE } from '../../constant'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import './file-list.less'
 import DialogCodeEdit from './DialogCodeEdit.jsx'
@@ -62,7 +61,9 @@ class AppFileList extends React.Component {
   static contextType = ThemeContext
 
   componentDidMount () {
-    // this.updateFileTree()
+    this.loadAndUpdateFileTree()
+
+    /*
     on(EVENT_FILE_TREE_CHANGE, treeData => {
       eachNode(treeData, file => {
         if (file.mimeType) {
@@ -89,6 +90,36 @@ class AppFileList extends React.Component {
       this.setState({
         currentOpenId: null
       })
+    })
+    */
+  }
+
+  async loadAndUpdateFileTree () {
+    const appTreeData = await ridgeEditorService.getAppFileTree()
+
+    this.rebuildTreeIcons(appTreeData)
+    this.setState({
+      treeData: appTreeData
+    })
+  }
+
+  rebuildTreeIcons (treeData) {
+    // TODO update icons
+    eachNode(treeData, file => {
+      if (file.mimeType) {
+        if (file.mimeType === 'application/font-woff') {
+          file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
+        } else if (file.mimeType.indexOf('audio') > -1) {
+          file.icon = (<IconMusic style={{ color: 'var(--semi-color-text-2)' }} />)
+        } else if (file.mimeType.indexOf('image') > -1) {
+          file.icon = (<IconImage style={{ color: 'var(--semi-color-text-2)' }} />)
+        } else {
+          file.icon = <IconBriefStroked style={{ color: 'var(--semi-color-text-2)' }} />
+        }
+      }
+      if (file.type === 'directory') {
+        file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
+      }
     })
   }
 
@@ -273,43 +304,26 @@ class AppFileList extends React.Component {
   }
 
   open = async (node) => {
-    if (node.type === 'page') {
-      if (this.state.currentOpenId === node.key) {
-        return
-      }
-      emit(EVENT_PAGE_OPEN, node.key)
-      this.setState({
-        currentOpenId: node.key
-      })
-    } else if (node.mimeType && node.mimeType.indexOf('image/') > -1) {
-      // const otherImageFiles = this.state.files.filter(file => {
-      //   if (file.mimeType && file.mimeType.indexOf('image/') > -1 && file.id !== node.key) {
-      //     return true
-      //   } else {
-      //     return false
-      //   }
-      // })
-      // const srcList = []
+    ridgeEditorService.openFile(node.key)
 
-      // srcList.push(await ridge.appService.store.getItem(node.key))
-      // for (const imageFile of otherImageFiles) {
-      //   srcList.push(await ridge.appService.store.getItem(imageFile.id))
-      // }
+    // else if (node.mimeType && node.mimeType.indexOf('image/') > -1) {
+    //   ridgeEditorService.openImage(node.key)
 
-      this.setState({
-        imagePreviewSrc: node.dataUrl,
-        imagePreviewVisible: true
-      })
-    } else if (node.mimeType && (node.mimeType === 'text/css' || node.mimeType === 'text/javascript')) {
-      const textContent = await appService.getFileContent(node)
-      this.setState({
-        codeEditType: node.mimeType,
-        codeEditNodeId: node.key,
-        codeEditTitle: node.label,
-        codeEditText: textContent,
-        codeEditVisible: true
-      })
-    }
+    //   this.setState({
+    //     imagePreviewSrc: node.dataUrl,
+    //     imagePreviewVisible: true
+    //   })
+    // } else if (node.mimeType && (node.mimeType === 'text/css' || node.mimeType === 'text/javascript')) {
+    //   ridgeEditorService.openScript(node.key)
+    //   const textContent = await appService.getFileContent(node)
+    //   this.setState({
+    //     codeEditType: node.mimeType,
+    //     codeEditNodeId: node.key,
+    //     codeEditTitle: node.label,
+    //     codeEditText: textContent,
+    //     codeEditVisible: true
+    //   })
+    // }
   }
 
   async completeCodeEdit (code, close) {
@@ -713,7 +727,6 @@ class AppFileList extends React.Component {
             onDoubleClick={(ev, node) => {
               this.open(node)
             }}
-            onChangeWithObject
             onChange={(treeNode) => {
               this.selectNode(treeNode)
             }}

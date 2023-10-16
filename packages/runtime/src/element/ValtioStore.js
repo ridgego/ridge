@@ -4,9 +4,8 @@ import { proxy, subscribe } from 'valtio/vanilla'
 import { subscribeKey } from 'valtio/utils'
 
 export default class ValtioStore {
-  constructor (pageElementManager) {
-    this.pageElementManager = pageElementManager
-    this.ridge = pageElementManager.ridge
+  constructor (storeBaseUrl) {
+    this.storeBaseUrl = storeBaseUrl
     // 一个页面支持多个store
     this.storeObjects = {} // 定义
     this.stores = {} // valtio state registry
@@ -116,7 +115,7 @@ export default class ValtioStore {
             }
           }
         } else {
-          const StoreModule = await this.loadStoreModule(`${this.ridge.baseUrl}/${this.pageElementManager.app}${storeFile}`)
+          const StoreModule = await this.loadStoreModule(`${this.storeBaseUrl}/${storeFile}`)
           if (StoreModule) {
             if (StoreModule) {
               this.registerPageStore(moduleName, StoreModule)
@@ -130,14 +129,14 @@ export default class ValtioStore {
   /**
    * 加载 store.js代码并返回store模块
    */
-  async loadStoreModule (jsPath, jsContent) {
-    if (jsPath) {
+  async loadStoreModule (jsPaths, jsContent) {
+    if (jsPaths) {
       const resolveKey = 'resolve' + nanoid(5)
       const scriptDiv = document.createElement('script')
       scriptDiv.setAttribute('type', 'module')
       scriptDiv.setAttribute('async', true)
       document.head.append(scriptDiv)
-      scriptDiv.textContent = `import * as Module from '${jsPath}'; window['${resolveKey}'](Module);`
+      scriptDiv.textContent = `import * as Module from '${jsPaths}'; window['${resolveKey}'](Module);`
       return await new Promise((resolve, reject) => {
         window[resolveKey] = (Module) => {
           delete window[resolveKey]

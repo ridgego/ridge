@@ -1,7 +1,6 @@
 import React from 'react'
 import { Button, Divider, Dropdown, Popover, Space, Slider, Icon } from '@douyinfe/semi-ui'
 import { IconPlus, IconTemplate, IconTick, IconCopy, IconPause, IconGridSquare, IconGridView1, IconGift, IconPlay } from '@douyinfe/semi-icons'
-import AppSettingPanel from './setting/AppSettingPanel.jsx'
 import IconBrush from '../icons/IconBrush.jsx'
 import './style.less'
 

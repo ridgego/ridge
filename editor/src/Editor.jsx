@@ -5,18 +5,20 @@ import RightBottomPanel from './panels/outline/index.jsx'
 import ComponentPanel from './panels/component/index.jsx'
 import LeftBottomPanel from './panels/files/index.jsx'
 import MenuBar from './menu/MenuBar.jsx'
-import debounce from 'lodash/debounce'
-import ImageDataUrlDecorator from './utils/ImageDataUrlDecorator.js'
-import { editorService } from './service/RidgeEditService.js'
+import ridgeEditorService from './service/RidgeEditService.js'
 
-// import { ridge, emit, on, workspaceControl, appService } from './service/RidgeEditService.js'
 import './editor.less'
+
+// import {
+//   EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
+//   EVENT_ELEMENT_CREATED,
+//   EVENT_PAGE_OUTLINE_CHANGE,
+//   PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN, EVENT_WORKSPACE_RESET
+// } from './constant.js'
 import {
-  EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE,
-  EVENT_ELEMENT_CREATED,
-  EVENT_PAGE_OUTLINE_CHANGE,
-  PANEL_SIZE_1920, PANEL_SIZE_1366, EVENT_PAGE_OPEN, EVENT_WORKSPACE_RESET
-} from './constant'
+  PANEL_SIZE_1920, PANEL_SIZE_1366
+} from './constant.js'
+
 import { Button } from '@douyinfe/semi-ui'
 import { IconExit } from '@douyinfe/semi-icons'
 
@@ -25,9 +27,10 @@ const trace = debug('ridge:editor')
 export default class Editor extends React.Component {
   constructor (props) {
     super(props)
-    this.editorService = editorService
 
-    this.editorService.setEditor(this)
+    this.workspaceRef = React.createRef()
+    this.viewPortContainerRef = React.createRef()
+
     this.state = {
       componentPanelVisible: true,
       propPanelVisible: false,
@@ -43,19 +46,10 @@ export default class Editor extends React.Component {
     if (window.screen.width <= 1366) {
       this.state.panelPosition = PANEL_SIZE_1366
     }
-    this.debouncedSaveUpdatePage = debounce(this.saveCurrentPage, 50)
-    this.initialize()
   }
 
   componentDidMount () {
-    workspaceControl.init({
-      workspaceEl: document.querySelector('.workspace'),
-      viewPortEl: document.querySelector('.viewport-container')
-    })
-
-    setTimeout(() => {
-      appService.updateAppFileTree()
-    }, 10)
+    ridgeEditorService.editorDidMount(this, this.workspaceRef.current, this.viewPortContainerRef.current)
   }
 
   /**
@@ -117,22 +111,34 @@ export default class Editor extends React.Component {
   }
 
   async saveCurrentPage () {
-   
+
   }
 
   async saveCloseCurrentPage () {
+    await ridgeEditorService.saveCurrentPage()
+
+    this.setState({
+      currentPageId: null,
+      outlinePanelVisible: false,
+      menuBarVisible: false,
+      propPanelVisible: false
+    })
+
     if (this.pageElementManager) {
       this.saveCurrentPage()
       workspaceControl.disable()
       this.pageElementManager.unmount()
       this.pageElementManager = null
-      this.setState({
-        currentPageId: null,
-        outlinePanelVisible: false,
-        menuBarVisible: false,
-        propPanelVisible: false
-      })
+      
     }
+  }
+
+  togglePageEdit() {
+    this.setState({
+      propPanelVisible: true,
+      menuBarVisible: true,
+      outlinePanelVisible: true
+    })
   }
 
   /**
@@ -205,7 +211,9 @@ export default class Editor extends React.Component {
 
   render () {
     const {
-      state
+      state,
+      workspaceRef,
+      viewPortContainerRef
     } = this
 
     const {
@@ -223,12 +231,12 @@ export default class Editor extends React.Component {
     return (
       <>
         <div
-          ref={workspace}
+          ref={workspaceRef}
           className={'workspace ' + (containerMask ? 'show-container' : '')} style={{
             display: modeRun ? 'none' : ''
           }}
         >
-          <div className='viewport-container' ref={viewContainer}/>
+          <div className='viewport-container' ref={viewPortContainerRef} />
           <MenuBar
             containerMask={containerMask}
             zoom={zoom}

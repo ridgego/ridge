@@ -1,9 +1,6 @@
 import { CompositeView } from 'ridge-runtime'
 class EditorCompositeView extends CompositeView {
-  constructor (config) {
-    super(config)
-  }
-
+  
   updateStyle () {
     super.updateStyle()
     if (this.config.style) {
@@ -21,9 +18,9 @@ class EditorCompositeView extends CompositeView {
     const { cssFiles } = this.config
     this.classNames = []
     for (const filePath of cssFiles) {
-      const file = this.ridge.appService.filterFiles(f => f.path === filePath)[0]
+      const file = this.context.appService.filterFiles(f => f.path === filePath)[0]
       if (file) {
-        const fileContent = await this.ridge.appService.getFileContent(file)
+        const fileContent = await this.context.appService.getFileContent(file)
         if (fileContent) {
           let styleEl = document.querySelector('style[ridge-path="' + filePath + '"]')
           if (!styleEl) {

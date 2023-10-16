@@ -3,7 +3,6 @@ import debug from 'debug'
 // import LowCollection from './LowCollection.js'
 import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
-import { ridge, emit } from './RidgeEditService.js'
 import { EVENT_APP_OPEN, EVENT_FILE_TREE_CHANGE } from '../constant.js'
 import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToBlob, stringToDataUrl, saveAs } from '../utils/blob.js'
 import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
@@ -22,7 +21,7 @@ export default class ApplicationService {
     this.backUpService = new BackUpService(this)
     this.dataUrlByPath = {}
     this.dataUrls = {}
-    this.fileTree = []
+    this.fileTree = null
 
     // this.updateAppFileTree()
   }
@@ -35,12 +34,18 @@ export default class ApplicationService {
     return filterTree(this.fileTree, filter)
   }
 
+  async getAppFileTree () {
+    if (!this.fileTree) {
+      const files = await this.getFiles()
+      this.fileTree = getFileTree(files)
+    }
+    return this.fileTree
+  }
+
   async updateAppFileTree () {
     trace('Start Update File Tree')
     const files = await this.getFiles()
-    trace('Files', files)
-    const fileTree = getFileTree(files)
-
+    this.fileTree = getFileTree(files)
     /*
     await eachNode(fileTree, async (file) => {
       if (file.mimeType && (file.mimeType.indexOf('image/') > -1 || file.mimeType.indexOf('audio/') > -1)) {
@@ -62,10 +67,6 @@ export default class ApplicationService {
     })
 
     */
-    trace('Files Tree Built', fileTree)
-    this.fileTree = fileTree
-    emit(EVENT_FILE_TREE_CHANGE, this.fileTree)
-    return this.fileTree
   }
 
   async createDirectory (parent, name) {

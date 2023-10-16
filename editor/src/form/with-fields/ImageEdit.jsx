@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Popover, Input, withField } from '@douyinfe/semi-ui'
 import { IconChainStroked, IconFolderOpen } from '@douyinfe/semi-icons'
 import AppImageList from '../../panels/files/AppImageList.jsx'
-import { ridge } from '../../service/RidgeEditService.js'
+import ridgeEditService from '../../service/RidgeEditService.js'
 
 export const ImageEdit = ({
   value,
@@ -27,7 +27,7 @@ export const ImageEdit = ({
 
   const visibleChange = visible => {
     if (visible) {
-      const { appService } = ridge
+      const { appService } = ridgeEditService
 
       const files = Object.entries(appService.dataUrlByPath).map(r => {
         return {

@@ -20,9 +20,16 @@ class RidgeContext {
     this.loader = new ComponentLoader({
       baseUrl: this.baseUrl
     })
-
-    this.loadScript = this.loader.loadScript
+    // this.loadScript = this.loader.loadScript
     this.services = {}
+
+    this.delegateMethods(this, this.loader, ['loadScript', 'loadJSON', 'loadCss', 'getPackageJSON'])
+  }
+
+  delegateMethods (source, target, methods) {
+    for (const method of methods) {
+      source[method] = target[method].bind(source)
+    }
   }
 
   static async init () {

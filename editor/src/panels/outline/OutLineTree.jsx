@@ -3,7 +3,7 @@ import debug from 'debug'
 import { Tree, Space, Typography, Button, Tag } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
 import { EVENT_PAGE_LOADED, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
-import { workspaceControl, ridge, on, emit } from '../../service/RidgeEditService.js'
+import ridgeEditService from '../../service/RidgeEditService.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 
 const { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } = SemiIcons
@@ -17,7 +17,7 @@ class OutLineTree extends React.Component {
       elements: [],
       selected: null
     }
-    ridge.services.outline = this
+    ridgeEditService.panels.outlinePanel = this
   }
 
   static contextType = ThemeContext

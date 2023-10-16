@@ -1,5 +1,6 @@
 import ValtioStore from './ValtioStore'
 import ComponentView from './ComponentView'
+import ElementView from './ElementView'
 import Debug from 'debug'
 const debug = Debug('ridge:manager')
 
@@ -11,17 +12,21 @@ const debug = Debug('ridge:manager')
  * A Composite UI Component in Frame Or Page
  * Composite View is actully a front UI component like React/Vue, And it has properties/states, and can emit outlet events
  * */
-class CompositeView {
+class CompositeView extends ElementView {
   constructor ({
     config,
     app,
     context
   }) {
-    this.id = config.id
+    super()
     this.config = config
     this.context = context
 
     this.initialize()
+  }
+
+  getComponentView (id) {
+    return this.children[id]
   }
 
   /**
@@ -33,13 +38,15 @@ class CompositeView {
     this.children = {}
     for (let i = 0; i < this.config.elements.length; i++) {
       const view = new ComponentView({
-        pageManager: this,
+        context: this.context,
         mode: this.mode,
         config: this.config.elements[i],
         i
       })
       this.children[view.id] = view
     }
+
+    this.context.delegateMethods(this, ['getComponentView'])
   }
 
   /**
@@ -52,10 +59,10 @@ class CompositeView {
     await this.importStyleFiles()
     await this.importJSFiles()
 
-    await this.updateStore()
+    await this.loadStore()
 
     const promises = []
-    for (const wrapper of Object.values(this.pageElements).filter(e => e.isRoot())) {
+    for (const wrapper of Object.values(this.children).filter(e => e.isRoot())) {
       const div = document.createElement('div')
       el.appendChild(div)
       promises.push(await wrapper.loadAndMount(div))
@@ -65,6 +72,9 @@ class CompositeView {
     this.onPageLoaded && this.onPageLoaded()
   }
 
+  /**
+   * Update element style which the composite mounted on
+   * */
   updateStyle () {
     if (this.config.style) {
       const { background, classNames } = this.config.style
@@ -79,7 +89,7 @@ class CompositeView {
   }
 
   /**
-   * 更新页面引入的样式表
+   * Import/Update Composite Styles
    */
   async importStyleFiles () {
     const { cssFiles } = this.config
@@ -89,6 +99,9 @@ class CompositeView {
     }
   }
 
+  /**
+   * Import JS Files
+   */
   async importJSFiles () {
     const { jsFiles } = this.config
 
@@ -97,8 +110,14 @@ class CompositeView {
     }
   }
 
+  /**
+   * Load Composite Store
+   * */
   async loadStore () {
     this.store = new ValtioStore()
+
+    await this.store.loadStoreModule(this.config.storeFiles)
+    this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction'])
   }
 }
 

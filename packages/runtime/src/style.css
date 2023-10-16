@@ -9,6 +9,15 @@ html, body {
   outline: none;
 }
 
+
+.ridge-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
 .status-Loading {
     background: linear-gradient(90deg,#2e32380d 25%,#2e323817 44%,#2e32380d 88%);
     background-size: 400% 100%;

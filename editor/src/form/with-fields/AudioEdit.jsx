@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Popover, Input, withField, Select } from '@douyinfe/semi-ui'
-import { ridge } from '../../service/RidgeEditService.js'
+import ridgeEditService from '../../service/RidgeEditService.js'
 
 export const AudioEdit = ({
   value,
@@ -9,7 +9,7 @@ export const AudioEdit = ({
   const [audios, setAudios] = useState([])
 
   useEffect(() => {
-    setAudios(ridge.appService.filterFiles(file => file.mimeType && file.mimeType.indexOf('audio') > -1).map(file => {
+    setAudios(ridgeEditService.appService.filterFiles(file => file.mimeType && file.mimeType.indexOf('audio') > -1).map(file => {
       console.log('audio file=>', file)
       return {
         value: file.path,
