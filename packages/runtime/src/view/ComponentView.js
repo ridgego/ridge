@@ -2,7 +2,6 @@ import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import ElementView from './ElementView'
-import { nanoid } from '../utils/string'
 import { objectSet } from '../utils/object'
 const log = debug('ridge:component')
 
@@ -13,14 +12,38 @@ class ComponentView extends ElementView {
     i
   }) {
     super()
-    this.config = config
-    this.id = config.id
     this.i = i
+    this.config = config
     this.context = context
   }
 
   isRoot () {
     return this.config.parent == null
+  }
+
+  getId () {
+    return this.config.id
+  }
+
+  getProperties () {
+    return this.properties
+  }
+
+  getConfig () {
+    return this.config
+  }
+
+  getEl () {
+    return this.el
+  }
+
+  getScopedData () {
+    const parentScopes = this.containerView ? this.containerView.getScopedData() : {}
+    return Object.assign({}, parentScopes, this.scopedData)
+  }
+
+  setScopedData (scopedData) {
+    this.scopedData = scopedData
   }
 
   async loadAndMount (el) {
@@ -81,8 +104,8 @@ class ComponentView extends ElementView {
     this.el.classList.add('ridge-element')
     this.el.setAttribute('ridge-id', this.id)
 
-    this.context.delegateMethods(this.el, this, ['hasMethod', 'invoke', 'updateProps', 'forceUpdate', 'getConfig'])
-    
+    this.context.delegateMethods(this, ['hasMethod', 'invoke', 'updateProps', 'forceUpdate', 'getConfig'], this.el)
+
     this.el.view = this
     this.el.wrapper = this
     this.el.componentPath = this.componentPath
@@ -90,20 +113,9 @@ class ComponentView extends ElementView {
     this.style = Object.assign({}, this.config.style)
 
     this.initPropsAndEvents()
-    this.classList.forEach(className => this.el.classList.add(className))
-
     this.updateConnectedStyle()
     this.updateConnectedProperties()
 
-    // 数据订阅
-    if (this.mode !== 'edit') {
-      // 将所有需要连接的属性传入订阅
-      new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
-        this.pageStore.subscribe(expr, () => {
-          this.forceUpdate()
-        })
-      })
-    }
     this.renderer = this.createRenderer()
   }
 
@@ -114,8 +126,8 @@ class ComponentView extends ElementView {
     if (this.config.parent && !this.containerView) {
       this.containerView = this.context.getComponentView(this.config.parent)
     }
+    this.properties = {}
 
-    // 枚举、处理所有属性定义
     for (const prop of this.componentDefinition.props || []) {
       if (!prop) continue
 
@@ -124,18 +136,20 @@ class ComponentView extends ElementView {
       }
 
       // 编辑器初始化创建时给一次默认值
-      if (this.isCreate) {
-        if (this.config.props[prop.name] == null && prop.value != null) {
-          this.config.props[prop.name] = prop.value
-        }
-      }
+      // if (this.isCreate) {
+      //   if (this.config.props[prop.name] == null && prop.value != null) {
+      //     this.config.props[prop.name] = prop.value
+      //   }
+      // }
 
-      // 处理属性的input情况 类似 vue的 v-model
+      // value property:add input event
       if (prop.name === 'value') {
         this.properties.input = val => {
           this.emit('input', val)
         }
       }
+
+      // same as value
       if (prop.input === true) {
         // input相当于v-model，只能设置到一个属性上面
         const eventName = 'set' + prop.name.substr(0, 1).toUpperCase() + prop.name.substr(1)
@@ -147,7 +161,7 @@ class ComponentView extends ElementView {
       }
 
       if (prop.name === 'children') {
-        this.classList.push('ridge-container')
+        this.el.classList.add('ridge-container')
 
         // 写入子级的具体包装类
         if (Array.isArray(this.config.props.children)) {
@@ -161,7 +175,7 @@ class ComponentView extends ElementView {
         }
       } else if (prop.type === 'slot') {
         this.isContainer = true
-        this.classList.push('ridge-droppable')
+        this.el.classList.add('ridge-droppable')
         // 写入slot的包装类
         if (this.config.props[prop.name] && typeof this.config.props[prop.name] === 'string') {
           const childComponentView = this.context.getComponentView(this.config.props[prop.name])
@@ -170,6 +184,8 @@ class ComponentView extends ElementView {
             this.properties[prop.name] = childComponentView
           }
         }
+      } else if (prop.type === 'ref') {
+
       }
     }
     // 事件类属性写入，DOM初始化后事件才能挂到源头
@@ -178,6 +194,13 @@ class ComponentView extends ElementView {
         this.emit(event.name, args)
       }
     }
+
+    // subscribe for update
+    new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
+      this.context.subscribe(expr, () => {
+        this.forceUpdate()
+      })
+    })
   }
 
   createRenderer () {
@@ -199,6 +222,16 @@ class ComponentView extends ElementView {
   }
 
   /**
+   * Re-evaluate connected properties and styles, update component view
+   */
+  forceUpdate () {
+    this.updateConnectedStyle()
+    this.updateStyle()
+    this.updateConnectedProperties()
+    this.updateProps()
+  }
+
+  /**
    * 更新动态属性
    * @param {*} props 要更改的属性
    */
@@ -209,8 +242,6 @@ class ComponentView extends ElementView {
     if (this.renderer) {
       try {
         log('updateProps', this.id, this.properties)
-
-        this.updateAssetsProperties()
         this.renderer.updateProps(this.getProperties())
       } catch (e) {
         log('用属性渲染组件出错', e)
@@ -220,14 +251,13 @@ class ComponentView extends ElementView {
     }
   }
 
-
   // 计算随变量绑定的样式
   updateConnectedStyle () {
     for (const styleName of Object.keys(this.config.styleEx || {})) {
       if (this.config.styleEx[styleName] == null || this.config.styleEx[styleName] === '') {
         continue
       }
-      this.style[styleName] = this.pageStore.getStoreValue(this.config.styleEx[styleName], this.getScopeItems())
+      this.style[styleName] = this.context.getStoreValue(this.config.styleEx[styleName], this.getScopedData())
     }
   }
 
@@ -241,9 +271,12 @@ class ComponentView extends ElementView {
     this.el.classList.remove('is-full')
     this.el.classList.remove('is-locked')
     this.el.classList.remove('is-hidden')
+
     if (this.containerView && this.containerView.hasMethod('updateChildStyle')) {
+    // delegate to container
       this.containerView.invoke('updateChildStyle', [this])
     } else {
+      // update position and index
       const style = {}
       if (this.el) {
         if (this.config.style.full) {
@@ -274,18 +307,23 @@ class ComponentView extends ElementView {
       if (value == null || value === '') {
         continue
       }
-      const storeValue = this.context.getStoreValue(value, this.getScopeItems())
-      const propDef = this.getPropDefinationByName(key)
-
-      if (propDef && typeof propDef.connect === 'string') {
-        // 判断 connect为path的情况 按path设置属性的路径数据
-        // 因为是对象类型， 直接只改path值可能会直接改动
-        const value = JSON.parse(JSON.stringify(this.properties[key]))
-        objectSet(value, propDef.connect, storeValue)
-        this.properties[key] = value
-      } else {
-        this.properties[key] = storeValue
+      try {
+        this.properties[key] = this.context.getStoreValue(value, this.getScopedData())
+      } catch (e) {
+        // if error, the properties won't change
+        console.error('get Store Value Error: ', e)
       }
+      // const propDef = this.getPropDefinationByName(key)
+
+      // if (propDef && typeof propDef.connect === 'string') {
+      //   // 判断 connect为path的情况 按path设置属性的路径数据
+      //   // 因为是对象类型， 直接只改path值可能会直接改动
+      //   const value = JSON.parse(JSON.stringify(this.properties[key]))
+      //   objectSet(value, propDef.connect, storeValue)
+      //   this.properties[key] = value
+      // } else {
+      //   this.properties[key] = storeValue
+      // }
     }
   }
 
@@ -312,6 +350,14 @@ class ComponentView extends ElementView {
   invoke (method, args) {
     if (this.renderer) {
       return this.renderer.invoke(method, args)
+    }
+  }
+
+  hasMethod (methodName) {
+    if (this.renderer) {
+      return this.renderer.hasMethod(method)
+    } else {
+      return false
     }
   }
 

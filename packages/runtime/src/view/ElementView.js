@@ -1,11 +1,12 @@
 class ElementView {
   async loadAndMount (el) {}
+  unmount () {}
 
   initPropsAndEvents () {}
 
   updateStyle () {}
 
-  updateProps(props) {}
+  updateProps (props) {}
 
   setStatus (status, msg) {
     this.status = status

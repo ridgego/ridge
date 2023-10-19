@@ -1,8 +1,8 @@
 import './style.css'
 import './normalize.css'
 
-import ComponentLoader from './loader/ComponentLoader'
-import PageElementManager from './element/PageElementManager'
+import ComponentLoader from './loader/ComponentLoader.js'
+import CompositeView from './view/CompositeView.js'
 import ky from 'ky'
 
 const VERSION = '1.0.1'
@@ -11,24 +11,31 @@ const VERSION = '1.0.1'
  * The Ridge Platform Runtime
  */
 class RidgeContext {
-  constructor (opts = {}) {
+  constructor ({ baseUrl }) {
     this.VERSION = VERSION
     this.ky = ky
-    this.opts = opts
-    this.baseUrl = opts.baseUrl || 'https://ridgego.github.io'
-
-    this.loader = new ComponentLoader({
-      baseUrl: this.baseUrl
-    })
+    this.baseUrl = baseUrl
+   
     // this.loadScript = this.loader.loadScript
-    this.services = {}
+    this.services = {
+      loader: new ComponentLoader({
+        baseUrl: this.baseUrl
+      })
+    }
 
-    this.delegateMethods(this, this.loader, ['loadScript', 'loadJSON', 'loadCss', 'getPackageJSON'])
+    this.delegateMethods(this.services.loader, ['loadScript', 'loadJSON', 'loadCss', 'getPackageJSON', 'loadComponent'])
   }
 
-  delegateMethods (source, target, methods) {
+  /**
+   * Delegate target[method] -> source[method]
+   **/
+  delegateMethods (target, methods, source = this) {
     for (const method of methods) {
-      source[method] = target[method].bind(source)
+      if (target[method]) {
+        source[method] = target[method].bind(target)
+      } else {
+        console.error('delegateMethods error:', target + '.' + method)
+      }
     }
   }
 
@@ -67,8 +74,8 @@ class RidgeContext {
    * @returns
    */
   loadPage (el, pageConfig, mode, app) {
-    const pageManager = new PageElementManager({ pageConfig: JSON.parse(JSON.stringify(pageConfig)), ridge: this, mode, app })
-    pageManager.mount(el || document.body)
+    const pageManager = new CompositeView({ pageConfig: JSON.parse(JSON.stringify(pageConfig)), ridge: this, mode, app })
+    pageManager.loadAndMount(el || document.body)
     return pageManager
   }
 

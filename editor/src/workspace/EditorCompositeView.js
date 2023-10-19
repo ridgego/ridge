@@ -1,6 +1,32 @@
 import { CompositeView } from 'ridge-runtime'
+import EditorComponentView from './EditorComponentView.js'
+
+/**
+ * Views Mount on Editor
+ **/
 class EditorCompositeView extends CompositeView {
-  
+  createComponentView (config, i) {
+    return new EditorComponentView({
+      context: this.context,
+      config,
+      i
+    })
+  }
+
+  getClassNames () {
+    return this.classNames || []
+  }
+
+  updatePageConfig (config) {
+    Object.assign(this.config, config)
+
+    this.updateStyle()
+  }
+
+  updateComponentConfig () {
+
+  }
+
   updateStyle () {
     super.updateStyle()
     if (this.config.style) {
@@ -16,11 +42,12 @@ class EditorCompositeView extends CompositeView {
    */
   async importStyleFiles () {
     const { cssFiles } = this.config
+    const { appService } = this.context.services
     this.classNames = []
     for (const filePath of cssFiles) {
-      const file = this.context.appService.filterFiles(f => f.path === filePath)[0]
+      const file = appService.filterFiles(f => f.path === filePath)[0]
       if (file) {
-        const fileContent = await this.context.appService.getFileContent(file)
+        const fileContent = await appService.getFileContent(file)
         if (fileContent) {
           let styleEl = document.querySelector('style[ridge-path="' + filePath + '"]')
           if (!styleEl) {
@@ -44,6 +71,20 @@ class EditorCompositeView extends CompositeView {
         }
       }
     }
+  }
+
+  unmount () {
+    super.unmount()
+    this.el.style.width = 0
+    this.el.style.height = 0
+  }
+
+  exportPageJSON () {
+    this.config.elements = []
+    for (const componentView of Object.values(this.componentViews).sort((a, b) => a.i - b.i)) {
+      this.config.elements.push(componentView.exportJSON())
+    }
+    return JSON.parse(JSON.stringify(this.config))
   }
 }
 

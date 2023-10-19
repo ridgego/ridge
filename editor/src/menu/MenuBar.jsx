@@ -1,7 +1,8 @@
 import React from 'react'
 import { Button, Divider, Dropdown, Popover, Space, Slider, Icon } from '@douyinfe/semi-ui'
-import { IconPlus, IconTemplate, IconTick, IconCopy, IconPause, IconGridSquare, IconGridView1, IconGift, IconPlay } from '@douyinfe/semi-icons'
+import { IconPlus, IconTemplate, IconTick, IconCopy, IconPause, IconSaveStroked, IconGridView1, IconGift, IconPlay } from '@douyinfe/semi-icons'
 import IconBrush from '../icons/IconBrush.jsx'
+import ridgeEditorService from '../service/RidgeEditorService.js'
 import './style.less'
 
 const EmptyIcon = () => <span style={{ width: '21px' }} />
@@ -14,7 +15,6 @@ export default props => {
     zoom,
     zoomChange,
     toggoleRunMode,
-    closeCurrentPage,
     capture,
     containerMask
   } = props
@@ -25,6 +25,15 @@ export default props => {
       style={{ display: visible ? '' : 'none' }}
     >
       <Space className='bar-content'>
+
+        <Button
+          icon={<IconSaveStroked />}
+          size='small'
+          onClick={() => {
+            ridgeEditorService.saveCurrentPage()
+          }}
+        />
+        
         <Button
           icon={<IconGridView1 />}
           size='small'
@@ -86,7 +95,9 @@ export default props => {
         <Button
           type='tertiary'
           theme='borderless'
-          icon={<i class='bi bi-x-lg' />} onClick={closeCurrentPage}
+          icon={<i class='bi bi-x-lg' />} onClick={() => {
+            ridgeEditorService.closeCurrentPage()
+          }}
         >关闭
         </Button>
         <Button

@@ -26,6 +26,10 @@ export default class ApplicationService {
     // this.updateAppFileTree()
   }
 
+  async init () {
+    await this.getAppFileTree()
+  }
+
   getFileTree () {
     return this.fileTree
   }
@@ -279,7 +283,7 @@ export default class ApplicationService {
     if (!packageJSONFile) {
       files.push(await this.createFile(-1, 'package.json', stringToBlob(JSON.stringify({
         name: 'ridge-app-hello',
-        description: '#RidgeApp My First Ridge App',
+        description: 'My First Ridge App #RidgeApp #HelloWorld',
         version: '1.0.0',
         dependencies: {
           'ridge-basic': '1.0.0'
@@ -456,7 +460,6 @@ export default class ApplicationService {
 
   async recoverBackUpAppArchive (id) {
     await this.backUpService.recover(id, this.collection)
-    emit(EVENT_APP_OPEN)
   }
 
   async getAllBackups () {

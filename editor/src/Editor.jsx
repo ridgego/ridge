@@ -1,11 +1,12 @@
 import React from 'react'
 import debug from 'debug'
+import { Spin, Button } from '@douyinfe/semi-ui'
 import ConfigPanel from './panels/config/index.jsx'
 import RightBottomPanel from './panels/outline/index.jsx'
 import ComponentPanel from './panels/component/index.jsx'
 import LeftBottomPanel from './panels/files/index.jsx'
 import MenuBar from './menu/MenuBar.jsx'
-import ridgeEditorService from './service/RidgeEditService.js'
+import ridgeEditorService from './service/RidgeEditorService.js'
 
 import './editor.less'
 
@@ -19,7 +20,6 @@ import {
   PANEL_SIZE_1920, PANEL_SIZE_1366
 } from './constant.js'
 
-import { Button } from '@douyinfe/semi-ui'
 import { IconExit } from '@douyinfe/semi-icons'
 
 const trace = debug('ridge:editor')
@@ -32,6 +32,7 @@ export default class Editor extends React.Component {
     this.viewPortContainerRef = React.createRef()
 
     this.state = {
+      editorLoading: true,
       componentPanelVisible: true,
       propPanelVisible: false,
       outlinePanelVisible: false,
@@ -50,6 +51,12 @@ export default class Editor extends React.Component {
 
   componentDidMount () {
     ridgeEditorService.editorDidMount(this, this.workspaceRef.current, this.viewPortContainerRef.current)
+  }
+
+  setEditorLoaded () {
+    this.setState({
+      editorLoading: false
+    })
   }
 
   /**
@@ -129,15 +136,22 @@ export default class Editor extends React.Component {
       workspaceControl.disable()
       this.pageElementManager.unmount()
       this.pageElementManager = null
-      
     }
   }
 
-  togglePageEdit() {
+  togglePageEdit () {
     this.setState({
       propPanelVisible: true,
       menuBarVisible: true,
       outlinePanelVisible: true
+    })
+  }
+
+  togglePageClose () {
+    this.setState({
+      propPanelVisible: false,
+      menuBarVisible: false,
+      outlinePanelVisible: false
     })
   }
 
@@ -217,6 +231,7 @@ export default class Editor extends React.Component {
     } = this
 
     const {
+      editorLoading,
       componentPanelVisible,
       appFilePanelVisible,
       propPanelVisible,
@@ -237,39 +252,36 @@ export default class Editor extends React.Component {
           }}
         >
           <div className='viewport-container' ref={viewPortContainerRef} />
-          <MenuBar
-            containerMask={containerMask}
-            zoom={zoom}
-            currentPageId={currentPageId}
-            visible={menuBarVisible}
-            capture={() => {
-              workspaceControl.capture()
-            }}
-            toggleVisible={name => {
-              this.setState({
-                [name]: !this.state[name]
-              })
-            }}
-            toggleContainerMask={() => {
-              this.setState({
-                containerMask: !containerMask
-              })
-            }}
-            closeCurrentPage={() => {
-              emit(EVENT_WORKSPACE_RESET)
-            }}
-            toggoleRunMode={this.toggoleRunMode.bind(this)}
-            zoomChange={zoom => {
-              this.setState({
-                zoom
-              })
-              workspaceControl.setZoom(zoom)
-            }}
-          />
-          <ComponentPanel title='组件' position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
-          <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && appFilePanelVisible} />
-          <RightBottomPanel title='布局导航' position={panelPosition.DATA} visible={!modeRun && outlinePanelVisible} />
-          <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
+          {
+            !editorLoading &&
+              <>
+                <MenuBar
+                  containerMask={containerMask}
+                  zoom={zoom}
+                  currentPageId={currentPageId}
+                  visible={menuBarVisible}
+                  capture={() => {
+                    workspaceControl.capture()
+                  }}
+                  toggleContainerMask={() => {
+                    this.setState({
+                      containerMask: !containerMask
+                    })
+                  }}
+                  toggoleRunMode={this.toggoleRunMode.bind(this)}
+                  zoomChange={zoom => {
+                    this.setState({
+                      zoom
+                    })
+                    workspaceControl.setZoom(zoom)
+                  }}
+                />
+                <ComponentPanel title='组件' position={panelPosition.ADD} visible={!modeRun && componentPanelVisible} />
+                <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && appFilePanelVisible} />
+                <RightBottomPanel title='布局导航' position={panelPosition.DATA} visible={!modeRun && outlinePanelVisible} />
+                <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
+              </>
+          }
         </div>
         <div
           className='ridge-runtime' style={{
@@ -291,6 +303,13 @@ export default class Editor extends React.Component {
           >退出运行
           </Button>
         </div>
+
+        {
+          editorLoading &&
+            <div className='editor-loading'>
+              <Spin tip='编辑器已启动.. 正在检查资源' />
+            </div>
+        }
       </>
     )
   }

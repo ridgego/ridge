@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Upload, Modal, Input, Table, Toast } from '@douyinfe/semi-ui'
 import { IconDelete, IconUndo } from '@douyinfe/semi-icons'
-import { emit, ridge } from '../../service/RidgeEditService'
+import { emit, ridge } from '../../service/RidgeEditorService'
 import { EVENT_WORKSPACE_RESET, EVENT_APP_OPEN } from '../../constant'
 const { Column } = Table
 

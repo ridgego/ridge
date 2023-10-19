@@ -15,7 +15,7 @@ const debug = Debug('ridge:manager')
 class CompositeView extends ElementView {
   constructor ({
     config,
-    app,
+    baseUrl,
     context
   }) {
     super()
@@ -26,7 +26,7 @@ class CompositeView extends ElementView {
   }
 
   getComponentView (id) {
-    return this.children[id]
+    return this.componentViews[id]
   }
 
   /**
@@ -35,18 +35,20 @@ class CompositeView extends ElementView {
    */
   initialize () {
     debug('Ridge Composite initialize:', this.config)
-    this.children = {}
-    for (let i = 0; i < this.config.elements.length; i++) {
-      const view = new ComponentView({
-        context: this.context,
-        mode: this.mode,
-        config: this.config.elements[i],
-        i
-      })
-      this.children[view.id] = view
-    }
-
     this.context.delegateMethods(this, ['getComponentView'])
+    this.componentViews = {}
+    for (let i = 0; i < this.config.elements.length; i++) {
+      const view = this.createComponentView(this.config.elements[i], i)
+      this.componentViews[view.getId()] = view
+    }
+  }
+
+  createComponentView (config, i) {
+    return new ComponentView({
+      context: this.context,
+      config,
+      i
+    })
   }
 
   /**
@@ -58,18 +60,23 @@ class CompositeView extends ElementView {
     this.updateStyle()
     await this.importStyleFiles()
     await this.importJSFiles()
-
     await this.loadStore()
 
     const promises = []
-    for (const wrapper of Object.values(this.children).filter(e => e.isRoot())) {
+    for (const view of Object.values(this.componentViews).filter(e => e.isRoot())) {
       const div = document.createElement('div')
       el.appendChild(div)
-      promises.push(await wrapper.loadAndMount(div))
+      promises.push(await view.loadAndMount(div))
     }
     this.onPageMounted && this.onPageMounted()
     await Promise.allSettled(promises)
     this.onPageLoaded && this.onPageLoaded()
+  }
+
+  unmount () {
+    for (const view of Object.values(this.componentViews).filter(e => e.isRoot())) {
+      view.unmount()
+    }
   }
 
   /**
@@ -116,8 +123,8 @@ class CompositeView extends ElementView {
   async loadStore () {
     this.store = new ValtioStore()
 
-    await this.store.loadStoreModule(this.config.storeFiles)
-    this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction'])
+    await this.store.updateStore((this.config.storeFiles || []).map(storePath => this.context.baseUrl + '/' + this.app + '/' + storePath))
+    this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction', 'getStoreValue'])
   }
 }
 

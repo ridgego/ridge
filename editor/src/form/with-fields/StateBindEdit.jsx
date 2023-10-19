@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { IconChainStroked } from '@douyinfe/semi-icons'
-import ridgeEditService from '../../service/RidgeEditService'
+import ridgeEditService from '../../service/RidgeEditorService'
 import { withField, Popover, Button, Space, Tree } from '@douyinfe/semi-ui'
 
 const StateBindEdit = withField(({

@@ -4,7 +4,10 @@ import Mousetrap from 'mousetrap'
 
 import debug from 'debug'
 import { fitRectIntoBounds } from '../utils/rectUtils'
+import context from '../service/RidgeEditorService.js'
+
 const trace = debug('ridge:workspace')
+
 /**
  * 控制工作区组件的Drag/Resize/New等动作
  * 控制编辑器的工作区缩放/平移
@@ -12,13 +15,11 @@ const trace = debug('ridge:workspace')
 export default class WorkSpaceControl {
   init ({
     workspaceEl,
-    viewPortEl,
-    ridgeEditorService
+    viewPortEl
   }) {
     this.workspaceEl = workspaceEl
     this.viewPortEl = viewPortEl
-    this.ridgeEditorService = ridgeEditorService
-    this.zoom = 0.8
+    this.zoom = 1
     this.selectorDropableTarget = ['.ridge-container', '.ridge-droppable']
 
     // on(EVENT_ELEMENT_SELECTED, payload => {
@@ -55,39 +56,33 @@ export default class WorkSpaceControl {
     }
   }
 
-  setPageManager (manager) {
-    this.pageManager = manager
-  }
-
   updateMovable () {
     this.moveable.updateTarget()
   }
 
-  fitToCenter (width, height) {
-    const availableWidth = window.innerWidth - 620
-    let zoom = 1
-    if (width > availableWidth) {
-      zoom = availableWidth / width
+  fitToCenter (padding = 40) {
+    const wsbc = this.workspaceEl.getBoundingClientRect()
+    const vpbc = this.viewPortEl.getBoundingClientRect()
+    this.zoom = 1
+
+    const fitted = fitRectIntoBounds({
+      width: vpbc.width,
+      height: vpbc.height
+    }, {
+      width: wsbc.width - padding * 2,
+      height: wsbc.width - padding * 2
+    })
+
+    if (fitted.width !== vpbc.width) {
+      this.zoom = fitted.width / vpbc.width
     }
 
-    // const fitted = fitRectIntoBounds({
-    //   width,
-    //   height
-    // }, {
-    //   width: window.innerWidth,
-    //   height: window.innerHeight
-    // })
+    this.viewPortX = (wsbc.width - padding * 2 - fitted.width) / 2
+    this.viewPortY = (wsbc.height - padding * 2 - fitted.height) / 2
 
-    this.viewPortEl.style.width = width + 'px'
-    this.viewPortEl.style.height = height + 'px'
+    this.viewPortEl.style.transform = `translate(${this.viewPortX}px, ${this.viewPortY}px) scale(${this.zoom})`
 
-    this.workspaceX = 290
-    this.workspaceY = 5
-
-    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${zoom})`
-
-    this.zoom = zoom
-    return zoom
+    return this.zoom
   }
 
   setZoom (zoom) {
@@ -110,7 +105,6 @@ export default class WorkSpaceControl {
     })
 
     this.workspaceMovable.on('dragStart', ev => {
-      trace('viewPortEl dragStart')
       if (ev.inputEvent.ctrlKey) {
         this.workspaceMovable.dragWorkSpace = true
         this.moveable.target = []
@@ -120,15 +114,12 @@ export default class WorkSpaceControl {
     })
 
     this.workspaceMovable.on('drag', ev => {
-      trace('viewPortEl drag')
       if (ev.inputEvent.ctrlKey && this.workspaceMovable.dragWorkSpace) {
         this.moveable.target = null
-        this.workspaceX += ev.delta[0]
-        this.workspaceY += ev.delta[1]
+        this.viewPortX += ev.delta[0]
+        this.viewPortY += ev.delta[1]
 
-        this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${this.zoom})`
-
-        // this.viewPortEl.style.transform = ev.transform
+        this.viewPortEl.style.transform = `translate(${this.viewPortX}px, ${this.viewPortY}px) scale(${this.zoom})`
       }
     })
   }
@@ -164,7 +155,7 @@ export default class WorkSpaceControl {
         return
       }
       trace('movable drag', ev)
-      const config = ev.target.elementWrapper.config
+      const config = ev.target.view.config
 
       if (config.parent) {
         sm.onElementDragStart(ev.target, ev.inputEvent)
@@ -177,7 +168,6 @@ export default class WorkSpaceControl {
 
     this.moveable.on('dragEnd', ev => {
       if (ev.isDrag) {
-        trace('movable dragEnd')
         sm.placeElementAt(ev.target, ev.clientX, ev.clientY)
       } else {
         sm.selectElements([ev.target])
@@ -430,8 +420,8 @@ export default class WorkSpaceControl {
       y
     }, false)
     trace('Drop target', targetEl)
-    const sourceElement = el.elementWrapper
-    const targetParentElement = targetEl ? targetEl.elementWrapper : null
+    const sourceElement = el.view
+    const targetParentElement = targetEl ? targetEl.view : null
     if (targetParentElement == null) {
       // 根上移动： 只更新配置
       trace('页面上移动')
@@ -439,16 +429,12 @@ export default class WorkSpaceControl {
     } else {
       // 放入一个容器
       trace('从页面到父容器')
-      const result = this.pageManager.attachToParent(targetParentElement, sourceElement, { x, y })
+      const result = this.context.attachToParent(targetParentElement, sourceElement, { x, y })
       if (result === false) {
         this.putElementToRoot(el, x, y)
       }
     }
-    emit(EVENT_ELEMENT_DRAG_END, {
-      sourceElement: el,
-      targetParentElement,
-      elements: this.pageManager.getPageElements()
-    })
+    context.onElementMoveEnd(el)
     this.moveable.updateTarget()
   }
 
@@ -465,15 +451,13 @@ export default class WorkSpaceControl {
     const bcr = el.getBoundingClientRect()
     if (x == null || y == null || (x > bcr.x && x < (bcr.x + bcr.width) && y > bcr.y && y < (bcr.y + bcr.height))) {
       // 计算位置
-      el.wrapper.setConfigStyle({
-        position: 'absolute',
+      el.view.updateStyleConfig({
         x: Math.floor((bcr.x - rbcr.x) / this.zoom),
         y: Math.floor((bcr.y - rbcr.y) / this.zoom)
       })
     } else {
       // 计算位置
-      el.wrapper.setConfigStyle({
-        position: 'absolute',
+      el.view.updateStyleConfig({
         x: Math.floor((x - rbcr.x - bcr.width / 2) / this.zoom),
         y: Math.floor((y - rbcr.y - bcr.height / 2) / this.zoom)
       })
@@ -535,8 +519,10 @@ export default class WorkSpaceControl {
     }
 
     this.moveable.updateTarget()
-    if (filtered && filtered.length <= 1) {
-      this.ridgeEditorService.onElementSelected(filtered[0])
+    if (filtered && filtered.length === 1) {
+      context.onElementSelected(filtered[0])
+    } else {
+      context.onPageSelected()
     }
 
     if (filtered) {

@@ -5,7 +5,7 @@ import ObjectForm from '../../form/ObjectForm.jsx'
 import './setting-panel.less'
 import BackUp from './BackUp.jsx'
 
-import { ridge } from '../../service/RidgeEditService.js'
+import { ridge } from '../../service/RidgeEditorService.js'
 const FORM_DEBUG_SECTION = [
   {
     label: '启用',

@@ -1,8 +1,7 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import ridgeEditService from '../../service/RidgeEditService.js'
-import { EVENT_FILE_TREE_CHANGE } from '../../constant.js'
+import ridgeEditorService from '../../service/RidgeEditorService.js'
 const trace = require('debug')('ridge:cl')
 const { Text } = Typography
 class ComponentListing extends React.Component {
@@ -16,7 +15,7 @@ class ComponentListing extends React.Component {
       currentPackage: '',
       fullLoading: true
     }
-    ridgeEditService.panels.componentListPanel = this
+    ridgeEditorService.services.componentListPanel = this
     this.loadedComponents = []
   }
 
@@ -26,7 +25,7 @@ class ComponentListing extends React.Component {
     for (const componentName of pkg.components) {
       const componentPath = pkg.name + '/' + componentName
       if (this.loadedComponents.filter(component => component.componentPath === componentPath).length === 0) {
-        ridgeEditService.ridge.loader.loadComponent(componentPath).then(componentLoaded => {
+        ridgeEditorService.loadComponent(componentPath).then(componentLoaded => {
           if (!componentLoaded) {
             return
           }
@@ -54,7 +53,7 @@ class ComponentListing extends React.Component {
     this.setState({
       fullLoading: true
     })
-    const loadedPackages = await ridgeEditService.loadPackages()
+    const loadedPackages = await ridgeEditorService.loadPackages()
 
     if (loadedPackages.length) {
       this.setState({

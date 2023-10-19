@@ -3,7 +3,7 @@ import debug from 'debug'
 import { Tree, Space, Typography, Button, Tag } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
 import { EVENT_PAGE_LOADED, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
-import ridgeEditService from '../../service/RidgeEditService.js'
+import context from '../../service/RidgeEditorService.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 
 const { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } = SemiIcons
@@ -17,52 +17,60 @@ class OutLineTree extends React.Component {
       elements: [],
       selected: null
     }
-    ridgeEditService.panels.outlinePanel = this
+    context.services.outlinePanel = this
   }
 
   static contextType = ThemeContext
 
-  componentDidMount () {
-    on(EVENT_PAGE_LOADED, ({ elements }) => {
+  updateOutline () {
+    if (context.editorView) {
       this.setState({
-        elements
+        elements: context.editorView.componentViews
       })
-    })
-
-    on(EVENT_ELEMENT_CREATED, ({
-      element,
-      elements
-    }) => {
-      this.setState({
-        elements
-      })
-    })
-
-    on(EVENT_PAGE_OUTLINE_CHANGE, ({ elements }) => {
-      this.setState({
-        elements
-      })
-    })
-
-    on(EVENT_ELEMENT_SELECTED, payload => {
-      if (payload.from === 'workspace') {
-        this.setState({
-          selected: payload.element ? payload.element.elementWrapper.id : null
-        })
-        if (payload.elements) {
-          this.setState({
-            elements: payload.elements
-          })
-        }
-      }
-    })
-
-    on(EVENT_ELEMENT_DRAG_END, payload => {
-      this.setState({
-        elements: payload.elements
-      })
-    })
+    }
   }
+
+  // componentDidMount () {
+  //   on(EVENT_PAGE_LOADED, ({ elements }) => {
+  //     this.setState({
+  //       elements
+  //     })
+  //   })
+
+  //   on(EVENT_ELEMENT_CREATED, ({
+  //     element,
+  //     elements
+  //   }) => {
+  //     this.setState({
+  //       elements
+  //     })
+  //   })
+
+  //   on(EVENT_PAGE_OUTLINE_CHANGE, ({ elements }) => {
+  //     this.setState({
+  //       elements
+  //     })
+  //   })
+
+  //   on(EVENT_ELEMENT_SELECTED, payload => {
+  //     if (payload.from === 'workspace') {
+  //       this.setState({
+  //         selected: payload.element ? payload.element.elementWrapper.id : null
+  //       })
+  //       if (payload.elements) {
+  //         this.setState({
+  //           elements: payload.elements
+  //         })
+  //       }
+  //     }
+  //   })
+
+  //   on(EVENT_ELEMENT_DRAG_END, payload => {
+  //     this.setState({
+  //       elements: payload.elements
+  //     })
+  //   })
+  // }
 
   updateTree (elements) {
     this.setState({

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { withField, Select } from '@douyinfe/semi-ui'
-import { appService } from '../../service/RidgeEditService'
+import { appService } from '../../service/RidgeEditorService'
 import { filterTree } from '../../panels/files/buildFileTree'
 
 const StyleFilesEdit = ({

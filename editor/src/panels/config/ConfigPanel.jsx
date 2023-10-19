@@ -4,7 +4,7 @@ import ObjectForm from '../../form/ObjectForm.jsx'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import debug from 'debug'
 
-import ridgeEditService from '../../service/RidgeEditService.js'
+import ridgeEditorService from '../../service/RidgeEditorService.js'
 
 import {
   EVENT_FILE_TREE_CHANGE, EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
@@ -115,21 +115,21 @@ export default class ComponentPanel extends React.Component {
     this.componentEventFormApi = null
     this.pagePropFormApi = null
 
-    ridgeEditService.panels.configPanel = this
+    ridgeEditorService.services.configPanel = this
 
     this.state = {
-      pageFields: PAGE_FIELDS,
+      configPage: true,
+      pageFields: [],
+      pageEventFields: [], 
       nodePropFields: [], // 当前节点属性
       nodeEventFields: [], // 当前节点事件
-      nodePropsValues: {},
-      nodeEventsValues: {}
     }
   }
 
   static contextType = ThemeContext
 
   componentDidMount () {
-    this.initEvents()
+    // this.initEvents()
   }
 
   initEvents () {
@@ -173,27 +173,30 @@ export default class ComponentPanel extends React.Component {
   }
 
   // 按照选择的组件更新面板配置表单
-  updatePanelConfig () {
-    const elementWrapper = this.currentElement.elementWrapper
+  updateComponentConfig (componentView) {
+    let view = componentView
+    if (componentView instanceof Node) {
+      view = componentView.view
+    }
 
-    trace('updatePanelConfig', elementWrapper)
+    trace('updatePanelConfig', view)
 
     // 节点基本样式 （title/visible)
     const nodePropFields = []
 
     nodePropFields.push(...COMPONENT_BASIC_FIELDS)
 
-    if (elementWrapper.parentWrapper) {
+    if (view.containerView) {
       // 放置到容器中，有容器赋予的样式配置的
-      nodePropFields.push(...(elementWrapper.parentWrapper?.componentDefinition?.childStyle || []))
+      nodePropFields.push(...(view.containerView?.componentDefinition?.childStyle || []))
     } else {
       nodePropFields.push(...COMPONENT_ROOT_FIELDS)
     }
 
     const nodeEventFields = []
     // 能加载到节点定义
-    if (elementWrapper.componentDefinition) {
-      for (const prop of elementWrapper.componentDefinition.props) {
+    if (view.componentDefinition) {
+      for (const prop of view.componentDefinition.props) {
         const field = {}
         if (prop.connect) {
           Object.assign(field, prop, {
@@ -208,134 +211,119 @@ export default class ComponentPanel extends React.Component {
         nodePropFields.push(field)
       }
 
-      for (const event of elementWrapper.componentDefinition.events || []) {
+      for (const event of view.componentDefinition.events || []) {
         const control = {
           label: event.label,
           type: 'function',
           control: 'event',
-          field: 'event.' + event.name
+          field: 'events.' + event.name
         }
         nodeEventFields.push(control)
       }
     }
     this.setState({
+      configPage: false,
       nodePropFields,
       nodeEventFields,
-      nodePropsValues: {
-        title: elementWrapper.config.title,
-        props: elementWrapper.config.props,
-        propsEx: elementWrapper.config.propEx,
-        styleEx: elementWrapper.config.styleEx
-      },
-      nodeEventsValues: {
-        event: elementWrapper.config.events
-      }
+      // nodePropsValues: {
+      //   title: view.config.title,
+      //   props: view.config.props,
+      //   propsEx: view.config.propEx,
+      //   styleEx: view.config.styleEx
+      // },
+      // nodeEventsValues: {
+      //   event: view.config.events
+      // }
     }, () => {
       this.componentPropFormApi.reset()
       this.componentEventFormApi.reset()
       this.componentStyleFormApi.reset()
 
-      this.componentPropFormApi.setValue('style', elementWrapper.config.style, {
-        notNotify: true
-      })
-      this.componentPropFormApi.setValue('title', elementWrapper.config.title, {
-        notNotify: true
-      })
-      this.componentPropFormApi.setValue('props', elementWrapper.config.props, {
-        notNotify: true
-      })
-      this.componentPropFormApi.setValue('propsEx', elementWrapper.config.propEx, {
-        notNotify: true
-      })
-      this.componentPropFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
-        notNotify: true
-      })
-
-      this.componentStyleFormApi.setValue('style', elementWrapper.config.style, {
-        notNotify: true
-      })
-      this.componentStyleFormApi.setValue('styleEx', elementWrapper.config.styleEx, {
-        notNotify: true
-      })
-      this.componentEventFormApi.setValue('event', elementWrapper.config.events, {
-        notNotify: true
-      })
+      for (const key of Object.keys(view.config)) {
+        this.componentPropFormApi.setValue(key, view.config[key], {
+          notNotify: true
+        })
+      }
     })
   }
 
   updatePageConfigFields () {
-    if (ridge.pageElementManager) {
-      this.setState({
-        pageFields: [...PAGE_FIELDS, {
-          field: 'cssFiles',
-          label: '样式表',
-          control: 'select',
-          placeholder: '请选择样式文件',
-          optionList: appService.filterFiles(node => node.mimeType === 'text/css').map(file => {
-            return {
-              value: file.path,
-              label: file.label
-            }
-          }),
-          required: false,
-          multiple: true
-        }, {
-          field: 'jsFiles',
-          label: '脚本库',
-          control: 'select',
-          placeholder: '请选择脚本文件',
-          optionList: appService.filterFiles(node => node.mimeType === 'text/javascript').map(file => {
-            return {
-              value: file.path,
-              label: file.label
-            }
-          }),
-          required: false,
-          multiple: true
-        }, {
-          field: 'storeFiles',
-          label: '状态库',
-          control: 'select',
-          placeholder: '请选择脚本文件',
-          optionList: appService.filterFiles(node => node.mimeType === 'text/javascript' && node.label.endsWith('.store.js')).map(file => {
-            return {
-              value: file.path,
-              label: file.label
-            }
-          }),
-          required: false,
-          multiple: true
-        }, {
-          field: 'style.classNames',
-          label: '样式库',
-          control: 'select',
-          placeholder: '请选择样式',
-          optionList: ridge.pageElementManager.classNames.map(c => {
-            return {
-              label: c.label,
-              value: c.className
-            }
-          }),
-          required: false,
-          multiple: true
-        }]
-      })
+    const { editorView } = ridgeEditorService
+    const { appService } = ridgeEditorService.services
+    this.setState({
+      configPage: true,
+      pageFields: [...PAGE_FIELDS, {
+        field: 'cssFiles',
+        label: '样式表',
+        control: 'select',
+        placeholder: '请选择样式文件',
+        optionList: appService.filterFiles(node => node.mimeType === 'text/css').map(file => {
+          return {
+            value: file.path,
+            label: file.label
+          }
+        }),
+        required: false,
+        multiple: true
+      }, {
+        field: 'jsFiles',
+        label: '脚本库',
+        control: 'select',
+        placeholder: '请选择脚本文件',
+        optionList: appService.filterFiles(node => node.mimeType === 'text/javascript').map(file => {
+          return {
+            value: file.path,
+            label: file.label
+          }
+        }),
+        required: false,
+        multiple: true
+      }, {
+        field: 'storeFiles',
+        label: '状态库',
+        control: 'select',
+        placeholder: '请选择脚本文件',
+        optionList: appService.filterFiles(node => node.mimeType === 'text/javascript' && node.label.endsWith('.store.js')).map(file => {
+          return {
+            value: file.path,
+            label: file.label
+          }
+        }),
+        required: false,
+        multiple: true
+      }, {
+        field: 'style.classNames',
+        label: '样式库',
+        control: 'select',
+        placeholder: '请选择样式',
+        optionList: editorView.classNames.map(c => {
+          return {
+            label: c.label,
+            value: c.className
+          }
+        }),
+        required: false,
+        multiple: true
+      }]
+    })
 
-      const { cssFiles, jsFiles, storeFiles, style } = ridge.pageElementManager.pageConfig
+    const { cssFiles, jsFiles, storeFiles, style, name } = editorView.config
 
-      this.pagePropFormApi.setValue('cssFiles', cssFiles, {
-        notNotify: true
-      })
-      this.pagePropFormApi.setValue('jsFiles', jsFiles, {
-        notNotify: true
-      })
-      this.pagePropFormApi.setValue('storeFiles', storeFiles, {
-        notNotify: true
-      })
-      this.pagePropFormApi.setValue('style', style, {
-        notNotify: true
-      })
-    }
+    this.pagePropFormApi.setValue('cssFiles', cssFiles, {
+      notNotify: true
+    })
+    this.pagePropFormApi.setValue('jsFiles', jsFiles, {
+      notNotify: true
+    })
+    this.pagePropFormApi.setValue('storeFiles', storeFiles, {
+      notNotify: true
+    })
+    this.pagePropFormApi.setValue('style', style, {
+      notNotify: true
+    })
+    this.pagePropFormApi.setValue('name', name, {
+      notNotify: true
+    })
   }
 
   /**
@@ -382,8 +370,8 @@ export default class ComponentPanel extends React.Component {
     const {
       nodePropFields,
       nodeEventFields,
-      nodeEventsValues,
-      pageFields
+      pageFields,
+      configPage
     } = this.state
     const basicStylesAPI = formApi => {
       this.componentStyleFormApi = formApi
@@ -420,7 +408,8 @@ export default class ComponentPanel extends React.Component {
     }
 
     const pagePropValueChange = (values, field) => {
-      ridge.pageElementManager.updatePageConfig(field)
+      ridgeEditorService.updatePageConfig(values, field)
+      // ridge.pageElementManager.updatePageConfig(field)
     }
 
     return (
@@ -429,7 +418,7 @@ export default class ComponentPanel extends React.Component {
           type='card'
           className='on-title'
           style={{
-            display: nodePropFields.length === 0 ? 'none' : 'block'
+            display: configPage ? 'none' : 'block'
           }}
         >
           {/* 组件属性配置 */}
@@ -441,7 +430,6 @@ export default class ComponentPanel extends React.Component {
           </TabPane>
           <TabPane tab='交互' itemKey='interact'>
             <ObjectForm
-              initValues={nodeEventsValues}
               fields={nodeEventFields}
               getFormApi={eventPropsAPI} onValueChange={componentEventValueChange}
             />
@@ -458,7 +446,7 @@ export default class ComponentPanel extends React.Component {
           type='card'
           className='on-title'
           style={{
-            display: nodePropFields.length === 0 ? 'block' : 'none'
+            display: configPage ? 'block' : 'none'
           }}
         >
           {/* 页面属性配置 */}

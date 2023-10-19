@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Select, withField } from '@douyinfe/semi-ui'
-import ridgeEditService from '../../service/RidgeEditService'
+import context from '../../service/RidgeEditorService'
 
 const ClassEdit = ({
   value,
@@ -9,12 +9,14 @@ const ClassEdit = ({
   const [classNames, setClassNames] = useState([])
 
   useEffect(() => {
-    setClassNames(ridgeEditService.pageElementManager.classNames.map(c => {
-      return {
-        label: c.label,
-        value: c.className
-      }
-    }))
+    if (context.editorView) {
+      setClassNames(context.editorView.getClassNames().map(c => {
+        return {
+          label: c.label,
+          value: c.className
+        }
+      }))
+    }
   })
 
   return (

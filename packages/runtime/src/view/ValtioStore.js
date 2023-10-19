@@ -1,20 +1,16 @@
-import { isObject } from '../utils/is'
 import { filename, nanoid } from '../utils/string'
 import { proxy, subscribe } from 'valtio/vanilla'
 import { subscribeKey } from 'valtio/utils'
 
+/**
+ * Store engine based on Valtio Lib(Proxied Object)
+ **/
 export default class ValtioStore {
-  constructor (app, storeFiles) {
-    this.storeFiles = storeFiles
-    this.app = app
-    // 一个页面支持多个store
-    this.storeObjects = {} // 定义
-    this.stores = {} // valtio state registry
-    this.storeTrees = {} //
-
-    this.watcherCallbacks = {}
+  constructor () {
+    this.storeObjects = {} // loaded store definition
+    this.stores = {} // Valtio proxied
+    this.watchers = {}
   }
-
 
   /**
    * 获取状态值，支持以下格式
@@ -77,10 +73,13 @@ export default class ValtioStore {
 
   subscribe (expr, cb) {
     const [storeKey, stateExpr] = expr.split('.')
-
-    if (this.watcherCallbacks[storeKey] && this.watcherCallbacks[storeKey][stateExpr]) {
-      this.watcherCallbacks[storeKey][stateExpr].push(cb)
+    if (this.watchers[storeKey] == null)  {
+      this.watchers[storeKey] = {}
     }
+    if (this.watchers[storeKey][stateExpr] == null) {
+      this.watchers[storeKey][stateExpr] = []
+    }
+    this.watchers[storeKey][stateExpr].push(cb)
   }
 
   doStoreAction (storeKey, action, payload) {
@@ -92,77 +91,33 @@ export default class ValtioStore {
   /**
    * 更新/加载页面的storejs
    */
-  async updateStore () {
-    const { pageConfig } = this.pageElementManager
-    const { storeFiles, id } = pageConfig
-    const scriptEls = document.querySelectorAll('script.page-' + id)
-    // 删除旧的store代码
-    for (const el of scriptEls) {
-      document.head.removeChild(el)
-    }
-
+  async updateStore (storeFiles) {
     if (storeFiles && storeFiles.length) {
       for (const storeFile of storeFiles) {
         const moduleName = filename(storeFile)
-        if (this.pageElementManager.mode !== 'hosted') {
-          // 从localStorage读取JS内容
-          const file = this.ridge.appService.filterFiles(f => f.path === storeFile)[0]
-          if (file) {
-            const jsContent = await this.ridge.appService.getFileContent(file)
-
-            const StoreModule = await this.loadStoreModule(null, jsContent)
-
-            if (StoreModule) {
-              this.registerPageStore(moduleName, StoreModule)
-            }
-          }
-        } else {
-          const StoreModule = await this.loadStoreModule(`${this.ridge.baseUrl}/${this.pageElementManager.app}${storeFile}`)
+        const StoreModule = await this.loadStoreModule(storeFile)
+        if (StoreModule) {
           if (StoreModule) {
-            if (StoreModule) {
-              this.registerPageStore(moduleName, StoreModule)
-            }
+            this.registerPageStore(moduleName, StoreModule)
           }
         }
       }
     }
   }
 
-  /**
-   * 加载 store.js代码并返回store模块
-   */
-  async loadStoreModule (jsPath, jsContent) {
-    if (jsPath) {
-      const resolveKey = 'resolve' + nanoid(5)
-      const scriptDiv = document.createElement('script')
-      scriptDiv.setAttribute('type', 'module')
-      scriptDiv.setAttribute('async', true)
-      document.head.append(scriptDiv)
-      scriptDiv.textContent = `import * as Module from '${jsPath}'; window['${resolveKey}'](Module);`
-      return await new Promise((resolve, reject) => {
-        window[resolveKey] = (Module) => {
-          delete window[resolveKey]
-          resolve(Module)
-        }
-      })
-    } else if (jsContent) {
-      const scriptDiv = document.createElement('script')
-      document.head.append(scriptDiv)
-      const randomModuleKey = 'Module-' + nanoid(5)
-
-      if (jsContent.indexOf('export default') > -1) {
-        jsContent = jsContent.replace('export default', `window['${randomModuleKey}']=`)
+  async loadStoreModule (jsPath) {
+    const resolveKey = 'resolve-' + nanoid(5)
+    const scriptDiv = document.createElement('script')
+    scriptDiv.setAttribute('type', 'module')
+    scriptDiv.setAttribute('async', true)
+    document.head.append(scriptDiv)
+    scriptDiv.textContent = `import * as Module from '${jsPath}'; window['${resolveKey}'](Module);`
+    return await new Promise((resolve, reject) => {
+      window[resolveKey] = (Module) => {
+        delete window[resolveKey]
+        resolve(Module)
       }
-      scriptDiv.textContent = jsContent
-
-      if (window[randomModuleKey]) {
-        const moduleD = window[randomModuleKey]
-        delete window[randomModuleKey]
-        return moduleD
-      } else {
-        return null
-      }
-    }
+    })
   }
 
   /**
@@ -207,61 +162,5 @@ export default class ValtioStore {
       })
       this.watcherCallbacks[moduleName][state.key] = []
     }
-  }
-
-  getStoreTrees () {
-    return this.storeTrees
-  }
-
-  parseStoreTree (moduleName, storeDefModule) {
-    const tree = {
-      states: [],
-      actions: []
-    }
-    const alias = storeDefModule.displayNames || {}
-    if (storeDefModule.state && typeof storeDefModule.state === 'function') {
-      const stateObject = storeDefModule.state()
-
-      tree.states = this.getChildrenFromPlainObject(stateObject, moduleName, alias)
-    }
-
-    if (storeDefModule.computed && typeof storeDefModule.computed === 'object') {
-      Object.keys(storeDefModule.computed).forEach(key => {
-        tree.states.push({
-          label: alias[key] || key,
-          value: moduleName + '.' + key,
-          key
-        })
-      })
-    }
-
-    if (storeDefModule.actions && typeof storeDefModule.actions === 'object') {
-      Object.keys(storeDefModule.actions || {}).forEach(key => {
-        tree.actions.push({
-          label: alias[key] || key,
-          value: key,
-          key
-        })
-      })
-    }
-    return tree
-  }
-
-  getChildrenFromPlainObject (object, path, labelMap) {
-    const treeData = []
-    Object.keys(object).forEach(key => {
-      const nodePath = (path ? (path + '.') : '') + key
-      const treeNode = {
-        label: labelMap[nodePath] || labelMap[key] || key,
-        value: nodePath,
-        key
-      }
-
-      if (isObject(object[key])) {
-        treeNode.children = this.getChildrenFromPlainObject(object[key], nodePath, labelMap)
-      }
-      treeData.push(treeNode)
-    })
-    return treeData
   }
 }
