@@ -14,3 +14,18 @@ export default {
   storeFiles: [],
   elements: []
 }
+const JS_TEMPLATE = `
+export default {
+  state: () => {
+    return {
+      name: ''
+    }
+  },
+  getters: {
+    hello: (state) => {
+      return 'Hello ' + state.name
+    }
+  },
+  actions: {
+  }
+}`

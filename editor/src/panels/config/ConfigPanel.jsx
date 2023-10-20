@@ -4,7 +4,7 @@ import ObjectForm from '../../form/ObjectForm.jsx'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import debug from 'debug'
 
-import ridgeEditorService from '../../service/RidgeEditorService.js'
+import context from '../../service/RidgeEditorService.js'
 
 import {
   EVENT_FILE_TREE_CHANGE, EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
@@ -115,14 +115,14 @@ export default class ComponentPanel extends React.Component {
     this.componentEventFormApi = null
     this.pagePropFormApi = null
 
-    ridgeEditorService.services.configPanel = this
+    context.services.configPanel = this
 
     this.state = {
       configPage: true,
       pageFields: [],
-      pageEventFields: [], 
+      pageEventFields: [],
       nodePropFields: [], // 当前节点属性
-      nodeEventFields: [], // 当前节点事件
+      nodeEventFields: [] // 当前节点事件
     }
   }
 
@@ -172,13 +172,15 @@ export default class ComponentPanel extends React.Component {
     })
   }
 
-  // 按照选择的组件更新面板配置表单
-  updateComponentConfig (componentView) {
+  /**
+   * 
+   **/
+  componentSelected (componentView) {
     let view = componentView
     if (componentView instanceof Node) {
       view = componentView.view
     }
-
+    this.componentView = view
     trace('updatePanelConfig', view)
 
     // 节点基本样式 （title/visible)
@@ -201,7 +203,7 @@ export default class ComponentPanel extends React.Component {
         if (prop.connect) {
           Object.assign(field, prop, {
             field: 'props.' + prop.name,
-            fieldEx: 'propsEx.' + prop.name
+            fieldEx: 'propEx.' + prop.name
           })
         } else {
           Object.assign(field, prop, {
@@ -224,32 +226,33 @@ export default class ComponentPanel extends React.Component {
     this.setState({
       configPage: false,
       nodePropFields,
-      nodeEventFields,
-      // nodePropsValues: {
-      //   title: view.config.title,
-      //   props: view.config.props,
-      //   propsEx: view.config.propEx,
-      //   styleEx: view.config.styleEx
-      // },
-      // nodeEventsValues: {
-      //   event: view.config.events
-      // }
+      nodeEventFields
     }, () => {
-      this.componentPropFormApi.reset()
-      this.componentEventFormApi.reset()
-      this.componentStyleFormApi.reset()
+      // this.componentPropFormApi.reset()
+      // this.componentEventFormApi.reset()
+      // this.componentStyleFormApi.reset()
 
-      for (const key of Object.keys(view.config)) {
-        this.componentPropFormApi.setValue(key, view.config[key], {
+      for (const key of ['title', 'props', 'propEx', 'style', 'styleEx', 'id']) {
+        this.componentPropFormApi.setValue(key, JSON.parse(JSON.stringify(view.config[key])), {
           notNotify: true
         })
       }
     })
   }
 
+  updateComponentConfig (view) {
+    if (view === this.componentView) {
+      for (const key of ['title', 'props', 'propEx', 'style', 'styleEx', 'id']) {
+        this.componentPropFormApi.setValue(key, JSON.parse(JSON.stringify(view.config[key])), {
+          notNotify: true
+        })
+      }
+    }
+  }
+
   updatePageConfigFields () {
-    const { editorView } = ridgeEditorService
-    const { appService } = ridgeEditorService.services
+    const { editorView } = context
+    const { appService } = context.services
     this.setState({
       configPage: true,
       pageFields: [...PAGE_FIELDS, {
@@ -326,42 +329,6 @@ export default class ComponentPanel extends React.Component {
     })
   }
 
-  /**
-   * 节点元素被选中事件
-   * @param {DOM} el
-   */
-  elementSelected (el) {
-    // if (this.currentElement === el) {
-    //   return
-    // }
-    this.currentElement = el
-    if (this.interval) {
-      window.clearInterval(this.interval)
-      this.interval = null
-    }
-    if (el) {
-      const elementWrapper = this.currentElement.elementWrapper
-      if (elementWrapper && elementWrapper.componentDefinition) {
-        this.updatePanelConfig()
-      } else {
-        this.interval = setInterval(() => {
-          if (elementWrapper && elementWrapper.componentDefinition) {
-            this.updatePanelConfig()
-            window.clearInterval(this.interval)
-            this.interval = null
-          }
-        }, 200)
-      }
-    } else {
-      this.updatePageConfigFields()
-      this.currentElement = null
-      this.setState({
-        nodePropFields: [],
-        nodeEventFields: []
-      })
-    }
-  }
-
   nodeRectChange (el) {
     this.styleChange(el)
   }
@@ -397,19 +364,20 @@ export default class ComponentPanel extends React.Component {
 
     // 组件属性表单项修改  组件样式和属性变动
     const componentPropValueChange = (values, field) => {
-      emit(EVENT_ELEMENT_PROP_CHANGE, { el: this.currentElement, values, field })
+      if (values.id === this.componentView.config.id) {
+        context.updateComponentConfig(this.componentView, values)
+      }
     }
 
     const componentEventValueChange = (values, field) => {
-      emit(EVENT_ELEMENT_EVENT_CHANGE, { el: this.currentElement, values, field })
+      context.updateComponentConfig(this.componentView, values)
     }
     const componentStyleValueChange = (values, field) => {
-      emit(EVENT_ELEMENT_PROP_CHANGE, { el: this.currentElement, values, field })
+      context.updateComponentConfig(this.componentView, values)
     }
 
     const pagePropValueChange = (values, field) => {
-      ridgeEditorService.updatePageConfig(values, field)
-      // ridge.pageElementManager.updatePageConfig(field)
+      context.updatePageConfig(values, field)
     }
 
     return (

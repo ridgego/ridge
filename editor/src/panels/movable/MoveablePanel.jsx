@@ -138,7 +138,7 @@ export default class MoveablePanel extends React.Component {
             }}
           >
             {this.state.hasError
-              ? <div>Something went wrong. {JSON.stringify(this.state.errors)}</div>
+              ? <div>Something went wrong. {JSON.stringify(this.state)}</div>
               : <ThemeContext.Provider value={search}>{this.props.children}</ThemeContext.Provider>}
           </div>
         </div>

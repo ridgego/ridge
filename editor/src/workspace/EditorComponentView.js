@@ -1,4 +1,6 @@
 import { ComponentView } from 'ridge-runtime'
+import _ from 'lodash'
+
 class EditorComponentView extends ComponentView {
   constructor (config) {
     super(config)
@@ -9,6 +11,10 @@ class EditorComponentView extends ComponentView {
     }
   }
 
+  setIndex (index) {
+    this.i = index
+  }
+
   getProperties () {
     return Object.assign({},
       this.systemProperties, // 系统属性
@@ -17,12 +23,18 @@ class EditorComponentView extends ComponentView {
   }
 
   updateStyleConfig (style) {
-    Object.assign(this.config.style, style)
+    _.merge(this.config.style, style)
+    // Object.assign(this.config.style, style)
+    this.updateStyle()
   }
 
   updateConfig (config) {
-    Object.assign(this.config, config)
-    this.forceUpdate()
+    _.merge(this.config, config)
+
+    // 更新配置属性到运行
+    Object.assign(this.properties, config.props)
+    this.updateStyle()
+    this.updateProps()
   }
 
   exportJSON () {

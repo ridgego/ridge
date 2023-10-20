@@ -6,8 +6,8 @@ import BackUpService from './BackUpService.js'
 import { EVENT_APP_OPEN, EVENT_FILE_TREE_CHANGE } from '../constant.js'
 import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToBlob, stringToDataUrl, saveAs } from '../utils/blob.js'
 import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
-const { nanoid } = require('../utils/string')
 import pageJSONTemplate from '../json/page.js'
+const { nanoid } = require('../utils/string')
 
 const trace = debug('ridge:app-service')
 
@@ -38,6 +38,15 @@ export default class ApplicationService {
     return filterTree(this.fileTree, filter)
   }
 
+  getFileByPath (path) {
+    const filtered = filterTree(this.fileTree, f => f.path === path)
+    if (filtered.length > 0) {
+      return filtered[0]
+    } else {
+      return null
+    }
+  }
+
   async getAppFileTree () {
     if (!this.fileTree) {
       const files = await this.getFiles()
@@ -47,41 +56,27 @@ export default class ApplicationService {
   }
 
   async updateAppFileTree () {
-    trace('Start Update File Tree')
+    trace('Update File Tree')
     const files = await this.getFiles()
     this.fileTree = getFileTree(files)
-    /*
-    await eachNode(fileTree, async (file) => {
-      if (file.mimeType && (file.mimeType.indexOf('image/') > -1 || file.mimeType.indexOf('audio/') > -1)) {
-        if (this.dataUrlByPath[file.path] == null) {
-          const dataUrl = await this.store.getItem(file.key)
-          const blob = await dataURLtoBlob(dataUrl)
-          this.dataUrlByPath[file.path] = window.URL.createObjectURL(blob)
-        }
-        file.dataUrl = this.dataUrlByPath[file.path]
-      }
-      if (file.mimeType && (file.mimeType.indexOf('text/css') > -1 || file.mimeType.indexOf('text/javascript') > -1)) {
-        const dataUrl = await this.store.getItem(file.key)
-        try {
-          file.textContent = await dataURLToString(dataUrl)
-        } catch (e) {
-          file.textContent = ''
-        }
-      }
-    })
-
-    */
   }
 
   async createDirectory (parent, name) {
+    const one = await this.collection.findOne({
+      parent,
+      name
+    })
+    if (one) {
+      throw new Error('File existed', name)
+    }
+
     const dirObject = {
       parent,
       id: nanoid(10),
-      name: await this.getNewFileName(parent, name || '新建文件夹', n => `(${n})`),
+      name: name,
       type: 'directory'
     }
     const dir = await this.collection.insert(dirObject)
-    await this.updateAppFileTree()
     return dir
   }
 
@@ -92,6 +87,14 @@ export default class ApplicationService {
    * @param {*} content
    */
   async createPage (parentId, name, content, style) {
+    const one = await this.collection.findOne({
+      parent,
+      name
+    })
+    if (one) {
+      throw new Error('File existed', name)
+    }
+
     const id = nanoid(10)
     const pageContent = content || pageJSONTemplate
 
@@ -107,7 +110,6 @@ export default class ApplicationService {
     }
     await this.store.setItem(id, pageContent)
     await this.collection.insert(pageObject)
-    await this.updateAppFileTree()
     return pageObject
   }
 
@@ -118,28 +120,26 @@ export default class ApplicationService {
    * @returns
    */
   async createFile (parentId, name, blob, mimeType) {
+    const one = await this.collection.findOne({
+      parent: parentId,
+      name
+    })
+    if (one) {
+      throw new Error('File existed', name)
+    }
+
     const id = nanoid(10)
     const dataUrl = await blobToDataUrl(blob)
 
     await this.store.setItem(id, dataUrl)
 
-    const one = await this.collection.findOne({
-      parent: parentId,
-      name
+    return await this.collection.insert({
+      id,
+      mimeType: blob.type || mimeType,
+      size: blob.size,
+      name,
+      parent: parentId
     })
-
-    if (one) {
-      return null
-    } else {
-      return await this.collection.insert({
-        id,
-        mimeType: blob.type || mimeType,
-        size: blob.size,
-        name,
-        parent: parentId
-      })
-    }
-    // await this.updateAppFileTree()
   }
 
   /**
@@ -189,6 +189,14 @@ export default class ApplicationService {
     return true
   }
 
+  async checkNewNameValid (parentId, newName) {
+    const nameDuplicated = await this.collection.findOne({
+      parent: parentId,
+      name: newName
+    })
+    return nameDuplicated
+  }
+
   /**
    * 移动到新的目录
    */
@@ -234,7 +242,7 @@ export default class ApplicationService {
   }
 
   // 删除一个节点到回收站
-  async trash (id, updateTree = true) {
+  async trash (id) {
     const existed = await this.collection.findOne({ id })
     if (existed) {
       if (existed.type !== 'directory') {
@@ -250,10 +258,6 @@ export default class ApplicationService {
         }
       }
       await this.collection.remove({ id })
-
-      if (updateTree) {
-        await this.updateAppFileTree(true)
-      }
     }
   }
 
@@ -298,6 +302,9 @@ export default class ApplicationService {
 
     if (file) {
       file.content = await this.store.getItem(id)
+      if (file.mimeType.startsWith('text')) {
+        file.textContent = await (dataURLToString(file.content))
+      }
       return file
     }
   }

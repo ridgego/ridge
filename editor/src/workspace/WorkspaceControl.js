@@ -154,7 +154,6 @@ export default class WorkSpaceControl {
       if (this.workspaceMovable.dragWorkSpace) {
         return
       }
-      trace('movable drag', ev)
       const config = ev.target.view.config
 
       if (config.parent) {
@@ -193,7 +192,7 @@ export default class WorkSpaceControl {
       if (delta[1]) {
         style.height = height
       }
-      target.elementWrapper.setConfigStyle(style)
+      context.updateComponentStyle(target.view, style)
     })
 
     this.moveable.on('resizeEnd', ({
@@ -203,7 +202,6 @@ export default class WorkSpaceControl {
       delta,
       transform
     }) => {
-      target.wrapper.invoke('sizeChanged')
       this.selectElements([target])
     })
 
@@ -214,7 +212,7 @@ export default class WorkSpaceControl {
         target,
         transform
       }) => {
-        if (!target.elementWrapper.config.parent) {
+        if (!target.view.config.parent) {
           target.style.transform = transform
         }
       })
@@ -222,7 +220,7 @@ export default class WorkSpaceControl {
     this.moveable.on('dragGroupEnd', (payload) => {
       payload.events.forEach(({ target }) => {
         // TODO 目前仅支持根节点？？
-        if (!target.elementWrapper.config.parent) {
+        if (!target.view.config.parent) {
           const bcr = target.getBoundingClientRect()
           this.putElementToRoot(target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
         }
@@ -247,11 +245,13 @@ export default class WorkSpaceControl {
 
     this.moveable.on('resizeGroupEnd', payload => {
       payload.events.forEach(({ target }) => {
-        if (!target.elementWrapper.config.parent) {
+        if (!target.view.config.parent) {
           const bcr = target.getBoundingClientRect()
-          target.elementWrapper.setConfigStyle({
-            x: bcr.left + bcr.width / 2,
-            y: bcr.top + bcr.height / 2
+          context.updateComponentConfig(target.view, {
+            style: {
+              x: bcr.left + bcr.width / 2,
+              y: bcr.top + bcr.height / 2
+            }
           })
         }
       })
@@ -413,22 +413,20 @@ export default class WorkSpaceControl {
    * @param {number} y 鼠标位置Y
    */
   placeElementAt (el, x, y) {
-    trace('Element Drag End', el, { x, y })
+    trace('placeElementAt:', el, { x, y })
     // 获取可放置的容器
     const targetEl = this.getDroppableTarget(el, {
       x,
       y
     }, false)
-    trace('Drop target', targetEl)
     const sourceElement = el.view
     const targetParentElement = targetEl ? targetEl.view : null
     if (targetParentElement == null) {
       // 根上移动： 只更新配置
-      trace('页面上移动')
       this.putElementToRoot(el, x, y)
     } else {
       // 放入一个容器
-      trace('从页面到父容器')
+      trace('Into container', targetParentElement)
       const result = this.context.attachToParent(targetParentElement, sourceElement, { x, y })
       if (result === false) {
         this.putElementToRoot(el, x, y)

@@ -1,12 +1,13 @@
 import React from 'react'
 import debug from 'debug'
-import { Spin, Button } from '@douyinfe/semi-ui'
+import { Spin, Button, ImagePreview } from '@douyinfe/semi-ui'
 import ConfigPanel from './panels/config/index.jsx'
 import RightBottomPanel from './panels/outline/index.jsx'
 import ComponentPanel from './panels/component/index.jsx'
 import LeftBottomPanel from './panels/files/index.jsx'
+import DialogCodeEdit from './panels/files/DialogCodeEdit.jsx'
 import MenuBar from './menu/MenuBar.jsx'
-import ridgeEditorService from './service/RidgeEditorService.js'
+import context from './service/RidgeEditorService.js'
 
 import './editor.less'
 
@@ -42,7 +43,15 @@ export default class Editor extends React.Component {
       zoom: 1,
       containerMask: true,
       currentPageId: null,
-      panelPosition: PANEL_SIZE_1920
+      panelPosition: PANEL_SIZE_1920,
+
+      imagePreviewSrc: null,
+      imagePreviewVisible: false,
+
+      codeEditTitle: '',
+      codeEditText: '',
+      codeEditVisible: false,
+      codeEditType: ''
     }
     if (window.screen.width <= 1366) {
       this.state.panelPosition = PANEL_SIZE_1366
@@ -50,12 +59,33 @@ export default class Editor extends React.Component {
   }
 
   componentDidMount () {
-    ridgeEditorService.editorDidMount(this, this.workspaceRef.current, this.viewPortContainerRef.current)
+    context.editorDidMount(this, this.workspaceRef.current, this.viewPortContainerRef.current)
   }
 
   setEditorLoaded () {
     this.setState({
       editorLoading: false
+    })
+  }
+
+  openCodeEditor (file) {
+    this.currentEditFile = file
+    this.setState({
+      codeEditTitle: file.name,
+      codeEditText: file.textContent,
+      codeEditVisible: true,
+      codeEditType: file.mimeType
+    })
+  }
+
+  completeCodeEdit (code) {
+    context.onCodeEditComplete(this.currentEditFile.id, code)
+  }
+
+  openImage (url) {
+    this.setState({
+      imagePreviewSrc: url,
+      imagePreviewVisible: true
     })
   }
 
@@ -241,7 +271,14 @@ export default class Editor extends React.Component {
       panelPosition,
       containerMask,
       menuBarVisible,
-      currentPageId
+      currentPageId,
+      imagePreviewVisible,
+      imagePreviewSrc,
+
+      codeEditTitle,
+      codeEditText,
+      codeEditVisible,
+      codeEditType
     } = state
     return (
       <>
@@ -280,6 +317,27 @@ export default class Editor extends React.Component {
                 <LeftBottomPanel title='应用资源' position={panelPosition.LEFT_BOTTOM} visible={!modeRun && appFilePanelVisible} />
                 <RightBottomPanel title='布局导航' position={panelPosition.DATA} visible={!modeRun && outlinePanelVisible} />
                 <ConfigPanel position={panelPosition.PROP} visible={!modeRun && propPanelVisible} />
+
+                <ImagePreview
+                  src={imagePreviewSrc} visible={imagePreviewVisible} onVisibleChange={() => {
+                    this.setState({
+                      imagePreviewVisible: false
+                    })
+                  }}
+                />
+
+                <DialogCodeEdit
+                  title={codeEditTitle}
+                  value={codeEditText} visible={codeEditVisible} lang={codeEditType} onChange={(code, close) => {
+                    this.completeCodeEdit(code, close)
+                  }}
+                  type={codeEditType}
+                  onClose={() => {
+                    this.setState({
+                      codeEditVisible: false
+                    })
+                  }}
+                />
               </>
           }
         </div>

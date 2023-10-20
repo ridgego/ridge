@@ -26,7 +26,7 @@ class ComponentView extends ElementView {
   }
 
   getProperties () {
-    return this.properties
+    return Object.assign({}, this.properties, this.slotProperties, this.eventProperties)
   }
 
   getConfig () {
@@ -126,25 +126,22 @@ class ComponentView extends ElementView {
     if (this.config.parent && !this.containerView) {
       this.containerView = this.context.getComponentView(this.config.parent)
     }
+
     this.properties = {}
+    this.slotProperties = {}
+    this.eventProperties = {}
 
     for (const prop of this.componentDefinition.props || []) {
       if (!prop) continue
-
-      if (this.config.props[prop.name] != null) {
-        this.properties[prop.name] = this.config.props[prop.name]
-      }
-
       // 编辑器初始化创建时给一次默认值
       // if (this.isCreate) {
       //   if (this.config.props[prop.name] == null && prop.value != null) {
       //     this.config.props[prop.name] = prop.value
       //   }
       // }
-
       // value property:add input event
       if (prop.name === 'value') {
-        this.properties.input = val => {
+        this.eventProperties.input = val => {
           this.emit('input', val)
         }
       }
@@ -155,7 +152,7 @@ class ComponentView extends ElementView {
         const eventName = 'set' + prop.name.substr(0, 1).toUpperCase() + prop.name.substr(1)
 
         // 当双向绑定时， 获取动态绑定部分配置的属性值
-        this.properties[eventName] = val => {
+        this.eventProperties[eventName] = val => {
           this.emit(eventName, val)
         }
       }
@@ -165,7 +162,7 @@ class ComponentView extends ElementView {
 
         // 写入子级的具体包装类
         if (Array.isArray(this.config.props.children)) {
-          this.properties.children = this.config.props.children.map(element => {
+          this.slotProperties.children = this.config.props.children.map(element => {
             if (typeof element === 'string') {
               return this.context.getComponentView(element)
             } else {
@@ -181,11 +178,15 @@ class ComponentView extends ElementView {
           const childComponentView = this.context.getComponentView(this.config.props[prop.name])
           if (childComponentView) {
             childComponentView.parentView = this
-            this.properties[prop.name] = childComponentView
+            this.slotProperties[prop.name] = childComponentView
           }
         }
       } else if (prop.type === 'ref') {
 
+      } else {
+        if (this.config.props[prop.name] != null) {
+          this.properties[prop.name] = this.config.props[prop.name]
+        }
       }
     }
     // 事件类属性写入，DOM初始化后事件才能挂到源头
@@ -197,7 +198,7 @@ class ComponentView extends ElementView {
 
     // subscribe for update
     new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
-      this.context.subscribe(expr, () => {
+      this.context.subscribe && this.context.subscribe(expr, () => {
         this.forceUpdate()
       })
     })
@@ -240,11 +241,12 @@ class ComponentView extends ElementView {
       Object.assign(this.properties, props)
     }
     if (this.renderer) {
+      const propertiesForUpdate = this.getProperties()
       try {
-        log('updateProps', this.id, this.properties)
+        log('updateProps', this.config.id, propertiesForUpdate)
         this.renderer.updateProps(this.getProperties())
       } catch (e) {
-        log('用属性渲染组件出错', e)
+        log('Render Error:', e, this, propertiesForUpdate)
       }
     } else {
       log('updateProps umounted', this.id)

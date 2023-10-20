@@ -30,52 +30,26 @@ class OutLineTree extends React.Component {
     }
   }
 
-  // componentDidMount () {
-  //   on(EVENT_PAGE_LOADED, ({ elements }) => {
-  //     this.setState({
-  //       elements
-  //     })
-  //   })
+  updateComponentConfig (componentView) {
 
-  //   on(EVENT_ELEMENT_CREATED, ({
-  //     element,
-  //     elements
-  //   }) => {
-  //     this.setState({
-  //       elements
-  //     })
-  //   })
-
-  //   on(EVENT_PAGE_OUTLINE_CHANGE, ({ elements }) => {
-  //     this.setState({
-  //       elements
-  //     })
-  //   })
-
-  //   on(EVENT_ELEMENT_SELECTED, payload => {
-  //     if (payload.from === 'workspace') {
-  //       this.setState({
-  //         selected: payload.element ? payload.element.elementWrapper.id : null
-  //       })
-  //       if (payload.elements) {
-  //         this.setState({
-  //           elements: payload.elements
-  //         })
-  //       }
-  //     }
-  //   })
-
-  //   on(EVENT_ELEMENT_DRAG_END, payload => {
-  //     this.setState({
-  //       elements: payload.elements
-  //     })
-  //   })
-  // }
+  }
 
   updateTree (elements) {
     this.setState({
       elements
     })
+  }
+
+  setCurrentNode (view) {
+    if (view) {
+      this.setState({
+        selected: view.config.id
+      })
+    } else {
+      this.setState({
+        selected: null
+      })
+    }
   }
 
   onNodeSelected (val) {
@@ -84,19 +58,18 @@ class OutLineTree extends React.Component {
     })
     const element = this.state.elements[val]
 
-    if (element.parentWrapper && element.parentWrapper.componentDefinition && element.parentWrapper.componentDefinition.name === 'switch-container') {
+    if (element.containerView && element.containerView.componentDefinition && element.containerView.componentDefinition.name === 'switch-container') {
       // 在切换容器内，需要切换容器当前状态
-      const index = element.parentWrapper.config.props.children.indexOf(val)
+      const index = element.containerView.config.props.children.indexOf(val)
 
-      element.parentWrapper.setPropsConfig(null, {
-        'props.states': {
-          current: element.parentWrapper.config.props.states.list[index],
-          list: element.parentWrapper.config.props.states.list
+      element.containerView.updateConfig({
+        props: {
+          current: element.containerView.config.props.states.list[index]
         }
       })
     }
 
-    workspaceControl.selectElements([this.state.elements[val].el], true)
+    context.workspaceControl.selectElements([this.state.elements[val].el], true)
   }
 
   buildElementTree (elements) {
@@ -110,9 +83,9 @@ class OutLineTree extends React.Component {
 
   getElementTree (element, elements, tags) {
     const treeNodeObject = {
-      key: element.id,
+      key: element.getId(),
+      value: element.getId(),
       label: element.config.props.text || element.config.title,
-      value: element.id,
       tags,
       element,
       children: []
@@ -224,13 +197,13 @@ class OutLineTree extends React.Component {
     log(node, dragNode, dropPosition, dropToGap)
     if (dropToGap) {
       if (parseInt(targetNodePos[targetNodePos.length - 1]) > parseInt(dragNodePos[dragNodePos.length - 1])) { // 向后拖拽
-        dragNode.element.pageManager.setPositionAfter(dragNode.element, node.element)
+        context.editorView.setPositionAfter(dragNode.element, node.element)
       } else {
         // 向前拖拽
-        dragNode.element.pageManager.setPositionBefore(dragNode.element, node.element)
+        context.editorView.setPositionBefore(dragNode.element, node.element)
       }
       // 按更新后节点关系重新更新树结构
-      this.updateTree(dragNode.element.pageManager.getPageElements())
+      this.updateOutline()
     }
   }
 
@@ -247,7 +220,7 @@ class OutLineTree extends React.Component {
         draggable
         value={selected}
         renderLabel={renderFullLabel}
-        onDrop={onTreeDrop}
+        onDrop={onTreeDrop.bind(this)}
         onChange={(value) => {
           this.onNodeSelected(value)
         }}

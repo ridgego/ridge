@@ -55,11 +55,6 @@ class RidgeEditorService extends RidgeContext {
 
   }
 
-  async getAppFileTree () {
-    const { appService } = this.services
-    return await appService.getAppFileTree()
-  }
-
   /**
    * Load Packages in the App
    */
@@ -112,6 +107,10 @@ class RidgeEditorService extends RidgeContext {
       if (file.type === 'page') {
         this.currentOpenFile = file
         await this.loadPage()
+      } else if (file.mimeType.startsWith('text/')) {
+        this.Editor.openCodeEditor(file)
+      } else if (file.mimeType.startsWith('image/')) {
+        this.Editor.openImage(file.content)
       }
     }
   }
@@ -143,27 +142,70 @@ class RidgeEditorService extends RidgeContext {
     this.Editor.togglePageEdit()
   }
 
+  /**
+   * Focus on element(from workspace) handler
+   **/
   onElementSelected (element) {
-    const { configPanel } = this.services
-    if (element) {
-      configPanel.updateComponentConfig(element)
+    const { configPanel, outlinePanel } = this.services
+    let view = element
+    if (element instanceof Node) {
+      view = element.view
     }
+    if (view) {
+      configPanel.componentSelected(view)
+      outlinePanel.setCurrentNode(view)
+    }
+    this.el = view
   }
 
+  /**
+   * Move end event(from workspace) handler
+   **/
   onElementMoveEnd (element) {
     const { configPanel } = this.services
-    if (element) {
+    let view = element
+    if (element instanceof Node) {
+      view = element.view
+    }
+    if (view) {
       configPanel.updateComponentConfig(element)
     }
   }
 
+  /**
+   * Focus on page from workspace
+   **/
   onPageSelected () {
-    const { configPanel } = this.services
+    const { configPanel, outlinePanel } = this.services
+    this.el = null
     configPanel.updatePageConfigFields()
+    outlinePanel.setCurrentNode()
+  }
+
+  /**
+   * trigger Component props change
+   **/
+  updateComponentConfig (view, config) {
+    const { outlinePanel } = this.services
+    view.updateConfig(config)
+    outlinePanel.updateComponentConfig(view, config)
+    this.workspaceControl.updateMovable()
+  }
+
+  updateComponentStyle (view, config) {
+    view.updateStyleConfig(config)
   }
 
   updatePageConfig (values, field) {
     this.editorView.updatePageConfig(values)
+  }
+
+  async onCodeEditComplete (id, code) {
+    await this.services.appService.updateFileContent(id, code)
+   
+    if (this.editorView) {
+      await this.editorView.refresh()
+    }
   }
 
   closeCurrentPage () {
@@ -171,9 +213,7 @@ class RidgeEditorService extends RidgeContext {
       this.editorView.unmount()
     }
     this.editorView = null
- 
     this.workspaceControl.disable()
-
     this.Editor.togglePageClose()
   }
 }

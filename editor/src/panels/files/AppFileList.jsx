@@ -1,60 +1,40 @@
 import React from 'react'
 import trim from 'lodash/trim'
 import debug from 'debug'
+
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
-import { IconImport, IconSetting, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
-import ridgeEditorService from '../../service/RidgeEditorService.js'
+import { IconPlus, IconImport, IconSetting, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
+import context from '../../service/RidgeEditorService.js'
+
+import DialogRename from './DialogRename.jsx'
+import DialogCreate from './DialogCreate.jsx'
 import { eachNode, getFileTree } from './buildFileTree.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import './file-list.less'
 import DialogCodeEdit from './DialogCodeEdit.jsx'
 import { stringToBlob } from '../../utils/blob.js'
+import IconFileCode from '../../icons/IconFileCode.jsx'
+import IconFolderAdd from '../../icons/IconFolderAdd.jsx'
+import IconPageAdd from '../../icons/IconPageAdd.jsx'
+import IconUpload from '../../icons/IconUpload.jsx'
+import IconFileCopy from '../../icons/IconFileCopy.jsx'
+import IconRename from '../../icons/IconRename.jsx'
 
 const trace = debug('ridge:file')
 const { Text } = Typography
-const JS_TEMPLATE = `
-export default {
-  state: () => {
-    return {
-      name: ''
-    }
-  },
-  getters: {
-    hello: (state) => {
-      return 'Hello ' + state.name
-    }
-  },
-  actions: {
-  }
-}`
+
 const ACCEPT_FILES = 'image/*,video/*,audio/*,.woff,.json,.css,.js'
 class AppFileList extends React.Component {
   constructor () {
     super()
     this.ref = React.createRef()
     this.state = {
-      currentOpenId: null,
-      imagePreviewVisible: false,
-      imagePreviewSrc: null,
-      treeData: null,
-      expandedKeys: [],
-      selected: null,
-      currentParent: -1,
-      currentSelectedNode: null,
-      createDialogShow: false,
-      isCreateFile: false,
+      treeData: [],
+      selectedNodeKey: null,
 
-      currentEditKey: null,
-      currentEditFileName: '',
-      currentEditValid: true,
-
-      codeEditNodeId: null,
-      codeEditType: '',
-      codeEditText: '',
-      codeEditTitle: '',
-      codeEditVisible: false,
-
-      exportToastId: null
+      dialgeCreateFileType: '',
+      dialogCreateShow: false,
+      dialogCreateTitle: ''
     }
   }
 
@@ -62,40 +42,12 @@ class AppFileList extends React.Component {
 
   componentDidMount () {
     this.loadAndUpdateFileTree()
-
-    /*
-    on(EVENT_FILE_TREE_CHANGE, treeData => {
-      eachNode(treeData, file => {
-        if (file.mimeType) {
-          if (file.mimeType === 'application/font-woff') {
-            file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
-          } else if (file.mimeType.indexOf('audio') > -1) {
-            file.icon = (<IconMusic style={{ color: 'var(--semi-color-text-2)' }} />)
-          } else if (file.dataUrl) {
-            file.icon = <Popover showArrow content={<img className='image-full' src={file.dataUrl} />}><img className='icon-image' src={file.dataUrl} /></Popover>
-          } else {
-            file.icon = <IconBriefStroked style={{ color: 'var(--semi-color-text-2)' }} />
-          }
-        }
-        if (file.type === 'directory') {
-          file.icon = (<IconFolder style={{ color: 'var(--semi-color-text-2)' }} />)
-        }
-      })
-      this.setState({
-        treeData
-      })
-    })
-
-    on(EVENT_WORKSPACE_RESET, () => {
-      this.setState({
-        currentOpenId: null
-      })
-    })
-    */
   }
 
   async loadAndUpdateFileTree () {
-    const appTreeData = await ridgeEditorService.getAppFileTree()
+    const { appService } = context.services
+    await appService.updateAppFileTree()
+    const appTreeData = await appService.getAppFileTree()
 
     this.rebuildTreeIcons(appTreeData)
     this.setState({
@@ -104,8 +56,10 @@ class AppFileList extends React.Component {
   }
 
   rebuildTreeIcons (treeData) {
+    this.nodeMap = {}
     // TODO update icons
     eachNode(treeData, file => {
+      this.nodeMap[file.id] = file
       if (file.mimeType) {
         if (file.mimeType === 'application/font-woff') {
           file.icon = (<IconFont style={{ color: 'var(--semi-color-text-2)' }} />)
@@ -123,74 +77,113 @@ class AppFileList extends React.Component {
     })
   }
 
-  selectNode (node) {
-    this.setState({
-      currentSelectedNode: node,
-      selected: node.key
-    })
+  // computed
+  getCurrentSiblingNames () {
+    const { selectedNodeKey, treeData } = this.state
+    let siblings = []
+    if (selectedNodeKey) {
+      const node = this.nodeMap[selectedNodeKey]
+      siblings = node.parent === -1 ? treeData : node.parentNode.children
+    } else {
+      siblings = treeData
+    }
+    return siblings.map(node => node.label)
   }
 
-  /**
-   * 获取当前目录， 未选择则是根目录，选择了就是当前文件所在目录
-   * @returns
-   */
-  getCurrentDir () {
-    if (this.state.currentSelectedNode) {
-      if (this.state.currentSelectedNode.type === 'directory') {
-        return this.state.currentSelectedNode.key
+  getCurrentPath () {
+    const { selectedNodeKey } = this.state
+    if (selectedNodeKey) {
+      const node = this.nodeMap[selectedNodeKey]
+      return node.path
+    } else {
+      return '/'
+    }
+  }
+
+  getCurrentParentId () {
+    const { selectedNodeKey } = this.state
+    if (selectedNodeKey) {
+      const node = this.nodeMap[selectedNodeKey]
+      if (node.type === 'directory') {
+        return node.key
       } else {
-        return this.state.currentSelectedNode.parent
+        return node.parent
       }
     } else {
       return -1
     }
   }
 
-  getCurrentSiblings () {
-    const { currentEditKey } = this.state
+  showCreateDialog = fileType => {
+    const titles = {
+      js: '创建程序文件',
+      page: '创建页面',
+      folder: '创建目录'
+    }
+    this.setState({
+      dialgeCreateFileType: fileType,
+      dialogCreateShow: true,
+      dialogCreateTitle: titles[fileType]
+    })
+  }
 
-    if (currentEditKey) {
-      if (this.state.currentSelectedNode && this.state.currentSelectedNode.parentNode) {
-        return this.state.currentSelectedNode.parentNode.children
-      } else {
-        return this.state.treeData
+  onCreateConfirm = async name => {
+    const { dialgeCreateFileType } = this.state
+    const { appService } = context.services
+    try {
+      if (dialgeCreateFileType === 'page') {
+        await appService.createPage(this.getCurrentParentId(), name)
+      } else if (dialgeCreateFileType === 'folder') {
+        await appService.createDirectory(this.getCurrentParentId(), name)
+      } else if (dialgeCreateFileType === 'js') {
+        appService.createFile(this.getCurrentParentId(), name, stringToBlob('', 'text/javascript'))
       }
-    } else {
-      if (this.state.currentSelectedNode && this.state.currentSelectedNode.children) {
-        return this.state.currentSelectedNode.children
-      } else {
-        return this.state.treeData
-      }
+      this.setState({
+        dialogCreateShow: false
+      })
+
+      this.loadAndUpdateFileTree()
+      Toast.success('已经成功创建 ' + name)
+    } catch (e) {
+      Toast.success('创建文件失败 ' + e)
     }
   }
 
-  /**
-   * 实时检查名称是否冲突，这个只更新currentEditValid状态
-   */
-  editLabelCheck = (val, key) => {
-    const trimVal = trim(val)
-    this.setState({
-      currentEditFileName: trimVal
-    })
-    if (trimVal === '') {
-      this.setState({
-        currentEditValid: false
-      })
-    } else {
-      const siblings = this.getCurrentSiblings().filter(sbl => {
-        return sbl.label === trimVal && sbl.key !== key
-      })
-
-      if (siblings.length === 0) {
-        this.setState({
-          currentEditValid: true
-        })
-      } else {
-        this.setState({
-          currentEditValid: false
-        })
+  onFileUpload = async (files, dir) => {
+    const { appService } = context.services
+    const errors = []
+    for (const file of files) {
+      try {
+        const result = await appService.createFile(this.getCurrentParentId(), file.name, file)
+      } catch (e) {
+        errors.push(file)
       }
     }
+    await this.loadAndUpdateFileTree()
+    Toast.success('文件上传完成')
+    if (errors.length) {
+      Toast.warning({
+        content: '文件添加错误：存在相同名称文件',
+        duration: 3
+      })
+    }
+  }
+
+  onRemoveClicked = async data => {
+    Modal.confirm({
+      zIndex: 10001,
+      title: '确认删除',
+      content: '删除后文件无法找回，推荐您可先通过导出进行备份',
+      onOk: async () => {
+        const { appService } = context.services
+        await appService.trash(data.key)
+        this.setState({
+          selectedNodeKey: null
+        })
+        this.loadAndUpdateFileTree()
+        Toast.success('已经成功删除 ' + data.label)
+      }
+    })
   }
 
   /**
@@ -213,117 +206,14 @@ class AppFileList extends React.Component {
     }
   }
 
-  // 新创建目录
-  createDirectory = async (dir) => {
-    const { appService } = ridge
-    await appService.createDirectory(dir || this.getCurrentDir())
-  }
-
-  /**
-   * 删除指定的资源
-   */
-  remove = async (data) => {
-    const { appService } = ridge
-
-    if (this.state.currentOpenId &&
-      (
-        data.key === this.state.currentOpenId ||
-        (data.type === 'directory' && await appService.isParent(data.key, this.state.currentOpenId))
-      )
-    ) {
-      emit(EVENT_WORKSPACE_RESET)
-    }
-
-    if (this.state.currentSelectedNode && this.state.currentSelectedNode.id === data.key) {
-      this.setState({
-        currentSelectedNode: null
-      })
-    }
-    await appService.trash(data.key)
-    this.setState({
-      currentParent: -1
-    })
-    Toast.success('文件已经删除')
-  }
-
-  showCreateDialog = (isFile, createFileType) => {
-    this.setState({
-      currentEditKey: null,
-      currentEditFileName: '',
-      createDialogShow: true,
-      createFileType,
-      isCreateFile: isFile
-    })
-  }
-
-  confirmCreateFile = async () => {
-    const { appService } = ridge
-    const { isCreateFile, createFileType } = this.state
-    if (isCreateFile) {
-      if (createFileType === 'js') {
-        await appService.createFile(this.state.currentParent, this.state.currentEditFileName, stringToBlob(JS_TEMPLATE, 'text/javascript'))
-      } else if (createFileType === 'css') {
-        await appService.createFile(this.state.currentParent, this.state.currentEditFileName, stringToBlob('', 'text/css'))
-      } else {
-        await appService.createPage(this.state.currentParent, this.state.currentEditFileName)
-      }
-    } else {
-      await appService.createDirectory(this.state.currentParent, this.state.currentEditFileName)
-    }
-    appService.updateAppFileTree()
-    this.setState({
-      createDialogShow: false
-    })
-  }
-
-  createPage = async (dir) => {
-    const { appService } = ridge
-    const newPage = await appService.createPage(dir || this.getCurrentDir())
-    this.setState({
-      currentEditKey: newPage.id,
-      currentEditValue: newPage.name,
-      currentEditValid: true
-    })
-    Toast.success('文件创建完成')
-  }
-
-  rename = async (node) => {
-    this.setState({
-      createDialogShow: true,
-      currentParent: node.parent,
-      currentEditKey: node.key,
-      currentEditFileName: node.label,
-      currentEditValid: true
-    })
-  }
-
   copy = async node => {
-    const { appService } = ridge
+    const { appService } = context.services
     await appService.copy(node.key)
     Toast.success('文件复制完成')
   }
 
-  open = async (node) => {
-    ridgeEditorService.openFile(node.key)
-
-    // else if (node.mimeType && node.mimeType.indexOf('image/') > -1) {
-    //   ridgeEditorService.openImage(node.key)
-
-    //   this.setState({
-    //     imagePreviewSrc: node.dataUrl,
-    //     imagePreviewVisible: true
-    //   })
-    // } else if (node.mimeType && (node.mimeType === 'text/css' || node.mimeType === 'text/javascript')) {
-    //   ridgeEditorService.openScript(node.key)
-    //   const textContent = await appService.getFileContent(node)
-    //   this.setState({
-    //     codeEditType: node.mimeType,
-    //     codeEditNodeId: node.key,
-    //     codeEditTitle: node.label,
-    //     codeEditText: textContent,
-    //     codeEditVisible: true
-    //   })
-    // }
+  onOpenClicked = async (node) => {
+    context.openFile(node.key)
   }
 
   async completeCodeEdit (code, close) {
@@ -371,131 +261,41 @@ class AppFileList extends React.Component {
     }
   }
 
-  fileUpload = async (files, dir) => {
-    const { appService } = window.Ridge
-    const errors = []
-    for (const file of files) {
-      const result = await appService.createFile(dir || this.getCurrentDir(), file.name, file)
-      if (!result) {
-        errors.push(file)
-      }
-    }
-
-    Toast.success('文件上传完成')
-
-    if (errors.length) {
-      Toast.warning({
-        content: '文件添加错误：存在相同名称文件',
-        duration: 3
-      })
-    }
-  }
 
   renderFullLabel = (label, data) => {
-    const { currentEditKey, currentEditValid, currentOpenId } = this.state
+    const { currentOpenId } = this.state
     const MORE_MENUS = []
 
-    if (data.type === 'directory') {
-      MORE_MENUS.push(
-        <Dropdown.Item
-          icon={<IconBriefStroked />} onClick={() => {
-            this.setState({
-              expandedKeys: [data.key, ...this.state.expandedKeys],
-              currentParent: data.key
-            })
-
-            this.showCreateDialog(true)
-          }}
-        >
-          创建空页面
-        </Dropdown.Item>
-      )
-      MORE_MENUS.push(
-        <Dropdown.Item
-          icon={<IconFolderStroked />} onClick={() => {
-            this.setState({
-              expandedKeys: [data.key, ...this.state.expandedKeys],
-              currentParent: data.key
-            })
-            this.showCreateDialog(false)
-          }}
-        >
-          创建子目录
-        </Dropdown.Item>
-      )
-      MORE_MENUS.push(
-        <Dropdown.Item
-          icon={<IconCloudUploadStroked />}
-        >
-          <Upload
-            multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
-              this.fileUpload(files, data.key)
-            }} accept={ACCEPT_FILES}
-          >
-            上传文件
-          </Upload>
-        </Dropdown.Item>
-      )
-      MORE_MENUS.push(<Dropdown.Divider />)
-      MORE_MENUS.push(
-        <Dropdown.Item
-          icon={<i class='bi bi-filetype-js' />} onClick={() => {
-            this.setState({
-              expandedKeys: [data.key, ...this.state.expandedKeys],
-              currentParent: data.key
-            })
-
-            this.showCreateDialog(true, 'js')
-          }}
-        >
-          创建程序文件
-        </Dropdown.Item>
-      )
-      MORE_MENUS.push(
-        <Dropdown.Item
-          icon={<i class='bi bi-filetype-css' />} onClick={() => {
-            this.setState({
-              expandedKeys: [data.key, ...this.state.expandedKeys],
-              currentParent: data.key
-            })
-
-            this.showCreateDialog(true, 'css')
-          }}
-        >
-          创建样式文件
-        </Dropdown.Item>
-      )
-    } else if (data.type === 'page') {
+    if (data.type === 'page') {
       MORE_MENUS.push(
         <Dropdown.Item
           icon={<IconFolderOpen />} onClick={() => {
-            this.open(data)
+            this.onOpenClicked(data)
           }}
         >打开
-        </Dropdown.Item>
-      )
-      MORE_MENUS.push(
-        <Dropdown.Item
-          icon={<IconCopy />} onClick={() => {
-            this.copy(data)
-          }}
-        >复制页面
-        </Dropdown.Item>
-      )
-      MORE_MENUS.push(
-        <Dropdown.Item
-          icon={<IconExport />} onClick={() => {
-            trace('导出页面', data)
-            appService.exportPage(data.key)
-          }}
-        >导出
         </Dropdown.Item>
       )
     }
     MORE_MENUS.push(
       <Dropdown.Item
-        icon={<IconEdit />} onClick={() => {
-          this.rename(data)
+        icon={<IconFileCopy />} onClick={() => {
+          this.onCopyClicked(data)
+        }}
+      >复制
+      </Dropdown.Item>
+    )
+    MORE_MENUS.push(
+      <Dropdown.Item
+        icon={<IconExport />} onClick={() => {
+          this.onExportClicked(data)
+        }}
+      >导出
+      </Dropdown.Item>
+    )
+    MORE_MENUS.push(
+      <Dropdown.Item
+        icon={<IconRename />} onClick={() => {
+          this.onRenameClicked(data)
         }}
       >重命名
       </Dropdown.Item>
@@ -506,7 +306,7 @@ class AppFileList extends React.Component {
         type='danger'
         icon={<IconDeleteStroked />}
         onClick={() => {
-          this.remove(data)
+          this.onRemoveClicked(data)
         }}
       >删除
       </Dropdown.Item>
@@ -515,81 +315,13 @@ class AppFileList extends React.Component {
       <div className={'tree-label' + (currentOpenId === data.key ? ' opened' : '')}>
         <Text ellipsis={{ showTooltip: true }} style={{ width: 'calc(100% - 48px)' }} className='label-content'>{label}</Text>
         <Dropdown
-          trigger='click' showTick
+          className='app-files-dropdown'
+          trigger='click'
           render={<Dropdown.Menu>{MORE_MENUS}</Dropdown.Menu>}
         >
           <Button className='more-button' size='small' theme='borderless' type='tertiary' icon={<IconMoreStroked rotate={90} />} />
         </Dropdown>
       </div>
-
-    // <div>
-    //   {data.key === currentEditKey &&
-    //     <Input
-    //       validateStatus={!currentEditValid ? 'error' : 'default'}
-    //       onChange={(val) => {
-    //         this.editLabelCheck(val, currentEditKey)
-    //       }} size='small' defaultValue={label}
-    //       suffix={<IconTick style={{ cursor: 'pointer' }} onClick={() => this.checkUpdateEditName()} color={!currentEditValid ? 'error' : 'default'} />}
-    //     />}
-    //   {data.key !== currentEditKey &&
-    //     }
-    // </div>
-    )
-  }
-
-  renderCreateModal = () => {
-    const { state, confirmCreateFile, confirmRename } = this
-    const { createDialogShow, isCreateFile, currentEditKey, currentEditValid, currentParent, currentSelectedNode, currentEditFileName } = state
-
-    let parentPaths = '/'
-    if (currentEditKey) {
-      if (currentSelectedNode.parentNode) {
-        parentPaths = currentSelectedNode.parentNode.path
-      }
-    } else {
-      if (currentSelectedNode) {
-        if (currentSelectedNode.type === 'directory') {
-          parentPaths = currentSelectedNode.path
-        } else if (currentSelectedNode.parentNode) {
-          parentPaths = currentSelectedNode.parentNode.path
-        }
-      }
-    }
-
-    return (
-      <Modal
-        title={currentEditKey ? '重命名' : (isCreateFile ? '创建新的页面' : '新增目录')}
-        visible={createDialogShow}
-        onOk={() => {
-          if (this.state.currentEditValid) {
-            if (currentEditKey) {
-              confirmRename()
-            } else {
-              confirmCreateFile()
-            }
-          }
-        }}
-        onCancel={() => {
-          this.setState({
-            createDialogShow: false
-          })
-        }}
-      >
-        <Form
-          labelPosition='left'
-          labelAlign='right'
-          labelWidth={80}
-        >
-          <Form.Input disabled label='所在目录' initValue={parentPaths} />
-          <Form.Input
-            initValue={currentEditFileName}
-            validateStatus={currentEditValid ? '' : 'error'}
-            label='名称' onChange={val => {
-              this.editLabelCheck(val, currentEditKey)
-            }}
-          />
-        </Form>
-      </Modal>
     )
   }
 
@@ -661,30 +393,47 @@ class AppFileList extends React.Component {
     )
   }
 
+  RenderCreateDropDown = () => {
+    const { showCreateDialog } = this
+    return (
+      <Dropdown
+        trigger='click'
+        closeOnEsc
+        clickToHide
+        keepDOM
+        position='bottomLeft'
+        render={
+          <Dropdown.Menu className='app-files-dropdown'>
+            <Dropdown.Item icon={<IconPageAdd />} onClick={() => showCreateDialog('page')}>创建页面</Dropdown.Item>
+            <Dropdown.Item icon={<IconFolderAdd />} onClick={() => showCreateDialog('folder')}>创建目录</Dropdown.Item>
+            <Dropdown.Item icon={<IconFileCode />} onClick={() => showCreateDialog('js')}>创建程序文件</Dropdown.Item>
+            <Dropdown.Item icon={<IconUpload />}>
+              <Upload
+                multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
+                  this.onFileUpload(files)
+                }} accept={ACCEPT_FILES}
+              >
+                上传文件
+              </Upload>
+            </Dropdown.Item>
+          </Dropdown.Menu>
+            }
+      >
+        <Button size='small' theme='borderless' type='tertiary' icon={<IconPlus />} />
+      </Dropdown>
+    )
+  }
+
   render () {
-    const { renderFullLabel, showCreateDialog, renderCreateModal, state, context } = this
-    const { treeData, currentSelectedNode, expandedKeys, imagePreviewSrc, imagePreviewVisible, codeEditText, codeEditVisible, codeEditType, codeEditTitle } = state
+    const { renderFullLabel, state, RenderCreateDropDown } = this
+    const { treeData, dialogCreateShow, dialogCreateTitle, selectedNodeKey } = state
 
     return (
       <>
-        <div
-          className='file-actions' style={{
-            display: context == null ? '' : 'none'
-          }}
-        >
-          <div className='align-right'>
-            <Button icon={<IconBriefStroked />} size='small' theme='borderless' type='tertiary' onClick={() => showCreateDialog(true)} />
-            <Upload
-              multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
-                this.fileUpload(files)
-              }} accept={ACCEPT_FILES}
-            >
-              <Button icon={<IconCloudUploadStroked />} size='small' theme='borderless' type='tertiary' />
-            </Upload>
-            <Button icon={<IconFolderStroked />} size='small' theme='borderless' type='tertiary' onClick={() => showCreateDialog(false)} />
-          </div>
+        <div className='file-actions'>
+          <RenderCreateDropDown />
         </div>
-        <ImagePreview
+       {/* <ImagePreview
           src={imagePreviewSrc} visible={imagePreviewVisible} onVisibleChange={() => {
             this.setState({
               imagePreviewVisible: false
@@ -702,37 +451,41 @@ class AppFileList extends React.Component {
               codeEditVisible: false
             })
           }}
+        />*/}
+        <DialogCreate
+          show={dialogCreateShow}
+          title={dialogCreateTitle}
+          parentPaths={this.getCurrentPath()}
+          siblingNames={this.getCurrentSiblingNames()}
+          confirm={val => {
+            this.onCreateConfirm(val)
+          }}
+          cancel={() => {
+            this.setState({
+              dialogCreateShow: false
+            })
+          }}
         />
-        {renderCreateModal()}
         {treeData &&
           <Tree
             className='file-tree'
-            style={{
-              display: context == null ? '' : 'none'
-            }}
-            directory
             draggable
-            expandedKeys={expandedKeys}
             renderLabel={renderFullLabel}
-            value={currentSelectedNode}
+            value={selectedNodeKey}
             treeData={treeData}
             onDrop={({ node, dragNode, dropPosition, dropToGap }) => {
               this.move(node, dragNode, dropToGap)
             }}
-            onExpand={expandedKeys => {
-              this.setState({
-                expandedKeys
-              })
-            }}
             onDoubleClick={(ev, node) => {
-              this.open(node)
+              this.onOpenClicked(node)
             }}
-            onChange={(treeNode) => {
-              this.selectNode(treeNode)
+            onChange={key => {
+              this.setState({
+                selectedNodeKey: key
+              })
             }}
           />}
         {!treeData && <div className='tree-loading'><Spin size='middle' /></div>}
-        {context != null && <div>搜索功能暂时未提供</div>}
         {this.renderAppDropDown()}
       </>
     )
