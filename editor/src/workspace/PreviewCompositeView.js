@@ -1,33 +1,16 @@
 import { CompositeView } from 'ridge-runtime'
 import EditorComponentView from './EditorComponentView.js'
-import { nanoid } from '../utils/string'
 import EditorStore from './EditorStore.js'
 /**
- * Views Mount on Editor
+ * Composite Preview on Editor
  **/
-class EditorCompositeView extends CompositeView {
+class PreviewCompositeView extends CompositeView {
   createComponentView (config, i) {
     return new EditorComponentView({
       context: this.context,
       config,
       i
     })
-  }
-
-  getClassNames () {
-    return this.classNames || []
-  }
-
-  updatePageConfig (config) {
-    Object.assign(this.config, config)
-
-    this.updateStyle()
-  }
-
-  async refresh () {
-    await this.importStyleFiles()
-    await this.importJSFiles()
-    await this.loadStore()
   }
 
   updateStyle () {
@@ -122,40 +105,6 @@ class EditorCompositeView extends CompositeView {
   }
 
   /**
-  * Create Component Instance by defination
-  * @param {Object} defination
-  * @returns
-  */
-  createView (definition) {
-    // 生成组件定义
-    const elementConfig = {
-      title: definition.title,
-      id: nanoid(5),
-      path: definition.componentPath,
-      style: {
-        position: 'absolute',
-        visible: true,
-        width: definition.width ?? 100,
-        height: definition.height ?? 100
-      },
-      styleEx: {},
-      props: {},
-      propEx: {},
-      events: {}
-    }
-
-    const view = new EditorComponentView({
-      definition,
-      config: elementConfig,
-      context: this.context,
-      i: Object.entries(this.componentViews).length + 1
-    })
-    view.initPropsOnCreate()
-    this.componentViews[view.config.id] = view
-    return view
-  }
-
-  /**
    * Load Composite Store
    * */
   async loadStore () {
@@ -173,89 +122,6 @@ class EditorCompositeView extends CompositeView {
     this.el.style.width = 0
     this.el.style.height = 0
   }
-
-  removeElement (view) {
-    if (view) {
-      if (view.containerView) {
-        this.detachChildView(view, true)
-      }
-
-      // delete recursively
-      view.forEachChildren((childView, type, propKey) => {
-        this.removeElement(childView)
-      })
-      view.unmount()
-      delete this.componentViews[view.config.id]
-    }
-  }
-
-  /**
-     * 当子节点从父节点移出后，（包括SLOT）重新更新父节点配置
-     * @param {*} sourceParentElement 父节点
-     * @param {*} childElementId 子节点
-     */
-  detachChildView (childView, isDelete) {
-    const contanerView = childView.containerView
-
-    // invoke parent view for recalculating
-    const result = contanerView.invoke('removeChild', [childView, isDelete])
-    Object.assign(contanerView.config.props, result)
-
-    delete childView.config.parent
-    delete childView.containerView
-  }
-
-  // 放置wrapper到target之后，
-  setPositionAfter (view, targetView) {
-    const siblings = Object.values(this.componentViews).filter(one => one.config.parent === targetView.config.parent).sort((a, b) => {
-      return a.i - b.i
-    })
-
-    let begin = false
-    for (let i = 0; i < siblings.length; i++) {
-      if (siblings[i] === view) {
-        begin = true
-        continue
-      }
-      if (begin) {
-        siblings[i].setIndex(i - 1)
-      }
-      if (siblings[i] === targetView) {
-        view.setIndex(i)
-        break
-      }
-    }
-  }
-
-  // 放置wrapper到target之前（之前wrapper在target之后）
-  setPositionBefore (view, targetView) {
-    const siblings = Object.values(this.componentViews).filter(one => one.config.parent === targetView.config.parent).sort((a, b) => {
-      return a.i - b.i
-    })
-
-    let begin = false
-    for (let i = 0; i < siblings.length; i++) {
-      if (begin) {
-        siblings[i].setIndex(i + 1)
-      }
-      if (siblings[i] === targetView) {
-        begin = true
-        view.setIndex(i)
-        continue
-      }
-      if (siblings[i] === view) {
-        break
-      }
-    }
-  }
-
-  exportPageJSON () {
-    this.config.elements = []
-    for (const componentView of Object.values(this.componentViews).sort((a, b) => a.i - b.i)) {
-      this.config.elements.push(componentView.exportJSON())
-    }
-    return JSON.parse(JSON.stringify(this.config))
-  }
 }
 
-export default EditorCompositeView
+export default PreviewCompositeView

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import context from '../../service/RidgeEditorService.js'
+import context from '../../service/RidgeEditorContext.js'
 
 export default ({
   treeData,

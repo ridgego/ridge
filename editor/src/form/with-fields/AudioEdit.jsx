@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Popover, Input, withField, Select } from '@douyinfe/semi-ui'
-import ridgeEditService from '../../service/RidgeEditorService.js'
+import ridgeEditService from '../../service/RidgeEditorContext.js'
 
 export const AudioEdit = ({
   value,

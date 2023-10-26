@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Popover, Input, withField } from '@douyinfe/semi-ui'
 import { IconChainStroked, IconFolderOpen } from '@douyinfe/semi-icons'
 import AppImageList from '../../panels/files/AppImageList.jsx'
-import ridgeEditService from '../../service/RidgeEditorService.js'
+import ridgeEditService from '../../service/RidgeEditorContext.js'
 
 export const ImageEdit = ({
   value,

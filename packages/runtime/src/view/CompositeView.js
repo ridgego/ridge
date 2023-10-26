@@ -25,6 +25,10 @@ class CompositeView extends ElementView {
     this.initialize()
   }
 
+  getComponentViews () {
+    return this.componentViews
+  }
+
   getComponentView (id) {
     return this.componentViews[id]
   }
@@ -35,7 +39,6 @@ class CompositeView extends ElementView {
    */
   initialize () {
     debug('Ridge Composite initialize:', this.config)
-    this.context.delegateMethods(this, ['getComponentView'])
     this.componentViews = {}
     for (let i = 0; i < this.config.elements.length; i++) {
       const view = this.createComponentView(this.config.elements[i], i)

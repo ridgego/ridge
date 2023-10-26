@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import ridgeEditorService from '../../service/RidgeEditorService.js'
+import ridgeEditorService from '../../service/RidgeEditorContext.js'
 const trace = require('debug')('ridge:cl')
 const { Text } = Typography
 class ComponentListing extends React.Component {

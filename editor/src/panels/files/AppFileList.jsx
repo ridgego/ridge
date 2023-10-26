@@ -4,7 +4,7 @@ import debug from 'debug'
 
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
 import { IconPlus, IconImport, IconSetting, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
-import context from '../../service/RidgeEditorService.js'
+import context from '../../service/RidgeEditorContext.js'
 
 import DialogRename from './DialogRename.jsx'
 import DialogCreate from './DialogCreate.jsx'

@@ -2,8 +2,8 @@ import React from 'react'
 import debug from 'debug'
 import { Tree, Space, Typography, Button, Tag } from '@douyinfe/semi-ui'
 import * as SemiIcons from '@douyinfe/semi-icons'
-import { EVENT_PAGE_LOADED, EVENT_ELEMENT_SELECTED, EVENT_PAGE_OUTLINE_CHANGE, EVENT_ELEMENT_CREATED, EVENT_ELEMENT_DRAG_END } from '../../constant.js'
-import context from '../../service/RidgeEditorService.js'
+import './outline.less'
+import context from '../../service/RidgeEditorContext.js'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 
 const { IconUnlock, IconLock, IconEyeOpened, IconEyeClosedSolid } = SemiIcons
@@ -25,7 +25,7 @@ class OutLineTree extends React.Component {
   updateOutline () {
     if (context.editorView) {
       this.setState({
-        elements: context.editorView.componentViews
+        elements: context.editorView.getComponentViews()
       })
     }
   }
@@ -91,17 +91,9 @@ class OutLineTree extends React.Component {
       children: []
     }
 
-    if (element.componentDefinition) {
-      // 更改Icon
-      if (element.componentDefinition.icon) {
-        if (SemiIcons[element.componentDefinition.icon]) {
-          const Icon = SemiIcons[element.componentDefinition.icon]
-          treeNodeObject.icon = <Icon />
-        } else if (element.componentDefinition.icon.startsWith('')) {
-          treeNodeObject.icon = <i style={{ fontSize: '16px', marginRight: '5px' }} className={element.componentDefinition.icon} />
-          // treeNodeObject.icon = (<RawSvgIcon svg={element.componentDefinition.icon} />)
-        }
-      }
+    // update icon
+    if (element.componentDefinition && element.componentDefinition.icon) {
+      treeNodeObject.icon = <img className='item-icon' src={element.componentDefinition.icon} />
 
       // 递归处理子节点树
       const childProps = element.componentDefinition.props.filter(p => p.type === 'children')
@@ -138,52 +130,42 @@ class OutLineTree extends React.Component {
   }
 
   toggleLock = (data) => {
-    const lockStatus = !data.element.config.style.locked
-    data.element.setPropsConfig({}, {
-      'style.locked': lockStatus
-    })
-    this.setState({
-      elements: { ...this.state.elements }
-    })
-    workspaceControl.selectElements([data.element.el])
+    const view = context.getComponentView(data.element)
+    const lockStatus = !view.config.style.locked
+    view.updateStyleConfig({ locked: lockStatus })
+    context.workspaceControl.selectElements([view.el])
   }
 
   toggleVisible = (data) => {
-    const visible = !data.element.config.style.visible
-    if (!visible) {
-      workspaceControl.selectElements([])
-    }
-    data.element.setPropsConfig({}, {
-      'style.visible': visible
-    })
-    if (visible) {
-      workspaceControl.selectElements([data.element.el])
-    }
-    this.setState({
-      elements: { ...this.state.elements }
-    })
+    const view = context.getComponentView(data.element)
+    const visible = !view.config.style.visible
+    view.updateStyleConfig({ visible })
+    context.workspaceControl.selectElements([view.el])
+    
+    this.updateOutline()
   }
 
   renderFullLabel = (label, data) => {
     const { toggleLock, toggleVisible } = this
+    const { visible, locked } = data.element.config.style
     return (
-      <div className='tree-label'>
+      <div className={'tree-label ' + (visible ? 'is-visible' : 'is-hidden') + ' ' + (locked ? 'is-locked' : '')}>
         <Space className='label-content'>
           <Text className='label-text'>{label || data.key}</Text>
           {data.tags && data.tags.map(tag => <Tag size='small' color='amber' key={tag}> {tag} </Tag>)}
         </Space>
-        <Space spacing={0}>
+        <Space spacing={2}>
           <Button
-            className={data.element.config.style.locked ? '' : 'hover-show'}
+            className={locked ? '' : 'hover-show'}
             size='small' theme='borderless' type='tertiary' onClick={() => {
               toggleLock(data)
-            }} icon={data.element.config.style.locked ? <IconLock /> : <IconUnlock />}
+            }} icon={locked ? <IconLock /> : <IconUnlock />}
           />
           <Button
             className={data.element.config.style.visible ? 'hover-show' : ''}
             size='small' theme='borderless' type='tertiary' onClick={() => {
               toggleVisible(data)
-            }} icon={data.element.config.style.visible ? <IconEyeOpened /> : <IconEyeClosedSolid />}
+            }} icon={visible ? <IconEyeOpened /> : <IconEyeClosedSolid />}
           />
         </Space>
       </div>
@@ -213,6 +195,7 @@ class OutLineTree extends React.Component {
     const treeData = this.buildElementTree(elements)
     return (
       <Tree
+        className='outline-tree'
         style={{
           height: '100%',
           overflow: 'auto'

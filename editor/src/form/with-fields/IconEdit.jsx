@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Popover, Input, Typography, withField, Tabs, TabPane } from '@douyinfe/semi-ui'
 import { IconAppCenter } from '@douyinfe/semi-icons'
-import ridgeEditService from '../../service/RidgeEditorService.js'
+import ridgeEditService from '../../service/RidgeEditorContext.js'
 
 const { Text } = Typography
 

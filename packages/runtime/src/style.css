@@ -9,6 +9,9 @@ html, body {
   outline: none;
 }
 
+.is-hidden {
+    display: none;
+}
 
 .ridge-overlay {
     position: absolute;

@@ -2,7 +2,6 @@ import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
 import ElementView from './ElementView'
-import { objectSet } from '../utils/object'
 const log = debug('ridge:component')
 
 class ComponentView extends ElementView {
@@ -63,24 +62,14 @@ class ComponentView extends ElementView {
     if (this.preloaded) return
 
     this.setStatus('loading')
-
-    if (this.componentDefinition == null) {
-      if (this.config.path) {
-        this.componentDefinition = await this.context.loadComponent(this.config.path)
-      }
+  
+    if (this.config.path) {
+      this.componentDefinition = await this.context.loadComponent(this.config.path)
     }
 
     if (!this.componentDefinition) {
       this.setStatus('not-found')
     }
-    // if (deepPreload) {
-    //   if (this.config.props.children) {
-    //     for (const childId of this.config.props.children) {
-    //       const childWrapper = this.pageManager.getElement(childId)
-    //       await childWrapper.preload(deepPreload)
-    //     }
-    //   }
-    // }
   }
 
   async loadComponentDefinition () {
@@ -209,10 +198,12 @@ class ComponentView extends ElementView {
       if (this.componentDefinition.type === 'vanilla') {
         const render = new VanillaRender(this.componentDefinition.component, this.getProperties())
         render.mount(this.el)
+        this.removeStatus()
         return render
       } else {
         const render = new ReactRenderer(this.componentDefinition.component, this.getProperties())
         render.mount(this.el)
+        this.removeStatus()
         return render
       }
     } catch (e) {
@@ -270,9 +261,14 @@ class ComponentView extends ElementView {
   updateStyle () {
     // 页面根上更新布局
     const configStyle = this.config.style
-    this.el.classList.remove('is-full')
-    this.el.classList.remove('is-locked')
-    this.el.classList.remove('is-hidden')
+
+    if (this.el) {
+      if (configStyle.visible) {
+        this.el.classList.remove('is-hidden')
+      } else {
+        this.el.classList.add('is-hidden')
+      }
+    }
 
     if (this.containerView && this.containerView.hasMethod('updateChildStyle')) {
     // delegate to container
@@ -281,7 +277,7 @@ class ComponentView extends ElementView {
       // update position and index
       const style = {}
       if (this.el) {
-        if (this.config.style.full) {
+        if (configStyle.full) {
           style.width = '100%'
           style.height = '100%'
           this.el.classList.add('is-full')
@@ -293,8 +289,8 @@ class ComponentView extends ElementView {
           style.transform = `translate(${configStyle.x}px, ${configStyle.y}px)`
           style.width = configStyle.width ? (configStyle.width + 'px') : ''
           style.height = configStyle.height ? (configStyle.height + 'px') : ''
-          style.zIndex = this.i
         }
+        style.zIndex = this.i
         Object.assign(this.el.style, style)
       }
     }

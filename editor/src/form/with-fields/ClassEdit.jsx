@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Select, withField } from '@douyinfe/semi-ui'
-import context from '../../service/RidgeEditorService'
+import context from '../../service/RidgeEditorContext'
 
 const ClassEdit = ({
   value,

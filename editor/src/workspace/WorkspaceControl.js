@@ -4,7 +4,7 @@ import Mousetrap from 'mousetrap'
 
 import debug from 'debug'
 import { fitRectIntoBounds } from '../utils/rectUtils'
-import context from '../service/RidgeEditorService.js'
+import context from '../service/RidgeEditorContext.js'
 
 const trace = debug('ridge:workspace')
 
@@ -34,7 +34,7 @@ export default class WorkSpaceControl {
     this.initKeyBind()
     this.initComponentDrop()
 
-    this.viewPortEl.style.transformOrigin = 'top left'
+    this.viewPortEl.style.transformOrigin = 'center center'
   }
 
   enable () {
@@ -47,12 +47,15 @@ export default class WorkSpaceControl {
   disable () {
     if (this.enabled) {
       this.selecto.destroy()
+      this.selecto = null
       this.moveable.destroy()
+      this.moveable = null
       if (this.workspaceMovable) {
         this.workspaceMovable.destroy()
         this.workspaceMovable = null
       }
       this.enabled = false
+      this.viewPortEl.style.transform = ''
     }
   }
 
@@ -93,7 +96,7 @@ export default class WorkSpaceControl {
       this.moveable.updateTarget()
     }
 
-    this.viewPortEl.style.transform = `translate(${this.workspaceX}px, ${this.workspaceY}px) scale(${this.zoom})`
+    this.viewPortEl.style.transform = `translate(${this.viewPortX}px, ${this.viewPortY}px) scale(${this.zoom})`
     // this.moveable.zoom = zoom
     // this.selecto.zoom = zoom
   }
@@ -143,7 +146,11 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragStart', ev => {
-      trace('movable dragStart', ev.target)
+      // trace('movable dragStart', ev.target)
+      const target = ev.target
+      if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
+        return false
+      }
     })
 
     this.moveable.on('drag', ev => {
@@ -166,6 +173,10 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragEnd', ev => {
+      const target = ev.target
+      if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
+        return
+      }
       if (ev.isDrag) {
         sm.placeElementAt(ev.target, ev.clientX, ev.clientY)
       } else {
@@ -549,13 +560,9 @@ export default class WorkSpaceControl {
 
     const div = document.createElement('div')
 
-    const wrapper = this.pageManager.createElement(fraction)
-    wrapper.loadAndMount(div).then(() => {
+    const view = context.editorView.createView(fraction)
+    view.loadAndMount(div).then(() => {
       this.placeElementAt(div, ev.pageX, ev.pageY)
-      emit(EVENT_ELEMENT_CREATED, {
-        elements: this.pageManager.getPageElements(),
-        element: wrapper
-      })
     })
   }
 
@@ -656,7 +663,7 @@ export default class WorkSpaceControl {
       }
       if (this.selected) {
         for (const el of this.selected) {
-          this.pageManager.removeElement(el.elementWrapper.id)
+          context.onElementRemoved(el)
         }
         this.selectElements([])
       }
@@ -665,8 +672,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('right', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          el.elementWrapper.setConfigStyle({
-            x: el.elementWrapper.config.style.x + 1
+          const view = context.getComponentView(el)
+          view.updateStyleConfig({
+            x: view.config.style.x + 1
           })
         }
         this.moveable.updateTarget()
@@ -676,8 +684,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('left', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          el.elementWrapper.setConfigStyle({
-            x: el.elementWrapper.config.style.x - 1
+          const view = context.getComponentView(el)
+          view.updateStyleConfig({
+            x: view.config.style.x - 1
           })
         }
         this.moveable.updateTarget()
@@ -686,8 +695,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('up', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          el.elementWrapper.setConfigStyle({
-            y: el.elementWrapper.config.style.y - 1
+          const view = context.getComponentView(el)
+          view.updateStyleConfig({
+            x: view.config.style.y - 1
           })
         }
         this.moveable.updateTarget()
@@ -696,8 +706,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('down', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          el.elementWrapper.setConfigStyle({
-            y: el.elementWrapper.config.style.y + 1
+          const view = context.getComponentView(el)
+          view.updateStyleConfig({
+            x: view.config.style.y + 1
           })
         }
         this.moveable.updateTarget()
@@ -709,8 +720,8 @@ export default class WorkSpaceControl {
         this.copied = this.selected
 
         this.copied.forEach(el => {
-          el.dataset.copy_x = el.elementWrapper.config.style.x
-          el.dataset.copy_y = el.elementWrapper.config.style.y
+          el.dataset.copy_x = el.view.config.style.x
+          el.dataset.copy_y = el.view.config.style.y
         })
       } else {
         this.copied = []
@@ -720,9 +731,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('ctrl+v', () => {
       if (this.copied && this.copied.length) {
         for (const el of this.copied) {
-          const newWrapper = el.wrapper.clone(this.pageManager)
+          const newView = el.view.clone(context.editorView)
           const div = document.createElement('div')
-          newWrapper.loadAndMount(div).then(() => {
+          newView.loadAndMount(div).then(() => {
             let parentWrapper = null
             if (this.selected && this.selected.length === 1) {
               if (this.selected[0] === el && this.selected[0].elementWrapper.parentWrapper) {
@@ -734,20 +745,20 @@ export default class WorkSpaceControl {
 
             if (parentWrapper) {
               trace('复制到父容器内', parentWrapper)
-              const result = this.pageManager.attachToParent(parentWrapper, newWrapper)
+              const result = this.pageManager.attachToParent(parentWrapper, newView)
               if (result === false) {
-                newWrapper.setConfigStyle({
-                  x: newWrapper.config.style.x + 20,
-                  y: newWrapper.config.style.y + 20
+                newView.updateStyleConfig({
+                  x: newView.config.style.x + 20,
+                  y: newView.config.style.y + 20
                 })
-                this.putElementToRoot(newWrapper)
+                this.putElementToRoot(newView)
               }
             } else {
-              newWrapper.setConfigStyle({
-                x: newWrapper.config.style.x + 20,
-                y: newWrapper.config.style.y + 20
+              newView.updateStyleConfig({
+                x: newView.config.style.x + 20,
+                y: newView.config.style.y + 20
               })
-              this.putElementToRoot(newWrapper.el)
+              this.putElementToRoot(updateStyleConfig.el)
             }
           })
         }

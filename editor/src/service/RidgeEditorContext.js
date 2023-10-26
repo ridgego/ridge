@@ -1,10 +1,12 @@
 /* global location */
 /* global localStorage */
 import Debug from 'debug'
-import RidgeContext from 'ridge-runtime'
+import RidgeContext, { ComponentView, CompositeView } from 'ridge-runtime'
 import ApplicationService from './ApplicationService.js'
 import WorkSpaceControl from '../workspace/WorkspaceControl.js'
+
 import EditorCompositeView from '../workspace/EditorCompositeView.js'
+import PreviewCompositeView from '../workspace/PreviewCompositeView.js'
 
 const debug = Debug('ridge:editor')
 
@@ -17,7 +19,7 @@ const baseUrl = (location.host.startsWith('localhost') || location.host.startsWi
  * 'no-react' service for editor.
  * connect each part and manage state for editor
  **/
-class RidgeEditorService extends RidgeContext {
+class RidgeEditorContext extends RidgeContext {
   constructor ({ baseUrl }) {
     super({ baseUrl })
     this.baseUrl = baseUrl
@@ -46,13 +48,28 @@ class RidgeEditorService extends RidgeContext {
     })
     this.Editor.setEditorLoaded()
   }
-  
+
   emptyView () {
     this.workspaceControl.disable()
   }
 
   runtimeView () {
 
+  }
+
+  /**
+   *  Utils Methods
+   **/
+  // Check && Guess ComponentView
+  getComponentView (prm) {
+    if (prm instanceof ComponentView) {
+      return prm
+    } else if (typeof prm === 'string') {
+      return this.editorView.getComponentView(prm)
+    } else if (prm instanceof Node) {
+      return prm.view
+    }
+    return null
   }
 
   /**
@@ -88,6 +105,8 @@ class RidgeEditorService extends RidgeContext {
     if (this.editorView) {
       const { appService } = this.services
       const pageJSONObject = this.editorView.exportPageJSON()
+
+      this.pageJSON = pageJSONObject
       debug('Save Page ', pageJSONObject)
       try {
         await appService.savePageContent(pageJSONObject.id, pageJSONObject)
@@ -106,7 +125,7 @@ class RidgeEditorService extends RidgeContext {
     if (file) {
       if (file.type === 'page') {
         this.currentOpenFile = file
-        await this.loadPage()
+        await this.loadPage(file)
       } else if (file.mimeType.startsWith('text/')) {
         this.Editor.openCodeEditor(file)
       } else if (file.mimeType.startsWith('image/')) {
@@ -115,25 +134,31 @@ class RidgeEditorService extends RidgeContext {
     }
   }
 
-  async loadPage () {
+  /**
+   * Load page to current editor view, enable workspace control and edit panels
+   **/
+  async loadPage (page) {
+    if (page) {
+      this.pageContent = page.content
+    }
     if (this.editorView) {
       await this.saveCurrentPage()
       this.editorView.unmount()
     }
 
     this.editorView = new EditorCompositeView({
-      config: this.currentOpenFile.content,
+      config: this.pageContent,
       context: this
     })
 
-    // this.viewPortContainerEl.style.width = page.style
     await this.editorView.loadAndMount(this.viewPortContainerEl)
     if (!this.workspaceControl.enabled) {
       this.workspaceControl.enable()
     }
-    this.workspaceControl.fitToCenter()
+    const zoom = this.workspaceControl.fitToCenter()
 
-    const { configPanel, outlinePanel } = this.services
+    const { configPanel, outlinePanel, menuBar } = this.services
+    menuBar.setZoom(zoom)
     configPanel.updatePageConfigFields()
     outlinePanel.updateOutline()
 
@@ -143,14 +168,32 @@ class RidgeEditorService extends RidgeContext {
   }
 
   /**
+   * Switch Design/Preview Mode
+   **/
+  async toggleMode () {
+    // Design -> Preview
+    if (this.editorView) {
+      await this.saveCurrentPage()
+      this.closeCurrentPage()
+
+      this.runtimeView = new PreviewCompositeView({
+        config: this.pageContent,
+        context: this
+      })
+      await this.runtimeView.loadAndMount(this.viewPortContainerEl)
+      this.Editor.togglePagePreview()
+    } else if (this.runtimeView) {
+      this.runtimeView.unmount()
+      await this.loadPage()
+    }
+  }
+
+  /**
    * Focus on element(from workspace) handler
    **/
   onElementSelected (element) {
     const { configPanel, outlinePanel } = this.services
-    let view = element
-    if (element instanceof Node) {
-      view = element.view
-    }
+    const view = this.getComponentView(element)
     if (view) {
       configPanel.componentSelected(view)
       outlinePanel.setCurrentNode(view)
@@ -158,17 +201,23 @@ class RidgeEditorService extends RidgeContext {
     this.el = view
   }
 
+  onElementRemoved (element) {
+    const view = this.getComponentView(element)
+    if (view && this.editorView) {
+      this.editorView.removeElement(view)
+    }
+    const { outlinePanel } = this.services
+    outlinePanel.updateOutline()
+  }
+
   /**
    * Move end event(from workspace) handler
    **/
   onElementMoveEnd (element) {
     const { configPanel } = this.services
-    let view = element
-    if (element instanceof Node) {
-      view = element.view
-    }
+    const view = this.getComponentView(element)
     if (view) {
-      configPanel.updateComponentConfig(element)
+      configPanel.updateComponentConfig(view)
     }
   }
 
@@ -202,7 +251,7 @@ class RidgeEditorService extends RidgeContext {
 
   async onCodeEditComplete (id, code) {
     await this.services.appService.updateFileContent(id, code)
-   
+
     if (this.editorView) {
       await this.editorView.refresh()
     }
@@ -218,6 +267,6 @@ class RidgeEditorService extends RidgeContext {
   }
 }
 
-const ridgeEditorContext = new RidgeEditorService({ baseUrl })
+const ridgeEditorContext = new RidgeEditorContext({ baseUrl })
 
 export default ridgeEditorContext

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { IconDelete, IconEdit, IconPlus, IconTick, IconBrackets } from '@douyinfe/semi-icons'
 import { withField, Button, Space, Form, TextArea, Tree, Popover, Typography, Select, Tag } from '@douyinfe/semi-ui'
-import ridgeEditService from '../../service/RidgeEditorService'
+import ridgeEditService from '../../service/RidgeEditorContext'
 const { Text } = Typography
 const { Option } = Select
 

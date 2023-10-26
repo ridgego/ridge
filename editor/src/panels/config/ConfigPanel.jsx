@@ -4,7 +4,7 @@ import ObjectForm from '../../form/ObjectForm.jsx'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import debug from 'debug'
 
-import context from '../../service/RidgeEditorService.js'
+import context from '../../service/RidgeEditorContext.js'
 
 import {
   EVENT_FILE_TREE_CHANGE, EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
