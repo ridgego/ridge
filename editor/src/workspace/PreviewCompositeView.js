@@ -13,14 +13,9 @@ class PreviewCompositeView extends CompositeView {
     })
   }
 
-  updateStyle () {
-    super.updateStyle()
-    if (this.config.style) {
-      const { width, height } = this.config.style
-
-      this.el.style.width = width + 'px'
-      this.el.style.height = height + 'px'
-    }
+  updateViewPort (width, height) {
+    this.el.style.width = width + 'px'
+    this.el.style.height = height + 'px'
   }
 
   /**

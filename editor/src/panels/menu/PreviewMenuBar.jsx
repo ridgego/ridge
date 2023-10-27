@@ -60,14 +60,14 @@ class PreviewMenuBar extends React.Component {
         }}
       >
         <Space className='bar-content'>
-          <InputNumber size='small' style={{ width: 50 }} value={width} onChange={val => {
+          <InputNumber size='small' style={{ width: 80 }} value={width} onChange={val => {
             changeViewPort(val, height)
-          }}/> X <InputNumber size='small' style={{ width: 50 }} value={height} />
+          }}/> X <InputNumber size='small' style={{ width: 80 }} value={height} />
           <Button
             type='primary'
             theme='solid'
             icon={<IconPause />} onClick={toggoleRunMode}
-          >预览
+          >返回编辑
           </Button>
         </Space>
       </div>

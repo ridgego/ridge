@@ -13,7 +13,6 @@ class MenuBar extends React.Component {
     this.state = {
       pageChanged: false,
       zoom: 1,
-      isPreview: false,
       containerMask: true
     }
   }
@@ -35,9 +34,6 @@ class MenuBar extends React.Component {
 
   toggoleRunMode = () => {
     context.toggleMode()
-    this.setState({
-      isPreview: !this.state.isPreview
-    })
   }
 
   savePage = () => {
@@ -94,9 +90,9 @@ class MenuBar extends React.Component {
           >关闭
           </Button>
           <Button
-            type={isPreview ? 'primary' : 'tertiary'}
-            theme={isPreview ? 'solid' : 'borderless'}
-            icon={isPreview ? <IconPause /> : <IconPlay />} onClick={toggoleRunMode}
+            type='tertiary'
+            theme='borderless'
+            icon=<IconPlay /> onClick={ () => { context.toggleMode() }}
           >预览
           </Button>
           {/* <Button

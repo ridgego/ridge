@@ -49,14 +49,6 @@ class RidgeEditorContext extends RidgeContext {
     this.Editor.setEditorLoaded()
   }
 
-  emptyView () {
-    this.workspaceControl.disable()
-  }
-
-  runtimeView () {
-
-  }
-
   /**
    *  Utils Methods
    **/
@@ -167,6 +159,23 @@ class RidgeEditorContext extends RidgeContext {
     this.Editor.togglePageEdit()
   }
 
+  async loadPreview () {
+    this.runtimeView = new PreviewCompositeView({
+      config: this.pageContent,
+      context: this
+    })
+    await this.runtimeView.loadAndMount(this.viewPortContainerEl)
+    this.Editor.togglePagePreview()
+
+    this.runtimeView.updateViewPort(this.pageContent.style.width, this.pageContent.style.height)
+    const { previewBar } = this.services
+    this.workspaceControl.fitToCenter()
+    previewBar.setState({
+      width: this.pageContent.style.width,
+      height: this.pageContent.style.height
+    })
+  }
+
   /**
    * Switch Design/Preview Mode
    **/
@@ -176,17 +185,14 @@ class RidgeEditorContext extends RidgeContext {
       await this.saveCurrentPage()
       this.closeCurrentPage()
 
-      this.runtimeView = new PreviewCompositeView({
-        config: this.pageContent,
-        context: this
-      })
-      await this.runtimeView.loadAndMount(this.viewPortContainerEl)
-      this.Editor.togglePagePreview()
+      this.loadPreview()
     } else if (this.runtimeView) {
       this.runtimeView.unmount()
       await this.loadPage()
     }
   }
+
+
 
   /**
    * Focus on element(from workspace) handler
