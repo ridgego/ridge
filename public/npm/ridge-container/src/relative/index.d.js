@@ -5,7 +5,7 @@ export default {
   label: '绝对容器',
   type: 'vanilla',
   order: 4,
-  icon: 'bi bi-pip',
+  icon: 'icons/relative.svg',
   props: [{
     name: 'children',
     hidden: true,

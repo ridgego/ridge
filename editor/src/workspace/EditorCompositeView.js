@@ -22,12 +22,27 @@ class EditorCompositeView extends CompositeView {
     Object.assign(this.config, config)
 
     this.updateStyle()
+    this.refresh()
   }
 
   async refresh () {
     await this.importStyleFiles()
     await this.importJSFiles()
-    await this.loadStore()
+
+    this.loadStore()
+  }
+
+  /**
+   * Load Composite Store
+   * */
+  async loadStore () {
+    this.storeModules = []
+    for (const jsModules of this.jsModules) {
+      if (jsModules && jsModules.name) {
+        this.parseJsStoreModule(jsModules)
+      }
+    }
+    this.store = new EditorStore()
   }
 
   updateStyle () {
@@ -82,21 +97,20 @@ class EditorCompositeView extends CompositeView {
    * Import JS Files
    */
   async importJSFiles () {
-    this.storeModules = {}
     const oldScripts = document.querySelectorAll('script[page-id="' + this.config.id + '"]')
     for (const scriptEl of oldScripts) {
       document.head.removeChild(scriptEl)
     }
-    const { jsFiles, storeFiles } = this.config
+    const { jsFiles } = this.config
     for (const filePath of jsFiles || []) {
-      await this.importJSFile(filePath)
-    }
-    for (const filePath of storeFiles || []) {
-      await this.importJSFile(filePath, true)
+      const jsStoreModule = await this.importJSFile(filePath, true)
+      if (jsStoreModule) {
+        this.jsModules.push(jsStoreModule)
+      }
     }
   }
 
-  async importJSFile (jsPath, isStore) {
+  async importJSFile (jsPath) {
     const { appService } = this.context.services
     const file = appService.getFileByPath(jsPath)
     if (file) {
@@ -105,20 +119,55 @@ class EditorCompositeView extends CompositeView {
       }
       const scriptEl = document.createElement('script')
       scriptEl.setAttribute('page-id', this.config.id)
-      scriptEl.setAttribute('type', 'module')
 
-      let jsContent = file.textContent
-      if (isStore) {
-        if (jsContent.indexOf('export default')) {
-          jsContent = jsContent.replace('export default', 'window["' + jsPath + '"]=')
-        }
-      }
-      scriptEl.textContent = jsContent
-      document.head.append(scriptEl)
-      if (isStore) {
-        this.storeModules[jsPath] = window[jsPath]
+      const jsGlobal = 'ridge-store-' + nanoid(10)
+      scriptEl.textContent = file.textContent.replace('export default', 'window["' + jsGlobal + '"]=')
+
+      try {
+        document.head.append(scriptEl)
+        return window[jsGlobal]
+      } catch (e) {
+        console.error('Store Script Error', e)
+        return null
       }
     }
+  }
+
+  parseJsStoreModule (jsStoreModule) {
+    const storeModule = {
+      module: jsStoreModule,
+      name: jsStoreModule.name ?? '未命名', // module name
+      actions: [], // module actions
+      states: [], // module global state includes computed, but only on runtime they are different
+      scoped: [] // only for scoped binding (now only list)
+    }
+    this.storeModules.push(storeModule)
+
+    if (jsStoreModule.state) {
+      let initStateObject = {}
+      if (typeof jsStoreModule.state === 'function') {
+        initStateObject = jsStoreModule.state()
+      } else if (typeof jsStoreModule.state === 'object') {
+        initStateObject = jsStoreModule.state
+      }
+      for (const key of Object.keys(initStateObject)) {
+        storeModule.states.push({
+          name: key
+        })
+      }
+    }
+
+    if (jsStoreModule.actions && typeof jsStoreModule.actions === 'object') {
+      Object.keys(jsStoreModule.actions || {}).forEach(key => {
+        storeModule.actions.push({
+          name: key
+        })
+      })
+    }
+  }
+
+  getStoreModules () {
+    return this.storeModules
   }
 
   /**
@@ -155,19 +204,6 @@ class EditorCompositeView extends CompositeView {
     return view
   }
 
-  /**
-   * Load Composite Store
-   * */
-  async loadStore () {
-    this.store = new EditorStore()
-
-    this.store.updateStore(this.storeModules)
-
-    // await this.store.updateStore((this.config.storeFiles || []).map(storePath => this.context.baseUrl + '/' + this.app + '/' + storePath))
-
-    // this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction', 'getStoreValue'])
-  }
-
   unmount () {
     super.unmount()
     this.el.style.width = 0
@@ -186,6 +222,29 @@ class EditorCompositeView extends CompositeView {
       })
       view.unmount()
       delete this.componentViews[view.config.id]
+    }
+  }
+
+  /**
+   * 附加子节点到父节点，并给出节点位置以方便父节点排列
+   * @param childView 子节点view
+   * @param parentView 父节点view
+   * @param position
+   */
+  attachToParentView (childView, parentView, position) {
+    if (!parentView.hasMethod('appendChild')) {
+      return false
+    }
+    // 这里容器会提供 appendChild 方法，并提供放置位置
+    const result = parentView.invoke('appendChild', [childView, position.x, position.y])
+
+    if (result === false) {
+      return false
+    } else {
+      Object.assign(parentView.config.props, result)
+
+      childView.config.parent = parentView.id
+      childView.containerView = parentView
     }
   }
 

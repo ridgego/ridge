@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "description": "容器",
   "main": "index.js",
-  "icon": "bi bi-grid-1x2",
+  "icon": "icons/icon.svg",
   "scripts": {
     "build": "rcbuild",
     "watch": "rcbuild -w -s",

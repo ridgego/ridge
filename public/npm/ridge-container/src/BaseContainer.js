@@ -5,7 +5,6 @@
 export default class BaseContainer {
   constructor (props) {
     this.props = props
-    this.isRuntime = props.__mode !== 'edit'
   }
 
   /**
@@ -18,7 +17,7 @@ export default class BaseContainer {
    * 子节点style信息
    * @abstract
    */
-  getChildStyle (wrapper) {}
+  getChildStyle (view) {}
 
   /**
    * 获取shadow样式
@@ -59,19 +58,18 @@ export default class BaseContainer {
 
     el.appendChild(containerDiv)
 
-    this.wrapper = this.props.__elementWrapper
-    this.mode = this.props.__mode
+    this.view = this.props.__view
     Object.assign(this.containerEl.style, {
       width: '100%',
       height: '100%'
     }, this.getContainerStyle())
 
     if (this.props.children) {
-      for (const childWrapper of this.props.children) {
+      for (const childrenView of this.props.children) {
         const childDiv = document.createElement('div')
         this.containerEl.appendChild(childDiv)
-        await childWrapper.loadAndMount(childDiv)
-        this.updateChildStyle(childWrapper)
+        await childrenView.loadAndMount(childDiv)
+        this.updateChildStyle(childrenView)
       }
     }
     await this.mounted()
@@ -81,48 +79,36 @@ export default class BaseContainer {
    * 计算并更新子节点样式
    * @param  {ElementWrapper} wrapper 封装类
    */
-  updateChildStyle (wrapper, originalRect) {
-    const style = Object.assign({}, wrapper.getResetStyle(), this.getChildStyle(wrapper, originalRect))
+  updateChildStyle (view, originalRect) {
+    const style = Object.assign({}, this.getChildStyle(view, originalRect))
 
-    Object.assign(wrapper.el.style, style)
+    Object.assign(view.el.style, style)
   }
 
   // 追加子节点
-  appendChild (wrapper, x, y) {
-    const el = wrapper.el
-
+  appendChild (view, x, y) {
+    const el = view.el
     let originalRect = el.getBoundingClientRect()
-
-    if (el.parentElement == null) {
-      originalRect = {
-        x: x - (wrapper.config.style.width || 100) / 2,
-        y: y - (wrapper.config.style.height || 100) / 2,
-        width: wrapper.config.style.width || 100,
-        height: wrapper.config.style.height || 100
-      }
+    if (this.containerEl.querySelector(':scope > .drop-shadow')) {
+      this.containerEl.insertBefore(el, this.containerEl.querySelector(':scope > .drop-shadow'))
+      this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
+    } else {
+      this.containerEl.appendChild(el)
     }
-    if (el.parentElement !== this.containerEl) {
-      if (this.containerEl.querySelector(':scope > .drop-shadow')) {
-        this.containerEl.insertBefore(el, this.containerEl.querySelector(':scope > .drop-shadow'))
-        this.containerEl.removeChild(this.containerEl.querySelector(':scope > .drop-shadow'))
-      } else {
-        this.containerEl.appendChild(el)
-      }
-      this.updateChildStyle(wrapper, originalRect)
-    }
+    this.updateChildStyle(view, originalRect)
     return {
       children: this.getChildren()
     }
   }
 
   // 删除子节点
-  removeChild (wrapper, isDelete) {
+  removeChild (view, isDelete) {
     // 原地阴影
-    if (wrapper.el.parentElement === this.containerEl) {
+    if (view.el.parentElement === this.containerEl) {
       if (!isDelete) {
-        this.checkInsertDropShadowEl(wrapper.el.getBoundingClientRect(), wrapper.el, wrapper.config.style)
+        this.checkInsertDropShadowEl(view.el.getBoundingClientRect(), view.el, view.config.style)
       }
-      this.containerEl.removeChild(wrapper.el)
+      this.containerEl.removeChild(view.el)
     } else {
       console.warn('not children ')
     }
@@ -148,7 +134,7 @@ export default class BaseContainer {
     shadowNode.style.height = rect.height + 'px'
 
     shadowNode.style.borderRadius = 'var(--semi-border-radius-small)'
-    shadowNode.style.border = '2px dashed var(--semi-color-primary)'
+    shadowNode.style.border = '1px dashed var(--semi-color-primary)'
     shadowNode.style.backgroundColor = 'var(--semi-color-primary-light-default)'
 
     Object.assign(shadowNode.style, this.getShadowStyle(configStyle))
@@ -161,14 +147,14 @@ export default class BaseContainer {
   }
 
   // 拖拽上浮
-  onDragOver (wrapper) {
-    if (wrapper.el) { // 已有组件放置进入
+  onDragOver (view) {
+    if (view.el) { // 已有组件放置进入
       // 获取当前放置的次序
-      const afterNode = this.getAfterNode(wrapper.el.getBoundingClientRect(), this.containerEl.childNodes)
-      this.checkInsertDropShadowEl(wrapper.getConfig().style, afterNode, wrapper.config.style)
+      const afterNode = this.getAfterNode(view.el.getBoundingClientRect(), this.containerEl.childNodes)
+      this.checkInsertDropShadowEl(view.getConfig().style, afterNode, view.config.style)
     } else { // 新增组件放置, 这种情况下 Wrapper只是一个含有width/height的rect对象
-      const afterNode = this.getAfterNode(wrapper, this.containerEl.childNodes)
-      this.checkInsertDropShadowEl(wrapper, afterNode, wrapper)
+      const afterNode = this.getAfterNode(view, this.containerEl.childNodes)
+      this.checkInsertDropShadowEl(view, afterNode, view)
     }
   }
 

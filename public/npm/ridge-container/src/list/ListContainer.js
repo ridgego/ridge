@@ -7,8 +7,7 @@ export default class ListContainer extends Container {
     this.el.appendChild(containerDiv)
 
     this.containerEl = containerDiv
-    this.wrapper = this.props.__elementWrapper
-    this.mode = this.props.__mode
+    this.wrapper = this.props.__view
     Object.assign(this.containerEl.style, {
       width: '100%',
       height: '100%'
@@ -18,12 +17,13 @@ export default class ListContainer extends Container {
       await this.props.renderItem.preload()
       this.props.renderItem.initPropsAndEvents()
     }
-    if (this.mode === 'edit') {
+    if (this.wrapper) {
       // 编辑时
       if (this.props.renderItem) {
         const renderEl = document.createElement('div')
         this.containerEl.appendChild(renderEl)
         this.props.renderItem.loadAndMount(renderEl)
+      } else {        
       }
     } else {
       this.renderUpdateListItems()

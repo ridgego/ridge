@@ -282,19 +282,6 @@ export default class ComponentPanel extends React.Component {
         required: false,
         multiple: true
       }, {
-        field: 'storeFiles',
-        label: '状态库',
-        control: 'select',
-        placeholder: '请选择脚本文件',
-        optionList: appService.filterFiles(node => node.mimeType === 'text/javascript' && node.label.endsWith('.store.js')).map(file => {
-          return {
-            value: file.path,
-            label: file.label
-          }
-        }),
-        required: false,
-        multiple: true
-      }, {
         field: 'style.classNames',
         label: '样式库',
         control: 'select',
@@ -377,7 +364,7 @@ export default class ComponentPanel extends React.Component {
     }
 
     const pagePropValueChange = (values, field) => {
-      context.updatePageConfig(values, field)
+      context.editorView.updatePageConfig(values)
     }
 
     return (

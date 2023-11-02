@@ -1,7 +1,8 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
 import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import ridgeEditorService from '../../service/RidgeEditorContext.js'
+import context from '../../service/RidgeEditorContext.js'
+import IconPackAdd from '../../icons/IconPackAdd.jsx'
 const trace = require('debug')('ridge:cl')
 const { Text } = Typography
 class ComponentListing extends React.Component {
@@ -15,7 +16,7 @@ class ComponentListing extends React.Component {
       currentPackage: '',
       fullLoading: true
     }
-    ridgeEditorService.services.componentListPanel = this
+    context.services.componentListPanel = this
     this.loadedComponents = []
   }
 
@@ -25,7 +26,7 @@ class ComponentListing extends React.Component {
     for (const componentName of pkg.components) {
       const componentPath = pkg.name + '/' + componentName
       if (this.loadedComponents.filter(component => component.componentPath === componentPath).length === 0) {
-        ridgeEditorService.loadComponent(componentPath).then(componentLoaded => {
+        context.loadComponent(componentPath).then(componentLoaded => {
           if (!componentLoaded) {
             return
           }
@@ -44,16 +45,16 @@ class ComponentListing extends React.Component {
   tabChange (key) {
     this.setState({
       currentPackage: key
-    }, () => {
-      this.renderPackageComponents()
     })
+    const pkg = this.state.loadedPackages.filter(pkg => pkg.name === key)[0]
+    this.ensurePackageComponents(pkg)
   }
 
   async loadPackages () {
     this.setState({
       fullLoading: true
     })
-    const loadedPackages = await ridgeEditorService.loadPackages()
+    const loadedPackages = await context.loadPackages()
 
     if (loadedPackages.length) {
       this.setState({
@@ -76,6 +77,7 @@ class ComponentListing extends React.Component {
   }
 
   dragStart (ev, info) {
+    context.draggingComponent = info
     window.dragComponent = info
 
     ev.dataTransfer.setData('text/plain', JSON.stringify(info))
@@ -132,6 +134,7 @@ class ComponentListing extends React.Component {
             type='button'
             size='small'
             tabPosition='left'
+            tabBarExtraContent={<div className={'package-icon'} ><IconPackAdd /></div>}
             activeKey={currentPackage}
             onChange={key => tabChange(key)}
           >

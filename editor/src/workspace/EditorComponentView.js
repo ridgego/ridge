@@ -10,6 +10,7 @@ class EditorComponentView extends ComponentView {
       __view: this
     }
     if (config.definition) {
+      this.preloaded = true
       this.componentDefinition = config.definition
     }
   }

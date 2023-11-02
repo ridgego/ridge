@@ -37,8 +37,8 @@ class ComponentView extends ElementView {
   }
 
   getScopedData () {
-    const parentScopes = this.containerView ? this.containerView.getScopedData() : {}
-    return Object.assign({}, parentScopes, this.scopedData)
+    const parentScopes = this.containerView ? this.containerView.getScopedData() : []
+    return [this.scopedData, ...parentScopes]
   }
 
   setScopedData (scopedData) {
@@ -48,7 +48,9 @@ class ComponentView extends ElementView {
   async loadAndMount (el) {
     this.el = el
     this.updateStyle()
-    await this.preload()
+    if (!this.preloaded) {
+      await this.preload()
+    }
 
     if (this.componentDefinition) {
       this.mount()
@@ -59,10 +61,8 @@ class ComponentView extends ElementView {
    * 加载组件代码、按代码初始化属性
    */
   async preload (deepPreload) {
-    if (this.preloaded) return
-
     this.setStatus('loading')
-  
+
     if (this.config.path) {
       this.componentDefinition = await this.context.loadComponent(this.config.path)
     }
@@ -180,7 +180,7 @@ class ComponentView extends ElementView {
     }
     // 事件类属性写入，DOM初始化后事件才能挂到源头
     for (const event of this.componentDefinition.events || []) {
-      this.properties[event.name] = (...args) => {
+      this.eventProperties[event.name] = (...args) => {
         this.emit(event.name, args)
       }
     }
@@ -246,6 +246,8 @@ class ComponentView extends ElementView {
 
   // 计算随变量绑定的样式
   updateConnectedStyle () {
+    if (!this.context.getStoreValue) return
+
     for (const styleName of Object.keys(this.config.styleEx || {})) {
       if (this.config.styleEx[styleName] == null || this.config.styleEx[styleName] === '') {
         continue
@@ -301,6 +303,7 @@ class ComponentView extends ElementView {
    * 计算所有表达式值
    */
   updateConnectedProperties () {
+    if (!this.context.getStoreValue) return
     for (const [key, value] of Object.entries(this.config.propEx)) {
       if (value == null || value === '') {
         continue
@@ -311,17 +314,6 @@ class ComponentView extends ElementView {
         // if error, the properties won't change
         console.error('get Store Value Error: ', e)
       }
-      // const propDef = this.getPropDefinationByName(key)
-
-      // if (propDef && typeof propDef.connect === 'string') {
-      //   // 判断 connect为path的情况 按path设置属性的路径数据
-      //   // 因为是对象类型， 直接只改path值可能会直接改动
-      //   const value = JSON.parse(JSON.stringify(this.properties[key]))
-      //   objectSet(value, propDef.connect, storeValue)
-      //   this.properties[key] = value
-      // } else {
-      //   this.properties[key] = storeValue
-      // }
     }
   }
 
@@ -353,7 +345,7 @@ class ComponentView extends ElementView {
 
   hasMethod (methodName) {
     if (this.renderer) {
-      return this.renderer.hasMethod(method)
+      return this.renderer.hasMethod(methodName)
     } else {
       return false
     }

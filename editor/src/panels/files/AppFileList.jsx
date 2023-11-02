@@ -5,13 +5,9 @@ import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
 import { IconPlus, IconImport, IconSetting, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import context from '../../service/RidgeEditorContext.js'
-
+import { eachNode, getFileTree } from './buildFileTree.js'
 import DialogRename from './DialogRename.jsx'
 import DialogCreate from './DialogCreate.jsx'
-import { eachNode, getFileTree } from './buildFileTree.js'
-import { ThemeContext } from '../movable/MoveablePanel.jsx'
-import './file-list.less'
-import DialogCodeEdit from './DialogCodeEdit.jsx'
 import { stringToBlob } from '../../utils/blob.js'
 import IconFileCode from '../../icons/IconFileCode.jsx'
 import IconFolderAdd from '../../icons/IconFolderAdd.jsx'
@@ -19,6 +15,7 @@ import IconPageAdd from '../../icons/IconPageAdd.jsx'
 import IconUpload from '../../icons/IconUpload.jsx'
 import IconFileCopy from '../../icons/IconFileCopy.jsx'
 import IconRename from '../../icons/IconRename.jsx'
+import './file-list.less'
 
 const trace = debug('ridge:file')
 const { Text } = Typography
@@ -34,11 +31,12 @@ class AppFileList extends React.Component {
 
       dialgeCreateFileType: '',
       dialogCreateShow: false,
-      dialogCreateTitle: ''
+      dialogCreateTitle: '',
+
+      dialogRenameShow: false,
+      valueRename: ''
     }
   }
-
-  static contextType = ThemeContext
 
   componentDidMount () {
     this.loadAndUpdateFileTree()
@@ -169,6 +167,20 @@ class AppFileList extends React.Component {
     }
   }
 
+  onRenameConfirm = async () => {
+    const { appService } = context.services
+    const { selectedNodeKey, valueRename } = this.state
+
+    const result = await appService.rename(selectedNodeKey, valueRename)
+
+    if (result) {
+      await this.loadAndUpdateFileTree()
+      this.setState({
+        dialogRenameShow: false
+      })
+    }
+  }
+
   onRemoveClicked = async data => {
     Modal.confirm({
       zIndex: 10001,
@@ -186,55 +198,22 @@ class AppFileList extends React.Component {
     })
   }
 
-  /**
-   * 更新并保存命名修改
-   */
-  confirmRename = async () => {
-    if (this.state.currentEditValid) {
-      const { appService } = ridge
-      await appService.rename(this.state.currentEditKey, this.state.currentEditFileName)
-      if (this.state.currentOpenId === this.state.currentEditKey) {
-        emit(EVENT_PAGE_RENAMED, this.state.currentEditFileName)
-      }
-      this.setState({
-        createDialogShow: false,
-        currentEditFileName: '',
-        currentEditValid: true,
-        currentEditKey: null
-      })
-      Toast.success('文件已经重新命名为：' + this.state.currentEditFileName)
-    }
-  }
-
   copy = async node => {
     const { appService } = context.services
     await appService.copy(node.key)
     Toast.success('文件复制完成')
   }
 
-  onOpenClicked = async (node) => {
+  onOpenClicked = node => {
     context.openFile(node.key)
   }
 
-  async completeCodeEdit (code, close) {
-    const {
-      codeEditNodeId,
-      codeEditType
-    } = this.state
-    await appService.updateFileContent(codeEditNodeId, code, codeEditType)
-
-    if (ridge.pageElementManager) {
-      ridge.pageElementManager.updateImportedStyle()
-      ridge.pageElementManager.updateImportedJS()
-    }
-
-    Toast.success('编辑内容已保存')
-
-    if (close) {
-      this.setState({
-        codeEditVisible: false
-      })
-    }
+  onRenameClicked = node => {
+    this.setState({
+      selectedNodeKey: node.key,
+      dialogRenameShow: true,
+      valueRename: node.label
+    })
   }
 
   move = async (node, dragNode, dropToGap) => {
@@ -260,7 +239,6 @@ class AppFileList extends React.Component {
       })
     }
   }
-
 
   renderFullLabel = (label, data) => {
     const { currentOpenId } = this.state
@@ -317,6 +295,7 @@ class AppFileList extends React.Component {
         <Dropdown
           className='app-files-dropdown'
           trigger='click'
+          clickToHide
           render={<Dropdown.Menu>{MORE_MENUS}</Dropdown.Menu>}
         >
           <Button className='more-button' size='small' theme='borderless' type='tertiary' icon={<IconMoreStroked rotate={90} />} />
@@ -426,32 +405,13 @@ class AppFileList extends React.Component {
 
   render () {
     const { renderFullLabel, state, RenderCreateDropDown } = this
-    const { treeData, dialogCreateShow, dialogCreateTitle, selectedNodeKey } = state
+    const { treeData, dialogCreateShow, dialogCreateTitle, selectedNodeKey, dialogRenameShow, valueRename } = state
 
     return (
       <>
         <div className='file-actions'>
           <RenderCreateDropDown />
         </div>
-       {/* <ImagePreview
-          src={imagePreviewSrc} visible={imagePreviewVisible} onVisibleChange={() => {
-            this.setState({
-              imagePreviewVisible: false
-            })
-          }}
-        />
-        <DialogCodeEdit
-          title={codeEditTitle}
-          value={codeEditText} visible={codeEditVisible} lang='css' onChange={(code, close) => {
-            this.completeCodeEdit(code, close)
-          }}
-          type={codeEditType}
-          onClose={() => {
-            this.setState({
-              codeEditVisible: false
-            })
-          }}
-        />*/}
         <DialogCreate
           show={dialogCreateShow}
           title={dialogCreateTitle}
@@ -463,6 +423,20 @@ class AppFileList extends React.Component {
           cancel={() => {
             this.setState({
               dialogCreateShow: false
+            })
+          }}
+        />
+        <DialogRename
+          show={dialogRenameShow} value={valueRename} siblingNames={this.getCurrentSiblingNames()} change={val => {
+            this.setState({
+              valueRename: val
+            })
+          }} confirm={() => {
+            this.onRenameConfirm()
+          }}
+          cancel={() => {
+            this.setState({
+              dialogRenameShow: false
             })
           }}
         />

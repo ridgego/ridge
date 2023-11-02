@@ -1,10 +1,9 @@
 class EditorStore {
-  constructor(appService) {
+  constructor (appService) {
     this.appService = appService
   }
-  updateStore() {
 
-  }
+  getStoreValue () {}
 }
 
 export default EditorStore

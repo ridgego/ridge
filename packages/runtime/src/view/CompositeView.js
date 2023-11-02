@@ -1,6 +1,7 @@
 import ValtioStore from './ValtioStore'
 import ComponentView from './ComponentView'
 import ElementView from './ElementView'
+import { nanoid } from '../utils/string'
 import Debug from 'debug'
 const debug = Debug('ridge:manager')
 
@@ -14,6 +15,7 @@ const debug = Debug('ridge:manager')
  * */
 class CompositeView extends ElementView {
   constructor ({
+    el,
     config,
     baseUrl,
     context
@@ -21,7 +23,8 @@ class CompositeView extends ElementView {
     super()
     this.config = config
     this.context = context
-
+    this.el = el
+    this.jsModules = []
     this.initialize()
   }
 
@@ -59,7 +62,9 @@ class CompositeView extends ElementView {
    * @param {Element} el root element
    */
   async loadAndMount (el) {
-    this.el = el
+    if (el) {
+      this.el = el
+    }
     this.updateStyle()
     await this.importStyleFiles()
     await this.importJSFiles()
@@ -109,6 +114,25 @@ class CompositeView extends ElementView {
     }
   }
 
+  async loadModule (jsPath) {
+    const resolveKey = 'resolve-' + nanoid(5)
+    const scriptDiv = document.createElement('script')
+    scriptDiv.setAttribute('type', 'module')
+    scriptDiv.setAttribute('async', true)
+    document.head.append(scriptDiv)
+    scriptDiv.textContent = `import * as Module from '${jsPath}'; window['${resolveKey}'](Module);`
+    return await new Promise((resolve, reject) => {
+      window[resolveKey] = (Module) => {
+        delete window[resolveKey]
+        if (Module && Module.default) {
+          resolve(Module.default)
+        } else {
+          resolve(null)
+        }
+      }
+    })
+  }
+
   /**
    * Import JS Files
    */
@@ -116,7 +140,10 @@ class CompositeView extends ElementView {
     const { jsFiles } = this.config
 
     for (const filePath of jsFiles ?? []) {
-      await this.context.loadScript(this.context.baseUrl + '/' + this.app + '/' + filePath)
+      const JsModule = await this.loadModule(this.context.baseUrl + '/' + this.app + '/' + filePath)
+      if (JsModule) {
+        this.jsModules.push(JsModule)
+      }
     }
   }
 
@@ -125,8 +152,8 @@ class CompositeView extends ElementView {
    * */
   async loadStore () {
     this.store = new ValtioStore()
+    this.store.load(this.jsModules)
 
-    await this.store.updateStore((this.config.storeFiles || []).map(storePath => this.context.baseUrl + '/' + this.app + '/' + storePath))
     this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction', 'getStoreValue'])
   }
 }

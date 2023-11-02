@@ -64,6 +64,7 @@ export default class WorkSpaceControl {
   }
 
   fitToCenter (padding = 40) {
+    this.viewPortEl.style.transform = ''
     const wsbc = this.workspaceEl.getBoundingClientRect()
     const vpbc = this.viewPortEl.getBoundingClientRect()
     this.zoom = 1
@@ -73,15 +74,15 @@ export default class WorkSpaceControl {
       height: vpbc.height
     }, {
       width: wsbc.width - padding * 2,
-      height: wsbc.width - padding * 2
+      height: wsbc.height - padding * 2
     })
 
     if (fitted.width !== vpbc.width) {
       this.zoom = fitted.width / vpbc.width
     }
 
-    this.viewPortX = (wsbc.width - padding * 2 - fitted.width) / 2
-    this.viewPortY = (wsbc.height - padding * 2 - fitted.height) / 2
+    this.viewPortX = (wsbc.width - fitted.width) / 2
+    this.viewPortY = (wsbc.height - fitted.height) / 2
 
     this.viewPortEl.style.transform = `translate(${this.viewPortX}px, ${this.viewPortY}px) scale(${this.zoom})`
 
@@ -388,26 +389,52 @@ export default class WorkSpaceControl {
   }
 
   initComponentDrop () {
-    this.workspaceEl.addEventListener('dragover', ev => {
-      if (!this.enabled) {
-        return
-      }
+    this.workspaceEl.addEventListener('dragover', this.onWorkspaceDragOver.bind(this))
+    this.workspaceEl.addEventListener('drop', this.onWorkspaceDrop.bind(this))
+  }
+
+  onWorkspaceDragOver (ev) {
+    if (!this.enabled) {
+      return
+    }
+    if (context.draggingComponent) {
       if (this.selected.length) {
         this.selectElements([])
       }
       ev.dataTransfer.dropEffect = 'move'
+
       this.checkDropTargetStatus({
-        width: window.dragComponent.width,
-        height: window.dragComponent.height,
+        width: context.draggingComponent.width,
+        height: context.draggingComponent.height,
         clientX: ev.clientX,
         clientY: ev.clientY
       })
-      ev.preventDefault()
-    })
-
-    this.workspaceEl.addEventListener('drop', this.onWorkspaceDrop.bind(this))
+    }
+    ev.preventDefault()
   }
 
+  /**
+   * 放置组件事件
+   * @param {*} ev
+   */
+  onWorkspaceDrop (ev) {
+    if (!this.enabled) {
+      return
+    }
+    ev.preventDefault()
+
+    if (context.draggingComponent) {
+      const div = document.createElement('div')
+      const view = context.editorView.createView(context.draggingComponent)
+      view.loadAndMount(div)
+      this.placeElementAt(div, ev.pageX, ev.pageY)
+      context.draggingComponent = null
+    }
+  }
+
+  /**
+   * 检查并显示指定位置的放置情况，主要是容器放置处理
+   */
   checkDropTargetStatus ({ target, clientX, clientY, width, height }) {
     this.getDroppableTarget(target, {
       x: clientX,
@@ -425,26 +452,24 @@ export default class WorkSpaceControl {
    */
   placeElementAt (el, x, y) {
     trace('placeElementAt:', el, { x, y })
+    this.putElementToRoot(el, x, y)
     // 获取可放置的容器
     const targetEl = this.getDroppableTarget(el, {
       x,
       y
     }, false)
-    const sourceElement = el.view
-    const targetParentElement = targetEl ? targetEl.view : null
-    if (targetParentElement == null) {
-      // 根上移动： 只更新配置
-      this.putElementToRoot(el, x, y)
-    } else {
+    const sourceView = el.view
+    const targetParentView = targetEl ? targetEl.view : null
+    if (targetParentView) {
       // 放入一个容器
-      trace('Into container', targetParentElement)
-      const result = this.context.attachToParent(targetParentElement, sourceElement, { x, y })
+      trace('Into container', targetParentView)
+      const result = context.editorView.attachToParentView(sourceView, targetParentView,{ x, y })
       if (result === false) {
         this.putElementToRoot(el, x, y)
       }
     }
     context.onElementMoveEnd(el)
-    this.moveable.updateTarget()
+    // this.moveable.updateTarget()
   }
 
   /**
@@ -535,7 +560,7 @@ export default class WorkSpaceControl {
     }
 
     if (filtered) {
-      window.sl = elements.map(e => e.elementWrapper)
+      context.selected = filtered
     }
   }
 
@@ -543,27 +568,6 @@ export default class WorkSpaceControl {
     this.selected = this.selected.filter(el => elements.indexOf(el) === -1)
     this.moveable.target = this.selected
     this.moveable.updateTarget()
-  }
-
-  /**
-   * 放置组件事件
-   * @param {*} ev
-   */
-  onWorkspaceDrop (ev) {
-    if (!this.enabled) {
-      return
-    }
-    ev.preventDefault()
-
-    const data = ev.dataTransfer.getData('text/plain')
-    const fraction = JSON.parse(data)
-
-    const div = document.createElement('div')
-
-    const view = context.editorView.createView(fraction)
-    view.loadAndMount(div).then(() => {
-      this.placeElementAt(div, ev.pageX, ev.pageY)
-    })
   }
 
   /**
@@ -579,7 +583,7 @@ export default class WorkSpaceControl {
       droppableElements = droppableElements.concat(Array.from(document.querySelectorAll(selector)))
     }
     const filtered = Array.from(droppableElements).filter(el => {
-      if (!el.wrapper) return false
+      if (!el.view) return false
       const { x, y, width, height } = el.getBoundingClientRect()
       // Exclude: droppables in the dragging element
       // 容器判断 isDroppable为false
@@ -621,7 +625,7 @@ export default class WorkSpaceControl {
     // 拖拽更新位置
     if (updateDragOver) {
       try {
-        target && target.invoke && target.invoke('onDragOver', dragEl ? [dragEl.elementWrapper || {}] : [pointPos])
+        target && target.invoke && target.invoke('onDragOver', dragEl ? [dragEl.view || {}] : [pointPos])
       } catch (e) {
         console.error('Container dragOver Error', target)
       }

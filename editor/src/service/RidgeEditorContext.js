@@ -140,40 +140,55 @@ class RidgeEditorContext extends RidgeContext {
 
     this.editorView = new EditorCompositeView({
       config: this.pageContent,
+      el: this.viewPortContainerEl,
       context: this
     })
 
-    await this.editorView.loadAndMount(this.viewPortContainerEl)
+    this.editorView.updateStyle()
     if (!this.workspaceControl.enabled) {
       this.workspaceControl.enable()
     }
-    const zoom = this.workspaceControl.fitToCenter()
 
+    const zoom = this.workspaceControl.fitToCenter()
+    this.Editor.togglePageEdit()
+    await this.editorView.loadAndMount(this.viewPortContainerEl)
     const { configPanel, outlinePanel, menuBar } = this.services
     menuBar.setZoom(zoom)
     configPanel.updatePageConfigFields()
     outlinePanel.updateOutline()
 
-    this.workspaceControl.selectElements([])
-
-    this.Editor.togglePageEdit()
+    this.workspaceControl.selectElements([])   
   }
 
+  /**
+   * Load current page to preview mode
+   **/
   async loadPreview () {
+    // load view
     this.runtimeView = new PreviewCompositeView({
       config: this.pageContent,
       context: this
     })
     await this.runtimeView.loadAndMount(this.viewPortContainerEl)
+
+    // toggle editor
     this.Editor.togglePagePreview()
 
+    // update view port and fit
     this.runtimeView.updateViewPort(this.pageContent.style.width, this.pageContent.style.height)
     const { previewBar } = this.services
     this.workspaceControl.fitToCenter()
+
+    // update bar
     previewBar.setState({
       width: this.pageContent.style.width,
       height: this.pageContent.style.height
     })
+  }
+
+  updatePreviewSize (width, height) {
+    this.runtimeView.updateViewPort(width, height)
+    this.workspaceControl.fitToCenter()
   }
 
   /**
@@ -191,8 +206,6 @@ class RidgeEditorContext extends RidgeContext {
       await this.loadPage()
     }
   }
-
-
 
   /**
    * Focus on element(from workspace) handler
@@ -249,10 +262,6 @@ class RidgeEditorContext extends RidgeContext {
 
   updateComponentStyle (view, config) {
     view.updateStyleConfig(config)
-  }
-
-  updatePageConfig (values, field) {
-    this.editorView.updatePageConfig(values)
   }
 
   async onCodeEditComplete (id, code) {

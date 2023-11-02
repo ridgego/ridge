@@ -4,17 +4,19 @@ export default class TextArea {
   }
 
   async mount (el) {
+    const { input, onPressEnter, onChange } = this.props
     this.el = el
     this.textarea = document.createElement('textarea')
     this.textarea.style.width = '100%'
     this.textarea.style.height = '100%'
     this.el.append(this.textarea)
     this.textarea.oninput = (e) => {
-      this.textarea.input && this.textarea.input(e.currentTarget.value)
+      input && input(e.currentTarget.value)
+      onChange && onChange(e.currentTarget.value)
     }
     this.textarea.onkeydown = e => {
       if (e.code === 'Enter') {
-        this.textarea.onPressEnter && this.textarea.onPressEnter(e.currentTarget.value)
+        onPressEnter && onPressEnter(e.currentTarget.value)
       }
     }
     this.render()

@@ -1,12 +1,27 @@
+/**
+ * The Interface extends by each Ridge Element 
+ * Includes: 
+ * ElementView <-- ComponentView <-- EditorComponentView
+ *             <-- CompositeView <-- EditorCompositeView
+ * 
+ * 
+ **/
 class ElementView {
-  async loadAndMount (el) {}
-  unmount () {}
 
   initPropsAndEvents () {}
 
-  updateStyle () {}
+  async preload() {}
+
+  mount (el) {}
+
+  async loadAndMount (el) {}
+
+  updateStyle (styles) {}
 
   updateProps (props) {}
+  
+  unmount () {}
+
 
   setStatus (status, msg) {
     this.status = status

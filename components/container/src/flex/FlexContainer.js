@@ -22,15 +22,19 @@ export default class FlexBoxContainer extends BaseContainer {
     return containerStyle
   }
 
-  getChildStyle (wrapper) {
+  getChildStyle (view) {
     const style = {
+      position: '',
+      top: '',
+      left: '',
+      transform: '',
       width: '',
       height: ''
     }
-    const configStyle = wrapper.config.style
+    const configStyle = view.config.style
 
-    if (wrapper.config.props.styleMargin) {
-      style.margin = wrapper.config.props.styleMargin
+    if (view.config.props.styleMargin) {
+      style.margin = view.config.props.styleMargin
     } else {
       style.margin = 0
     }
@@ -51,7 +55,6 @@ export default class FlexBoxContainer extends BaseContainer {
         style.width = configStyle.width ? (configStyle.width + 'px') : ''
       }
     }
-    style.zIndex = 10
     return style
   }
 

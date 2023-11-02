@@ -185,7 +185,6 @@ export default class ApplicationService {
     await this.collection.patch({ id }, {
       name: newName
     })
-    await this.updateAppFileTree(true)
     return true
   }
 
@@ -290,7 +289,8 @@ export default class ApplicationService {
         description: 'My First Ridge App #RidgeApp #HelloWorld',
         version: '1.0.0',
         dependencies: {
-          'ridge-basic': '1.0.0'
+          'ridge-basic': '1.0.0',
+          'ridge-container': '1.0.0'
         }
       }), 'text/json')))
     }

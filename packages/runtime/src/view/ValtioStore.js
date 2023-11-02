@@ -1,15 +1,21 @@
-import { filename, nanoid } from '../utils/string'
 import { proxy, subscribe } from 'valtio/vanilla'
-import { subscribeKey } from 'valtio/utils'
 
 /**
  * Store engine based on Valtio Lib(Proxied Object)
  **/
 export default class ValtioStore {
   constructor () {
-    this.storeObjects = {} // loaded store definition
     this.stores = {} // Valtio proxied
     this.watchers = {}
+  }
+
+  /**
+   * Load & Init JS-Stores
+   **/
+  load (modules) {
+    for (const StoreModule of modules) {
+      this.registerPageStore(StoreModule)
+    }
   }
 
   /**
@@ -60,20 +66,20 @@ export default class ValtioStore {
   dispatchStateChange (expr, val) {
     const [storeKey, ...path] = expr.split('.')
 
-    if (!this.stores[storeKey]) {
-      if (globalThis[storeKey] && globalThis[storeKey].state) {
-        this.registerPageStore(storeKey, globalThis[storeKey])
-      }
-    }
+    // if (!this.stores[storeKey]) {
+    //   if (globalThis[storeKey] && globalThis[storeKey].state) {
+    //     this.registerPageStore(storeKey, globalThis[storeKey])
+    //   }
+    // }
 
     if (this.stores[storeKey]) {
-      this.stores[storeKey][path] = val
+      this.stores[storeKey].state[storeKey] = val
     }
   }
 
   subscribe (expr, cb) {
     const [storeKey, stateExpr] = expr.split('.')
-    if (this.watchers[storeKey] == null)  {
+    if (this.watchers[storeKey] == null) {
       this.watchers[storeKey] = {}
     }
     if (this.watchers[storeKey][stateExpr] == null) {
@@ -89,78 +95,39 @@ export default class ValtioStore {
   }
 
   /**
-   * 更新/加载页面的storejs
-   */
-  async updateStore (storeFiles) {
-    if (storeFiles && storeFiles.length) {
-      for (const storeFile of storeFiles) {
-        const moduleName = filename(storeFile)
-        const StoreModule = await this.loadStoreModule(storeFile)
-        if (StoreModule) {
-          if (StoreModule) {
-            this.registerPageStore(moduleName, StoreModule)
-          }
-        }
-      }
-    }
-  }
-
-  async loadStoreModule (jsPath) {
-    const resolveKey = 'resolve-' + nanoid(5)
-    const scriptDiv = document.createElement('script')
-    scriptDiv.setAttribute('type', 'module')
-    scriptDiv.setAttribute('async', true)
-    document.head.append(scriptDiv)
-    scriptDiv.textContent = `import * as Module from '${jsPath}'; window['${resolveKey}'](Module);`
-    return await new Promise((resolve, reject) => {
-      window[resolveKey] = (Module) => {
-        delete window[resolveKey]
-        resolve(Module)
-      }
-    })
-  }
-
-  /**
    * 使用Pinia引擎进行store初始化
    * @param {*} moduleName
    * @param {*} storeModule
    */
-  registerPageStore (moduleName, storeModule) {
-    this.storeObjects[moduleName] = storeModule
+  registerPageStore (StoreModule) {
+    if (!StoreModule.name) {
+      return
+    }
+    const moduleName = StoreModule.name
 
     this.stores[moduleName] = {}
 
-    if (typeof storeModule.state === 'function') {
-      this.stores[moduleName].state = proxy(storeModule.state())
+    if (typeof StoreModule.state === 'function') {
+      this.stores[moduleName].state = proxy(StoreModule.state())
     }
 
-    if (storeModule.computed) {
+    if (StoreModule.computed) {
       this.stores[moduleName].computed = {}
-      for (const key of Object.keys(storeModule.computed)) {
-        const computedState = storeModule.computed[key]
+      for (const key of Object.keys(StoreModule.computed)) {
+        const computedState = StoreModule.computed[key]
         if (typeof computedState === 'function') { // only getter
-          this.stores[moduleName].computed[key] = computedState(this.stores[moduleName].state)
+          try {
+            this.stores[moduleName].computed[key] = computedState(this.stores[moduleName].state)
+          } catch (e) {
+            console.error('Error init computed', moduleName, key)
+            console.error('Error detail', e)
+          }
         }
       }
     }
 
-    this.storeTrees[moduleName] = this.parseStoreTree(moduleName, storeModule)
-
-    subscribe(this.stores[moduleName], newState => {
-
+    subscribe(this.stores[moduleName].state, newState => {
+      console.log('new State', newState)
     })
-    this.watcherCallbacks[moduleName] = {}
-    const treeState = this.storeTrees[moduleName].states
-
-    for (const state of treeState) {
-      subscribeKey(this.stores[moduleName], state.key, (val) => {
-        for (const cb of this.watcherCallbacks[moduleName][state.key]) {
-          cb.apply(this.stores[moduleName])
-        }
-      }, {
-        deep: true
-      })
-      this.watcherCallbacks[moduleName][state.key] = []
-    }
   }
 }

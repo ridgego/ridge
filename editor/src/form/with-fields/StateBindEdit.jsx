@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { IconChainStroked } from '@douyinfe/semi-icons'
-import ridgeEditService from '../../service/RidgeEditorContext'
+import context from '../../service/RidgeEditorContext'
 import { withField, Popover, Button, Space, Tree } from '@douyinfe/semi-ui'
 
 const StateBindEdit = withField(({
@@ -11,17 +11,25 @@ const StateBindEdit = withField(({
   const [visible, setVisible] = useState()
 
   const updateStateTree = () => {
+    const storeModules = context.editorView.getStoreModules()
     const treeData = []
-    const storeTrees = ridge.pageElementManager.getStoreTrees()
-    Object.keys(storeTrees).forEach(storeName => {
-      treeData.push({
-        key: storeName,
-        label: storeName,
+
+    for (const storeModule of storeModules) {
+      const storeNode = {
+        key: storeModule.name,
+        label: storeModule.label ?? storeModule.name,
         disabled: true,
-        value: storeName,
-        children: storeTrees[storeName].states
-      })
-    })
+        children: []
+      }
+
+      for (const state of storeModule.states) {
+        storeNode.children.push({
+          key: storeModule.name + '.' + state.name,
+          label: state.label ?? state.name
+        })
+      }
+      treeData.push(storeNode)
+    }
     setStoreTreeData(treeData)
   }
   const renderSelectState = () => {
@@ -40,7 +48,9 @@ const StateBindEdit = withField(({
               onChange(null)
             }
           }}
-          onChange={onChange}
+          onChange={val => {
+            onChange(val)
+          }}
         />
         <Space>
           <Button

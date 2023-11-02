@@ -1,9 +1,1 @@
-<svg width="160" height="160" xmlns="http://www.w3.org/2000/svg">
- <g id="Layer_1">
-  <title>Layer 1</title>
-  <rect stroke="#000000" id="svg_1" height="98.99982" width="105.99981" y="30.83311" x="27.33343" fill="#9acee6"/>
-  <rect stroke="#000000" id="svg_5" height="12.99998" width="84.33318" y="41.66645" x="38.00006" fill="#ffebff"/>
-  <rect stroke="#000000" id="svg_15" height="36.99998" width="83.99985" y="62.33312" x="38.00006" fill="#ffebff"/>
-  <rect stroke="#000000" id="svg_16" height="14.33331" width="34.66652" y="106.99979" x="86.33339" fill="#ffebff"/>
- </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><g fill="#555"><path d="M14 2a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12zM2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2z"/><path d="M3 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></g></svg>
