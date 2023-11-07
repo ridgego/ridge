@@ -5,7 +5,7 @@ export default {
   label: '切换容器',
   type: 'vanilla',
   order: 7,
-  icon: 'bi bi-collection',
+  icon: 'icons/switch.svg',
   props: [{
     name: 'states',
     label: '状态',

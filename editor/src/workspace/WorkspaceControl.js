@@ -22,15 +22,6 @@ export default class WorkSpaceControl {
     this.zoom = 1
     this.selectorDropableTarget = ['.ridge-container', '.ridge-droppable']
 
-    // on(EVENT_ELEMENT_SELECTED, payload => {
-    //   if (payload.from === 'outline' &&
-    //     !payload.element.classList.contains('is-locked') &&
-    //     !payload.element.classList.contains('is-hidden') &&
-    //     !payload.element.classList.contains('is-full')) {
-    //     this.selectElements([payload.element])
-    //   }
-    // })
-
     this.initKeyBind()
     this.initComponentDrop()
 
@@ -98,8 +89,6 @@ export default class WorkSpaceControl {
     }
 
     this.viewPortEl.style.transform = `translate(${this.viewPortX}px, ${this.viewPortY}px) scale(${this.zoom})`
-    // this.moveable.zoom = zoom
-    // this.selecto.zoom = zoom
   }
 
   setWorkSpaceMovable () {
@@ -138,6 +127,9 @@ export default class WorkSpaceControl {
     return false
   }
 
+  /**
+   * 初始化页面元素拖拽动作
+   */
   initMoveable () {
     const sm = this
 
@@ -147,7 +139,6 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragStart', ev => {
-      // trace('movable dragStart', ev.target)
       const target = ev.target
       if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
         return false
@@ -165,6 +156,7 @@ export default class WorkSpaceControl {
       const config = ev.target.view.config
 
       if (config.parent) {
+        // 拖拽时就从父节点移除
         sm.onElementDragStart(ev.target, ev.inputEvent)
       } else {
         sm.checkDropTargetStatus(ev)
@@ -463,13 +455,13 @@ export default class WorkSpaceControl {
     if (targetParentView) {
       // 放入一个容器
       trace('Into container', targetParentView)
-      const result = context.editorView.attachToParentView(sourceView, targetParentView,{ x, y })
+      const result = context.editorView.attachToParentView(sourceView, targetParentView, { x, y })
       if (result === false) {
         this.putElementToRoot(el, x, y)
       }
     }
     context.onElementMoveEnd(el)
-    // this.moveable.updateTarget()
+    this.moveable.updateTarget()
   }
 
   /**
@@ -508,11 +500,11 @@ export default class WorkSpaceControl {
     const beforeRect = el.getBoundingClientRect()
     // 计算位置
     const rbcr = this.viewPortEl.getBoundingClientRect()
-    this.pageManager.detachChildElement(el.elementWrapper)
+    context.editorView.detachChildView(el.view)
 
     this.viewPortEl.appendChild(el)
 
-    el.elementWrapper.setConfigStyle({
+    el.view.updateStyleConfig({
       position: 'absolute',
       x: (beforeRect.x - rbcr.x) / this.zoom,
       y: (beforeRect.y - rbcr.y) / this.zoom,
@@ -552,12 +544,12 @@ export default class WorkSpaceControl {
       this.moveable.target = filtered.filter(el => !el.classList.contains('is-locked'))
     }
 
-    this.moveable.updateTarget()
     if (filtered && filtered.length === 1) {
       context.onElementSelected(filtered[0])
     } else {
       context.onPageSelected()
     }
+    this.moveable.updateTarget()
 
     if (filtered) {
       context.selected = filtered

@@ -26,6 +26,27 @@ export default {
     }],
     value: 'vertical'
   }, {
+    name: 'value',
+    label: '当前选中',
+    type: 'string'
+  }, {
+    label: '间隔',
+    name: 'gap',
+    width: '50%',
+    type: 'number',
+    value: 8
+  }, {
+    label: '内边距',
+    name: 'padding',
+    width: '50%',
+    type: 'number',
+    value: 8
+  }, {
+    label: '边框',
+    name: 'border',
+    type: 'border',
+    value: '1px solid #ddd'
+  }, {
     name: 'renderItem',
     label: '单项模板',
     type: 'slot'

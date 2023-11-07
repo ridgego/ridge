@@ -1,0 +1,16 @@
+.drop-shadow {
+  border-radius: var(--semi-border-radius-medium);
+  border: 2px dashed var(--semi-color-primary);
+  background-color: var(--semi-color-primary-light-default);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  position: absolute;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  margin: 10px;
+  opacity: .6;
+}

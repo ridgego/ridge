@@ -15,6 +15,10 @@ class EditorComponentView extends ComponentView {
     }
   }
 
+  mounted () {
+    this.el.classList.add('ridge-element-edit')
+  }
+
   setIndex (index) {
     this.i = index
   }
@@ -22,7 +26,8 @@ class EditorComponentView extends ComponentView {
   getProperties () {
     return Object.assign({},
       this.systemProperties, // 系统属性
-      this.properties // 动态计算属性
+      this.properties, // 动态计算属性
+      this.slotProperties // 子节点 + slot节点
     )
   }
 
@@ -60,36 +65,10 @@ class EditorComponentView extends ComponentView {
     this.updateProps()
   }
 
-  /**
-   * 枚举每个子节点
-   * @param {*} cb
-   */
-  forEachChildren (cb) {
-    // 递归处理子节点树
-    if (this.componentDefinition == null) {
-      return
-    }
-    const childProps = this.componentDefinition.props.filter(p => p.type === 'children')
-    if (childProps.length) {
-      for (const childProp of childProps) {
-        if (this.config.props[childProp.name] && this.config.props[childProp.name].length) {
-          for (let i = 0; i < this.config.props[childProp.name].length; i++) {
-            if (this.config.props[childProp.name][i]) {
-              cb(this.pageManager.pageElements[this.config.props[childProp.name][i]], 'children', childProp.name, i)
-            }
-          }
-        }
-      }
-    }
-
-    // 递归处理插槽节点
-    const slotProps = this.componentDefinition.props.filter(p => p.type === 'slot')
-    if (slotProps.length) {
-      for (const childProp of slotProps) {
-        if (this.config.props[childProp.name]) {
-          cb(this.pageManager.pageElements[this.config.props[childProp.name]], 'slot', childProp.name)
-        }
-      }
+  onSelected () {
+    this.invoke('onSelected')
+    if (this.containerView) {
+      this.containerView.invoke('onChildSelected', [this])
     }
   }
 

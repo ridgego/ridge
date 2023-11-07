@@ -1,16 +1,15 @@
 /**
- * The Interface extends by each Ridge Element 
- * Includes: 
+ * The Interface extends by each Ridge Element
+ * Includes:
  * ElementView <-- ComponentView <-- EditorComponentView
  *             <-- CompositeView <-- EditorCompositeView
- * 
- * 
+ *
+ *
  **/
 class ElementView {
-
   initPropsAndEvents () {}
 
-  async preload() {}
+  async preload () {}
 
   mount (el) {}
 
@@ -19,13 +18,13 @@ class ElementView {
   updateStyle (styles) {}
 
   updateProps (props) {}
-  
-  unmount () {}
 
+  unmount () {}
 
   setStatus (status, msg) {
     this.status = status
 
+    if (!this.el) return
     // remove old status
     const overlays = this.el.querySelectorAll('.ridge-overlay')
     for (const overlay of overlays) {
@@ -47,6 +46,8 @@ class ElementView {
   }
 
   removeStatus (name) {
+    this.status = null
+    if (!this.el) return
     const overlays = this.el.querySelectorAll('.ridge-overlay')
 
     for (const overlay of overlays) {
@@ -58,7 +59,6 @@ class ElementView {
         overlay.parentElement.removeChild(overlay)
       }
     }
-    this.status = null
   }
 }
 

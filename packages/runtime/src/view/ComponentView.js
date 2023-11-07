@@ -14,6 +14,10 @@ class ComponentView extends ElementView {
     this.i = i
     this.config = config
     this.context = context
+
+    this.properties = {}
+    this.slotProperties = {}
+    this.eventProperties = {}
   }
 
   isRoot () {
@@ -53,18 +57,28 @@ class ComponentView extends ElementView {
     }
 
     if (this.componentDefinition) {
+      this.initPropsAndEvents()
       this.mount()
     }
   }
 
   /**
    * 加载组件代码、按代码初始化属性
+   * @param isDeep 是否随之加载子组件 默认不加载
    */
-  async preload (deepPreload) {
+  async preload (isDeep) {
     this.setStatus('loading')
 
     if (this.config.path) {
       this.componentDefinition = await this.context.loadComponent(this.config.path)
+    }
+
+    if (isDeep) {
+      const loadPromises = []
+      this.forEachChildren((childView) => {
+        loadPromises.push(childView.preload(true))
+      })
+      await Promise.allSettled(loadPromises)
     }
 
     if (!this.componentDefinition) {
@@ -89,23 +103,23 @@ class ComponentView extends ElementView {
     if (el) {
       this.el = el
     }
-
     this.el.classList.add('ridge-element')
-    this.el.setAttribute('ridge-id', this.id)
+    this.el.setAttribute('ridge-id', this.config.id)
 
     this.context.delegateMethods(this, ['hasMethod', 'invoke', 'updateProps', 'forceUpdate', 'getConfig'], this.el)
 
     this.el.view = this
-    this.el.wrapper = this
-    this.el.componentPath = this.componentPath
-
     this.style = Object.assign({}, this.config.style)
 
-    this.initPropsAndEvents()
+    if (this.isContainer) {
+      this.el.classList.add('ridge-container')
+    }
     this.updateConnectedStyle()
     this.updateConnectedProperties()
 
     this.renderer = this.createRenderer()
+
+    this.mounted && this.mounted()
   }
 
   /**
@@ -115,10 +129,6 @@ class ComponentView extends ElementView {
     if (this.config.parent && !this.containerView) {
       this.containerView = this.context.getComponentView(this.config.parent)
     }
-
-    this.properties = {}
-    this.slotProperties = {}
-    this.eventProperties = {}
 
     for (const prop of this.componentDefinition.props || []) {
       if (!prop) continue
@@ -147,31 +157,31 @@ class ComponentView extends ElementView {
       }
 
       if (prop.name === 'children') {
-        this.el.classList.add('ridge-container')
-
+        this.isContainer = true
         // 写入子级的具体包装类
         if (Array.isArray(this.config.props.children)) {
-          this.slotProperties.children = this.config.props.children.map(element => {
-            if (typeof element === 'string') {
-              return this.context.getComponentView(element)
-            } else {
-              return element
-            }
-          })
+          if (this.slotProperties.children == null) {
+            this.slotProperties.children = this.config.props.children.map(element => {
+              if (typeof element === 'string') {
+                return this.context.getComponentView(element)
+              } else {
+                return element
+              }
+            })
+          }
         }
       } else if (prop.type === 'slot') {
         this.isContainer = true
-        this.el.classList.add('ridge-droppable')
         // 写入slot的包装类
         if (this.config.props[prop.name] && typeof this.config.props[prop.name] === 'string') {
-          const childComponentView = this.context.getComponentView(this.config.props[prop.name])
-          if (childComponentView) {
-            childComponentView.parentView = this
-            this.slotProperties[prop.name] = childComponentView
+          if (this.slotProperties[prop.name] == null) {
+            const childComponentView = this.context.getComponentView(this.config.props[prop.name])
+            if (childComponentView) {
+              childComponentView.parentView = this
+              this.slotProperties[prop.name] = childComponentView
+            }
           }
         }
-      } else if (prop.type === 'ref') {
-
       } else {
         if (this.config.props[prop.name] != null) {
           this.properties[prop.name] = this.config.props[prop.name]
@@ -332,6 +342,74 @@ class ComponentView extends ElementView {
         if (action.method) {
           const [target, method] = action.method.split('.')
           this.context.doStoreAction(target, method, [...payload, action.payload, ...this.getScopeItems()])
+        }
+      }
+    }
+  }
+
+  /**
+   * 作为循环渲染时，复制列表项模板处理
+   **/
+  clone () {
+    const cloned = new ComponentView({
+      context: this.context,
+      config: this.config
+    })
+
+    cloned.containerView = this.containerView
+
+    if (this.componentDefinition) {
+      cloned.componentDefinition = this.componentDefinition
+      cloned.preloaded = true
+
+      // 复制每个子节点
+      this.forEachChildren((view, type, propName, index) => {
+        const clonedChild = view.clone()
+        clonedChild.containerView = cloned
+
+        if (index == null) {
+          // 复制slot类型  单值
+          cloned.slotProperties[propName] = clonedChild
+        } else {
+          // 复制children类型  多值
+          if (cloned.slotProperties[propName] == null) {
+            cloned.slotProperties[propName] = []
+          }
+          cloned.slotProperties[propName][index] = clonedChild
+        }
+      })
+    }
+    return cloned
+  }
+
+  /**
+   * 枚举每个子节点
+   * @param {*} cb
+   */
+  forEachChildren (cb) {
+    // 递归处理子节点树
+    if (this.componentDefinition == null) {
+      return
+    }
+    const childProps = this.componentDefinition.props.filter(p => p.type === 'children')
+    if (childProps.length) {
+      for (const childProp of childProps) {
+        if (this.config.props[childProp.name] && this.config.props[childProp.name].length) {
+          for (let i = 0; i < this.config.props[childProp.name].length; i++) {
+            if (this.config.props[childProp.name][i]) {
+              cb(this.context.getComponentView(this.config.props[childProp.name][i]), 'children', childProp.name, i)
+            }
+          }
+        }
+      }
+    }
+
+    // 递归处理插槽节点
+    const slotProps = this.componentDefinition.props.filter(p => p.type === 'slot')
+    if (slotProps.length) {
+      for (const childProp of slotProps) {
+        if (this.config.props[childProp.name]) {
+          cb(this.context.getComponentView(this.config.props[childProp.name]), 'slot', childProp.name)
         }
       }
     }

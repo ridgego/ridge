@@ -30,10 +30,6 @@ class OutLineTree extends React.Component {
     }
   }
 
-  updateComponentConfig (componentView) {
-
-  }
-
   updateTree (elements) {
     this.setState({
       elements
@@ -53,22 +49,6 @@ class OutLineTree extends React.Component {
   }
 
   onNodeSelected (val) {
-    this.setState({
-      selected: val
-    })
-    const element = this.state.elements[val]
-
-    if (element.containerView && element.containerView.componentDefinition && element.containerView.componentDefinition.name === 'switch-container') {
-      // 在切换容器内，需要切换容器当前状态
-      const index = element.containerView.config.props.children.indexOf(val)
-
-      element.containerView.updateConfig({
-        props: {
-          current: element.containerView.config.props.states.list[index]
-        }
-      })
-    }
-
     context.workspaceControl.selectElements([this.state.elements[val].el], true)
   }
 
@@ -103,13 +83,7 @@ class OutLineTree extends React.Component {
             for (let i = 0; i < element.config.props[childProp.name].length; i++) {
               const elementId = element.config.props[childProp.name][i]
               if (elementId && elements[elementId]) {
-                if (element.componentDefinition.name === 'switch-container') {
-                  elements[elementId].parent = element
-                  const stateName = element.config.props.states.list[i]
-                  treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, [stateName]))
-                } else {
-                  treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, [childProps.label]))
-                }
+                treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, [childProps.label]))
               }
             }
           }
@@ -141,7 +115,7 @@ class OutLineTree extends React.Component {
     const visible = !view.config.style.visible
     view.updateStyleConfig({ visible })
     context.workspaceControl.selectElements([view.el])
-    
+   
     this.updateOutline()
   }
 
@@ -201,7 +175,6 @@ class OutLineTree extends React.Component {
           overflow: 'auto'
         }}
         draggable
-        value={selected}
         renderLabel={renderFullLabel}
         onDrop={onTreeDrop.bind(this)}
         onChange={(value) => {

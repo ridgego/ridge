@@ -55,6 +55,14 @@ html, body {
       background-color: #97d5ff30;
     }
   }
+
+  .ridge-element-edit:has(.ridge-element-edit:hover) {
+    outline: none;
+  }
+  .ridge-element-edit:hover {
+    outline: 1px dashed var(--semi-color-secondary);
+    outline-offset: 2px;
+  }
 }
 
 .status-drag-over {

@@ -19,19 +19,10 @@ export default class Button {
   }
 
   render () {
-    const {
-      text, fontFamily, fontSize,
-      color, borderWidth, borderStyle, borderColor, borderRadius, backgroundColor, classNames
-    } = this.props
+    const { text, classNames } = this.props
 
     this.button.innerHTML = text
-    this.button.style.fontFamily = fontFamily
-    this.button.style.fontSize = fontSize + 'px'
-    this.button.style.color = color
-    this.button.style.border = `${borderWidth || 0}px ${borderStyle || 'solid'} ${borderColor || '#ccc'}`
-    this.button.style.borderRadius = borderRadius
-    this.button.style.backgroundColor = backgroundColor
-
+   
     this.button.className = (classNames || []).join(' ')
   }
 

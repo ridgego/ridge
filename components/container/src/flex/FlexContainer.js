@@ -7,6 +7,8 @@ export default class FlexBoxContainer extends BaseContainer {
       direction = 'row',
       alignItems = 'stretch',
       gap = 0,
+      border,
+      padding,
       justify = 'flex-start',
       rectStyle
     } = this.props
@@ -15,6 +17,9 @@ export default class FlexBoxContainer extends BaseContainer {
       flexDirection: direction,
       justifyContent: justify,
       alignItems,
+      border,
+      boxSizing: 'border-box',
+      padding: padding + 'px',
       gap: gap + 'px'
     }
 
@@ -22,15 +27,16 @@ export default class FlexBoxContainer extends BaseContainer {
     return containerStyle
   }
 
+  appendChild (view) {
+    this.onDragOut()
+    const el = view.el
+    this.containerEl.appendChild(el)
+    this.updateChildStyle(view)
+    return true
+  }
+
   getChildStyle (view) {
-    const style = {
-      position: '',
-      top: '',
-      left: '',
-      transform: '',
-      width: '',
-      height: ''
-    }
+    const style = this.getResetStyle()
     const configStyle = view.config.style
 
     if (view.config.props.styleMargin) {
@@ -56,35 +62,5 @@ export default class FlexBoxContainer extends BaseContainer {
       }
     }
     return style
-  }
-
-  getShadowStyle (configStyle) {
-    const shadowStyle = {}
-    if (configStyle) {
-      if (configStyle.flex) {
-        shadowStyle.flex = configStyle.flex
-      }
-    }
-    return shadowStyle
-  }
-
-  // 拖拽一个矩形到容器上，判断将其插入到哪个位置
-  getAfterNode (droppedRect, siblings) {
-    const { direction } = this.props
-    const pos = (direction === 'row') ? (droppedRect.x + droppedRect.width / 2) : (droppedRect.y + droppedRect.height / 2)
-    let last = 10000000000
-    let result = null
-    for (const sibling of siblings) {
-      if (sibling.classList.contains('drop-shadow')) {
-        continue
-      }
-      const siblingRect = sibling.getBoundingClientRect()
-      const siblingpos = (direction === 'row') ? (siblingRect.x + siblingRect.width / 2) : (siblingRect.y + siblingRect.height / 2)
-      if (pos < siblingpos && siblingpos < last) {
-        last = siblingpos
-        result = sibling
-      }
-    }
-    return result
   }
 }

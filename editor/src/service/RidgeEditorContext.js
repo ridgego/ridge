@@ -57,7 +57,11 @@ class RidgeEditorContext extends RidgeContext {
     if (prm instanceof ComponentView) {
       return prm
     } else if (typeof prm === 'string') {
-      return this.editorView.getComponentView(prm)
+      if (this.editorView) {
+        return this.editorView.getComponentView(prm)
+      } else if (this.runtimeView) {
+        return this.runtimeView.getComponentView(prm)
+      }
     } else if (prm instanceof Node) {
       return prm.view
     }
@@ -157,7 +161,7 @@ class RidgeEditorContext extends RidgeContext {
     configPanel.updatePageConfigFields()
     outlinePanel.updateOutline()
 
-    this.workspaceControl.selectElements([])   
+    this.workspaceControl.selectElements([])  
   }
 
   /**
@@ -216,10 +220,14 @@ class RidgeEditorContext extends RidgeContext {
     if (view) {
       configPanel.componentSelected(view)
       outlinePanel.setCurrentNode(view)
+      view.onSelected()
     }
     this.el = view
   }
 
+  /**
+   * 元素移除触发
+   **/
   onElementRemoved (element) {
     const view = this.getComponentView(element)
     if (view && this.editorView) {
@@ -233,10 +241,11 @@ class RidgeEditorContext extends RidgeContext {
    * Move end event(from workspace) handler
    **/
   onElementMoveEnd (element) {
-    const { configPanel } = this.services
+    const { configPanel, outlinePanel } = this.services
     const view = this.getComponentView(element)
     if (view) {
       configPanel.updateComponentConfig(view)
+      outlinePanel.updateOutline()
     }
   }
 

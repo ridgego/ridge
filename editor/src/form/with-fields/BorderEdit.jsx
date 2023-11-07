@@ -1,6 +1,6 @@
 import React from 'react'
 import { Select, Space, withField, InputNumber } from '@douyinfe/semi-ui'
-import ColorPicker from './ColorPicker.jsx'
+import { PopColorPicker } from './ColorPicker.jsx'
 
 const BorderEdit = ({
   value,
@@ -11,7 +11,7 @@ const BorderEdit = ({
   return (
     <Space>
       <InputNumber
-        width={40}
+        style={{ width: 60 }}
         size='small' value={parseInt(borderWidth) || 0} onChange={val => {
           onChange(`${val}px ${borderStyle} ${borderColor}`)
         }}
@@ -25,7 +25,7 @@ const BorderEdit = ({
         <Select.Option value='solid'>实线</Select.Option>
         <Select.Option value='dashed'>点划线</Select.Option>
       </Select>
-      <ColorPicker
+      <PopColorPicker
         value={borderColor} onChange={val => {
           onChange(`${borderWidth} ${borderStyle} ${val}`)
         }}

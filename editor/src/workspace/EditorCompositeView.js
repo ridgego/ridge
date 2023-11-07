@@ -241,9 +241,9 @@ class EditorCompositeView extends CompositeView {
     if (result === false) {
       return false
     } else {
-      Object.assign(parentView.config.props, result)
+      Object.assign(parentView.config.props, parentView.invoke('getChildren'))
 
-      childView.config.parent = parentView.id
+      childView.config.parent = parentView.config.id
       childView.containerView = parentView
     }
   }
@@ -257,8 +257,8 @@ class EditorCompositeView extends CompositeView {
     const contanerView = childView.containerView
 
     // invoke parent view for recalculating
-    const result = contanerView.invoke('removeChild', [childView, isDelete])
-    Object.assign(contanerView.config.props, result)
+    contanerView.invoke('removeChild', [childView, isDelete])
+    Object.assign(contanerView.config.props, contanerView.invoke('getChildren'))
 
     delete childView.config.parent
     delete childView.containerView

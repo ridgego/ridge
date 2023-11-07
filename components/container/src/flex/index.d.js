@@ -64,9 +64,20 @@ export default {
   }, {
     label: '间隔',
     name: 'gap',
-    party: true,
+    width: '50%',
     type: 'number',
     value: 8
+  }, {
+    label: '内间距',
+    name: 'padding',
+    width: '50%',
+    type: 'number',
+    value: 8
+  }, {
+    label: '边框',
+    name: 'border',
+    type: 'border',
+    value: '1px solid #ccc'
   }, {
     name: 'classNames',
     label: '样式',

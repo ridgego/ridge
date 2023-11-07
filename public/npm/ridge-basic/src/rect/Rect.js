@@ -30,6 +30,7 @@ export default class Rect {
       background
     } = this.props
     this.div.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`
+    this.div.style.boxSizing = 'border-box'
     this.div.style.borderRadius = (borderRadius || 0) + 'px'
 
     this.div.style.background = background

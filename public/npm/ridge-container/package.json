@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "description": "容器",
   "main": "index.js",
-  "icon": "icons/icon.svg",
+  "icon": "icons/relative.svg",
   "scripts": {
     "build": "rcbuild",
     "watch": "rcbuild -w -s",
@@ -20,7 +20,7 @@
     "list",
     "relative",
     "scrollable",
-    "tab"
+    "switch"
   ],
   "author": "",
   "license": "ISC",
