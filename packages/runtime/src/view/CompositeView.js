@@ -51,7 +51,7 @@ class CompositeView extends ElementView {
 
   createComponentView (config, i) {
     return new ComponentView({
-      context: this.context,
+      compositeView: this,
       config,
       i
     })
@@ -153,8 +153,6 @@ class CompositeView extends ElementView {
   async loadStore () {
     this.store = new ValtioStore()
     this.store.load(this.jsModules)
-
-    this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction', 'getStoreValue'])
   }
 }
 

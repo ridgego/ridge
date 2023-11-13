@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { IconDelete, IconEdit, IconPlus, IconTick, IconBrackets } from '@douyinfe/semi-icons'
 import { withField, Button, Space, Form, TextArea, Tree, Popover, Typography, Select, Tag } from '@douyinfe/semi-ui'
-import ridgeEditService from '../../service/RidgeEditorContext'
+import context from '../../service/RidgeEditorContext'
 const { Text } = Typography
 const { Option } = Select
 
@@ -19,7 +19,6 @@ const EventEdit = withField(({
   onChange
 }) => {
   const formRef = React.createRef()
-  const [visible, setVisible] = useState(false)
 
   const [payloadValue, setPayloadValue] = useState('')
 
@@ -33,32 +32,28 @@ const EventEdit = withField(({
       root: true,
       disabled: true,
       children: [...actions.map((action, index) => {
-        const leafData = {}
-        leafData.key = 'node-' + index
-        leafData.index = index
-        leafData.method = action.method
-        leafData.payload = action.payload || ''
-        leafData.label = getActionLabel(action)
-        return leafData
+        const node = {}
+        node.key = 'node-' + index
+        node.index = index
+        node.store = action.store
+        node.method = action.method
+        node.payload = action.payload || ''
+        node.label = getActionLabel(action)
+        return node
       })]
     }]
     return tree
   }
 
   const getActionLabel = (action) => {
-    const [target, method] = (action.method || '.').split('.')
+    const {
+      storeName,
+      method
+    } = action
 
-    const storeTrees = ridge.pageElementManager.getStoreTrees()
+    const storeTrees = context.editorView.getStoreModules()
 
-    if (storeTrees[target] && storeTrees[target].actions) {
-      const action = storeTrees[target].actions.filter(ac => ac.key === method)[0]
-      if (action) {
-        return action.label
-      } else {
-        return ''
-      }
-    }
-    return action.method
+    return storeTrees[storeName]?.actions.filter(ac => ac.name === method)[0]?.label ?? method
   }
 
   const renderTreeLabel = (label, data) => {
@@ -66,8 +61,8 @@ const EventEdit = withField(({
       <div className='tree-label'>
         {data.root &&
           <>
-            <Text className='label-content'>{label}
-              <Tag color='green'>事件 </Tag>
+            <Text className='label-content'>
+              <Tag color='green'>{label} </Tag>
             </Text>
             <Space className='action'>
               <Button
@@ -83,20 +78,22 @@ const EventEdit = withField(({
   }
 
   const renderActionEdit = (data) => {
-    const storeTrees = ridge.pageElementManager.getStoreTrees()
+    const storeModules = context.editorView.getStoreModules()
     return (
       <>
         <div className='label-content'>
           <Select
-            noLabel defaultValue={data.method} placeholder='请选择处理动作' size='small' onChange={val => {
-              data.method = val
+            noLabel defaultValue={data.store + '.' + data.method} placeholder='请选择处理动作' size='small' onChange={val => {
+              const [store, method] = val.split('.')
+              data.store = store
+              data.method = method
             }}
           >
-            {Object.entries(storeTrees).map(([storeName, tree]) => {
+            {storeModules.map(({ name, actions }) => {
               return (
-                <Select.OptGroup label={storeName} key={storeName}>
-                  {tree.actions.map(action => {
-                    return <Select.Option key={action.key} value={storeName + '.' + action.key}>{action.label}</Select.Option>
+                <Select.OptGroup label={name} key={name}>
+                  {actions.map(action => {
+                    return <Select.Option key={action.name} value={name + '.' + action.name}>{action.label || action.name}</Select.Option>
                   })}
                 </Select.OptGroup>
               )
@@ -172,7 +169,9 @@ const EventEdit = withField(({
 
   const addAction = () => {
     const newActions = [...actions, {
-      method: ''
+      store: '',
+      method: '',
+      payload: ''
     }]
     setActionIndexList([...actionIndexList, newActions.length - 1])
     onChange(newActions)
@@ -198,6 +197,7 @@ const EventEdit = withField(({
     onChange(actions.map((action, index) => {
       if (index === data.index) {
         return {
+          store: data.store,
           method: data.method,
           payload: data.payload
         }
@@ -205,24 +205,6 @@ const EventEdit = withField(({
         return action
       }
     }))
-  }
-
-  // 新增或保存动作
-  const saveUpdateAction = () => {
-    const action = formRef.current.formApi.getValues()
-
-    if (actionIndex === -1) {
-      onChange([...actions, action])
-    } else {
-      onChange(actions.map((a, i) => {
-        if (i === actionIndex) {
-          return action
-        } else {
-          return a
-        }
-      }))
-    }
-    setVisible(false)
   }
 
   const treeData = getTreeData()

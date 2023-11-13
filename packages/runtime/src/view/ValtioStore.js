@@ -1,12 +1,17 @@
-import { proxy, subscribe } from 'valtio/vanilla'
-
+import debug from 'debug'
+import { proxy, subscribe, snapshot } from 'valtio/vanilla'
+const log = debug('ridge:store')
 /**
  * Store engine based on Valtio Lib(Proxied Object)
  **/
 export default class ValtioStore {
   constructor () {
-    this.stores = {} // Valtio proxied
+    this.storeModules = {} // Store by Name
+    this.storeStates = {} // Valtio proxied state by StoreName
+    this.storeComputed = {}
     this.watchers = {}
+
+    this.stateWatchers = {} // Watch State by StoreName
   }
 
   /**
@@ -20,77 +25,71 @@ export default class ValtioStore {
 
   /**
    * 获取状态值，支持以下格式
-   * 'storeName.stateName'
-   * 'storeName.getterName'
-   * 'storeName.stateName.stateField'
-   * 'storeName.stateName.stateField.subField'
+   * 'storeName.state.stateName'
+   * 'storeName.computed.computeValue'
+   * 'storeName.scoped.scopeCal'
    * @param {*} expr 状态值表达式
-   * @param {*} payload 为getter时 计算的参数
+   * @param {*} payload 为scoped时 计算的参数
    * @returns
    */
   getStoreValue (expr, payload) {
-    const [storeKey, ...path] = expr.split('.')
-    if (this.stores[storeKey]) {
-      // getters
-      const result = this.stores[storeKey][path[0]]
-      if (typeof result === 'function') {
-        return result.apply(null, payload)
-      } else {
-        return this.getByPath(this.stores[storeKey], path)
+    const [storeKey, type, stateName] = expr.split('.')
+    const stateValues = snapshot(this.storeStates[storeKey])
+    let result = null
+    if (type === 'state' && this.storeStates[storeKey]) {
+      result = stateValues[stateName]
+    } else if (type === 'computed') {
+      
+    } else if (type === 'scoped') {
+      if (this.storeModules[storeKey].scoped[stateName]) {
+        if (typeof this.storeModules[storeKey].scoped[stateName] === 'function') {
+          result = this.storeModules[storeKey].scoped[stateName].apply(null, [stateValues, ...payload])
+        } else if (typeof this.storeModules[storeKey].scoped[stateName].get === 'function') {
+          result = this.storeModules[storeKey].scoped[stateName].get.apply(null, [stateValues, ...payload])
+        }
       }
     }
-  }
-
-  /**
-   * 按照路径 获取对象field值
-   * @param {Object} o 对象
-   * @param {Array} path
-   * @returns
-   */
-  getByPath (o, path) {
-    let result = o
-    for (let i = 0; i < path.length; i++) {
-      if (result == null) {
-        break
-      }
-      result = result[path[i]]
-    }
+    log('getStoreValue', expr, result)
     return result
   }
 
-  /**
-   * 执行store值改变
-   * @param {*} expr 表达式
-   * @param {*} val
-   */
-  dispatchStateChange (expr, val) {
-    const [storeKey, ...path] = expr.split('.')
-
-    // if (!this.stores[storeKey]) {
-    //   if (globalThis[storeKey] && globalThis[storeKey].state) {
-    //     this.registerPageStore(storeKey, globalThis[storeKey])
-    //   }
-    // }
-
-    if (this.stores[storeKey]) {
-      this.stores[storeKey].state[storeKey] = val
-    }
-  }
-
   subscribe (expr, cb) {
-    const [storeKey, stateExpr] = expr.split('.')
-    if (this.watchers[storeKey] == null) {
-      this.watchers[storeKey] = {}
+    const [storeKey, type, stateName] = expr.split('.')
+
+    if (type === 'state') {
+      if (this.stateWatchers[storeKey] == null) {
+        this.stateWatchers[storeKey] = {}
+      }
+      if (this.stateWatchers[storeKey][stateName] == null) {
+        this.stateWatchers[storeKey][stateName] = []
+      }
+      this.stateWatchers[storeKey][stateName].push(cb)
+    } else if (type === 'scoped') {
+
     }
-    if (this.watchers[storeKey][stateExpr] == null) {
-      this.watchers[storeKey][stateExpr] = []
-    }
-    this.watchers[storeKey][stateExpr].push(cb)
   }
 
-  doStoreAction (storeKey, action, payload) {
-    if (this.stores[storeKey] && this.stores[storeKey][action]) {
-      this.stores[storeKey][action](...payload)
+  dispatchChange (expr, payload) {
+    const [storeKey, type, stateName] = expr.split('.')
+    if (type === 'state') {
+      this.storeStates[storeKey][stateName] = payload[0]
+    } else if (type === 'scoped') {
+      if (this.storeModules[storeKey][stateName]?.set) {
+        this.storeModules[storeKey][stateName].set(...payload)
+      }
+    }
+  }
+
+  doStoreAction (storeName, actionName, payload) {
+    if (this.storeModules[storeName] && this.storeModules[storeName].actions[actionName]) {
+      try {
+        const exeResult = this.storeModules[storeName].actions[actionName].apply(this.storeStates[storeName], payload.filter(n => n != null))
+        if (typeof exeResult === 'object') {
+          Object.assign(this.storeStates[storeName], exeResult)
+        }
+      } catch (e) {
+        log('doStoreAction Error', e)
+      }
     }
   }
 
@@ -100,34 +99,62 @@ export default class ValtioStore {
    * @param {*} storeModule
    */
   registerPageStore (StoreModule) {
+    log('RegisterPageStore', StoreModule)
     if (!StoreModule.name) {
+      log('Store Not Registered: No Name')
       return
     }
     const moduleName = StoreModule.name
-
-    this.stores[moduleName] = {}
+    this.storeModules[moduleName] = StoreModule
+    this.storeStates[moduleName] = {}
 
     if (typeof StoreModule.state === 'function') {
-      this.stores[moduleName].state = proxy(StoreModule.state())
+      this.storeStates[moduleName] = proxy(StoreModule.state())
+    } else if (typeof StoreModule.state === 'object') {
+      this.storeStates[moduleName] = proxy(StoreModule.state)
+    } else if (typeof StoreModule.data === 'function') {
+      this.storeStates[moduleName] = proxy(StoreModule.data())
+    } else if (typeof StoreModule.data === 'object') {
+      this.storeStates[moduleName] = proxy(StoreModule.data)
     }
 
-    if (StoreModule.computed) {
-      this.stores[moduleName].computed = {}
-      for (const key of Object.keys(StoreModule.computed)) {
-        const computedState = StoreModule.computed[key]
-        if (typeof computedState === 'function') { // only getter
-          try {
-            this.stores[moduleName].computed[key] = computedState(this.stores[moduleName].state)
-          } catch (e) {
-            console.error('Error init computed', moduleName, key)
-            console.error('Error detail', e)
-          }
+    // if (StoreModule.computed) {
+    //   this.stores[moduleName].computed = {}
+    //   for (const key of Object.keys(StoreModule.computed)) {
+    //     const computedState = StoreModule.computed[key]
+    //     if (typeof computedState === 'function') { // only getter
+    //       try {
+    //         this.stores[moduleName].computed[key] = computedState(this.stores[moduleName].state)
+    //       } catch (e) {
+    //         console.error('Error init computed', moduleName, key)
+    //         console.error('Error detail', e)
+    //       }
+    //     }
+    //   }
+    // }
+    if (this.storeStates[moduleName]) {
+      subscribe(this.storeStates[moduleName], (mutations) => {
+        log('mutations', mutations)
+        const stateValue = snapshot(this.storeStates[moduleName])
+        for (const mutation of mutations) {
+          const [action, statePath, newValue, oldValue] = mutation
+          log('mutation', action, statePath.join('.'), newValue, oldValue)
+
+          this.setStateValue(moduleName, statePath[0], stateValue[statePath[0]])
         }
-      }
+      })
     }
+  }
 
-    subscribe(this.stores[moduleName].state, newState => {
-      console.log('new State', newState)
-    })
+  setStateValue (module, state, newValue) {
+    log('state value', module, state, newValue)
+
+    const watchers = this.stateWatchers[module][state]
+
+    if (watchers) {
+      watchers.forEach(cb => {
+        cb(newValue)
+      })
+    }
   }
 }

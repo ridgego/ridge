@@ -46,11 +46,16 @@ export default ({
     onChange(result, close)
   }
 
+  const confirmCodeEditClose = (close) => {
+    confirmCodeEdit(close)
+    onClose && onClose()
+  }
+
   const footer = (
     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
       <Button style={{ marginRight: 8 }} onClick={onClose}>关闭</Button>
       <Button style={{ marginRight: 8 }} theme='solid' onClick={() => confirmCodeEdit(false)}>保存</Button>
-      <Button theme='solid' onClick={() => confirmCodeEdit(true)}>保存并关闭</Button>
+      <Button theme='solid' onClick={() => confirmCodeEditClose(true)}>保存并关闭</Button>
     </div>
   )
 

@@ -18,14 +18,19 @@ const StateBindEdit = withField(({
       const storeNode = {
         key: storeModule.name,
         label: storeModule.label ?? storeModule.name,
-        disabled: true,
         children: []
       }
 
       for (const state of storeModule.states) {
         storeNode.children.push({
-          key: storeModule.name + '.' + state.name,
+          key: storeModule.name + '.state.' + state.name,
           label: state.label ?? state.name
+        })
+      }
+      for (const scope of storeModule.scoped) {
+        storeNode.children.push({
+          key: storeModule.name + '.scoped.' + scope.name,
+          label: scope.label ?? scope.name
         })
       }
       treeData.push(storeNode)

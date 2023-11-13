@@ -7,13 +7,13 @@ const log = debug('ridge:component')
 class ComponentView extends ElementView {
   constructor ({
     config,
-    context,
+    compositeView,
     i
   }) {
     super()
     this.i = i
     this.config = config
-    this.context = context
+    this.compositeView = compositeView
 
     this.properties = {}
     this.slotProperties = {}
@@ -42,15 +42,22 @@ class ComponentView extends ElementView {
 
   getScopedData () {
     const parentScopes = this.containerView ? this.containerView.getScopedData() : []
-    return [this.scopedData, ...parentScopes]
+
+    if (this.scopedData == null) {
+      return parentScopes
+    } else {
+      return [this.scopedData, ...parentScopes]
+    }
   }
 
   setScopedData (scopedData) {
     this.scopedData = scopedData
   }
 
-  async loadAndMount (el) {
+  async loadAndMount (el, scopedData) {
     this.el = el
+    this.setScopedData(scopedData)
+    this.updateConnectedStyle()
     this.updateStyle()
     if (!this.preloaded) {
       await this.preload()
@@ -70,7 +77,7 @@ class ComponentView extends ElementView {
     this.setStatus('loading')
 
     if (this.config.path) {
-      this.componentDefinition = await this.context.loadComponent(this.config.path)
+      this.componentDefinition = await this.compositeView.context.loadComponent(this.config.path)
     }
 
     if (isDeep) {
@@ -104,9 +111,8 @@ class ComponentView extends ElementView {
       this.el = el
     }
     this.el.classList.add('ridge-element')
+    this.el.setAttribute('component', this.config.path)
     this.el.setAttribute('ridge-id', this.config.id)
-
-    this.context.delegateMethods(this, ['hasMethod', 'invoke', 'updateProps', 'forceUpdate', 'getConfig'], this.el)
 
     this.el.view = this
     this.style = Object.assign({}, this.config.style)
@@ -127,7 +133,7 @@ class ComponentView extends ElementView {
    */
   initPropsAndEvents () {
     if (this.config.parent && !this.containerView) {
-      this.containerView = this.context.getComponentView(this.config.parent)
+      this.containerView = this.compositeView.getComponentView(this.config.parent)
     }
 
     for (const prop of this.componentDefinition.props || []) {
@@ -163,7 +169,7 @@ class ComponentView extends ElementView {
           if (this.slotProperties.children == null) {
             this.slotProperties.children = this.config.props.children.map(element => {
               if (typeof element === 'string') {
-                return this.context.getComponentView(element)
+                return this.compositeView.getComponentView(element)
               } else {
                 return element
               }
@@ -175,7 +181,7 @@ class ComponentView extends ElementView {
         // 写入slot的包装类
         if (this.config.props[prop.name] && typeof this.config.props[prop.name] === 'string') {
           if (this.slotProperties[prop.name] == null) {
-            const childComponentView = this.context.getComponentView(this.config.props[prop.name])
+            const childComponentView = this.compositeView.getComponentView(this.config.props[prop.name])
             if (childComponentView) {
               childComponentView.parentView = this
               this.slotProperties[prop.name] = childComponentView
@@ -197,7 +203,7 @@ class ComponentView extends ElementView {
 
     // subscribe for update
     new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
-      this.context.subscribe && this.context.subscribe(expr, () => {
+      this.compositeView.store?.subscribe && this.compositeView.store.subscribe(expr, () => {
         this.forceUpdate()
       })
     })
@@ -256,13 +262,13 @@ class ComponentView extends ElementView {
 
   // 计算随变量绑定的样式
   updateConnectedStyle () {
-    if (!this.context.getStoreValue) return
+    if (!this.compositeView.store) return
 
     for (const styleName of Object.keys(this.config.styleEx || {})) {
       if (this.config.styleEx[styleName] == null || this.config.styleEx[styleName] === '') {
         continue
       }
-      this.style[styleName] = this.context.getStoreValue(this.config.styleEx[styleName], this.getScopedData())
+      this.style[styleName] = this.compositeView.store.getStoreValue(this.config.styleEx[styleName], this.getScopedData())
     }
   }
 
@@ -313,13 +319,13 @@ class ComponentView extends ElementView {
    * 计算所有表达式值
    */
   updateConnectedProperties () {
-    if (!this.context.getStoreValue) return
+    if (!this.compositeView.store) return
     for (const [key, value] of Object.entries(this.config.propEx)) {
       if (value == null || value === '') {
         continue
       }
       try {
-        this.properties[key] = this.context.getStoreValue(value, this.getScopedData())
+        this.properties[key] = this.compositeView.store.getStoreValue(value, this.getScopedData())
       } catch (e) {
         // if error, the properties won't change
         console.error('get Store Value Error: ', e)
@@ -328,20 +334,20 @@ class ComponentView extends ElementView {
   }
 
   emit (eventName, payload) {
+    if (!this.compositeView.store) return
     log('Emit Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
       if (this.config.propEx.value) {
-        this.context.dispatchStateChange(this.config.propEx.value, payload)
+        this.compositeView.store.dispatchChange(this.config.propEx.value, [payload, ...this.getScopedData()])
       }
       return
     }
     if (this.config.events[eventName]) {
       // 处理input/value事件
       for (const action of this.config.events[eventName]) {
-        if (action.method) {
-          const [target, method] = action.method.split('.')
-          this.context.doStoreAction(target, method, [...payload, action.payload, ...this.getScopeItems()])
+        if (action.store && action.method) {
+          this.compositeView.store.doStoreAction(action.store, action.method, [...payload, action.payload, ...this.getScopedData()])
         }
       }
     }
@@ -352,7 +358,7 @@ class ComponentView extends ElementView {
    **/
   clone () {
     const cloned = new ComponentView({
-      context: this.context,
+      compositeView: this.compositeView,
       config: this.config
     })
 
@@ -397,7 +403,7 @@ class ComponentView extends ElementView {
         if (this.config.props[childProp.name] && this.config.props[childProp.name].length) {
           for (let i = 0; i < this.config.props[childProp.name].length; i++) {
             if (this.config.props[childProp.name][i]) {
-              cb(this.context.getComponentView(this.config.props[childProp.name][i]), 'children', childProp.name, i)
+              cb(this.compositeView.getComponentView(this.config.props[childProp.name][i]), 'children', childProp.name, i)
             }
           }
         }
@@ -409,7 +415,7 @@ class ComponentView extends ElementView {
     if (slotProps.length) {
       for (const childProp of slotProps) {
         if (this.config.props[childProp.name]) {
-          cb(this.context.getComponentView(this.config.props[childProp.name]), 'slot', childProp.name)
+          cb(this.compositeView.getComponentView(this.config.props[childProp.name]), 'slot', childProp.name)
         }
       }
     }

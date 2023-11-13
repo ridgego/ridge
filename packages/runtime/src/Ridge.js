@@ -39,6 +39,12 @@ class RidgeContext {
     }
   }
 
+  unDelegateMethods (target, methods, source = this) {
+    for (const method of methods) {
+        delete source[method]
+    }
+  }
+
   static async init () {
 
   }

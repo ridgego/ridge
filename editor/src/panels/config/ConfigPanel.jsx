@@ -132,48 +132,8 @@ export default class ComponentPanel extends React.Component {
     // this.initEvents()
   }
 
-  initEvents () {
-    on(EVENT_PAGE_LOADED, ({ name, properties }) => {
-      for (const key of Object.keys(properties)) {
-        this.pagePropFormApi.setValue(key, properties[key], {
-          notNotify: true
-        })
-      }
-      this.pagePropFormApi.setValue('name', name, {
-        notNotify: true
-      })
-      this.updatePageConfigFields()
-    })
-    on(EVENT_PAGE_RENAMED, name => {
-      this.pagePropFormApi.setValue('name', name, {
-        notNotify: true
-      })
-    })
-    // on(EVENT_PAGE_PROP_CHANGE, ({ from, properties }) => {
-    //   if (from === 'workspace') {
-    //     for (const key of Object.keys(properties)) {
-    //       this.pagePropFormApi.setValue(key, properties[key], {
-    //         notNotify: true
-    //       })
-    //     }
-    //   }
-    // })
-
-    on(EVENT_FILE_TREE_CHANGE, payload => {
-      this.updatePageConfigFields()
-    })
-    on(EVENT_ELEMENT_SELECTED, payload => {
-      // if (payload.from === 'workspace') {
-      this.elementSelected(payload.element)
-      // }
-    })
-    on(EVENT_ELEMENT_DRAG_END, payload => {
-      this.elementSelected(payload.sourceElement)
-    })
-  }
-
   /**
-   * 
+   * 组件选择后、更新为组件配置面板
    **/
   componentSelected (componentView) {
     let view = componentView
@@ -237,6 +197,10 @@ export default class ComponentPanel extends React.Component {
           notNotify: true
         })
       }
+
+      this.componentEventFormApi.setValue('events', JSON.parse(JSON.stringify(view.config.events)), {
+        notNotify: true
+      })
     })
   }
 
@@ -333,7 +297,6 @@ export default class ComponentPanel extends React.Component {
 
     // 回写styleApi句柄以便直接操作基础form
     const basicPropsAPI = (formApi) => {
-      window.componentPropFormApi = this.componentEventFormApi
       this.componentPropFormApi = formApi
     }
 

@@ -501,7 +501,7 @@ export default class WorkSpaceControl {
     // 计算位置
     const rbcr = this.viewPortEl.getBoundingClientRect()
     context.editorView.detachChildView(el.view)
-
+    context.services.outlinePanel.updateOutline()
     this.viewPortEl.appendChild(el)
 
     el.view.updateStyleConfig({
@@ -617,14 +617,14 @@ export default class WorkSpaceControl {
     // 拖拽更新位置
     if (updateDragOver) {
       try {
-        target && target.invoke && target.invoke('onDragOver', dragEl ? [dragEl.view || {}] : [pointPos])
+        target && target.view && target.view.invoke('onDragOver', dragEl ? [dragEl.view || {}] : [pointPos])
       } catch (e) {
         console.error('Container dragOver Error', target)
       }
 
       droppableElements.forEach(el => {
         if (el !== target) {
-          el.invoke && el.invoke('onDragOut')
+          el.view && el.view.invoke('onDragOut')
         }
       })
     }

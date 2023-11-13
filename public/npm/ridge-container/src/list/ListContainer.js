@@ -55,7 +55,7 @@ export default class ListContainer extends BaseContainer {
   }
 
   updated () {
-    if (!this.isEditor()) {
+    if (!this.isEditMode()) {
       this.renderUpdateListItems()
     }
   }
@@ -98,23 +98,19 @@ export default class ListContainer extends BaseContainer {
             this.containerEl.appendChild(newEl)
           }
           const newView = renderItem.clone()
-          newView.initPropsAndEvents()
 
-          newView.setScopedData({
+          newView.loadAndMount(newEl, {
             i: index,
             list: dataSource,
             item: data
           })
-          newView.mount(newEl)
         }
       }
 
       // 删除多出的项目
       while (this.containerEl.childElementCount > dataSource.length) {
-        this.containerEl.lastChild.elementWrapper.unmount()
+        this.containerEl.lastChild.view.unmount()
       }
-
-      this.itemInstanceWrappers = Array.from(this.containerEl.childNodes).map(el => el.elementWrapper)
     }
   }
 

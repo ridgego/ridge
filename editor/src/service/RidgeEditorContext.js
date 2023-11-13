@@ -260,12 +260,18 @@ class RidgeEditorContext extends RidgeContext {
   }
 
   /**
-   * trigger Component props change
+   * 组件配置属性变更
    **/
   updateComponentConfig (view, config) {
-    const { outlinePanel } = this.services
+    const titleChanged = config.title !== view.config.title
+
     view.updateConfig(config)
-    outlinePanel.updateComponentConfig(view, config)
+
+    if (titleChanged) {
+      const { outlinePanel } = this.services
+      outlinePanel.updateOutline()
+    }
+
     this.workspaceControl.updateMovable()
   }
 

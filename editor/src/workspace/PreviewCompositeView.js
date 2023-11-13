@@ -6,7 +6,7 @@ import EditorCompositeView from './EditorCompositeView.js'
 class PreviewCompositeView extends EditorCompositeView {
   createComponentView (config, i) {
     return new ComponentView({
-      context: this.context,
+      compositeView: this,
       config,
       i
     })
@@ -24,11 +24,12 @@ class PreviewCompositeView extends EditorCompositeView {
     this.store = new ValtioStore()
     this.store.load(this.jsModules)
 
-    this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction', 'getStoreValue'])
+    // this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction', 'getStoreValue'])
   }
 
   unmount () {
     super.unmount()
+    // this.context.unDelegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction', 'getStoreValue'])
     this.el.style.width = 0
     this.el.style.height = 0
   }

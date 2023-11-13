@@ -60,6 +60,19 @@ export default {
     type: 'class',
     value: []
   }],
+  childStyle: [{
+    label: 'W',
+    width: '50%',
+    control: 'number',
+    field: 'style.width',
+    fieldEx: 'styleEx.width'
+  }, {
+    label: 'H',
+    width: '50%',
+    control: 'number',
+    field: 'style.height',
+    fieldEx: 'styleEx.height'
+  }],
   width: 420,
   height: 360
 }

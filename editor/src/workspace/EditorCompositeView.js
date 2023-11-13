@@ -8,7 +8,7 @@ import EditorStore from './EditorStore.js'
 class EditorCompositeView extends CompositeView {
   createComponentView (config, i) {
     return new EditorComponentView({
-      context: this.context,
+      compositeView: this,
       config,
       i
     })
@@ -42,7 +42,6 @@ class EditorCompositeView extends CompositeView {
         this.parseJsStoreModule(jsModules)
       }
     }
-    this.store = new EditorStore()
   }
 
   updateStyle () {
@@ -157,6 +156,14 @@ class EditorCompositeView extends CompositeView {
       }
     }
 
+    if (jsStoreModule.scoped) {
+      for (const key of Object.keys(jsStoreModule.scoped)) {
+        storeModule.scoped.push({
+          name: key
+        })
+      }
+    }
+
     if (jsStoreModule.actions && typeof jsStoreModule.actions === 'object') {
       Object.keys(jsStoreModule.actions || {}).forEach(key => {
         storeModule.actions.push({
@@ -196,7 +203,7 @@ class EditorCompositeView extends CompositeView {
     const view = new EditorComponentView({
       definition,
       config: elementConfig,
-      context: this.context,
+      compositeView: this,
       i: Object.entries(this.componentViews).length + 1
     })
     view.initPropsOnCreate()

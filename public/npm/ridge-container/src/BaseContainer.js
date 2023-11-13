@@ -18,6 +18,16 @@ export default class BaseContainer {
    * 属性更新后触发
    **/
   updated () { }
+
+  /**
+   * 子节点移除后触发
+   */
+  onChildRemoved () {}
+
+  /**
+   * 子节点添加后触发
+   */
+  onChildAppended () {}
   /**
  * 获取容器样式
  * @abstract
@@ -69,6 +79,7 @@ export default class BaseContainer {
     const el = view.el
     this.containerEl.appendChild(el)
     this.updateChildStyle(view)
+    this.onChildAppended(view)
     return true
   }
 
@@ -112,6 +123,7 @@ export default class BaseContainer {
     if (view.el.parentElement === this.containerEl) {
       this.containerEl.removeChild(view.el)
     }
+    this.onChildRemoved(view)
     return true
   }
 

@@ -40,9 +40,21 @@ export default class SwitchContainer extends BaseContainer {
     }
   }
 
+  /**
+   * 选择某个自节点后同时更新默认索引
+   */
   onChildSelected (childView) {
     const childElements = this.getChildElements()
 
+    this.toggleState(childElements.indexOf(childView.el))
+  }
+
+  onChildRemoved () {
+    this.toggleState()
+  }
+
+  onChildAppended (childView) {
+    const childElements = this.getChildElements()
     this.toggleState(childElements.indexOf(childView.el))
   }
 
@@ -59,5 +71,9 @@ export default class SwitchContainer extends BaseContainer {
     style.left = 0
     style.top = 0
     return style
+  }
+
+  updateStyle () {
+    this.containerEl.style.position = 'relative'
   }
 }
