@@ -43,17 +43,22 @@ class CompositeView extends ElementView {
   initialize () {
     debug('Ridge Composite initialize:', this.config)
     this.componentViews = {}
+    // 根节点的排序号
+    let rootIndex = 0
     for (let i = 0; i < this.config.elements.length; i++) {
-      const view = this.createComponentView(this.config.elements[i], i)
+      const view = this.createComponentView(this.config.elements[i])
+      if (view.isRoot()) {
+        view.setRootIndex(rootIndex)
+        rootIndex++
+      }
       this.componentViews[view.getId()] = view
     }
   }
 
-  createComponentView (config, i) {
+  createComponentView (config) {
     return new ComponentView({
       compositeView: this,
-      config,
-      i
+      config
     })
   }
 

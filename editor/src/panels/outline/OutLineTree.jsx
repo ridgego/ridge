@@ -14,6 +14,8 @@ class OutLineTree extends React.Component {
   constructor () {
     super()
     this.state = {
+      componentTreeData: [],
+      expandedKeys: [],
       elements: [],
       selected: null
     }
@@ -24,18 +26,17 @@ class OutLineTree extends React.Component {
 
   updateOutline () {
     if (context.editorView) {
+      const elements = context.editorView.getComponentViews()
       this.setState({
-        elements: context.editorView.getComponentViews()
+        elements,
+        componentTreeData: this.buildElementTree(elements)
       })
     }
   }
 
-  updateTree (elements) {
-    this.setState({
-      elements
-    })
-  }
-
+  /**
+   * 对外提供方法，工作区选择节点调用
+   **/
   setCurrentNode (view) {
     if (view) {
       this.setState({
@@ -50,6 +51,9 @@ class OutLineTree extends React.Component {
 
   onNodeSelected (val) {
     context.workspaceControl.selectElements([this.state.elements[val].el], true)
+    this.setState({
+      selected: val
+    })
   }
 
   buildElementTree (elements) {
@@ -65,10 +69,10 @@ class OutLineTree extends React.Component {
     const treeNodeObject = {
       key: element.getId(),
       value: element.getId(),
-      label: element.config.props.text || element.config.title,
+      label: element.config.title,
+      // tags: tags ? [element.componentDefinition.title, ...tags] : [element.componentDefinition.title], 
       tags,
-      element,
-      children: []
+      view: element
     }
 
     // update icon
@@ -78,12 +82,15 @@ class OutLineTree extends React.Component {
       // 递归处理子节点树
       const childProps = element.componentDefinition.props.filter(p => p.type === 'children')
       if (childProps.length) {
+        treeNodeObject.children = []
         for (const childProp of childProps) {
           if (element.config.props[childProp.name] && element.config.props[childProp.name].length) {
             for (let i = 0; i < element.config.props[childProp.name].length; i++) {
               const elementId = element.config.props[childProp.name][i]
               if (elementId && elements[elementId]) {
-                treeNodeObject.children.push(this.getElementTree(elements[elementId], elements, [childProps.label]))
+                const childTreeNode = this.getElementTree(elements[elementId], elements)
+                childTreeNode.parent = treeNodeObject
+                treeNodeObject.children.push(childTreeNode)
               }
             }
           }
@@ -93,9 +100,14 @@ class OutLineTree extends React.Component {
       // 递归处理插槽节点
       const slotProps = element.componentDefinition.props.filter(p => p.type === 'slot')
       if (slotProps.length) {
+        if (treeNodeObject.children == null) {
+          treeNodeObject.children = []
+        }
         for (const childProp of slotProps) {
           if (element.config.props[childProp.name] && elements[element.config.props[childProp.name]]) {
-            treeNodeObject.children.push(this.getElementTree(elements[element.config.props[childProp.name]], elements, childProps.label))
+            const childTreeNode = this.getElementTree(elements[element.config.props[childProp.name]], elements, [childProp.label])
+            childTreeNode.parent = treeNodeObject
+            treeNodeObject.children.push(childTreeNode)
           }
         }
       }
@@ -115,13 +127,12 @@ class OutLineTree extends React.Component {
     const visible = !view.config.style.visible
     view.updateStyleConfig({ visible })
     context.workspaceControl.selectElements([view.el])
-   
     this.updateOutline()
   }
 
   renderFullLabel = (label, data) => {
     const { toggleLock, toggleVisible } = this
-    const { visible, locked } = data.element.config.style
+    const { visible, locked } = data.view.config.style
     return (
       <div className={'tree-label ' + (visible ? 'is-visible' : 'is-hidden') + ' ' + (locked ? 'is-locked' : '')}>
         <Space className='label-content'>
@@ -136,7 +147,7 @@ class OutLineTree extends React.Component {
             }} icon={locked ? <IconLock /> : <IconUnlock />}
           />
           <Button
-            className={data.element.config.style.visible ? 'hover-show' : ''}
+            className={visible ? 'hover-show' : ''}
             size='small' theme='borderless' type='tertiary' onClick={() => {
               toggleVisible(data)
             }} icon={visible ? <IconEyeOpened /> : <IconEyeClosedSolid />}
@@ -146,41 +157,115 @@ class OutLineTree extends React.Component {
     )
   }
 
-  onTreeDrop ({ event, node, dragNode, dragNodesKeys, dropPosition, dropToGap }) {
-    const targetNodePos = node.pos.split('-') // 放置对比目标
-    const dragNodePos = dragNode.pos.split('-') // 拖拽的节点
+  /**
+   * 拖拽 dragNode 到一个排序子节点列表之中，放置位置为dropPosition (-1为最前)
+   * dropPosition: 指的是被拖拽节点在当前层级中被 drop 的位置，如插入在同级的第0个节点前则为 -1，在第0个节点后则为 1，落在其上则为 0，以此类推 为空时表示追加到最后
+   */
+  ordering (siblingNodes, dragNode, dropPosition) {
+    const finals = []
 
-    log(node, dragNode, dropPosition, dropToGap)
-    if (dropToGap) {
-      if (parseInt(targetNodePos[targetNodePos.length - 1]) > parseInt(dragNodePos[dragNodePos.length - 1])) { // 向后拖拽
-        context.editorView.setPositionAfter(dragNode.element, node.element)
-      } else {
-        // 向前拖拽
-        context.editorView.setPositionBefore(dragNode.element, node.element)
-      }
-      // 按更新后节点关系重新更新树结构
-      this.updateOutline()
+    if (dropPosition === -1) {
+      finals.push(dragNode.key)
     }
+
+    for (let i = 0; i < siblingNodes.length; i++) {
+      if (siblingNodes[i].key === dragNode.key) {
+        continue
+      }
+      if (dropPosition === i) {
+        finals.push(dragNode.key)
+      }
+      finals.push(siblingNodes[i].key)
+    }
+    if (dropPosition == null) {
+      finals.push(dragNode.key)
+    }
+    return finals
+  }
+
+  /**
+   * 树拖拽放置到目标位置
+   **/
+  onTreeDrop ({ event, node, dragNode, dragNodesKeys, dropPosition, dropToGap }) {
+    if (dropToGap === true) {
+      // 放置到节点之间
+      if (node.parent === dragNode.parent) {
+        // 同层次的排序
+        if (node.parent == null) {
+          // 1.根节点重排序
+          const orders = this.ordering(this.state.componentTreeData, dragNode, dropPosition)
+          context.editorView.updateChildOrder(null, orders)
+        } else {
+          // 2.同容器内排序
+          const orders = this.ordering(node.parent.children, dragNode, dropPosition)
+          context.editorView.updateChildOrder(node.parent.view, orders)
+        }
+      } else {
+        // 3-4.跨父节点
+        if (dragNode.parent) {
+          // 移除之前父节点
+          context.editorView.detachChildView(dragNode.view)
+        }
+        if (node.parent) {
+          // 3.放入新容器
+          const orders = this.ordering(node.parent.children, dragNode, dropPosition)
+          context.editorView.updateChildOrder(node.parent.view, orders)
+        } else {
+          // 4.放置到根节点
+          const orders = this.ordering(this.state.componentTreeData, dragNode, dropPosition)
+          context.editorView.updateChildOrder(null, orders)
+        }
+      }
+    } else {
+      if (!node.view.isContainer) {
+        return
+      } else {
+        // 0.追加到node之下
+        if (dragNode.parent) {
+          context.editorView.detachChildView(dragNode.view)
+        }
+        context.editorView.appendChild(dragNode.view, node.view)
+      }
+    }
+    // const targetNodePos = node.pos.split('-') // 放置对比目标
+    // const dragNodePos = dragNode.pos.split('-') // 拖拽的节点
+
+    // log(node, dragNode, dropPosition, dropToGap)
+    // if (dropToGap) {
+    //   if (parseInt(targetNodePos[targetNodePos.length - 1]) > parseInt(dragNodePos[dragNodePos.length - 1])) { // 向后拖拽
+    //     context.editorView.setPositionAfter(dragNode.element, node.element)
+    //   } else {
+    //     // 向前拖拽
+    //     context.editorView.setPositionBefore(dragNode.element, node.element)
+    //   }
+    //   // 按更新后节点关系重新更新树结构
+    // }
+    this.updateOutline()
+    context.workspaceControl.selectElements([dragNode.view.el], true)
   }
 
   render () {
-    const { selected, elements } = this.state
+    const { selected, componentTreeData, expandedKeys } = this.state
     const { renderFullLabel, onTreeDrop } = this
-    const treeData = this.buildElementTree(elements)
+    // const treeData = this.buildElementTree(elements)
     return (
       <Tree
         className='outline-tree'
-        style={{
-          height: '100%',
-          overflow: 'auto'
-        }}
+        autoExpandWhenDragEnter
         draggable
         renderLabel={renderFullLabel}
         onDrop={onTreeDrop.bind(this)}
         onChange={(value) => {
           this.onNodeSelected(value)
         }}
-        treeData={treeData}
+        onExpand={expandedKeys => {
+          this.setState({
+            expandedKeys
+          })
+        }}
+        expandedKeys={expandedKeys}
+        value={selected}
+        treeData={componentTreeData}
       />
     )
   }

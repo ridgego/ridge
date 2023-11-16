@@ -7,16 +7,13 @@ const log = debug('ridge:component')
 class ComponentView extends ElementView {
   constructor ({
     config,
-    compositeView,
-    i
+    compositeView
   }) {
     super()
-    this.i = i
     this.config = config
     this.compositeView = compositeView
 
     this.properties = {}
-    this.slotProperties = {}
     this.eventProperties = {}
   }
 
@@ -24,12 +21,22 @@ class ComponentView extends ElementView {
     return this.config.parent == null
   }
 
+  setRootIndex (index) {
+    this.i = index
+    if (this.el) {
+      this.el.style.zIndex = index
+    }
+  }
+
   getId () {
     return this.config.id
   }
 
   getProperties () {
-    return Object.assign({}, this.properties, this.slotProperties, this.eventProperties)
+    return Object.assign({}, this.properties, this.eventProperties, {
+      __compositeView: this.compositeView,
+      __view: this
+    })
   }
 
   getConfig () {
@@ -40,8 +47,16 @@ class ComponentView extends ElementView {
     return this.el
   }
 
+  getContainerView () {
+    if (this.config.parent) {
+      return this.compositeView.getComponentView(this.config.parent)
+    }
+    return null
+  }
+
   getScopedData () {
-    const parentScopes = this.containerView ? this.containerView.getScopedData() : []
+    const containerView = this.getContainerView()
+    const parentScopes = containerView ? containerView.getScopedData() : []
 
     if (this.scopedData == null) {
       return parentScopes
@@ -132,25 +147,13 @@ class ComponentView extends ElementView {
    * 初始化组件属性、事件
    */
   initPropsAndEvents () {
-    if (this.config.parent && !this.containerView) {
-      this.containerView = this.compositeView.getComponentView(this.config.parent)
-    }
-
     for (const prop of this.componentDefinition.props || []) {
       if (!prop) continue
-      // 编辑器初始化创建时给一次默认值
-      // if (this.isCreate) {
-      //   if (this.config.props[prop.name] == null && prop.value != null) {
-      //     this.config.props[prop.name] = prop.value
-      //   }
-      // }
-      // value property:add input event
       if (prop.name === 'value') {
         this.eventProperties.input = val => {
           this.emit('input', val)
         }
       }
-
       // same as value
       if (prop.input === true) {
         // input相当于v-model，只能设置到一个属性上面
@@ -162,36 +165,11 @@ class ComponentView extends ElementView {
         }
       }
 
-      if (prop.name === 'children') {
+      if (prop.type === 'slot' || prop.type === 'children') {
         this.isContainer = true
-        // 写入子级的具体包装类
-        if (Array.isArray(this.config.props.children)) {
-          if (this.slotProperties.children == null) {
-            this.slotProperties.children = this.config.props.children.map(element => {
-              if (typeof element === 'string') {
-                return this.compositeView.getComponentView(element)
-              } else {
-                return element
-              }
-            })
-          }
-        }
-      } else if (prop.type === 'slot') {
-        this.isContainer = true
-        // 写入slot的包装类
-        if (this.config.props[prop.name] && typeof this.config.props[prop.name] === 'string') {
-          if (this.slotProperties[prop.name] == null) {
-            const childComponentView = this.compositeView.getComponentView(this.config.props[prop.name])
-            if (childComponentView) {
-              childComponentView.parentView = this
-              this.slotProperties[prop.name] = childComponentView
-            }
-          }
-        }
-      } else {
-        if (this.config.props[prop.name] != null) {
-          this.properties[prop.name] = this.config.props[prop.name]
-        }
+      }
+      if (this.config.props[prop.name] != null) {
+        this.properties[prop.name] = this.config.props[prop.name]
       }
     }
     // 事件类属性写入，DOM初始化后事件才能挂到源头
@@ -361,8 +339,6 @@ class ComponentView extends ElementView {
       compositeView: this.compositeView,
       config: this.config
     })
-
-    cloned.containerView = this.containerView
 
     if (this.componentDefinition) {
       cloned.componentDefinition = this.componentDefinition

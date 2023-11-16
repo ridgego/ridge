@@ -3,15 +3,17 @@ import BaseContainer from '../BaseContainer.js'
 export default class ListContainer extends BaseContainer {
   async mounted () {
     if (this.props.renderItem) {
-      await this.props.renderItem.preload(true)
-      this.props.renderItem.initPropsAndEvents()
+      this.itemTemplateView = this.compositeView.getComponentView(this.props.renderItem)
+      await this.itemTemplateView.preload()
+      // await this.props.renderItem.preload(true)
+      // this.props.renderItem.initPropsAndEvents()
     }
     if (this.view) {
       // 编辑时
-      if (this.props.renderItem) {
+      if (this.itemTemplateView) {
         const renderEl = document.createElement('div')
         this.containerEl.appendChild(renderEl)
-        this.props.renderItem.loadAndMount(renderEl)
+        this.itemTemplateView.loadAndMount(renderEl)
       }
     } else {
       this.renderUpdateListItems()
@@ -19,7 +21,16 @@ export default class ListContainer extends BaseContainer {
   }
 
   getContainerStyle () {
-    return {}
+    const {
+      border,
+      padding
+    } = this.props
+    const containerStyle = {
+      border,
+      padding: padding + 'px',
+      boxSizing: 'border-box'
+    }
+    return containerStyle
   }
 
   isDroppable () {
@@ -64,8 +75,8 @@ export default class ListContainer extends BaseContainer {
    * 运行期间更新渲染列表
    */
   renderUpdateListItems () {
-    const { itemKey, dataSource, renderItem } = this.props
-    if (dataSource && renderItem) {
+    const { itemKey, dataSource } = this.props
+    if (dataSource && this.itemTemplateView) {
       for (let index = 0; index < dataSource.length; index++) {
         const data = dataSource[index]
         // 先找到是否有之前的dom
@@ -97,7 +108,7 @@ export default class ListContainer extends BaseContainer {
           } else {
             this.containerEl.appendChild(newEl)
           }
-          const newView = renderItem.clone()
+          const newView = this.itemTemplateView.clone()
 
           newView.loadAndMount(newEl, {
             i: index,

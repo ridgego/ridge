@@ -1,7 +1,6 @@
 import { CompositeView } from 'ridge-runtime'
 import EditorComponentView from './EditorComponentView.js'
 import { nanoid } from '../utils/string'
-import EditorStore from './EditorStore.js'
 /**
  * Views Mount on Editor
  **/
@@ -217,15 +216,14 @@ class EditorCompositeView extends CompositeView {
     this.el.style.height = 0
   }
 
-  removeElement (view) {
+  deleteView (view) {
     if (view) {
-      if (view.containerView) {
-        this.detachChildView(view, true)
+      if (view.config.parent) {
+        this.detachFromParent(view, true)
       }
-
       // delete recursively
-      view.forEachChildren((childView, type, propKey) => {
-        this.removeElement(childView)
+      view.forEachChildren(childView => {
+        this.deleteView(childView)
       })
       view.unmount()
       delete this.componentViews[view.config.id]
@@ -238,21 +236,22 @@ class EditorCompositeView extends CompositeView {
    * @param parentView 父节点view
    * @param position
    */
-  attachToParentView (childView, parentView, position) {
+  appendChildView (childView, parentView, position = { x: 0, y: 0 }) {
     if (!parentView.hasMethod('appendChild')) {
       return false
     }
     // 这里容器会提供 appendChild 方法，并提供放置位置
     const result = parentView.invoke('appendChild', [childView, position.x, position.y])
 
-    if (result === false) {
-      return false
-    } else {
-      Object.assign(parentView.config.props, parentView.invoke('getChildren'))
-
+    if (result.indexOf(childView.config.id) > -1) {
       childView.config.parent = parentView.config.id
-      childView.containerView = parentView
     }
+
+    parentView.updateConfig({
+      props: {
+        children: result
+      }
+    })
   }
 
   /**
@@ -260,58 +259,33 @@ class EditorCompositeView extends CompositeView {
      * @param {*} sourceParentElement 父节点
      * @param {*} childElementId 子节点
      */
-  detachChildView (childView, isDelete) {
-    const contanerView = childView.containerView
+  detachFromParent (view, isDelete) {
+    const containerView = view.getContainerView()
 
-    // invoke parent view for recalculating
-    contanerView.invoke('removeChild', [childView, isDelete])
-    Object.assign(contanerView.config.props, contanerView.invoke('getChildren'))
-
-    delete childView.config.parent
-    delete childView.containerView
-  }
-
-  // 放置wrapper到target之后，
-  setPositionAfter (view, targetView) {
-    const siblings = Object.values(this.componentViews).filter(one => one.config.parent === targetView.config.parent).sort((a, b) => {
-      return a.i - b.i
-    })
-
-    let begin = false
-    for (let i = 0; i < siblings.length; i++) {
-      if (siblings[i] === view) {
-        begin = true
-        continue
-      }
-      if (begin) {
-        siblings[i].setIndex(i - 1)
-      }
-      if (siblings[i] === targetView) {
-        view.setIndex(i)
-        break
-      }
+    if (containerView) {
+      const children = containerView.invoke('removeChild', [view, isDelete])
+      // 更新配置
+      containerView.updateConfig({
+        props: {
+          children
+        }
+      })
     }
+    delete view.config.parent
   }
 
-  // 放置wrapper到target之前（之前wrapper在target之后）
-  setPositionBefore (view, targetView) {
-    const siblings = Object.values(this.componentViews).filter(one => one.config.parent === targetView.config.parent).sort((a, b) => {
-      return a.i - b.i
-    })
-
-    let begin = false
-    for (let i = 0; i < siblings.length; i++) {
-      if (begin) {
-        siblings[i].setIndex(i + 1)
-      }
-      if (siblings[i] === targetView) {
-        begin = true
-        view.setIndex(i)
-        continue
-      }
-      if (siblings[i] === view) {
-        break
-      }
+  /**
+   * 重新排序子节点
+   **/
+  updateChildOrder (containerView, orders) {
+    if (containerView) {
+      containerView.invoke('updateOrder', [orders])
+      containerView.updateConfig({
+        props: {
+          children: orders
+        }
+      })
+      // containerView.updateChildren
     }
   }
 

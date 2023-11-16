@@ -54,18 +54,22 @@ export default class BaseContainer {
 
     // ？？ 编辑器之下，有当前view对象句柄可以进行其他相关操作， 运行态下没有
     this.view = this.props.__view
+    this.compositeView = this.props.__compositeView
     Object.assign(this.containerEl.style, {
       width: '100%',
       height: '100%'
     }, this.getContainerStyle())
 
     if (this.props.children) {
-      for (const childrenView of this.props.children) {
-        const childDiv = document.createElement('div')
-        childDiv.classList.add('children')
-        this.containerEl.appendChild(childDiv)
-        await childrenView.loadAndMount(childDiv)
-        this.updateChildStyle(childrenView)
+      for (const childId of this.props.children) {
+        const childView = this.compositeView.getComponentView(childId)
+        if (childView) {
+          const childDiv = document.createElement('div')
+          childDiv.classList.add('children')
+          this.containerEl.appendChild(childDiv)
+          await childView.loadAndMount(childDiv)
+          this.updateChildStyle(childView)
+        }
       }
     }
     await this.mounted()
@@ -81,6 +85,24 @@ export default class BaseContainer {
     this.updateChildStyle(view)
     this.onChildAppended(view)
     return true
+  }
+
+  /**
+   * 更新子节点次序
+   **/
+  updateOrder (orders) {
+    for (const childId of this.props.children) {
+      const childView = this.compositeView.getComponentView(childId)
+      if (childView) {
+        this.containerEl.removeChild(childView.el)
+      }
+    }
+
+    for (let i = 0; i < orders.length; i++) {
+      const childView = this.compositeView.getComponentView(orders[i])
+      this.containerEl.appendChild(childView.el)
+      this.updateChildStyle(childView)
+    }
   }
 
   isEditMode () {
@@ -99,6 +121,14 @@ export default class BaseContainer {
       const shadowNode = document.createElement('div')
       shadowNode.classList.add('drop-shadow')
       shadowNode.innerHTML = '可以放入容器内'
+
+      const tag = document.createElement('div')
+      tag.classList.add('drop-tag')
+
+      tag.innerHTML = this.props.__view.config.title
+
+      shadowNode.appendChild(tag)
+
       this.el.appendChild(shadowNode)
 
       if (!this.el.style.position) {
@@ -124,7 +154,7 @@ export default class BaseContainer {
       this.containerEl.removeChild(view.el)
     }
     this.onChildRemoved(view)
-    return true
+    return this.getChildren()
   }
 
   /**
@@ -138,11 +168,9 @@ export default class BaseContainer {
   }
 
   getChildren () {
-    return {
-      children: this.getChildElements().map(el => {
-        return el.view?.config?.id
-      }).filter(e => e != null)
-    }
+    this.getChildElements().map(el => {
+      return el.view?.config?.id
+    }).filter(e => e != null)
   }
 
   getChildElements () {
@@ -162,8 +190,11 @@ export default class BaseContainer {
     this.containerEl.className = (this.props.classNames || []).join(' ')
 
     if (this.props.children) {
-      for (const childWrapper of this.props.children) {
-        childWrapper.forceUpdate()
+      for (const childId of this.props.children) {
+        const childView = this.compositeView.getComponentView(childId)
+        if (childView) {
+          childView.forceUpdate()
+        }
       }
     }
     this.updated()

@@ -4,11 +4,6 @@ import _ from 'lodash'
 class EditorComponentView extends ComponentView {
   constructor (config) {
     super(config)
-    // 系统内置属性
-    this.systemProperties = {
-      __context: this.context,
-      __view: this
-    }
     if (config.definition) {
       this.preloaded = true
       this.componentDefinition = config.definition
@@ -19,20 +14,8 @@ class EditorComponentView extends ComponentView {
     this.el.classList.add('ridge-element-edit')
   }
 
-  setIndex (index) {
-    this.i = index
-  }
-
-  getProperties () {
-    return Object.assign({},
-      this.systemProperties, // 系统属性
-      this.properties, // 动态计算属性
-      this.slotProperties // 子节点 + slot节点
-    )
-  }
-
   /**
-   * Set default value props
+   * 初始化时配置默认值
    **/
   initPropsOnCreate () {
     if (this.componentDefinition) {

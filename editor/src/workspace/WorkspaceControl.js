@@ -455,7 +455,7 @@ export default class WorkSpaceControl {
     if (targetParentView) {
       // 放入一个容器
       trace('Into container', targetParentView)
-      const result = context.editorView.attachToParentView(sourceView, targetParentView, { x, y })
+      const result = context.editorView.appendChild(sourceView, targetParentView, { x, y })
       if (result === false) {
         this.putElementToRoot(el, x, y)
       }
