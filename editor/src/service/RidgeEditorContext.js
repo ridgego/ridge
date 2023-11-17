@@ -231,7 +231,7 @@ class RidgeEditorContext extends RidgeContext {
   onElementRemoved (element) {
     const view = this.getComponentView(element)
     if (view && this.editorView) {
-      this.editorView.removeElement(view)
+      this.editorView.deleteElementView(view)
     }
     const { outlinePanel } = this.services
     outlinePanel.updateOutline()

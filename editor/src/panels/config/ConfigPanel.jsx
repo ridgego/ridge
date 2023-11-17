@@ -148,9 +148,9 @@ export default class ComponentPanel extends React.Component {
 
     nodePropFields.push(...COMPONENT_BASIC_FIELDS)
 
-    if (view.containerView) {
+    if (view.getContainerView()) {
       // 放置到容器中，有容器赋予的样式配置的
-      nodePropFields.push(...(view.containerView?.componentDefinition?.childStyle || []))
+      nodePropFields.push(...(view.getContainerView().componentDefinition?.childProps || []))
     } else {
       nodePropFields.push(...COMPONENT_ROOT_FIELDS)
     }

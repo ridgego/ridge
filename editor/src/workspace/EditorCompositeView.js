@@ -216,42 +216,17 @@ class EditorCompositeView extends CompositeView {
     this.el.style.height = 0
   }
 
-  deleteView (view) {
+  /**
+   * 删除节点
+   **/
+  deleteElementView (view) {
     if (view) {
-      if (view.config.parent) {
-        this.detachFromParent(view, true)
+      for (const id of view.config.children || []) {
+        this.deleteElementView(this.getComponentView(id))
       }
-      // delete recursively
-      view.forEachChildren(childView => {
-        this.deleteView(childView)
-      })
       view.unmount()
       delete this.componentViews[view.config.id]
     }
-  }
-
-  /**
-   * 附加子节点到父节点，并给出节点位置以方便父节点排列
-   * @param childView 子节点view
-   * @param parentView 父节点view
-   * @param position
-   */
-  appendChildView (childView, parentView, position = { x: 0, y: 0 }) {
-    if (!parentView.hasMethod('appendChild')) {
-      return false
-    }
-    // 这里容器会提供 appendChild 方法，并提供放置位置
-    const result = parentView.invoke('appendChild', [childView, position.x, position.y])
-
-    if (result.indexOf(childView.config.id) > -1) {
-      childView.config.parent = parentView.config.id
-    }
-
-    parentView.updateConfig({
-      props: {
-        children: result
-      }
-    })
   }
 
   /**
@@ -259,20 +234,20 @@ class EditorCompositeView extends CompositeView {
      * @param {*} sourceParentElement 父节点
      * @param {*} childElementId 子节点
      */
-  detachFromParent (view, isDelete) {
-    const containerView = view.getContainerView()
+  // detachFromParent (view, isDelete) {
+  //   const containerView = view.getContainerView()
 
-    if (containerView) {
-      const children = containerView.invoke('removeChild', [view, isDelete])
-      // 更新配置
-      containerView.updateConfig({
-        props: {
-          children
-        }
-      })
-    }
-    delete view.config.parent
-  }
+  //   if (containerView) {
+  //     const children = containerView.invoke('removeChild', [view, isDelete])
+  //     // 更新配置
+  //     containerView.updateConfig({
+  //       props: {
+  //         children
+  //       }
+  //     })
+  //   }
+  //   delete view.config.parent
+  // }
 
   /**
    * 重新排序子节点

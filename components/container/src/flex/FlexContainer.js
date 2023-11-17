@@ -27,14 +27,6 @@ export default class FlexBoxContainer extends BaseContainer {
     return containerStyle
   }
 
-  appendChild (view) {
-    this.onDragOut()
-    const el = view.el
-    this.containerEl.appendChild(el)
-    this.updateChildStyle(view)
-    return true
-  }
-
   getChildStyle (view) {
     const style = this.getResetStyle()
     const configStyle = view.config.style

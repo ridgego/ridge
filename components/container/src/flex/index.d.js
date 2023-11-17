@@ -84,7 +84,7 @@ export default {
     type: 'class',
     value: []
   }],
-  childStyle: [{
+  childProps: [{
     label: 'W',
     width: '50%',
     control: 'number',

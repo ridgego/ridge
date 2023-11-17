@@ -7,13 +7,13 @@
  *
  **/
 class ElementView {
-  initPropsAndEvents () {}
+  initialize () {}
+
+  async loadAndMount (el) {}
 
   async preload () {}
 
   mount (el) {}
-
-  async loadAndMount (el) {}
 
   updateStyle (styles) {}
 
@@ -21,6 +21,13 @@ class ElementView {
 
   unmount () {}
 
+  appendChild () {}
+
+  removeChild () {}
+
+  /**
+   * 设置渲染区域提示信息
+   **/
   setStatus (status, msg) {
     this.status = status
 

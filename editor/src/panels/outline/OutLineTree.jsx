@@ -60,57 +60,31 @@ class OutLineTree extends React.Component {
     const treeData = []
     const rootElements = Object.values(elements).filter(el => el.isRoot()).sort((a, b) => a.i - b.i)
     for (const element of rootElements) {
-      treeData.push(this.getElementTree(element, elements))
+      treeData.push(this.getElementTree(element))
     }
     return treeData
   }
 
-  getElementTree (element, elements, tags) {
+  getElementTree (element) {
     const treeNodeObject = {
       key: element.getId(),
       value: element.getId(),
       label: element.config.title,
-      // tags: tags ? [element.componentDefinition.title, ...tags] : [element.componentDefinition.title], 
-      tags,
       view: element
     }
-
     // update icon
     if (element.componentDefinition && element.componentDefinition.icon) {
       treeNodeObject.icon = <img className='item-icon' src={element.componentDefinition.icon} />
+    }
 
-      // 递归处理子节点树
-      const childProps = element.componentDefinition.props.filter(p => p.type === 'children')
-      if (childProps.length) {
-        treeNodeObject.children = []
-        for (const childProp of childProps) {
-          if (element.config.props[childProp.name] && element.config.props[childProp.name].length) {
-            for (let i = 0; i < element.config.props[childProp.name].length; i++) {
-              const elementId = element.config.props[childProp.name][i]
-              if (elementId && elements[elementId]) {
-                const childTreeNode = this.getElementTree(elements[elementId], elements)
-                childTreeNode.parent = treeNodeObject
-                treeNodeObject.children.push(childTreeNode)
-              }
-            }
-          }
+    const childViews = element.getChildrenView()
+    if (childViews) {
+      treeNodeObject.children = childViews.map(element => {
+        return {
+          ...this.getElementTree(element),
+          parent: element.getId()   
         }
-      }
-
-      // 递归处理插槽节点
-      const slotProps = element.componentDefinition.props.filter(p => p.type === 'slot')
-      if (slotProps.length) {
-        if (treeNodeObject.children == null) {
-          treeNodeObject.children = []
-        }
-        for (const childProp of slotProps) {
-          if (element.config.props[childProp.name] && elements[element.config.props[childProp.name]]) {
-            const childTreeNode = this.getElementTree(elements[element.config.props[childProp.name]], elements, [childProp.label])
-            childTreeNode.parent = treeNodeObject
-            treeNodeObject.children.push(childTreeNode)
-          }
-        }
-      }
+      })
     }
     return treeNodeObject
   }

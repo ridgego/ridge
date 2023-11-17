@@ -84,7 +84,7 @@ export default class BaseContainer {
     this.containerEl.appendChild(el)
     this.updateChildStyle(view)
     this.onChildAppended(view)
-    return true
+    return this.getChildren()
   }
 
   /**
@@ -168,7 +168,7 @@ export default class BaseContainer {
   }
 
   getChildren () {
-    this.getChildElements().map(el => {
+    return this.getChildElements().map(el => {
       return el.view?.config?.id
     }).filter(e => e != null)
   }

@@ -79,7 +79,7 @@ class ComponentView extends ElementView {
     }
 
     if (this.componentDefinition) {
-      this.initPropsAndEvents()
+      this.initialize()
       this.mount()
     }
   }
@@ -146,7 +146,7 @@ class ComponentView extends ElementView {
   /**
    * 初始化组件属性、事件
    */
-  initPropsAndEvents () {
+  initialize () {
     for (const prop of this.componentDefinition.props || []) {
       if (!prop) continue
       if (prop.name === 'value') {
@@ -164,8 +164,7 @@ class ComponentView extends ElementView {
           this.emit(eventName, val)
         }
       }
-
-      if (prop.type === 'slot' || prop.type === 'children') {
+      if (prop.type === 'children') {
         this.isContainer = true
       }
       if (this.config.props[prop.name] != null) {
@@ -265,10 +264,10 @@ class ComponentView extends ElementView {
         this.el.classList.add('is-hidden')
       }
     }
-
-    if (this.containerView && this.containerView.hasMethod('updateChildStyle')) {
+    const containerView = this.getContainerView()
+    if (containerView) {
     // delegate to container
-      this.containerView.invoke('updateChildStyle', [this])
+      containerView.invoke('updateChildStyle', [this])
     } else {
       // update position and index
       const style = {}
@@ -368,6 +367,7 @@ class ComponentView extends ElementView {
    * 枚举每个子节点
    * @param {*} cb
    */
+  /*
   forEachChildren (cb) {
     // 递归处理子节点树
     if (this.componentDefinition == null) {
@@ -396,6 +396,7 @@ class ComponentView extends ElementView {
       }
     }
   }
+  */
 
   invoke (method, args) {
     if (this.renderer) {

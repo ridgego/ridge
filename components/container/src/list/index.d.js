@@ -13,6 +13,10 @@ export default {
     control: 'json',
     value: []
   }, {
+    name: 'value',
+    label: '当前选中',
+    type: 'number'
+  }, {
     name: 'itemLayout',
     label: '布局',
     type: 'string',
@@ -25,10 +29,6 @@ export default {
       value: 'horizontal'
     }],
     value: 'vertical'
-  }, {
-    name: 'value',
-    label: '当前选中',
-    type: 'string'
   }, {
     label: '间隔',
     name: 'gap',
@@ -47,20 +47,15 @@ export default {
     type: 'border',
     value: '1px solid #ddd'
   }, {
-    name: 'renderItem',
-    label: '单项模板',
-    type: 'slot'
-  }, {
-    name: 'coverContainer',
-    label: '填充',
-    type: 'boolean'
+    name: 'children',
+    type: 'children'
   }, {
     name: 'classNames',
     label: '样式',
     type: 'class',
     value: []
   }],
-  childStyle: [{
+  childProps: [{
     label: 'W',
     width: '50%',
     control: 'number',

@@ -154,13 +154,13 @@ export default class WorkSpaceControl {
         return
       }
       const config = ev.target.view.config
+      sm.onElementDragStart(ev.target, ev.inputEvent)
 
-      if (config.parent) {
-        // 拖拽时就从父节点移除
-        sm.onElementDragStart(ev.target, ev.inputEvent)
-      } else {
-        sm.checkDropTargetStatus(ev)
-      }
+      // if (config.parent) {
+      //   // 拖拽时就从父节点移除
+      // } else {
+      //   sm.checkDropTargetStatus(ev)
+      // }
 
       ev.target.style.transform = `translate(${config.style.x + ev.dist[0]}px,${config.style.y + ev.dist[1]}px)`
     })
@@ -455,10 +455,11 @@ export default class WorkSpaceControl {
     if (targetParentView) {
       // 放入一个容器
       trace('Into container', targetParentView)
-      const result = context.editorView.appendChild(sourceView, targetParentView, { x, y })
-      if (result === false) {
-        this.putElementToRoot(el, x, y)
-      }
+      targetParentView.appendChild(sourceView, { x, y })
+      // const result = context.editorView.appendChildView(sourceView, targetParentView, { x, y })
+      // if (result === false) {
+      //   this.putElementToRoot(el, x, y)
+      // }
     }
     context.onElementMoveEnd(el)
     this.moveable.updateTarget()
@@ -497,20 +498,25 @@ export default class WorkSpaceControl {
    * @param {*} event
    */
   onElementDragStart (el, event) {
-    const beforeRect = el.getBoundingClientRect()
-    // 计算位置
-    const rbcr = this.viewPortEl.getBoundingClientRect()
-    context.editorView.detachChildView(el.view)
-    context.services.outlinePanel.updateOutline()
-    this.viewPortEl.appendChild(el)
+    const config = el.view.config
 
-    el.view.updateStyleConfig({
-      position: 'absolute',
-      x: (beforeRect.x - rbcr.x) / this.zoom,
-      y: (beforeRect.y - rbcr.y) / this.zoom,
-      width: beforeRect.width / this.zoom,
-      height: beforeRect.height / this.zoom
-    })
+    if (config.parent) {
+      const beforeRect = el.getBoundingClientRect()
+      // 计算位置
+      const rbcr = this.viewPortEl.getBoundingClientRect()
+      el.view.detach()
+      // context.editorView.detachChildView(el.view)
+      context.services.outlinePanel.updateOutline()
+      this.viewPortEl.appendChild(el)
+
+      el.view.updateStyleConfig({
+        position: 'absolute',
+        x: (beforeRect.x - rbcr.x) / this.zoom,
+        y: (beforeRect.y - rbcr.y) / this.zoom,
+        width: beforeRect.width / this.zoom,
+        height: beforeRect.height / this.zoom
+      })
+    }
 
     this.checkDropTargetStatus({
       target: el,
