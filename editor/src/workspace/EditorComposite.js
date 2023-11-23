@@ -1,13 +1,13 @@
-import { CompositeView } from 'ridge-runtime'
-import EditorComponentView from './EditorComponentView.js'
+import { Composite } from 'ridge-runtime'
+import EditorElement from './EditorElement.js'
 import { nanoid } from '../utils/string'
 /**
  * Views Mount on Editor
  **/
-class EditorCompositeView extends CompositeView {
-  createComponentView (config, i) {
-    return new EditorComponentView({
-      compositeView: this,
+class EditorComposite extends Composite {
+  createElement (config, i) {
+    return new EditorElement({
+      composite: this,
       config,
       i
     })
@@ -177,11 +177,11 @@ class EditorCompositeView extends CompositeView {
   }
 
   /**
-  * Create Component Instance by defination
+  * 从定义创建组件
   * @param {Object} defination
   * @returns
   */
-  createView (definition) {
+  newElement (definition) {
     // 生成组件定义
     const elementConfig = {
       title: definition.title,
@@ -199,15 +199,16 @@ class EditorCompositeView extends CompositeView {
       events: {}
     }
 
-    const view = new EditorComponentView({
-      definition,
+    const element = new EditorElement({
       config: elementConfig,
-      compositeView: this,
-      i: Object.entries(this.componentViews).length + 1
+      composite: this,
+      i: this.getRootNodes().length
     })
-    view.initPropsOnCreate()
-    this.componentViews[view.config.id] = view
-    return view
+    element.load().then(() => {
+      element.initPropsOnCreate()
+      this.nodes[element.config.id] = element
+    })
+    return element
   }
 
   unmount () {
@@ -219,14 +220,32 @@ class EditorCompositeView extends CompositeView {
   /**
    * 删除节点
    **/
-  deleteElementView (view) {
-    if (view) {
-      for (const id of view.config.children || []) {
-        this.deleteElementView(this.getComponentView(id))
+  removeChild (node) {
+    if (node) {
+      for (const id of node.config.children || []) {
+        this.removeChild(this.getNode(id))
       }
-      view.unmount()
-      delete this.componentViews[view.config.id]
+      delete this.nodes[node.config.id]
     }
+  }
+
+  /**
+   * 子节点排序
+   **/
+  updateChildOrder (orders) {
+    for (let i = 0; i < orders.length; i++) {
+      const target = this.getComponentView(orders[i])
+      target.setRootIndex(i)
+      // target.i = i
+      // target.updateStyle()
+    }
+  }
+
+  appendChild (view) {
+    this.el.appendChild(view.el)
+    view.config.parent = null
+    view.setRootIndex(this.getRootComponentViews().length)
+    view.updateStyle()
   }
 
   /**
@@ -249,28 +268,13 @@ class EditorCompositeView extends CompositeView {
   //   delete view.config.parent
   // }
 
-  /**
-   * 重新排序子节点
-   **/
-  updateChildOrder (containerView, orders) {
-    if (containerView) {
-      containerView.invoke('updateOrder', [orders])
-      containerView.updateConfig({
-        props: {
-          children: orders
-        }
-      })
-      // containerView.updateChildren
-    }
-  }
-
   exportPageJSON () {
     this.config.elements = []
-    for (const componentView of Object.values(this.componentViews).sort((a, b) => a.i - b.i)) {
-      this.config.elements.push(componentView.exportJSON())
+    for (const node of this.getNodes().sort((a, b) => a.i - b.i)) {
+      this.config.elements.push(node.exportJSON())
     }
     return JSON.parse(JSON.stringify(this.config))
   }
 }
 
-export default EditorCompositeView
+export default EditorComposite

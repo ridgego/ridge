@@ -1,19 +1,14 @@
-import ValtioStore from './ValtioStore'
-import ComponentView from './ComponentView'
-import ElementView from './ElementView'
+import ValtioStore from '../store/ValtioStore'
+import Element from './Element'
+import BaseNode from './BaseNode'
 import { nanoid } from '../utils/string'
 import Debug from 'debug'
 const debug = Debug('ridge:manager')
 
 /**
- * A Composite View Component which contains many other ComponentView/CompositeView
- * Could be:
- * A Web Page
- * A Frame in Web Page
- * A Composite UI Component in Frame Or Page
- * Composite View is actully a front UI component like React/Vue, And it has properties/states, and can emit outlet events
- * */
-class CompositeView extends ElementView {
+ * 包含多个元素的组合型元素
+ **/
+class Composite extends BaseNode {
   constructor ({
     el,
     config,
@@ -25,15 +20,30 @@ class CompositeView extends ElementView {
     this.context = context
     this.el = el
     this.jsModules = []
+    this.nodes = {}
     this.initialize()
   }
 
-  getComponentViews () {
-    return this.componentViews
+  // 预加载所有组件
+  async load () {
+    const promises = []
+    await Promise.allSettled(promises)
+    for (const node of Object.values(this.nodes)) {
+      promises.push(await node.load())
+    }
+    await Promise.allSettled(promises)
   }
 
-  getComponentView (id) {
-    return this.componentViews[id]
+  getNodes () {
+    return Object.values(this.nodes)
+  }
+
+  getRootNodes () {
+    return Object.values(this.nodes).filter(e => e.isRoot())
+  }
+
+  getNode (id) {
+    return this.nodes[id]
   }
 
   /**
@@ -42,22 +52,21 @@ class CompositeView extends ElementView {
    */
   initialize () {
     debug('Ridge Composite initialize:', this.config)
-    this.componentViews = {}
     // 根节点的排序号
     let rootIndex = 0
     for (let i = 0; i < this.config.elements.length; i++) {
-      const view = this.createComponentView(this.config.elements[i])
-      if (view.isRoot()) {
-        view.setRootIndex(rootIndex)
+      const node = this.createElement(this.config.elements[i])
+      if (node.isRoot()) {
+        node.setRootIndex(rootIndex)
         rootIndex++
       }
-      this.componentViews[view.getId()] = view
+      this.nodes[node.getId()] = node
     }
   }
 
-  createComponentView (config) {
-    return new ComponentView({
-      compositeView: this,
+  createElement (config) {
+    return new Element({
+      composite: this,
       config
     })
   }
@@ -66,29 +75,31 @@ class CompositeView extends ElementView {
    * Load & Mount on HTMLElement
    * @param {Element} el root element
    */
-  async loadAndMount (el) {
+  async mount (el) {
     if (el) {
       this.el = el
     }
     this.updateStyle()
+    this.onPageMounted && this.onPageMounted()
+
     await this.importStyleFiles()
     await this.importJSFiles()
     await this.loadStore()
 
     const promises = []
-    for (const view of Object.values(this.componentViews).filter(e => e.isRoot())) {
+    for (const node of Object.values(this.nodes).filter(e => e.isRoot())) {
       const div = document.createElement('div')
-      el.appendChild(div)
-      promises.push(await view.loadAndMount(div))
+      this.el.appendChild(div)
+      promises.push(await node.mount(div))
     }
-    this.onPageMounted && this.onPageMounted()
+
     await Promise.allSettled(promises)
     this.onPageLoaded && this.onPageLoaded()
   }
 
   unmount () {
-    for (const view of Object.values(this.componentViews).filter(e => e.isRoot())) {
-      view.unmount()
+    for (const node of Object.values(this.nodes).filter(e => e.isRoot())) {
+      node.unmount()
     }
   }
 
@@ -161,4 +172,4 @@ class CompositeView extends ElementView {
   }
 }
 
-export default CompositeView
+export default Composite

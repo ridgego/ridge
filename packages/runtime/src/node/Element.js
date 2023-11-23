@@ -1,20 +1,19 @@
 import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
-import ElementView from './ElementView'
-const log = debug('ridge:component')
+import BaseNode from './BaseNode.js'
+const log = debug('ridge:element')
 
-class ComponentView extends ElementView {
+class Element extends BaseNode {
   constructor ({
     config,
-    compositeView
+    composite
   }) {
     super()
     this.config = config
-    this.compositeView = compositeView
-
+    this.composite = composite
     this.properties = {}
-    this.eventProperties = {}
+    this.events = {}
   }
 
   isRoot () {
@@ -33,9 +32,10 @@ class ComponentView extends ElementView {
   }
 
   getProperties () {
-    return Object.assign({}, this.properties, this.eventProperties, {
-      __compositeView: this.compositeView,
-      __view: this
+    return Object.assign({}, this.config.props, this.events, this.properties, {
+      __composite: this.composite,
+      __view: this,
+      __isRuntime: true
     })
   }
 
@@ -47,16 +47,16 @@ class ComponentView extends ElementView {
     return this.el
   }
 
-  getContainerView () {
+  getParent () {
     if (this.config.parent) {
-      return this.compositeView.getComponentView(this.config.parent)
+      return this.composite.getNode(this.config.parent)
     }
     return null
   }
 
   getScopedData () {
-    const containerView = this.getContainerView()
-    const parentScopes = containerView ? containerView.getScopedData() : []
+    const parent = this.getParent()
+    const parentScopes = parent ? parent.getScopedData() : []
 
     if (this.scopedData == null) {
       return parentScopes
@@ -69,124 +69,97 @@ class ComponentView extends ElementView {
     this.scopedData = scopedData
   }
 
-  async loadAndMount (el, scopedData) {
-    this.el = el
-    this.setScopedData(scopedData)
-    this.updateConnectedStyle()
-    this.updateStyle()
-    if (!this.preloaded) {
-      await this.preload()
-    }
-
-    if (this.componentDefinition) {
-      this.initialize()
-      this.mount()
-    }
-  }
-
   /**
    * 加载组件代码、按代码初始化属性
    * @param isDeep 是否随之加载子组件 默认不加载
    */
-  async preload (isDeep) {
+  async load () {
+    if (this.componentDefinition) {
+      return
+    }
     this.setStatus('loading')
-
     if (this.config.path) {
-      this.componentDefinition = await this.compositeView.context.loadComponent(this.config.path)
+      this.componentDefinition = await this.composite.context.loadComponent(this.config.path)
     }
-
-    if (isDeep) {
-      const loadPromises = []
-      this.forEachChildren((childView) => {
-        loadPromises.push(childView.preload(true))
-      })
-      await Promise.allSettled(loadPromises)
-    }
-
     if (!this.componentDefinition) {
       this.setStatus('not-found')
-    }
-  }
-
-  async loadComponentDefinition () {
-    // 加载组件定义信息
-    if (this.componentPath) {
-      const componentDefinition = await this.pageManager.ridge.loadComponent(this.componentPath)
-      return componentDefinition
     } else {
-      return null
+      this.removeStatus('loading')
     }
   }
 
   /**
      * 执行组件初次加载 mount到具体DOM元素
      */
-  mount (el) {
-    if (el) {
-      this.el = el
+  async mount (el) {
+    if (!el) {
+      console.error('Mount Error: No Element')
+      return
     }
+    this.el = el
+    this.el.ridgeNode = this
     this.el.classList.add('ridge-element')
     this.el.setAttribute('component', this.config.path)
     this.el.setAttribute('ridge-id', this.config.id)
 
-    this.el.view = this
     this.style = Object.assign({}, this.config.style)
 
-    if (this.isContainer) {
+    if (this.config.props.children != null) {
+      this.isContainer = true
       this.el.classList.add('ridge-container')
     }
+
+    this.updateStyle()
     this.updateConnectedStyle()
     this.updateConnectedProperties()
 
-    this.renderer = this.createRenderer()
+    this.initializeEvents()
+    this.initSubscription()
 
+    if (!this.componentDefinition) {
+      await this.load()
+    }
+
+    this.renderer = this.createRenderer()
     this.mounted && this.mounted()
   }
 
   /**
    * 初始化组件属性、事件
    */
-  initialize () {
-    for (const prop of this.componentDefinition.props || []) {
-      if (!prop) continue
-      if (prop.name === 'value') {
-        this.eventProperties.input = val => {
-          this.emit('input', val)
-        }
-      }
-      // same as value
-      if (prop.input === true) {
-        // input相当于v-model，只能设置到一个属性上面
-        const eventName = 'set' + prop.name.substr(0, 1).toUpperCase() + prop.name.substr(1)
-
-        // 当双向绑定时， 获取动态绑定部分配置的属性值
-        this.eventProperties[eventName] = val => {
-          this.emit(eventName, val)
-        }
-      }
-      if (prop.type === 'children') {
-        this.isContainer = true
-      }
-      if (this.config.props[prop.name] != null) {
-        this.properties[prop.name] = this.config.props[prop.name]
-      }
-    }
-    // 事件类属性写入，DOM初始化后事件才能挂到源头
-    for (const event of this.componentDefinition.events || []) {
-      this.eventProperties[event.name] = (...args) => {
-        this.emit(event.name, args)
+  initializeEvents () {
+    // 属性名为value并且与state连接时， 增加 input 事件，事件传值回写到state
+    if (this.config.propEx.value) {
+      this.events.input = val => {
+        this.composite.store.dispatchChange(this.config.propEx.value, [val])
       }
     }
 
+    for (const [eventName, actions] of Object.entries(this.config.events)) {
+      this.events[eventName] = (...payload) => {
+        for (const action of actions) {
+          if (action.store && action.method) {
+            this.composite.store.doStoreAction(action.store, action.method, [...payload, action.payload, ...this.getScopedData()])
+          }
+        }
+      }
+    }
+  }
+
+  initSubscription () {
     // subscribe for update
     new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
-      this.compositeView.store?.subscribe && this.compositeView.store.subscribe(expr, () => {
+      this.composite.store?.subscribe && this.composite.store.subscribe(expr, () => {
         this.forceUpdate()
       })
     })
   }
 
   createRenderer () {
+    if (this.componentDefinition == null) {
+      this.setStatus('load-error')
+      return null
+    }
     try {
       if (this.componentDefinition.type === 'vanilla') {
         const render = new VanillaRender(this.componentDefinition.component, this.getProperties())
@@ -239,18 +212,18 @@ class ComponentView extends ElementView {
 
   // 计算随变量绑定的样式
   updateConnectedStyle () {
-    if (!this.compositeView.store) return
+    if (!this.composite.store) return
 
     for (const styleName of Object.keys(this.config.styleEx || {})) {
       if (this.config.styleEx[styleName] == null || this.config.styleEx[styleName] === '') {
         continue
       }
-      this.style[styleName] = this.compositeView.store.getStoreValue(this.config.styleEx[styleName], this.getScopedData())
+      this.style[styleName] = this.composite.store.getStoreValue(this.config.styleEx[styleName], this.getScopedData())
     }
   }
 
   /**
-   *  Update the style of mounted Element. Include:
+   *  更新组件包装层样式
    *  Positioning/zIndex
    **/
   updateStyle () {
@@ -264,12 +237,10 @@ class ComponentView extends ElementView {
         this.el.classList.add('is-hidden')
       }
     }
-    const containerView = this.getContainerView()
-    if (containerView) {
-    // delegate to container
-      containerView.invoke('updateChildStyle', [this])
+    const parent = this.getParent()
+    if (parent) {
+      parent.invoke('updateChildStyle', [this])
     } else {
-      // update position and index
       const style = {}
       if (this.el) {
         if (configStyle.full) {
@@ -296,13 +267,13 @@ class ComponentView extends ElementView {
    * 计算所有表达式值
    */
   updateConnectedProperties () {
-    if (!this.compositeView.store) return
+    if (!this.composite.store) return
     for (const [key, value] of Object.entries(this.config.propEx)) {
       if (value == null || value === '') {
         continue
       }
       try {
-        this.properties[key] = this.compositeView.store.getStoreValue(value, this.getScopedData())
+        this.properties[key] = this.composite.store.getStoreValue(value, this.getScopedData())
       } catch (e) {
         // if error, the properties won't change
         console.error('get Store Value Error: ', e)
@@ -311,12 +282,12 @@ class ComponentView extends ElementView {
   }
 
   emit (eventName, payload) {
-    if (!this.compositeView.store) return
+    if (!this.composite.store) return
     log('Emit Event:', eventName, payload)
     if (eventName === 'input' && !this.config.events[eventName]) {
       // 处理双向绑定的情况
       if (this.config.propEx.value) {
-        this.compositeView.store.dispatchChange(this.config.propEx.value, [payload, ...this.getScopedData()])
+        this.composite.store.dispatchChange(this.config.propEx.value, [payload, ...this.getScopedData()])
       }
       return
     }
@@ -324,9 +295,17 @@ class ComponentView extends ElementView {
       // 处理input/value事件
       for (const action of this.config.events[eventName]) {
         if (action.store && action.method) {
-          this.compositeView.store.doStoreAction(action.store, action.method, [...payload, action.payload, ...this.getScopedData()])
+          this.composite.store.doStoreAction(action.store, action.method, [...payload, action.payload, ...this.getScopedData()])
         }
       }
+    }
+  }
+
+  getChildNodes () {
+    if (this.config.props.children) {
+      return this.config.props.children.map(id => this.composite.getNode(id)).filter(t => t)
+    } else {
+      return null
     }
   }
 
@@ -334,15 +313,13 @@ class ComponentView extends ElementView {
    * 作为循环渲染时，复制列表项模板处理
    **/
   clone () {
-    const cloned = new ComponentView({
-      compositeView: this.compositeView,
+    const cloned = new Element({
+      composite: this.composite,
+      componentDefinition: this.componentDefinition,
       config: this.config
     })
 
     if (this.componentDefinition) {
-      cloned.componentDefinition = this.componentDefinition
-      cloned.preloaded = true
-
       // 复制每个子节点
       this.forEachChildren((view, type, propName, index) => {
         const clonedChild = view.clone()
@@ -362,41 +339,6 @@ class ComponentView extends ElementView {
     }
     return cloned
   }
-
-  /**
-   * 枚举每个子节点
-   * @param {*} cb
-   */
-  /*
-  forEachChildren (cb) {
-    // 递归处理子节点树
-    if (this.componentDefinition == null) {
-      return
-    }
-    const childProps = this.componentDefinition.props.filter(p => p.type === 'children')
-    if (childProps.length) {
-      for (const childProp of childProps) {
-        if (this.config.props[childProp.name] && this.config.props[childProp.name].length) {
-          for (let i = 0; i < this.config.props[childProp.name].length; i++) {
-            if (this.config.props[childProp.name][i]) {
-              cb(this.compositeView.getComponentView(this.config.props[childProp.name][i]), 'children', childProp.name, i)
-            }
-          }
-        }
-      }
-    }
-
-    // 递归处理插槽节点
-    const slotProps = this.componentDefinition.props.filter(p => p.type === 'slot')
-    if (slotProps.length) {
-      for (const childProp of slotProps) {
-        if (this.config.props[childProp.name]) {
-          cb(this.compositeView.getComponentView(this.config.props[childProp.name]), 'slot', childProp.name)
-        }
-      }
-    }
-  }
-  */
 
   invoke (method, args) {
     if (this.renderer) {
@@ -424,4 +366,4 @@ class ComponentView extends ElementView {
   }
 }
 
-export default ComponentView
+export default Element

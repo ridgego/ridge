@@ -153,7 +153,7 @@ export default class WorkSpaceControl {
       if (this.workspaceMovable.dragWorkSpace) {
         return
       }
-      const config = ev.target.view.config
+      const config = ev.target.ridgeNode.config
       sm.onElementDragStart(ev.target, ev.inputEvent)
 
       // if (config.parent) {
@@ -196,7 +196,7 @@ export default class WorkSpaceControl {
       if (delta[1]) {
         style.height = height
       }
-      context.updateComponentStyle(target.view, style)
+      context.updateComponentStyle(target.ridgeNode, style)
     })
 
     this.moveable.on('resizeEnd', ({
@@ -216,7 +216,7 @@ export default class WorkSpaceControl {
         target,
         transform
       }) => {
-        if (!target.view.config.parent) {
+        if (!target.ridgeNode.config.parent) {
           target.style.transform = transform
         }
       })
@@ -224,7 +224,7 @@ export default class WorkSpaceControl {
     this.moveable.on('dragGroupEnd', (payload) => {
       payload.events.forEach(({ target }) => {
         // TODO 目前仅支持根节点？？
-        if (!target.view.config.parent) {
+        if (!target.ridgeNode.config.parent) {
           const bcr = target.getBoundingClientRect()
           this.putElementToRoot(target, bcr.left + bcr.width / 2, bcr.top + bcr.height / 2)
         }
@@ -249,9 +249,9 @@ export default class WorkSpaceControl {
 
     this.moveable.on('resizeGroupEnd', payload => {
       payload.events.forEach(({ target }) => {
-        if (!target.view.config.parent) {
+        if (!target.ridgeNode.config.parent) {
           const bcr = target.getBoundingClientRect()
-          context.updateComponentConfig(target.view, {
+          context.updateComponentConfig(target.ridgeNode, {
             style: {
               x: bcr.left + bcr.width / 2,
               y: bcr.top + bcr.height / 2
@@ -417,8 +417,8 @@ export default class WorkSpaceControl {
 
     if (context.draggingComponent) {
       const div = document.createElement('div')
-      const view = context.editorView.createView(context.draggingComponent)
-      view.loadAndMount(div)
+      const ridgeNode = context.editorView.newElement(context.draggingComponent)
+      ridgeNode.mount(div)
       this.placeElementAt(div, ev.pageX, ev.pageY)
       context.draggingComponent = null
     }
@@ -450,8 +450,8 @@ export default class WorkSpaceControl {
       x,
       y
     }, false)
-    const sourceView = el.view
-    const targetParentView = targetEl ? targetEl.view : null
+    const sourceView = el.ridgeNode
+    const targetParentView = targetEl ? targetEl.ridgeNode : null
     if (targetParentView) {
       // 放入一个容器
       trace('Into container', targetParentView)
@@ -478,13 +478,13 @@ export default class WorkSpaceControl {
     const bcr = el.getBoundingClientRect()
     if (x == null || y == null || (x > bcr.x && x < (bcr.x + bcr.width) && y > bcr.y && y < (bcr.y + bcr.height))) {
       // 计算位置
-      el.view.updateStyleConfig({
+      el.ridgeNode.updateStyleConfig({
         x: Math.floor((bcr.x - rbcr.x) / this.zoom),
         y: Math.floor((bcr.y - rbcr.y) / this.zoom)
       })
     } else {
       // 计算位置
-      el.view.updateStyleConfig({
+      el.ridgeNode.updateStyleConfig({
         x: Math.floor((x - rbcr.x - bcr.width / 2) / this.zoom),
         y: Math.floor((y - rbcr.y - bcr.height / 2) / this.zoom)
       })
@@ -498,18 +498,18 @@ export default class WorkSpaceControl {
    * @param {*} event
    */
   onElementDragStart (el, event) {
-    const config = el.view.config
+    const config = el.ridgeNode.config
 
     if (config.parent) {
       const beforeRect = el.getBoundingClientRect()
       // 计算位置
       const rbcr = this.viewPortEl.getBoundingClientRect()
-      el.view.detach()
+      el.ridgeNode.detach()
       // context.editorView.detachChildView(el.view)
       context.services.outlinePanel.updateOutline()
       this.viewPortEl.appendChild(el)
 
-      el.view.updateStyleConfig({
+      el.ridgeNode.updateStyleConfig({
         position: 'absolute',
         x: (beforeRect.x - rbcr.x) / this.zoom,
         y: (beforeRect.y - rbcr.y) / this.zoom,
@@ -532,6 +532,10 @@ export default class WorkSpaceControl {
    */
   selectElements (elements, disableClickThrough) {
     this.disableClickThrough = false
+
+    document.querySelectorAll('.ridge-element.selected').forEach(el => {
+      el.classList.remove('selected')
+    })
     const filtered = elements.filter(el => !el.classList.contains('is-hidden'))
     // 单选支持选中并设置为不可resize/move
     if (filtered.length === 1) {
@@ -542,6 +546,10 @@ export default class WorkSpaceControl {
       }
       this.disableClickThrough = disableClickThrough
       this.selected = filtered
+
+      filtered.forEach(el => {
+        el.classList.add('selected')
+      })
       this.moveable.target = filtered
     } else {
       this.moveable.resizable = true
@@ -581,7 +589,7 @@ export default class WorkSpaceControl {
       droppableElements = droppableElements.concat(Array.from(document.querySelectorAll(selector)))
     }
     const filtered = Array.from(droppableElements).filter(el => {
-      if (!el.view) return false
+      if (!el.ridgeNode) return false
       const { x, y, width, height } = el.getBoundingClientRect()
       // Exclude: droppables in the dragging element
       // 容器判断 isDroppable为false
@@ -623,14 +631,14 @@ export default class WorkSpaceControl {
     // 拖拽更新位置
     if (updateDragOver) {
       try {
-        target && target.view && target.view.invoke('onDragOver', dragEl ? [dragEl.view || {}] : [pointPos])
+        target && target.ridgeNode && target.ridgeNode.invoke('onDragOver', dragEl ? [dragEl.ridgeNode || {}] : [pointPos])
       } catch (e) {
         console.error('Container dragOver Error', target)
       }
 
       droppableElements.forEach(el => {
         if (el !== target) {
-          el.view && el.view.invoke('onDragOut')
+          el.ridgeNode && el.ridgeNode.invoke('onDragOut')
         }
       })
     }
@@ -674,9 +682,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('right', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          const view = context.getComponentView(el)
-          view.updateStyleConfig({
-            x: view.config.style.x + 1
+          const ridgeNode = context.getNode(el)
+          ridgeNode.updateStyleConfig({
+            x: ridgeNode.config.style.x + 1
           })
         }
         this.moveable.updateTarget()
@@ -686,9 +694,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('left', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          const view = context.getComponentView(el)
-          view.updateStyleConfig({
-            x: view.config.style.x - 1
+          const ridgeNode = context.getNode(el)
+          ridgeNode.updateStyleConfig({
+            x: ridgeNode.config.style.x - 1
           })
         }
         this.moveable.updateTarget()
@@ -697,9 +705,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('up', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          const view = context.getComponentView(el)
-          view.updateStyleConfig({
-            x: view.config.style.y - 1
+          const ridgeNode = context.getNode(el)
+          ridgeNode.updateStyleConfig({
+            x: ridgeNode.config.style.y - 1
           })
         }
         this.moveable.updateTarget()
@@ -708,9 +716,9 @@ export default class WorkSpaceControl {
     Mousetrap.bind('down', () => {
       if (this.selected) {
         for (const el of this.selected) {
-          const view = context.getComponentView(el)
-          view.updateStyleConfig({
-            x: view.config.style.y + 1
+          const ridgeNode = context.getNode(el)
+          ridgeNode.updateStyleConfig({
+            x: ridgeNode.config.style.y + 1
           })
         }
         this.moveable.updateTarget()
@@ -722,8 +730,8 @@ export default class WorkSpaceControl {
         this.copied = this.selected
 
         this.copied.forEach(el => {
-          el.dataset.copy_x = el.view.config.style.x
-          el.dataset.copy_y = el.view.config.style.y
+          el.dataset.copy_x = el.ridgeNode.config.style.x
+          el.dataset.copy_y = el.ridgeNode.config.style.y
         })
       } else {
         this.copied = []
@@ -733,7 +741,7 @@ export default class WorkSpaceControl {
     Mousetrap.bind('ctrl+v', () => {
       if (this.copied && this.copied.length) {
         for (const el of this.copied) {
-          const newView = el.view.clone(context.editorView)
+          const newView = el.ridgeNode.clone(context.editorView)
           const div = document.createElement('div')
           newView.loadAndMount(div).then(() => {
             let parentWrapper = null

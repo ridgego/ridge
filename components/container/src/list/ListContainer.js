@@ -2,30 +2,10 @@ import BaseContainer from '../BaseContainer.js'
 
 export default class ListContainer extends BaseContainer {
   async mounted () {
-    if (this.props.children && this.props.children.length === 1) {
-      this.itemTemplateView = this.compositeView.getComponentView(this.props.renderItem)
-
-      if (!this.view.isEditor) {
-        this.containerEl.removeChild(this.itemTemplateView.el)
-        this.renderUpdateListItems()
-      }
+    if (this.isRuntime) {
+      this.unmountChildren()
+      this.renderUpdateListItems()
     }
-    // if (this.props.renderItem) {
-    //   this.itemTemplateView = this.compositeView.getComponentView(this.props.renderItem)
-    //   await this.itemTemplateView.preload()
-    //   // await this.props.renderItem.preload(true)
-    //   // this.props.renderItem.initPropsAndEvents()
-    // }
-    // if (this.view) {
-    //   // 编辑时
-    //   if (this.itemTemplateView) {
-    //     const renderEl = document.createElement('div')
-    //     this.containerEl.appendChild(renderEl)
-    //     this.itemTemplateView.loadAndMount(renderEl)
-    //   }
-    // } else {
-    //   this.renderUpdateListItems()
-    // }
   }
 
   getContainerStyle () {

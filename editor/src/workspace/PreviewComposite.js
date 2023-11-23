@@ -1,11 +1,11 @@
-import { ValtioStore, ComponentView } from 'ridge-runtime'
-import EditorCompositeView from './EditorCompositeView.js'
+import { ValtioStore, Element } from 'ridge-runtime'
+import EditorComposite from './EditorComposite.js'
 /**
  * Composite Preview on Editor
  **/
-class PreviewCompositeView extends EditorCompositeView {
-  createComponentView (config, i) {
-    return new ComponentView({
+class PreviewComposite extends EditorComposite {
+  createElement (config, i) {
+    return new Element({
       compositeView: this,
       config,
       i
@@ -35,4 +35,4 @@ class PreviewCompositeView extends EditorCompositeView {
   }
 }
 
-export default PreviewCompositeView
+export default PreviewComposite

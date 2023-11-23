@@ -48,7 +48,8 @@ export default {
     value: '1px solid #ddd'
   }, {
     name: 'children',
-    type: 'children'
+    type: 'children',
+    slot: ['item']
   }, {
     name: 'classNames',
     label: '样式',

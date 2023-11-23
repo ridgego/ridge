@@ -1,13 +1,21 @@
-import { ComponentView } from 'ridge-runtime'
+import { Element } from 'ridge-runtime'
 import _ from 'lodash'
 
-class EditorComponentView extends ComponentView {
+class EditorElement extends Element {
   constructor (config) {
     super(config)
     if (config.definition) {
       this.preloaded = true
       this.componentDefinition = config.definition
     }
+  }
+
+  getProperties () {
+    return Object.assign({}, this.config.props, {
+      __composite: this.composite,
+      __view: this,
+      __isRuntime: false
+    })
   }
 
   mounted () {
@@ -45,14 +53,6 @@ class EditorComponentView extends ComponentView {
       child.config.parent = this.config.id
 
       this.updateChildConfig(result)
-    }
-  }
-
-  getChildrenView () {
-    if (this.config.props.children) {
-      return this.config.props.children.map(id => this.compositeView.getComponentView(id)).filter(t => t)
-    } else {
-      return null
     }
   }
 
@@ -97,11 +97,9 @@ class EditorComponentView extends ComponentView {
     this.updateProps()
   }
 
-  onSelected () {
-    this.invoke('onSelected')
-    if (this.containerView) {
-      this.containerView.invoke('onChildSelected', [this])
-    }
+  updateChildOrder (orders) {
+    const children = this.invoke('updateOrder', [orders])
+    this.updateChildConfig(children)
   }
 
   exportJSON () {
@@ -109,4 +107,4 @@ class EditorComponentView extends ComponentView {
   }
 }
 
-export default EditorComponentView
+export default EditorElement

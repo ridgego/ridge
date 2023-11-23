@@ -2,7 +2,7 @@ import './style.css'
 import './normalize.css'
 
 import ComponentLoader from './loader/ComponentLoader.js'
-import CompositeView from './view/CompositeView.js'
+import Composite from './node/Composite.js'
 import ky from 'ky'
 
 const VERSION = '1.1.0'
@@ -15,7 +15,7 @@ class RidgeContext {
     this.VERSION = VERSION
     this.ky = ky
     this.baseUrl = baseUrl
- 
+
     // this.loadScript = this.loader.loadScript
     this.services = {
       loader: new ComponentLoader({
@@ -41,7 +41,7 @@ class RidgeContext {
 
   unDelegateMethods (target, methods, source = this) {
     for (const method of methods) {
-        delete source[method]
+       delete source[method]
     }
   }
 
@@ -63,7 +63,7 @@ class RidgeContext {
    * @returns
    */
   loadPage (el, pageConfig, mode, app) {
-    const pageManager = new CompositeView({ pageConfig: JSON.parse(JSON.stringify(pageConfig)), ridge: this, mode, app })
+    const pageManager = new Composite({ pageConfig: JSON.parse(JSON.stringify(pageConfig)), ridge: this, mode, app })
     pageManager.loadAndMount(el || document.body)
     return pageManager
   }

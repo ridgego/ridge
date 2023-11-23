@@ -63,7 +63,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
 
         const targetFiles = await promiseGlob(ridgeConfig.pattern ?? './src/**/*.d.js');
         if (targetFiles.length === 0) {
-            log(chalk.green('未找到图元 ' + ridgeConfig.pattern ?? './src/**/*.d.js'));
+            log(chalk.green('未找到 ' + ridgeConfig.pattern ?? './src/**/*.d.js'));
         }
         
         log(chalk.green('编译打包以下图元文件:'));
@@ -149,9 +149,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
 
         // 这里依赖到 ridge-externals， 这就需要编译前端组件的项目能随时更新到最新的external配置。
         // 另外的办法是在此获取web api的配置，但是缺点是无版本追踪
-        log(chalk.green('以下依赖不加入组件包'));
         for (const external of webpackExternals.externals) {
-            log(chalk.green(external.module));
             externals[external.module] = external.root || external.module;
         }
 

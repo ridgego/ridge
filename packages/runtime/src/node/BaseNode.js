@@ -1,29 +1,19 @@
 /**
  * The Interface extends by each Ridge Element
  * Includes:
- * ElementView <-- ComponentView <-- EditorComponentView
- *             <-- CompositeView <-- EditorCompositeView
+ * BaseNode <-- Component <-- EditorComponent
+ *          <-- Composite <-- EditorComposite
  *
  *
  **/
-class ElementView {
-  initialize () {}
-
-  async loadAndMount (el) {}
-
-  async preload () {}
-
-  mount (el) {}
-
-  updateStyle (styles) {}
-
+class BaseNode {
+  async load () {}
+  async mount (el) {}
   updateProps (props) {}
 
   unmount () {}
-
-  appendChild () {}
-
-  removeChild () {}
+  appendChild (node) {}
+  removeChild (node) {}
 
   /**
    * 设置渲染区域提示信息
@@ -69,4 +59,4 @@ class ElementView {
   }
 }
 
-export default ElementView
+export default BaseNode

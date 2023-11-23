@@ -1,12 +1,12 @@
 /* global location */
 /* global localStorage */
 import Debug from 'debug'
-import RidgeContext, { ComponentView, CompositeView } from 'ridge-runtime'
+import RidgeContext, { Element } from 'ridge-runtime'
 import ApplicationService from './ApplicationService.js'
 import WorkSpaceControl from '../workspace/WorkspaceControl.js'
 
-import EditorCompositeView from '../workspace/EditorCompositeView.js'
-import PreviewCompositeView from '../workspace/PreviewCompositeView.js'
+import EditorComposite from '../workspace/EditorComposite.js'
+import PreviewComposite from '../workspace/PreviewComposite.js'
 
 const debug = Debug('ridge:editor')
 
@@ -52,18 +52,18 @@ class RidgeEditorContext extends RidgeContext {
   /**
    *  Utils Methods
    **/
-  // Check && Guess ComponentView
-  getComponentView (prm) {
-    if (prm instanceof ComponentView) {
+  // Check && Guess Element
+  getNode (prm) {
+    if (prm instanceof Element) {
       return prm
     } else if (typeof prm === 'string') {
       if (this.editorView) {
-        return this.editorView.getComponentView(prm)
+        return this.editorView.getNode(prm)
       } else if (this.runtimeView) {
-        return this.runtimeView.getComponentView(prm)
+        return this.runtimeView.getNode(prm)
       }
     } else if (prm instanceof Node) {
-      return prm.view
+      return prm.ridgeNode
     }
     return null
   }
@@ -131,37 +131,40 @@ class RidgeEditorContext extends RidgeContext {
   }
 
   /**
-   * Load page to current editor view, enable workspace control and edit panels
+   * 加载页面到编辑器工作区间
    **/
   async loadPage (page) {
+    const { configPanel, outlinePanel, menuBar } = this.services
     if (page) {
       this.pageContent = page.content
     }
     if (this.editorView) {
-      await this.saveCurrentPage()
+      // await this.saveCurrentPage()
       this.editorView.unmount()
     }
 
-    this.editorView = new EditorCompositeView({
-      config: this.pageContent,
+    this.editorView = new EditorComposite({
       el: this.viewPortContainerEl,
+      config: this.pageContent,
       context: this
     })
 
     this.editorView.updateStyle()
+
     if (!this.workspaceControl.enabled) {
       this.workspaceControl.enable()
     }
-
     const zoom = this.workspaceControl.fitToCenter()
-    this.Editor.togglePageEdit()
-    await this.editorView.loadAndMount(this.viewPortContainerEl)
-    const { configPanel, outlinePanel, menuBar } = this.services
     menuBar.setZoom(zoom)
-    configPanel.updatePageConfigFields()
-    outlinePanel.updateOutline()
 
-    this.workspaceControl.selectElements([])  
+    await this.editorView.load()
+    await this.editorView.mount()
+
+    this.Editor.togglePageEdit()
+    configPanel.updatePageConfigFields()
+    this.workspaceControl.selectElements([])
+
+    outlinePanel.updateOutline()
   }
 
   /**
@@ -169,7 +172,7 @@ class RidgeEditorContext extends RidgeContext {
    **/
   async loadPreview () {
     // load view
-    this.runtimeView = new PreviewCompositeView({
+    this.runtimeView = new PreviewComposite({
       config: this.pageContent,
       context: this
     })
@@ -216,22 +219,21 @@ class RidgeEditorContext extends RidgeContext {
    **/
   onElementSelected (element) {
     const { configPanel, outlinePanel } = this.services
-    const view = this.getComponentView(element)
-    if (view) {
-      configPanel.componentSelected(view)
-      outlinePanel.setCurrentNode(view)
-      view.onSelected()
+    const node = this.getNode(element)
+    if (node) {
+      configPanel.componentSelected(node)
+      outlinePanel.setCurrentNode(node)
     }
-    this.el = view
+    this.el = node
   }
 
   /**
    * 元素移除触发
    **/
   onElementRemoved (element) {
-    const view = this.getComponentView(element)
+    const view = this.getNode(element)
     if (view && this.editorView) {
-      this.editorView.deleteElementView(view)
+      this.editorView.removeChild(view)
     }
     const { outlinePanel } = this.services
     outlinePanel.updateOutline()
@@ -242,9 +244,9 @@ class RidgeEditorContext extends RidgeContext {
    **/
   onElementMoveEnd (element) {
     const { configPanel, outlinePanel } = this.services
-    const view = this.getComponentView(element)
-    if (view) {
-      configPanel.updateComponentConfig(view)
+    const node = this.getNode(element)
+    if (node) {
+      configPanel.updateComponentConfig(node)
       outlinePanel.updateOutline()
     }
   }
