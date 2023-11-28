@@ -57,8 +57,8 @@ class RidgeEditorContext extends RidgeContext {
     if (prm instanceof Element) {
       return prm
     } else if (typeof prm === 'string') {
-      if (this.editorView) {
-        return this.editorView.getNode(prm)
+      if (this.editorComposite) {
+        return this.editorComposite.getNode(prm)
       } else if (this.runtimeView) {
         return this.runtimeView.getNode(prm)
       }
@@ -98,9 +98,9 @@ class RidgeEditorContext extends RidgeContext {
    * Save current edit page
    */
   async saveCurrentPage () {
-    if (this.editorView) {
+    if (this.editorComposite) {
       const { appService } = this.services
-      const pageJSONObject = this.editorView.exportPageJSON()
+      const pageJSONObject = this.editorComposite.exportPageJSON()
 
       this.pageJSON = pageJSONObject
       debug('Save Page ', pageJSONObject)
@@ -138,18 +138,18 @@ class RidgeEditorContext extends RidgeContext {
     if (page) {
       this.pageContent = page.content
     }
-    if (this.editorView) {
+    if (this.editorComposite) {
       // await this.saveCurrentPage()
-      this.editorView.unmount()
+      this.editorComposite.unmount()
     }
 
-    this.editorView = new EditorComposite({
+    this.editorComposite = new EditorComposite({
       el: this.viewPortContainerEl,
       config: this.pageContent,
       context: this
     })
 
-    this.editorView.updateStyle()
+    this.editorComposite.updateStyle()
 
     if (!this.workspaceControl.enabled) {
       this.workspaceControl.enable()
@@ -157,8 +157,8 @@ class RidgeEditorContext extends RidgeContext {
     const zoom = this.workspaceControl.fitToCenter()
     menuBar.setZoom(zoom)
 
-    await this.editorView.load()
-    await this.editorView.mount()
+    await this.editorComposite.load()
+    await this.editorComposite.mount()
 
     this.Editor.togglePageEdit()
     configPanel.updatePageConfigFields()
@@ -172,17 +172,17 @@ class RidgeEditorContext extends RidgeContext {
    **/
   async loadPreview () {
     // load view
-    this.runtimeView = new PreviewComposite({
+    this.runtimeComposite = new PreviewComposite({
       config: this.pageContent,
       context: this
     })
-    await this.runtimeView.loadAndMount(this.viewPortContainerEl)
+    await this.runtimeComposite.loadAndMount(this.viewPortContainerEl)
 
     // toggle editor
     this.Editor.togglePagePreview()
 
     // update view port and fit
-    this.runtimeView.updateViewPort(this.pageContent.style.width, this.pageContent.style.height)
+    this.runtimeComposite.updateViewPort(this.pageContent.style.width, this.pageContent.style.height)
     const { previewBar } = this.services
     this.workspaceControl.fitToCenter()
 
@@ -194,7 +194,7 @@ class RidgeEditorContext extends RidgeContext {
   }
 
   updatePreviewSize (width, height) {
-    this.runtimeView.updateViewPort(width, height)
+    this.runtimeComposite.updateViewPort(width, height)
     this.workspaceControl.fitToCenter()
   }
 
@@ -203,7 +203,7 @@ class RidgeEditorContext extends RidgeContext {
    **/
   async toggleMode () {
     // Design -> Preview
-    if (this.editorView) {
+    if (this.editorComposite) {
       await this.saveCurrentPage()
       this.closeCurrentPage()
 
@@ -220,7 +220,9 @@ class RidgeEditorContext extends RidgeContext {
   onElementSelected (element) {
     const { configPanel, outlinePanel } = this.services
     const node = this.getNode(element)
+
     if (node) {
+      node.selected()
       configPanel.componentSelected(node)
       outlinePanel.setCurrentNode(node)
     }
@@ -232,8 +234,8 @@ class RidgeEditorContext extends RidgeContext {
    **/
   onElementRemoved (element) {
     const view = this.getNode(element)
-    if (view && this.editorView) {
-      this.editorView.removeChild(view)
+    if (view && this.editorComposite) {
+      this.editorComposite.removeChild(view)
     }
     const { outlinePanel } = this.services
     outlinePanel.updateOutline()
@@ -249,6 +251,10 @@ class RidgeEditorContext extends RidgeContext {
       configPanel.updateComponentConfig(node)
       outlinePanel.updateOutline()
     }
+  }
+
+  onElementCreated (element) {
+    
   }
 
   /**
@@ -284,16 +290,16 @@ class RidgeEditorContext extends RidgeContext {
   async onCodeEditComplete (id, code) {
     await this.services.appService.updateFileContent(id, code)
 
-    if (this.editorView) {
-      await this.editorView.refresh()
+    if (this.editorComposite) {
+      await this.editorComposite.refresh()
     }
   }
 
   closeCurrentPage () {
-    if (this.editorView) {
-      this.editorView.unmount()
+    if (this.editorComposite) {
+      this.editorComposite.unmount()
     }
-    this.editorView = null
+    this.editorComposite = null
     this.workspaceControl.disable()
     this.Editor.togglePageClose()
   }

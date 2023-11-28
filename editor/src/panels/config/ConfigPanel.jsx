@@ -215,7 +215,7 @@ export default class ComponentPanel extends React.Component {
   }
 
   updatePageConfigFields () {
-    const { editorView } = context
+    const { editorComposite } = context
     const { appService } = context.services
     this.setState({
       configPage: true,
@@ -250,7 +250,7 @@ export default class ComponentPanel extends React.Component {
         label: '样式库',
         control: 'select',
         placeholder: '请选择样式',
-        optionList: editorView.classNames.map(c => {
+        optionList: editorComposite.classNames.map(c => {
           return {
             label: c.label,
             value: c.className
@@ -261,7 +261,7 @@ export default class ComponentPanel extends React.Component {
       }]
     })
 
-    const { cssFiles, jsFiles, storeFiles, style, name } = editorView.config
+    const { cssFiles, jsFiles, storeFiles, style, name } = editorComposite.config
 
     this.pagePropFormApi.setValue('cssFiles', cssFiles, {
       notNotify: true
@@ -327,7 +327,7 @@ export default class ComponentPanel extends React.Component {
     }
 
     const pagePropValueChange = (values, field) => {
-      context.editorView.updatePageConfig(values)
+      context.editorComposite.updatePageConfig(values)
     }
 
     return (

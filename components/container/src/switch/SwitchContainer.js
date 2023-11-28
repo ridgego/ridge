@@ -18,18 +18,13 @@ export default class SwitchContainer extends BaseContainer {
    * 切换到显示某个内容元素, 当未加载时,执行加载和初始化动作
    */
   async toggleState (index) {
-    const { current, children } = this.props
+    const { current } = this.props
+    const childElements = this.getChildElements()
+
     let currentIndex = current == null ? 0 : current
-
-    if (currentIndex >= children.length) {
-      currentIndex = children.length - 1
-    }
-
     if (index != null) {
       currentIndex = index
     }
-
-    const childElements = this.getChildElements()
 
     for (let i = 0; i < childElements.length; i++) {
       if (i === currentIndex) {
@@ -40,13 +35,10 @@ export default class SwitchContainer extends BaseContainer {
     }
   }
 
-  /**
-   * 选择某个自节点后同时更新默认索引
-   */
-  onChildSelected (childView) {
+  childSelected (childEl) {
     const childElements = this.getChildElements()
 
-    this.toggleState(childElements.indexOf(childView.el))
+    this.toggleState(childElements.indexOf(childEl.el))
   }
 
   onChildRemoved () {
@@ -60,6 +52,7 @@ export default class SwitchContainer extends BaseContainer {
 
   updated () {
     this.toggleState()
+    this.containerEl.classList.add('switch-container')
   }
 
   getChildStyle (view) {

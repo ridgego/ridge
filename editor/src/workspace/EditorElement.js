@@ -4,9 +4,8 @@ import _ from 'lodash'
 class EditorElement extends Element {
   constructor (config) {
     super(config)
-    if (config.definition) {
-      this.preloaded = true
-      this.componentDefinition = config.definition
+    if (config.componentDefinition) {
+      this.componentDefinition = config.componentDefinition
     }
   }
 
@@ -26,7 +25,7 @@ class EditorElement extends Element {
    * 从自身父节点脱离
    **/
   detach () {
-    const parent = this.getContainerView()
+    const parent = this.getParent()
     if (parent) {
       parent.removeChild(this)
     }
@@ -44,9 +43,9 @@ class EditorElement extends Element {
     }
   }
 
-  appendChild (child, position = { x: 0, y: 0 }) {
+  appendChild (child) {
     // 这里容器会提供 appendChild 方法，并提供放置位置
-    const result = this.invoke('appendChild', [child, position.x, position.y])
+    const result = this.invoke('appendChild', [child])
 
     // 接受子节点
     if (result && result.indexOf(child.config.id) > -1) {
@@ -65,6 +64,9 @@ class EditorElement extends Element {
         if (!prop) continue
         if (prop.value != null) {
           this.config.props[prop.name] = prop.value
+        }
+        if (prop.type === 'children') {
+          this.config.props[prop.name] = []
         }
       }
     }
@@ -97,9 +99,19 @@ class EditorElement extends Element {
     this.updateProps()
   }
 
-  updateChildOrder (orders) {
-    const children = this.invoke('updateOrder', [orders])
+  updateChildList (orders) {
+    const children = this.invoke('updateChildList', [orders])
     this.updateChildConfig(children)
+  }
+
+  selected () {
+    this.invoke('selected')
+
+    const parent = this.getParent()
+
+    if (parent) {
+      parent.invoke('childSelected', [this])
+    }
   }
 
   exportJSON () {

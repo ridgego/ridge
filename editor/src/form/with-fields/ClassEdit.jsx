@@ -9,8 +9,8 @@ const ClassEdit = ({
   const [classNames, setClassNames] = useState([])
 
   useEffect(() => {
-    if (context.editorView) {
-      setClassNames(context.editorView.getClassNames().map(c => {
+    if (context.editorComposite) {
+      setClassNames(context.editorComposite.getClassNames().map(c => {
         return {
           label: c.label,
           value: c.className

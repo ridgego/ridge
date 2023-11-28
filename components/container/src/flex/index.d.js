@@ -57,7 +57,6 @@ export default {
     }],
     value: 'flex-start'
   }, {
-    label: '子元素',
     name: 'children',
     hidden: true,
     type: 'children'

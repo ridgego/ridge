@@ -82,6 +82,7 @@ export default class BaseContainer {
       child.unmount()
     }
   }
+
   /**
    * 增加子节点
    */
@@ -97,18 +98,18 @@ export default class BaseContainer {
   /**
    * 更新子节点次序
    **/
-  updateOrder (orders) {
+  updateChildList (orders) {
     for (const childId of this.props.children) {
-      const childView = this.compositeView.getComponentView(childId)
-      if (childView) {
-        this.containerEl.removeChild(childView.el)
+      const childNode = this.composite.getNode(childId)
+      if (childNode) {
+        this.containerEl.removeChild(childNode.el)
       }
     }
 
     for (let i = 0; i < orders.length; i++) {
-      const childView = this.compositeView.getComponentView(orders[i])
-      this.containerEl.appendChild(childView.el)
-      this.updateChildStyle(childView)
+      const childNode = this.composite.getNode(orders[i])
+      this.containerEl.appendChild(childNode.el)
+      this.updateChildStyle(childNode)
     }
     return orders
   }
@@ -177,12 +178,12 @@ export default class BaseContainer {
 
   getChildren () {
     return this.getChildElements().map(el => {
-      return el.view?.config?.id
+      return el.ridgeNode?.config?.id
     }).filter(e => e != null)
   }
 
   getChildElements () {
-    return Array.from(this.containerEl.childNodes).filter(el => el.classList.contains('ridge-element'))
+    return Array.from(this.containerEl.childNodes).filter(el => el.ridgeNode)
   }
 
   /**
@@ -197,11 +198,12 @@ export default class BaseContainer {
 
     this.containerEl.className = (this.props.classNames || []).join(' ')
 
+    // 联动更新所有子节点
     if (this.props.children) {
       for (const childId of this.props.children) {
-        const childView = this.compositeView.getComponentView(childId)
-        if (childView) {
-          childView.forceUpdate()
+        const childNode = this.composite.getNode(childId)
+        if (childNode) {
+          childNode.forceUpdate()
         }
       }
     }

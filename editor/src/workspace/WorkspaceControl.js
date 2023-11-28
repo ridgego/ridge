@@ -417,7 +417,8 @@ export default class WorkSpaceControl {
 
     if (context.draggingComponent) {
       const div = document.createElement('div')
-      const ridgeNode = context.editorView.newElement(context.draggingComponent)
+      const ridgeNode = context.editorComposite.createNewElement(context.draggingComponent)
+      context.onElementCreated(ridgeNode)
       ridgeNode.mount(div)
       this.placeElementAt(div, ev.pageX, ev.pageY)
       context.draggingComponent = null
@@ -456,10 +457,6 @@ export default class WorkSpaceControl {
       // 放入一个容器
       trace('Into container', targetParentView)
       targetParentView.appendChild(sourceView, { x, y })
-      // const result = context.editorView.appendChildView(sourceView, targetParentView, { x, y })
-      // if (result === false) {
-      //   this.putElementToRoot(el, x, y)
-      // }
     }
     context.onElementMoveEnd(el)
     this.moveable.updateTarget()
@@ -505,7 +502,7 @@ export default class WorkSpaceControl {
       // 计算位置
       const rbcr = this.viewPortEl.getBoundingClientRect()
       el.ridgeNode.detach()
-      // context.editorView.detachChildView(el.view)
+      // context.editorComposite.detachChildView(el.view)
       context.services.outlinePanel.updateOutline()
       this.viewPortEl.appendChild(el)
 
@@ -537,27 +534,8 @@ export default class WorkSpaceControl {
       el.classList.remove('selected')
     })
     const filtered = elements.filter(el => !el.classList.contains('is-hidden'))
-    // 单选支持选中并设置为不可resize/move
-    if (filtered.length === 1) {
-      if (filtered[0].classList.contains('is-locked') || filtered[0].classList.contains('is-full')) {
-        this.moveable.resizable = false
-      } else {
-        this.moveable.resizable = true
-      }
-      this.disableClickThrough = disableClickThrough
-      this.selected = filtered
 
-      filtered.forEach(el => {
-        el.classList.add('selected')
-      })
-      this.moveable.target = filtered
-    } else {
-      this.moveable.resizable = true
-      // 多选排除locked
-      this.selected = filtered.filter(el => !el.classList.contains('is-locked'))
-      this.moveable.target = filtered.filter(el => !el.classList.contains('is-locked'))
-    }
-
+    // 触发上下文选中 （可能会切换显隐）
     if (filtered && filtered.length === 1) {
       context.onElementSelected(filtered[0])
     } else {
@@ -567,6 +545,29 @@ export default class WorkSpaceControl {
 
     if (filtered) {
       context.selected = filtered
+    }
+
+    // 单选支持选中并设置为不可resize/move
+    if (filtered.length === 1) {
+      if (filtered[0].offsetParent /* 必须显示 */) {
+        if (filtered[0].classList.contains('is-locked') || filtered[0].classList.contains('is-full')) {
+          this.moveable.resizable = false
+        } else {
+          this.moveable.resizable = true
+        }
+        this.disableClickThrough = disableClickThrough
+        this.selected = filtered
+
+        filtered.forEach(el => {
+          el.classList.add('selected')
+        })
+        this.moveable.target = filtered
+      }
+    } else {
+      this.moveable.resizable = true
+      // 多选排除locked
+      this.selected = filtered.filter(el => !el.classList.contains('is-locked'))
+      this.moveable.target = filtered.filter(el => !el.classList.contains('is-locked'))
     }
   }
 
@@ -741,7 +742,7 @@ export default class WorkSpaceControl {
     Mousetrap.bind('ctrl+v', () => {
       if (this.copied && this.copied.length) {
         for (const el of this.copied) {
-          const newView = el.ridgeNode.clone(context.editorView)
+          const newView = el.ridgeNode.clone(context.editorComposite)
           const div = document.createElement('div')
           newView.loadAndMount(div).then(() => {
             let parentWrapper = null

@@ -11,7 +11,7 @@ const StateBindEdit = withField(({
   const [visible, setVisible] = useState()
 
   const updateStateTree = () => {
-    const storeModules = context.editorView.getStoreModules()
+    const storeModules = context.editorComposite.getStoreModules()
     const treeData = []
 
     for (const storeModule of storeModules) {

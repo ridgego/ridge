@@ -26,7 +26,7 @@ export default ({
       if (type === 'text/javascript') {
         langfunc = javascript()
       }
-      ref.current.editorView = new EditorView({
+      ref.current.editorComposite = new EditorView({
         doc: value,
         extensions: [basicSetup, keymap.of([indentWithTab]), langfunc, tooltips({
           position: 'absolute'
@@ -35,14 +35,14 @@ export default ({
       })
     }
     return () => {
-      if (ref.current.editorView) {
-        ref.current.editorView.destroy()
+      if (ref.current.editorComposite) {
+        ref.current.editorComposite.destroy()
       }
     }
   }, [visible, value])
 
   const confirmCodeEdit = (close) => {
-    const result = ref.current.editorView.state.doc.toString()
+    const result = ref.current.editorComposite.state.doc.toString()
     onChange(result, close)
   }
 
@@ -73,7 +73,7 @@ export default ({
         overflow: 'hidden'
       }}
       onOk={() => {
-        const result = ref.current.editorView.state.doc.toString()
+        const result = ref.current.editorComposite.state.doc.toString()
         onChange(result)
       }}
       onCancel={onClose}

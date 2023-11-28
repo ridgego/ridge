@@ -82,11 +82,11 @@ export default () => {
 
     formRef.current.formApi.reset()
     // 初始化编辑器
-    if (ref.current.editorView) {
-      ref.current.editorView.destroy()
+    if (ref.current.editorComposite) {
+      ref.current.editorComposite.destroy()
     }
 
-    ref.current.editorView = initCodeEditor(ref.current, record ? record.value : '', states, reducers)
+    ref.current.editorComposite = initCodeEditor(ref.current, record ? record.value : '', states, reducers)
 
     if (record) {
       formRef.current.formApi.setValue('name', record.name)
@@ -123,7 +123,7 @@ export default () => {
     const newRecord = {
       name: formRef.current.formApi.getValues().name,
       label: formRef.current.formApi.getValues().label,
-      value: ref.current.editorView.state.doc.toString()
+      value: ref.current.editorComposite.state.doc.toString()
     }
     if (type === 'state') {
       newRecord.scoped = formRef.current.formApi.getValues().scoped

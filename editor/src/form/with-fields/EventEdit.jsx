@@ -51,7 +51,7 @@ const EventEdit = withField(({
       method
     } = action
 
-    const storeTrees = context.editorView.getStoreModules()
+    const storeTrees = context.editorComposite.getStoreModules()
 
     return storeTrees[storeName]?.actions.filter(ac => ac.name === method)[0]?.label ?? method
   }
@@ -78,7 +78,7 @@ const EventEdit = withField(({
   }
 
   const renderActionEdit = (data) => {
-    const storeModules = context.editorView.getStoreModules()
+    const storeModules = context.editorComposite.getStoreModules()
     return (
       <>
         <div className='label-content'>

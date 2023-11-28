@@ -16,7 +16,7 @@ const JSONEdit = withField(({
 
   const ok = () => {
     try {
-      const result = ref.current.editorView.state.doc.toString()
+      const result = ref.current.editorComposite.state.doc.toString()
       if (result !== '') {
         const target = JSON.parse(result)
         onChange(target)
@@ -33,17 +33,17 @@ const JSONEdit = withField(({
     setVisible(true)
 
     // 初始化编辑器
-    if (ref.current.editorView) {
-      ref.current.editorView.destroy()
+    if (ref.current.editorComposite) {
+      ref.current.editorComposite.destroy()
     }
-    ref.current.editorView = new EditorView({
+    ref.current.editorComposite = new EditorView({
       doc: value != null ? JSON.stringify(value, null, 2) : '',
       extensions: [basicSetup, json(), tooltips({
         position: 'absolute'
       })],
       parent: ref.current
     })
-    ref.current.editorView.jsonParseLinter = jsonParseLinter
+    ref.current.editorComposite.jsonParseLinter = jsonParseLinter
   }
 
   const renderTree = () => {

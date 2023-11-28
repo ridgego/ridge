@@ -30,7 +30,7 @@ export default () => {
     const newState = {
       name: formRef.current.formApi.getValues().name,
       label: formRef.current.formApi.getValues().label,
-      value: ref.current.editorView.state.doc.toString()
+      value: ref.current.editorComposite.state.doc.toString()
     }
     let newStates = null
     if (stateIndex === -1) {
@@ -64,11 +64,11 @@ export default () => {
   const editState = (record, index) => {
     setVisible(true)
     // 初始化编辑器
-    if (ref.current.editorView) {
-      ref.current.editorView.destroy()
+    if (ref.current.editorComposite) {
+      ref.current.editorComposite.destroy()
     }
 
-    ref.current.editorView = new EditorView({
+    ref.current.editorComposite = new EditorView({
       doc: record ? record.value : '',
       extensions: [basicSetup, javascript(), tooltips({
         position: 'absolute'

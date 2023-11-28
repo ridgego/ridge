@@ -52,7 +52,7 @@ export default ({
   const popVisibleChange = visible => {
     toggleOpen && toggleOpen(visible)
     if (visible) {
-      ref.current.editorView = new EditorView({
+      ref.current.editorComposite = new EditorView({
         doc: value,
         extensions: [basicSetup, (type === 'js') ? javascript() : json(), tooltips({
           position: 'absolute'
@@ -60,10 +60,10 @@ export default ({
         parent: ref.current
       })
       if (type === 'json') {
-        ref.current.editorView.jsonParseLinter = jsonParseLinter
+        ref.current.editorComposite.jsonParseLinter = jsonParseLinter
       }
-    } else if (ref.current.editorView) {
-      onChange(ref.current.editorView.state.doc.toString())
+    } else if (ref.current.editorComposite) {
+      onChange(ref.current.editorComposite.state.doc.toString())
     }
   }
 

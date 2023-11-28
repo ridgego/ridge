@@ -82,6 +82,7 @@ export default class BaseContainer {
       child.unmount()
     }
   }
+
   /**
    * 增加子节点
    */
@@ -97,7 +98,7 @@ export default class BaseContainer {
   /**
    * 更新子节点次序
    **/
-  updateOrder (orders) {
+  updateChildList (orders) {
     for (const childId of this.props.children) {
       const childNode = this.composite.getNode(childId)
       if (childNode) {
@@ -177,7 +178,7 @@ export default class BaseContainer {
 
   getChildren () {
     return this.getChildElements().map(el => {
-      return el.r?.config?.id
+      return el.ridgeNode?.config?.id
     }).filter(e => e != null)
   }
 

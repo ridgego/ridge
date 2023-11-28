@@ -25,8 +25,8 @@ class OutLineTree extends React.Component {
   static contextType = ThemeContext
 
   updateOutline () {
-    if (context.editorView) {
-      const elements = context.editorView.getNodes()
+    if (context.editorComposite) {
+      const elements = context.editorComposite.getNodes()
       this.setState({
         elements,
         componentTreeData: this.buildElementTree(elements)
@@ -76,7 +76,7 @@ class OutLineTree extends React.Component {
       key: element.getId(),
       value: element.getId(),
       label: element.config.title,
-      view: element
+      element
     }
     // update icon
     if (element.componentDefinition && element.componentDefinition.icon) {
@@ -112,7 +112,7 @@ class OutLineTree extends React.Component {
 
   renderFullLabel = (label, data) => {
     const { toggleLock, toggleVisible } = this
-    const { visible, locked } = data.view.config.style
+    const { visible, locked } = data.element.config.style
     return (
       <div className={'tree-label ' + (visible ? 'is-visible' : 'is-hidden') + ' ' + (locked ? 'is-locked' : '')}>
         <Space className='label-content'>
@@ -165,35 +165,36 @@ class OutLineTree extends React.Component {
     // 首先根据dropPosition和node.pos计算出来目标位置相对于node的前后关系,直接用dropPosition存在问题
     const dropPos = node.pos.split('-')
     const beforeOrAfter = dropPosition - Number(dropPos[dropPos.length - 1])
+    const targetParent = node.parent ? node.parent.element : context.editorComposite
+    const dragParent = dragNode.parent ? dragNode.parent.element : context.editorComposite
 
     if (dropToGap === true) {
       const siblings = node.parent ? node.parent.children : this.state.componentTreeData
       const orders = this.ordering(siblings, dragNode, node, beforeOrAfter)
-      const parentView = node.parent ? node.parent.view : context.editorView
       // removeChild
-      if (dragNode.parent !== node.parent) {
-        dragNode.parent?.view.removeChild(dragNode.view)
+      if (targetParent !== dragParent) {
+        dragParent.removeChild(dragNode.element)
       }
       // appendChild
       if (orders.length !== siblings.length) {
-        parentView.appendChild(dragNode.view)
+        targetParent.appendChild(dragNode.element)
       }
 
-      parentView.updateChildOrder(orders)
+      targetParent.updateChildList(orders)
     } else {
-      if (!node.view.isContainer) {
+      if (!node.element.isContainer) {
         Toast.warning({
           content: '目标节点无法再放入子节点',
           duration: 3
         })
         return
       } else {
-        dragNode.parent?.view.removeChild(dragNode.view)
-        node.view.appendChild(dragNode.view)
+        dragParent.removeChild(dragNode.element)
+        node.element.appendChild(dragNode.element)
       }
     }
     this.updateOutline()
-    context.workspaceControl.selectElements([dragNode.view.el], true)
+    context.workspaceControl.selectElements([dragNode.element.el], true)
   }
 
   render () {

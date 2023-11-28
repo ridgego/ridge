@@ -181,12 +181,11 @@ class EditorComposite extends Composite {
   * @param {Object} defination
   * @returns
   */
-  newElement (definition) {
+  createNewElement (definition) {
     // 生成组件定义
     const elementConfig = {
       title: definition.title,
       id: nanoid(5),
-      path: definition.componentPath,
       style: {
         position: 'absolute',
         visible: true,
@@ -201,13 +200,12 @@ class EditorComposite extends Composite {
 
     const element = new EditorElement({
       config: elementConfig,
+      componentDefinition: definition,
       composite: this,
       i: this.getRootNodes().length
     })
-    element.load().then(() => {
-      element.initPropsOnCreate()
-      this.nodes[element.config.id] = element
-    })
+    this.nodes[element.config.id] = element
+    element.initPropsOnCreate()
     return element
   }
 
@@ -221,10 +219,15 @@ class EditorComposite extends Composite {
    * 删除节点
    **/
   removeChild (node) {
+    
+  }
+
+  deleteNode (node) {
     if (node) {
       for (const id of node.config.children || []) {
-        this.removeChild(this.getNode(id))
+        this.deleteNode(this.getNode(id))
       }
+      this.nodes[node.config.id].unmount()
       delete this.nodes[node.config.id]
     }
   }
@@ -232,19 +235,17 @@ class EditorComposite extends Composite {
   /**
    * 子节点排序
    **/
-  updateChildOrder (orders) {
+  updateChildList (orders) {
     for (let i = 0; i < orders.length; i++) {
-      const target = this.getComponentView(orders[i])
+      const target = this.getNode(orders[i])
       target.setRootIndex(i)
-      // target.i = i
-      // target.updateStyle()
     }
   }
 
   appendChild (view) {
     this.el.appendChild(view.el)
     view.config.parent = null
-    view.setRootIndex(this.getRootComponentViews().length)
+    view.setRootIndex(this.getNodes().length)
     view.updateStyle()
   }
 
