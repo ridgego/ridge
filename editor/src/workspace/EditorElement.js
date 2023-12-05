@@ -2,57 +2,31 @@ import { Element } from 'ridge-runtime'
 import _ from 'lodash'
 
 class EditorElement extends Element {
-  constructor (config) {
-    super(config)
-    if (config.componentDefinition) {
-      this.componentDefinition = config.componentDefinition
-    }
-  }
-
   getProperties () {
     return Object.assign({}, this.config.props, {
-      __composite: this.composite,
-      __view: this,
-      __isRuntime: false
+      children: this.children
+    }, {
+      __isEdit: true
     })
   }
 
   mounted () {
-    this.el.classList.add('ridge-element-edit')
-  }
-
-  /**
-   * 从自身父节点脱离
-   **/
-  detach () {
-    const parent = this.getParent()
-    if (parent) {
-      parent.removeChild(this)
+    if (this.config.props.children != null) {
+      this.el.classList.add('ridge-container')
     }
   }
 
-  /**
-   * 移除子节点
-   **/
-  removeChild (child) {
-    if (child && child.config.parent === this.config.id) {
-      const result = this.invoke('removeChild', [child])
-      delete child.config.parent
-
-      this.updateChildConfig(result)
-    }
+  appendChild (node) {
+    this.children.push(node)
+    node.parent = this
+    this.invoke('appendChild', [node])
   }
 
-  appendChild (child) {
-    // 这里容器会提供 appendChild 方法，并提供放置位置
-    const result = this.invoke('appendChild', [child])
+  removeChild (node) {
+    this.children = this.children.filter(n => n !== node)
+    node.parent = null
 
-    // 接受子节点
-    if (result && result.indexOf(child.config.id) > -1) {
-      child.config.parent = this.config.id
-
-      this.updateChildConfig(result)
-    }
+    this.invoke('removeChild', [node])
   }
 
   /**
@@ -65,8 +39,9 @@ class EditorElement extends Element {
         if (prop.value != null) {
           this.config.props[prop.name] = prop.value
         }
-        if (prop.type === 'children') {
-          this.config.props[prop.name] = []
+        if (prop.name === 'children') {
+          this.config.props.children = []
+          this.children = []
         }
       }
     }
@@ -83,10 +58,9 @@ class EditorElement extends Element {
     }
   }
 
-  updateChildConfig (children) {
-    this.config.props.children = children
-
-    this.properties.children = children
+  updateChildConfig (childNodes) {
+    this.config.props.children = childNodes.map(node => node.getId())
+    this.properties.children = childNodes
     this.updateProps()
   }
 
@@ -99,9 +73,14 @@ class EditorElement extends Element {
     this.updateProps()
   }
 
+  childRemoved (node) {
+    this.invoke('removeChild', [node])
+  }
+
   updateChildList (orders) {
-    const children = this.invoke('updateChildList', [orders])
-    this.updateChildConfig(children)
+    this.children = orders.map(id => this.composite.getNode(id)).filter(t => t)
+    this.invoke('updateChildList', [this.children])
+    // this.updateChildConfig(childNodes)
   }
 
   selected () {
@@ -109,12 +88,15 @@ class EditorElement extends Element {
 
     const parent = this.getParent()
 
-    if (parent) {
+    if (parent && parent.invoke) {
       parent.invoke('childSelected', [this])
     }
   }
 
   exportJSON () {
+    if (this.children) {
+      this.config.props.children = this.children.map(childNode => childNode.getId())
+    }
     return JSON.parse(JSON.stringify(this.config))
   }
 }

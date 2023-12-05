@@ -5,14 +5,15 @@ export default {
   style: Object.assign({
     width: 1920,
     height: 1080,
-    backgournd: '',
+    background: '',
     classNames: []
   }),
   properties: [],
   cssFiles: [],
   jsFiles: [],
   storeFiles: [],
-  elements: []
+  elements: [],
+  rootElements: []
 }
 const JS_TEMPLATE = `
 export default {

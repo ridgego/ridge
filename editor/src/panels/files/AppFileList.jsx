@@ -1,5 +1,4 @@
 import React from 'react'
-import trim from 'lodash/trim'
 import debug from 'debug'
 
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
@@ -130,7 +129,7 @@ class AppFileList extends React.Component {
     const { appService } = context.services
     try {
       if (dialgeCreateFileType === 'page') {
-        await appService.createPage(this.getCurrentParentId(), name)
+        await appService.createComposite(this.getCurrentParentId(), name)
       } else if (dialgeCreateFileType === 'folder') {
         await appService.createDirectory(this.getCurrentParentId(), name)
       } else if (dialgeCreateFileType === 'js') {
@@ -247,6 +246,7 @@ class AppFileList extends React.Component {
     if (data.type === 'page') {
       MORE_MENUS.push(
         <Dropdown.Item
+          key='open'
           icon={<IconFolderOpen />} onClick={() => {
             this.onOpenClicked(data)
           }}
@@ -256,6 +256,7 @@ class AppFileList extends React.Component {
     }
     MORE_MENUS.push(
       <Dropdown.Item
+        key='copy'
         icon={<IconFileCopy />} onClick={() => {
           this.onCopyClicked(data)
         }}
@@ -264,6 +265,7 @@ class AppFileList extends React.Component {
     )
     MORE_MENUS.push(
       <Dropdown.Item
+        key='export'
         icon={<IconExport />} onClick={() => {
           this.onExportClicked(data)
         }}
@@ -272,15 +274,17 @@ class AppFileList extends React.Component {
     )
     MORE_MENUS.push(
       <Dropdown.Item
+        key='rename'
         icon={<IconRename />} onClick={() => {
           this.onRenameClicked(data)
         }}
       >重命名
       </Dropdown.Item>
     )
-    MORE_MENUS.push(<Dropdown.Divider />)
+    MORE_MENUS.push(<Dropdown.Divider key='div'/>)
     MORE_MENUS.push(
       <Dropdown.Item
+        key='delete'
         type='danger'
         icon={<IconDeleteStroked />}
         onClick={() => {
@@ -343,6 +347,7 @@ class AppFileList extends React.Component {
               icon={<IconImport />}
             >
               <Upload
+                action='none'
                 showUploadList={false} uploadTrigger='custom' onFileChange={files => {
                   Modal.confirm({
                     zIndex: 10001,
@@ -351,9 +356,7 @@ class AppFileList extends React.Component {
                     onOk: () => {
                       ridge.backUpService.importAppArchive(files[0]).then(result => {
                         Toast.info('成功导入应用，共' + result.length + '个文件')
-                        emit(EVENT_WORKSPACE_RESET)
                       })
-                      // emit(EVENT_APP_OPEN)
                     }
                   })
                 }} accept='.zip'
@@ -367,7 +370,7 @@ class AppFileList extends React.Component {
           </Dropdown.Menu>
       }
       >
-        <Button size='samll' theme='borderless' type='tertiary' icon={<IconSetting />} />
+        <Button size='small' theme='borderless' type='tertiary' icon={<IconSetting />} />
       </Dropdown>
     )
   }
@@ -388,6 +391,7 @@ class AppFileList extends React.Component {
             <Dropdown.Item icon={<IconFileCode />} onClick={() => showCreateDialog('js')}>创建程序文件</Dropdown.Item>
             <Dropdown.Item icon={<IconUpload />}>
               <Upload
+                action='none'
                 multiple showUploadList={false} uploadTrigger='custom' onFileChange={files => {
                   this.onFileUpload(files)
                 }} accept={ACCEPT_FILES}

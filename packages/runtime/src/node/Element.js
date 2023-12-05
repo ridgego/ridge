@@ -7,11 +7,13 @@ const log = debug('ridge:element')
 class Element extends BaseNode {
   constructor ({
     config,
-    composite
+    composite,
+    componentDefinition
   }) {
     super()
     this.config = config
     this.composite = composite
+    this.componentDefinition = componentDefinition
     this.properties = {}
     this.events = {}
   }
@@ -20,22 +22,13 @@ class Element extends BaseNode {
     return this.config.parent == null
   }
 
-  setRootIndex (index) {
-    this.i = index
-    if (this.el) {
-      this.el.style.zIndex = index
-    }
-  }
-
   getId () {
     return this.config.id
   }
 
   getProperties () {
     return Object.assign({}, this.config.props, this.events, this.properties, {
-      __composite: this.composite,
-      __view: this,
-      __isRuntime: true
+      children: this.children
     })
   }
 
@@ -48,10 +41,7 @@ class Element extends BaseNode {
   }
 
   getParent () {
-    if (this.config.parent) {
-      return this.composite.getNode(this.config.parent)
-    }
-    return null
+    return this.parent
   }
 
   getScopedData () {
@@ -92,25 +82,16 @@ class Element extends BaseNode {
      * 执行组件初次加载 mount到具体DOM元素
      */
   async mount (el) {
-    if (!el) {
-      console.error('Mount Error: No Element')
-      return
-    }
     this.el = el
     this.el.ridgeNode = this
-    this.el.classList.add('ridge-element')
     this.el.setAttribute('component', this.config.path)
     this.el.setAttribute('ridge-id', this.config.id)
+    this.el.classList.add('ridge-element')
 
     this.style = Object.assign({}, this.config.style)
 
-    if (this.config.props.children != null) {
-      this.isContainer = true
-      this.el.classList.add('ridge-container')
-    }
-
-    this.updateStyle()
     this.updateConnectedStyle()
+    this.updateStyle()
     this.updateConnectedProperties()
 
     this.initializeEvents()
@@ -119,9 +100,22 @@ class Element extends BaseNode {
     if (!this.componentDefinition) {
       await this.load()
     }
-
     this.renderer = this.createRenderer()
     this.mounted && this.mounted()
+  }
+
+  initChildren () {
+    if (this.config.props.children && this.children == null) {
+      this.children = []
+      for (const id of this.config.props.children) {
+        const childNode = this.composite.getNode(id)
+        if (childNode) {
+          childNode.parent = this
+          childNode.initChildren()
+          this.children.push(childNode)
+        }
+      }
+    }
   }
 
   /**
@@ -222,44 +216,22 @@ class Element extends BaseNode {
     }
   }
 
+  updateChildStyle (childNode) {
+    this.invoke('updateChildStyle', [childNode])
+  }
+
   /**
-   *  更新组件包装层样式
-   *  Positioning/zIndex
+   *  更新组件外层样式
    **/
   updateStyle () {
-    // 页面根上更新布局
-    const configStyle = this.config.style
-
     if (this.el) {
-      if (configStyle.visible) {
-        this.el.classList.remove('is-hidden')
+      if (this.style.visible) {
+        this.el.classList.remove('ridge-is-hidden')
       } else {
-        this.el.classList.add('is-hidden')
+        this.el.classList.add('ridge-is-hidden')
       }
     }
-    const parent = this.getParent()
-    if (parent) {
-      parent.invoke('updateChildStyle', [this])
-    } else {
-      const style = {}
-      if (this.el) {
-        if (configStyle.full) {
-          style.width = '100%'
-          style.height = '100%'
-          this.el.classList.add('is-full')
-        } else {
-          // 绝对定位： 固定宽高
-          style.position = 'absolute'
-          style.left = 0
-          style.top = 0
-          style.transform = `translate(${configStyle.x}px, ${configStyle.y}px)`
-          style.width = configStyle.width ? (configStyle.width + 'px') : ''
-          style.height = configStyle.height ? (configStyle.height + 'px') : ''
-        }
-        style.zIndex = this.i
-        Object.assign(this.el.style, style)
-      }
-    }
+    this.parent && this.parent.updateChildStyle(this)
     this.invoke('updateStyle', [this])
   }
 
@@ -301,14 +273,6 @@ class Element extends BaseNode {
     }
   }
 
-  getChildNodes () {
-    if (this.config.props.children) {
-      return this.config.props.children.map(id => this.composite.getNode(id)).filter(t => t)
-    } else {
-      return null
-    }
-  }
-
   /**
    * 作为循环渲染时，复制列表项模板处理
    **/
@@ -319,24 +283,15 @@ class Element extends BaseNode {
       config: this.config
     })
 
-    if (this.componentDefinition) {
-      // 复制每个子节点
-      this.forEachChildren((view, type, propName, index) => {
-        const clonedChild = view.clone()
-        clonedChild.containerView = cloned
-
-        if (index == null) {
-          // 复制slot类型  单值
-          cloned.slotProperties[propName] = clonedChild
-        } else {
-          // 复制children类型  多值
-          if (cloned.slotProperties[propName] == null) {
-            cloned.slotProperties[propName] = []
-          }
-          cloned.slotProperties[propName][index] = clonedChild
-        }
-      })
+    if (this.children) {
+      cloned.children = []
+      for (const childNode of this.children) {
+        const childNodeCloned = childNode.clone()
+        childNodeCloned.parent = cloned
+        cloned.children.push(childNodeCloned)
+      }
     }
+    cloned.parent = this.parent
     return cloned
   }
 

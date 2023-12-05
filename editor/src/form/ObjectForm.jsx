@@ -95,17 +95,17 @@ export default class ObjectForm extends React.Component {
       field.control = field.type
     }
     const RenderField = this.getRenderField(field, readonly, options)
-    if (field.label) {
-      RenderField.props.label = field.label
-    } else {
-      RenderField.props.noLabel = true
-    }
+    // if (field.label) {
+    //   RenderField.props.label = field.label
+    // } else {
+    //   RenderField.props.noLabel = true
+    // }
     if (field.type === 'divider') {
-      return <Divider margin='0' align='left'>{field.label || ''}</Divider>
+      return <Divider key={index} margin='0' align='left'>{field.label || ''}</Divider>
     } else if (field.fieldEx) {
       // 封装动态绑定的支持
       return (
-        <div className={'field-block with-code-expr ' + (field.width ? '' : 'full-width')} style={{ width: field.width || '100%' }}>
+        <div key={index} className={'field-block with-code-expr ' + (field.width ? '' : 'full-width')} style={{ width: field.width || '100%' }}>
           <div style={{ flex: 1 }}>
             {RenderField}
           </div>
@@ -114,7 +114,7 @@ export default class ObjectForm extends React.Component {
       )
     } else {
       return (
-        <div className='field-block' style={{ width: field.width || '100%' }}>
+        <div key={index} className='field-block' style={{ width: field.width || '100%' }}>
           {RenderField}
         </div>
       )

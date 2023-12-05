@@ -90,12 +90,12 @@ module.exports = {
     publicPath: '/'
   },
   externals: {
-    react: 'React',
-    'bootstrap-icons': 'BootStrapIcons',
-    'react-dom': 'ReactDOM',
-    '@douyinfe/semi-ui': 'SemiUI',
+    // react: 'React',
+    // 'bootstrap-icons': 'BootStrapIcons',
+    // 'react-dom': 'ReactDOM',
+    // '@douyinfe/semi-ui': 'SemiUI',
     // moveable: 'Moveable',
     // vue: 'Vue',
-    '@douyinfe/semi-icons': 'SemiIcons'
+    // '@douyinfe/semi-icons': 'SemiIcons'
   }
 }

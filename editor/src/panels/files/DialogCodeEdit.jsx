@@ -66,10 +66,10 @@ export default ({
       mask={false}
       maskClosable={false}
       title={title || '代码编辑'}
-      zIndex='1001'
       visible={visible}
       footer={footer}
       bodyStyle={{
+        zIndex: 1001,
         overflow: 'hidden'
       }}
       onOk={() => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Divider, Badge, Space, Slider } from '@douyinfe/semi-ui'
-import {  IconPause, IconSaveStroked, IconGridView1, IconPlay } from '@douyinfe/semi-icons'
+import { IconSaveStroked, IconGridView1, IconPlay } from '@douyinfe/semi-icons'
 import context from '../../service/RidgeEditorContext.js'
 import './style.less'
 
@@ -84,7 +84,7 @@ class MenuBar extends React.Component {
           <Button
             type='tertiary'
             theme='borderless'
-            icon={<i class='bi bi-x-lg' />} onClick={() => {
+            icon={<i className='bi bi-x-lg' />} onClick={() => {
               context.closeCurrentPage()
             }}
           >关闭
@@ -92,7 +92,7 @@ class MenuBar extends React.Component {
           <Button
             type='tertiary'
             theme='borderless'
-            icon=<IconPlay /> onClick={ () => { context.toggleMode() }}
+            icon=<IconPlay /> onClick={() => { context.toggleMode() }}
           >预览
           </Button>
           {/* <Button

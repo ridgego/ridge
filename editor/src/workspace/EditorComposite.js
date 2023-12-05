@@ -5,11 +5,10 @@ import { nanoid } from '../utils/string'
  * Views Mount on Editor
  **/
 class EditorComposite extends Composite {
-  createElement (config, i) {
+  createElement (config) {
     return new EditorElement({
       composite: this,
-      config,
-      i
+      config
     })
   }
 
@@ -95,6 +94,7 @@ class EditorComposite extends Composite {
    * Import JS Files
    */
   async importJSFiles () {
+    const jsModules = []
     const oldScripts = document.querySelectorAll('script[page-id="' + this.config.id + '"]')
     for (const scriptEl of oldScripts) {
       document.head.removeChild(scriptEl)
@@ -103,9 +103,10 @@ class EditorComposite extends Composite {
     for (const filePath of jsFiles || []) {
       const jsStoreModule = await this.importJSFile(filePath, true)
       if (jsStoreModule) {
-        this.jsModules.push(jsStoreModule)
+        jsModules.push(jsStoreModule)
       }
     }
+    return jsModules
   }
 
   async importJSFile (jsPath) {
@@ -185,6 +186,7 @@ class EditorComposite extends Composite {
     // 生成组件定义
     const elementConfig = {
       title: definition.title,
+      path: definition.componentPath,
       id: nanoid(5),
       style: {
         position: 'absolute',
@@ -201,10 +203,10 @@ class EditorComposite extends Composite {
     const element = new EditorElement({
       config: elementConfig,
       componentDefinition: definition,
-      composite: this,
-      i: this.getRootNodes().length
+      composite: this
     })
-    this.nodes[element.config.id] = element
+    element.parent = this
+    this.nodes[element.getId()] = element
     element.initPropsOnCreate()
     return element
   }
@@ -215,20 +217,31 @@ class EditorComposite extends Composite {
     this.el.style.height = 0
   }
 
-  /**
-   * 删除节点
-   **/
+  appendChild (node) {
+    this.children.push(node)
+    node.parent = this
+    this.el.appendChild(node.el)
+    node.updateStyle()
+  }
+
   removeChild (node) {
-    
+    this.children = this.children.filter(n => n !== node)
+    node.parent = null
+
+    this.el.removeChild(node.el)
   }
 
   deleteNode (node) {
     if (node) {
-      for (const id of node.config.children || []) {
-        this.deleteNode(this.getNode(id))
+      const parent = node.getParent()
+      if (parent) {
+        parent.removeChild(node)
       }
-      this.nodes[node.config.id].unmount()
-      delete this.nodes[node.config.id]
+      for (const childNode of node.children ?? []) {
+        this.deleteNode(childNode)
+      }
+      node.unmount()
+      delete this.nodes[node.getId()]
     }
   }
 
@@ -236,44 +249,30 @@ class EditorComposite extends Composite {
    * 子节点排序
    **/
   updateChildList (orders) {
+    for (const childNode of this.children) {
+      this.el.removeChild(childNode.el)
+    }
+
+    this.children = []
     for (let i = 0; i < orders.length; i++) {
-      const target = this.getNode(orders[i])
-      target.setRootIndex(i)
+      const childNode = this.getNode(orders[i])
+      if (childNode) {
+        this.appendChild(childNode)
+      }
     }
   }
 
-  appendChild (view) {
-    this.el.appendChild(view.el)
-    view.config.parent = null
-    view.setRootIndex(this.getNodes().length)
-    view.updateStyle()
+  childAppended (childNode) {
+    childNode.updateStyle()
   }
-
-  /**
-     * 当子节点从父节点移出后，（包括SLOT）重新更新父节点配置
-     * @param {*} sourceParentElement 父节点
-     * @param {*} childElementId 子节点
-     */
-  // detachFromParent (view, isDelete) {
-  //   const containerView = view.getContainerView()
-
-  //   if (containerView) {
-  //     const children = containerView.invoke('removeChild', [view, isDelete])
-  //     // 更新配置
-  //     containerView.updateConfig({
-  //       props: {
-  //         children
-  //       }
-  //     })
-  //   }
-  //   delete view.config.parent
-  // }
 
   exportPageJSON () {
     this.config.elements = []
-    for (const node of this.getNodes().sort((a, b) => a.i - b.i)) {
+    for (const node of this.getNodes()) {
       this.config.elements.push(node.exportJSON())
     }
+    this.config.children = this.children.map(n => n.getId())
+
     return JSON.parse(JSON.stringify(this.config))
   }
 }

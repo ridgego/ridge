@@ -12,15 +12,12 @@ class Composite extends BaseNode {
   constructor ({
     el,
     config,
-    baseUrl,
     context
   }) {
     super()
     this.config = config
     this.context = context
     this.el = el
-    this.jsModules = []
-    this.nodes = {}
     this.initialize()
   }
 
@@ -52,15 +49,23 @@ class Composite extends BaseNode {
    */
   initialize () {
     debug('Ridge Composite initialize:', this.config)
-    // 根节点的排序号
-    let rootIndex = 0
+    this.nodes = {}
     for (let i = 0; i < this.config.elements.length; i++) {
       const node = this.createElement(this.config.elements[i])
-      if (node.isRoot()) {
-        node.setRootIndex(rootIndex)
-        rootIndex++
-      }
       this.nodes[node.getId()] = node
+    }
+    this.initChildren()
+  }
+
+  initChildren () {
+    if (!this.config.children) {
+      this.children = Object.values(this.nodes).filter(n => n.config.parent == null)
+    } else {
+      this.children = this.config.children.map(id => this.nodes[id])
+    }
+    for (const childNode of this.children) {
+      childNode.parent = this
+      childNode.initChildren()
     }
   }
 
@@ -71,10 +76,7 @@ class Composite extends BaseNode {
     })
   }
 
-  /**
-   * Load & Mount on HTMLElement
-   * @param {Element} el root element
-   */
+  // 挂载
   async mount (el) {
     if (el) {
       this.el = el
@@ -82,32 +84,31 @@ class Composite extends BaseNode {
     this.updateStyle()
     this.onPageMounted && this.onPageMounted()
 
+    this.jsModules = await this.importJSFiles()
     await this.importStyleFiles()
-    await this.importJSFiles()
     await this.loadStore()
 
     const promises = []
-    for (const node of Object.values(this.nodes).filter(e => e.isRoot())) {
+    for (const childNode of this.children) {
       const div = document.createElement('div')
       this.el.appendChild(div)
-      promises.push(await node.mount(div))
+      promises.push(await childNode.mount(div))
     }
 
     await Promise.allSettled(promises)
     this.onPageLoaded && this.onPageLoaded()
   }
 
+  // 卸载
   unmount () {
-    for (const node of Object.values(this.nodes).filter(e => e.isRoot())) {
-      node.unmount()
+    for (const childNode of this.children) {
+      childNode.unmount()
     }
   }
 
-  /**
-   * Update element style which the composite mounted on
-   * */
+  // 更新自身样式
   updateStyle () {
-    if (this.config.style) {
+    if (this.config.style && this.el) {
       const { background, classNames } = this.config.style
       background && Object.assign(this.el.style, {
         background
@@ -115,10 +116,29 @@ class Composite extends BaseNode {
       classNames && classNames.forEach(cn => {
         this.el.classList.add(cn)
       })
-      this.el.style.position = 'relative'
+      this.el.classList.add('ridge-composite')
+      // this.el.style.position = 'relative'
     }
   }
 
+  // 更新子节点位置样式
+  updateChildStyle (childNode) {
+    const style = childNode.config.style
+    if (childNode.el) {
+      if (style.full) {
+        childNode.el.classList.add('ridge-is-full')
+        childNode.el.classList.remove('ridge-is-absolute')
+      } else {
+        childNode.el.style.transform = `translate(${style.x}px, ${style.y}px)`
+        childNode.el.style.width = style.width ? (style.width + 'px') : ''
+        childNode.el.style.height = style.height ? (style.height + 'px') : ''
+      }
+    }
+  }
+
+  getScopedData () {
+    return []
+  }
   /**
    * Import/Update Composite Styles
    */
@@ -155,12 +175,15 @@ class Composite extends BaseNode {
   async importJSFiles () {
     const { jsFiles } = this.config
 
+    const jsModules = []
+
     for (const filePath of jsFiles ?? []) {
       const JsModule = await this.loadModule(this.context.baseUrl + '/' + this.app + '/' + filePath)
       if (JsModule) {
-        this.jsModules.push(JsModule)
+        jsModules.push(JsModule)
       }
     }
+    return jsModules
   }
 
   /**

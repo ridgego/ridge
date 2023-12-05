@@ -18,11 +18,9 @@ const EventEdit = withField(({
   options,
   onChange
 }) => {
-  const formRef = React.createRef()
-
   const [payloadValue, setPayloadValue] = useState('')
-
   const [actionIndexList, setActionIndexList] = useState([])
+
   const actions = value || []
 
   const getTreeData = () => {
@@ -46,6 +44,9 @@ const EventEdit = withField(({
   }
 
   const getActionLabel = (action) => {
+    if (context.editorComposite == null) {
+      return action.method
+    }
     const {
       storeName,
       method

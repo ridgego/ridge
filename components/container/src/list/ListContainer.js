@@ -3,8 +3,13 @@ import BaseContainer from '../BaseContainer.js'
 export default class ListContainer extends BaseContainer {
   async mounted () {
     if (this.isRuntime) {
+      this.forceUpdateChildren = false
       this.unmountChildren()
       this.renderUpdateListItems()
+      this.itemTemplate = this.children[0]
+    } else {
+      if (this.children.length > 1) {
+      }
     }
   }
 
@@ -31,7 +36,7 @@ export default class ListContainer extends BaseContainer {
   }
 
   updated () {
-    if (!this.isEditMode()) {
+    if (this.isRuntime) {
       this.renderUpdateListItems()
     }
   }
@@ -41,7 +46,7 @@ export default class ListContainer extends BaseContainer {
    */
   renderUpdateListItems () {
     const { itemKey, dataSource } = this.props
-    if (dataSource && this.itemTemplateView) {
+    if (dataSource && this.itemTemplate) {
       for (let index = 0; index < dataSource.length; index++) {
         const data = dataSource[index]
         // 先找到是否有之前的dom
@@ -53,16 +58,16 @@ export default class ListContainer extends BaseContainer {
           if (existedEl !== this.containerEl.children[index]) {
             this.containerEl.insertBefore(existedEl, this.containerEl.children[index])
           }
-          const view = existedEl.view
+          const ridgeNode = existedEl.ridgeNode
 
           // 更新属性后强制更新
           // wrapper.listIndex = index
-          view.setScopedData({
+          ridgeNode.setScopedData({
             i: index,
             list: dataSource,
             item: data
           })
-          view.forceUpdate()
+          ridgeNode.forceUpdate()
         } else {
           const newEl = document.createElement('div')
           if (itemKey) {
@@ -73,13 +78,13 @@ export default class ListContainer extends BaseContainer {
           } else {
             this.containerEl.appendChild(newEl)
           }
-          const newView = this.itemTemplateView.clone()
-
-          newView.loadAndMount(newEl, {
+          const itemComponent = this.itemTemplate.clone()
+          itemComponent.setScopedData({
             i: index,
             list: dataSource,
             item: data
           })
+          itemComponent.mount(newEl)
         }
       }
 

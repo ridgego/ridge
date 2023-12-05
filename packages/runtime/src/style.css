@@ -9,7 +9,15 @@ html, body {
   outline: none;
 }
 
-.is-hidden {
+
+
+.ridge-composite > .ridge-element {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.ridge-is-hidden {
     display: none;
 }
 

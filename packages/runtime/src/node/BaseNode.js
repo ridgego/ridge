@@ -7,13 +7,13 @@
  *
  **/
 class BaseNode {
-  async load () {}
-  async mount (el) {}
-  updateProps (props) {}
+  async load () { }
 
-  unmount () {}
-  appendChild (node) {}
-  removeChild (node) {}
+  async mount (el) { }
+
+  updateProps (props) { }
+
+  unmount () { }
 
   /**
    * 设置渲染区域提示信息

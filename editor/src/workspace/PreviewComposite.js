@@ -6,6 +6,7 @@ import EditorComposite from './EditorComposite.js'
 class PreviewComposite extends EditorComposite {
   createElement (config, i) {
     return new Element({
+      composite: this,
       compositeView: this,
       config,
       i
@@ -23,8 +24,6 @@ class PreviewComposite extends EditorComposite {
   async loadStore () {
     this.store = new ValtioStore()
     this.store.load(this.jsModules)
-
-    // this.context.delegateMethods(this.store, ['subscribe', 'dispatchStateChange', 'doStoreAction', 'getStoreValue'])
   }
 
   unmount () {

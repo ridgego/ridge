@@ -10,6 +10,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@svgr/webpack": "^6.2.1",
     "args": "^5.0.1",
     "babel-loader": "^8.2.5",

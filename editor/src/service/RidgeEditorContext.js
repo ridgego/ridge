@@ -121,7 +121,7 @@ class RidgeEditorContext extends RidgeContext {
     if (file) {
       if (file.type === 'page') {
         this.currentOpenFile = file
-        await this.loadPage(file)
+        await this.loadEdit(file)
       } else if (file.mimeType.startsWith('text/')) {
         this.Editor.openCodeEditor(file)
       } else if (file.mimeType.startsWith('image/')) {
@@ -133,7 +133,7 @@ class RidgeEditorContext extends RidgeContext {
   /**
    * 加载页面到编辑器工作区间
    **/
-  async loadPage (page) {
+  async loadEdit (page) {
     const { configPanel, outlinePanel, menuBar } = this.services
     if (page) {
       this.pageContent = page.content
@@ -164,7 +164,7 @@ class RidgeEditorContext extends RidgeContext {
     configPanel.updatePageConfigFields()
     this.workspaceControl.selectElements([])
 
-    outlinePanel.updateOutline()
+    outlinePanel.updateOutline(true)
   }
 
   /**
@@ -176,7 +176,7 @@ class RidgeEditorContext extends RidgeContext {
       config: this.pageContent,
       context: this
     })
-    await this.runtimeComposite.loadAndMount(this.viewPortContainerEl)
+    await this.runtimeComposite.mount(this.viewPortContainerEl)
 
     // toggle editor
     this.Editor.togglePagePreview()
@@ -206,11 +206,10 @@ class RidgeEditorContext extends RidgeContext {
     if (this.editorComposite) {
       await this.saveCurrentPage()
       this.closeCurrentPage()
-
       this.loadPreview()
-    } else if (this.runtimeView) {
-      this.runtimeView.unmount()
-      await this.loadPage()
+    } else if (this.runtimeComposite) {
+      this.runtimeComposite.unmount()
+      await this.loadEdit()
     }
   }
 
@@ -235,7 +234,7 @@ class RidgeEditorContext extends RidgeContext {
   onElementRemoved (element) {
     const view = this.getNode(element)
     if (view && this.editorComposite) {
-      this.editorComposite.removeChild(view)
+      this.editorComposite.deleteNode(view)
     }
     const { outlinePanel } = this.services
     outlinePanel.updateOutline()
@@ -248,13 +247,20 @@ class RidgeEditorContext extends RidgeContext {
     const { configPanel, outlinePanel } = this.services
     const node = this.getNode(element)
     if (node) {
-      configPanel.updateComponentConfig(node)
+      configPanel.componentSelected(node)
       outlinePanel.updateOutline()
     }
   }
 
-  onElementCreated (element) {
-    
+  createElement (definition) {
+    const div = document.createElement('div')
+    const ridgeNode = this.editorComposite.createNewElement(definition)
+    ridgeNode.mount(div)
+
+    // 只有mount后才能append
+    this.editorComposite.appendChild(ridgeNode)
+
+    return ridgeNode
   }
 
   /**

@@ -3,7 +3,6 @@ import debug from 'debug'
 // import LowCollection from './LowCollection.js'
 import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
-import { EVENT_APP_OPEN, EVENT_FILE_TREE_CHANGE } from '../constant.js'
 import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToBlob, stringToDataUrl, saveAs } from '../utils/blob.js'
 import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
 import pageJSONTemplate from '../json/page.js'
@@ -81,14 +80,14 @@ export default class ApplicationService {
   }
 
   /**
-   * 增加图纸
+   * 增加组合组件（页面）
    * @param {*} parentId
    * @param {*} name
    * @param {*} content
    */
-  async createPage (parentId, name, content, style) {
+  async createComposite (parentId, name) {
     const one = await this.collection.findOne({
-      parent,
+      parentId,
       name
     })
     if (one) {
@@ -96,11 +95,8 @@ export default class ApplicationService {
     }
 
     const id = nanoid(10)
-    const pageContent = content || pageJSONTemplate
+    const pageContent = pageJSONTemplate
 
-    if (style) {
-      Object.assign(pageContent.style, style)
-    }
     const pageObject = {
       id,
       name,

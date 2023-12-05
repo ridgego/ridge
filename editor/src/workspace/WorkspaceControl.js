@@ -318,7 +318,6 @@ export default class WorkSpaceControl {
 
     // 拖拽起始位置位于元素内
     const closestRidgeNode = target.closest('.ridge-element')
-
     if (this.isElementMovable(closestRidgeNode)) {
       e.stop()
       return
@@ -338,7 +337,7 @@ export default class WorkSpaceControl {
       //   this.moveable.target = []
       // }
 
-      if (closestRidgeNode.classList.contains('is-locked') || closestRidgeNode.classList.contains('is-full')) {
+      if (closestRidgeNode.classList.contains('ridge-is-locked') || closestRidgeNode.classList.contains('ridge-is-full')) {
         this.moveable.resizable = false
       } else {
         this.moveable.resizable = true
@@ -416,11 +415,8 @@ export default class WorkSpaceControl {
     ev.preventDefault()
 
     if (context.draggingComponent) {
-      const div = document.createElement('div')
-      const ridgeNode = context.editorComposite.createNewElement(context.draggingComponent)
-      context.onElementCreated(ridgeNode)
-      ridgeNode.mount(div)
-      this.placeElementAt(div, ev.pageX, ev.pageY)
+      const ridgeNode = context.createElement(context.draggingComponent)
+      this.placeElementAt(ridgeNode.el, ev.pageX, ev.pageY)
       context.draggingComponent = null
     }
   }
@@ -451,12 +447,12 @@ export default class WorkSpaceControl {
       x,
       y
     }, false)
-    const sourceView = el.ridgeNode
-    const targetParentView = targetEl ? targetEl.ridgeNode : null
-    if (targetParentView) {
+    const targetParent = targetEl ? targetEl.ridgeNode : null
+    if (targetParent) {
       // 放入一个容器
-      trace('Into container', targetParentView)
-      targetParentView.appendChild(sourceView, { x, y })
+      trace('Into container', targetParent)
+      context.editorComposite.removeChild(el.ridgeNode)
+      targetParent.appendChild(el.ridgeNode, { x, y })
     }
     context.onElementMoveEnd(el)
     this.moveable.updateTarget()
@@ -470,7 +466,6 @@ export default class WorkSpaceControl {
    */
   putElementToRoot (el, x, y) {
     // 修改父子关系
-    this.viewPortEl.appendChild(el)
     const rbcr = this.viewPortEl.getBoundingClientRect()
     const bcr = el.getBoundingClientRect()
     if (x == null || y == null || (x > bcr.x && x < (bcr.x + bcr.width) && y > bcr.y && y < (bcr.y + bcr.height))) {
@@ -495,16 +490,16 @@ export default class WorkSpaceControl {
    * @param {*} event
    */
   onElementDragStart (el, event) {
-    const config = el.ridgeNode.config
-
-    if (config.parent) {
+    if (el.ridgeNode && el.ridgeNode.parent && el.ridgeNode.parent !== context.editorComposite) {
+      // 当节点放置容器内时，首先脱离节点并将其放置到根的同样位置
       const beforeRect = el.getBoundingClientRect()
-      // 计算位置
       const rbcr = this.viewPortEl.getBoundingClientRect()
-      el.ridgeNode.detach()
-      // context.editorComposite.detachChildView(el.view)
+
+      el.ridgeNode.parent.removeChild(el.ridgeNode)
+      context.editorComposite.appendChild(el.ridgeNode)
+
       context.services.outlinePanel.updateOutline()
-      this.viewPortEl.appendChild(el)
+      // this.viewPortEl.appendChild(el)
 
       el.ridgeNode.updateStyleConfig({
         position: 'absolute',
@@ -541,7 +536,6 @@ export default class WorkSpaceControl {
     } else {
       context.onPageSelected()
     }
-    this.moveable.updateTarget()
 
     if (filtered) {
       context.selected = filtered
@@ -562,6 +556,7 @@ export default class WorkSpaceControl {
           el.classList.add('selected')
         })
         this.moveable.target = filtered
+        this.moveable.updateTarget()
       }
     } else {
       this.moveable.resizable = true

@@ -1,6 +1,5 @@
 import React from 'react'
 import { Tabs, TabPane, Spin, List, Typography } from '@douyinfe/semi-ui'
-import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import context from '../../service/RidgeEditorContext.js'
 import IconPackAdd from '../../icons/IconPackAdd.jsx'
 const trace = require('debug')('ridge:cl')
@@ -19,8 +18,6 @@ class ComponentListing extends React.Component {
     context.services.componentListPanel = this
     this.loadedComponents = []
   }
-
-  static contextType = ThemeContext
 
   async ensurePackageComponents (pkg) {
     for (const componentName of pkg.components) {
@@ -134,7 +131,7 @@ class ComponentListing extends React.Component {
             type='button'
             size='small'
             tabPosition='left'
-            tabBarExtraContent={<div className={'package-icon'} ><IconPackAdd /></div>}
+            tabBarExtraContent={<div className='package-icon'><IconPackAdd /></div>}
             activeKey={currentPackage}
             onChange={key => tabChange(key)}
           >

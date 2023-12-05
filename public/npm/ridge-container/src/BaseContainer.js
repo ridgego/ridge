@@ -7,6 +7,8 @@ import './style.css'
 export default class BaseContainer {
   constructor (props) {
     this.props = props
+    // 更新时同时强制更新子节点
+    this.forceUpdateChildren = true
   }
 
   /**
@@ -45,33 +47,27 @@ export default class BaseContainer {
    */
   async mount (el) {
     this.el = el
-    const containerDiv = document.createElement('div')
-    this.containerEl = containerDiv
+    this.containerEl = document.createElement('div')
 
-    this.containerEl.className = (this.props.classNames || []).join(' ')
+    for (const className of this.props.classNames ?? []) {
+      this.containerEl.classList.add(className)
+    }
 
-    el.appendChild(containerDiv)
+    el.appendChild(this.containerEl)
 
-    // ？？ 编辑器之下，有当前view对象句柄可以进行其他相关操作， 运行态下没有
-    this.view = this.props.__view
-    this.composite = this.props.__composite
-    this.isRuntime = this.props.__isRuntime
+    // 编辑器之下，属性有__isEdit
+    this.isRuntime = !this.props.__isEdit
     Object.assign(this.containerEl.style, {
       width: '100%',
       height: '100%'
     }, this.getContainerStyle())
-    this.children = []
-    if (this.props.children) {
-      for (const childId of this.props.children) {
-        const childNode = this.composite.getNode(childId)
-        if (childNode) {
-          this.children.push(childNode)
-          const childDiv = document.createElement('div')
-          childDiv.classList.add('base-children')
-          this.containerEl.appendChild(childDiv)
-          await childNode.mount(childDiv)
-          this.updateChildStyle(childNode)
-        }
+    this.children = this.props.children
+    if (this.children) {
+      for (const childNode of this.children) {
+        const div = document.createElement('div')
+        this.containerEl.appendChild(div)
+        await childNode.mount(div)
+        this.updateChildStyle(childNode)
       }
     }
     await this.mounted()
@@ -86,32 +82,22 @@ export default class BaseContainer {
   /**
    * 增加子节点
    */
-  appendChild (view) {
+  appendChild (childNode) {
     this.onDragOut()
-    const el = view.el
+    const el = childNode.el
     this.containerEl.appendChild(el)
-    this.updateChildStyle(view)
-    this.onChildAppended(view)
-    return this.getChildren()
+    this.updateChildStyle(childNode)
+    this.onChildAppended(childNode)
   }
 
   /**
    * 更新子节点次序
    **/
-  updateChildList (orders) {
-    for (const childId of this.props.children) {
-      const childNode = this.composite.getNode(childId)
-      if (childNode) {
-        this.containerEl.removeChild(childNode.el)
-      }
-    }
-
-    for (let i = 0; i < orders.length; i++) {
-      const childNode = this.composite.getNode(orders[i])
+  updateChildList (childList) {
+    for (const childNode of childList) {
       this.containerEl.appendChild(childNode.el)
       this.updateChildStyle(childNode)
     }
-    return orders
   }
 
   isEditMode () {
@@ -131,12 +117,12 @@ export default class BaseContainer {
       shadowNode.classList.add('drop-shadow')
       shadowNode.innerHTML = '可以放入容器内'
 
-      const tag = document.createElement('div')
-      tag.classList.add('drop-tag')
+      // const tag = document.createElement('div')
+      // tag.classList.add('drop-tag')
 
-      tag.innerHTML = this.props.__view.config.title
+      // tag.innerHTML = this.props.__view.config.title
 
-      shadowNode.appendChild(tag)
+      // shadowNode.appendChild(tag)
 
       this.el.appendChild(shadowNode)
 
@@ -157,13 +143,11 @@ export default class BaseContainer {
   }
 
   // 删除子节点
-  removeChild (view) {
-    // 原地阴影
-    if (view.el.parentElement === this.containerEl) {
-      this.containerEl.removeChild(view.el)
+  removeChild (node) {
+    if (node.el.parentElement === this.containerEl) {
+      this.containerEl.removeChild(node.el)
     }
-    this.onChildRemoved(view)
-    return this.getChildren()
+    this.onChildRemoved(node)
   }
 
   /**
@@ -199,7 +183,7 @@ export default class BaseContainer {
     this.containerEl.className = (this.props.classNames || []).join(' ')
 
     // 联动更新所有子节点
-    if (this.props.children) {
+    if (this.forceUpdateChildren && this.props.children) {
       for (const childId of this.props.children) {
         const childNode = this.composite.getNode(childId)
         if (childNode) {

@@ -110,7 +110,7 @@ const BackgroundEdit = ({
                     <Slider value={percent} disabled={disabled} onChange={val => percentChange(index, val)} />
                   </div>}
                 {/* {(index !== 0 && index !== listColors.length - 1) && <InputNumber width={100} size='small' value={item.percent || 0} />} */}
-                {index > 0 && <Button icon={<i class='bi bi-x-lg' />} size='small' type='danger' onClick={() => updateList(index)} style={{ marginRight: 4 }} />}
+                {index > 0 && <Button icon={<i className='bi bi-x-lg' />} size='small' type='danger' onClick={() => updateList(index)} style={{ marginRight: 4 }} />}
               </Space>
             )
           }}
@@ -121,7 +121,7 @@ const BackgroundEdit = ({
           </Space>}
       </div>
       <div style={{ fontSize: 14 }}>
-        <Button size='small' theme='borderless' icon={<i class='bi bi-plus-lg' />} onClick={() => updateList()} />
+        <Button size='small' theme='borderless' icon={<i className='bi bi-plus-lg' />} onClick={() => updateList()} />
       </div>
     </div>
   )

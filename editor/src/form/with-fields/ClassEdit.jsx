@@ -17,7 +17,7 @@ const ClassEdit = ({
         }
       }))
     }
-  })
+  }, [value])
 
   return (
     <Select size='small' multiple value={value} onChange={onChange}>

@@ -16,7 +16,6 @@ class OutLineTree extends React.Component {
     this.state = {
       componentTreeData: [],
       expandedKeys: [],
-      elements: [],
       selected: null
     }
     context.services.outlinePanel = this
@@ -24,12 +23,19 @@ class OutLineTree extends React.Component {
 
   static contextType = ThemeContext
 
-  updateOutline () {
-    if (context.editorComposite) {
-      const elements = context.editorComposite.getNodes()
+  updateOutline (reset) {
+    if (reset) {
       this.setState({
-        elements,
-        componentTreeData: this.buildElementTree(elements)
+        expandedKeys: [],
+        selected: null
+      })
+    }
+    if (context.editorComposite) {
+      const componentTreeData = this.buildElementTree(context.editorComposite.children)
+
+      debug('updateOutline', componentTreeData)
+      this.setState({
+        componentTreeData
       })
     }
   }
@@ -37,15 +43,38 @@ class OutLineTree extends React.Component {
   /**
    * 对外提供方法，工作区选择节点调用
    **/
-  setCurrentNode (view) {
-    if (view) {
+  setCurrentNode (node) {
+    if (node) {
+      let treeNode = this.findNode(this.state.componentTreeData, node.getId())
+      const keys = []
+
+      while (treeNode) {
+        keys.push(treeNode.key)
+        treeNode = treeNode.parent
+      }
+
       this.setState({
-        selected: view.config.id
+        selected: node.getId(),
+        expandedKeys: Array.from(new Set([...keys, ...this.state.expandedKeys]))
       })
     } else {
       this.setState({
         selected: null
       })
+    }
+  }
+
+  findNode (treeData, key) {
+    for (const node of treeData) {
+      if (node.key === key) {
+        return node
+      }
+      if (node.children) {
+        const c = this.findNode(node.children, key)
+        if (c) {
+          return c
+        }
+      }
     }
   }
 
@@ -61,8 +90,7 @@ class OutLineTree extends React.Component {
 
   buildElementTree (elements) {
     const treeData = []
-    const rootElements = elements.filter(el => el.isRoot()).sort((a, b) => a.i - b.i)
-    for (const element of rootElements) {
+    for (const element of elements) {
       treeData.push(this.getElementTree(element))
     }
     return treeData
@@ -83,9 +111,8 @@ class OutLineTree extends React.Component {
       treeNodeObject.icon = <img className='item-icon' src={element.componentDefinition.icon} />
     }
 
-    const childNodes = element.getChildNodes()
-    if (childNodes) {
-      treeNodeObject.children = childNodes.map(child => {
+    if (element.children) {
+      treeNodeObject.children = element.children.map(child => {
         return {
           ...this.getElementTree(child),
           parent: treeNodeObject
@@ -179,10 +206,9 @@ class OutLineTree extends React.Component {
       if (orders.length !== siblings.length) {
         targetParent.appendChild(dragNode.element)
       }
-
       targetParent.updateChildList(orders)
     } else {
-      if (!node.element.isContainer) {
+      if (node.element.children == null) {
         Toast.warning({
           content: '目标节点无法再放入子节点',
           duration: 3

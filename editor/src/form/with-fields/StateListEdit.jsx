@@ -5,12 +5,13 @@ const StateListEdit = ({
   value,
   onChange
 }) => {
-  const stateValue = value || { current: '', list: [] }
-
-  const { current, list } = stateValue
   const [currentEditIndex, setCurrentEditIndex] = useState(-1)
   const [currentStateName, setCurrentStateName] = useState('')
   const [stateEditValid, setStateEditValid] = useState(true)
+
+  const stateValue = value || { current: '', list: [] }
+
+  const { current, list } = stateValue
 
   const addState = () => {
     let name = 'State'
