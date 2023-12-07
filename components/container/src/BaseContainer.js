@@ -16,30 +16,22 @@ export default class BaseContainer {
    */
   mounted () {}
 
-  /**
-   * 属性更新后触发
-   **/
+  // 属性更新后触发
   updated () { }
 
-  /**
-   * 子节点移除后触发
-   */
+  // 子节点移除后触发
   onChildRemoved () {}
 
-  /**
-   * 子节点添加后触发
-   */
+  // 子节点添加后触发
   onChildAppended () {}
-  /**
- * 获取容器样式
- * @abstract
- */
+
+  // 更新子节点列表
+  childListUpdated () {}
+
+  // 获取容器样式
   getContainerStyle () {}
 
-  /**
-   * 子节点style信息
-   * @abstract
-   */
+  // 子节点style信息
   getChildStyle (view) {}
 
   /**
@@ -64,10 +56,14 @@ export default class BaseContainer {
     this.children = this.props.children
     if (this.children) {
       for (const childNode of this.children) {
-        const div = document.createElement('div')
-        this.containerEl.appendChild(div)
-        await childNode.mount(div)
-        this.updateChildStyle(childNode)
+        try {
+          const div = document.createElement('div')
+          this.containerEl.appendChild(div)
+          await childNode.mount(div)
+          this.updateChildStyle(childNode)
+        } catch (e) {
+          // 忽略渲染错误
+        }
       }
     }
     await this.mounted()
@@ -98,6 +94,8 @@ export default class BaseContainer {
       this.containerEl.appendChild(childNode.el)
       this.updateChildStyle(childNode)
     }
+    this.children = childList
+    this.childListUpdated()
   }
 
   isEditMode () {
@@ -154,16 +152,15 @@ export default class BaseContainer {
    * 计算并更新子节点样式
    * @param  {ElementWrapper} wrapper 封装类
    */
-  updateChildStyle (view) {
-    const style = Object.assign({}, this.getChildStyle(view))
-
-    Object.assign(view.el.style, style)
+  updateChildStyle (childNode) {
+    if (childNode.el) {
+      const style = Object.assign({}, this.getChildStyle(childNode))
+      Object.assign(childNode.el.style, style)
+    }
   }
 
   getChildren () {
-    return this.getChildElements().map(el => {
-      return el.ridgeNode?.config?.id
-    }).filter(e => e != null)
+    return this.children
   }
 
   getChildElements () {
@@ -183,12 +180,9 @@ export default class BaseContainer {
     this.containerEl.className = (this.props.classNames || []).join(' ')
 
     // 联动更新所有子节点
-    if (this.forceUpdateChildren && this.props.children) {
-      for (const childId of this.props.children) {
-        const childNode = this.composite.getNode(childId)
-        if (childNode) {
-          childNode.forceUpdate()
-        }
+    if (this.forceUpdateChildren) {
+      for (const childNode of this.children) {
+        childNode.forceUpdate()
       }
     }
     this.updated()

@@ -1,6 +1,7 @@
 import debug from 'debug'
 import { proxy, subscribe, snapshot } from 'valtio/vanilla'
 const log = debug('ridge:store')
+const error = debug('ridge:store-error')
 /**
  * Store engine based on Valtio Lib(Proxied Object)
  **/
@@ -38,15 +39,19 @@ export default class ValtioStore {
     let result = null
     if (type === 'state' && this.storeStates[storeKey]) {
       result = stateValues[stateName]
-    } else if (type === 'computed') {
-      
     } else if (type === 'scoped') {
-      if (this.storeModules[storeKey].scoped[stateName]) {
-        if (typeof this.storeModules[storeKey].scoped[stateName] === 'function') {
-          result = this.storeModules[storeKey].scoped[stateName].apply(null, [stateValues, ...payload])
-        } else if (typeof this.storeModules[storeKey].scoped[stateName].get === 'function') {
-          result = this.storeModules[storeKey].scoped[stateName].get.apply(null, [stateValues, ...payload])
+      try {
+        // 执行表达式
+        const scoped = this.storeModules[storeKey].scoped[stateName]
+        if (scoped) {
+          if (typeof scoped === 'function') {
+            result = this.storeModules[storeKey].scoped[stateName].apply(stateValues, [stateValues, ...payload])
+          } else if (typeof this.storeModules[storeKey].scoped[stateName].get === 'function') {
+            result = this.storeModules[storeKey].scoped[stateName].get.apply(stateValues, [stateValues, ...payload])
+          }
         }
+      } catch (e) {
+        error('getStoreValue Error', e)
       }
     }
     log('getStoreValue', expr, result)
@@ -55,7 +60,7 @@ export default class ValtioStore {
 
   subscribe (expr, cb) {
     const [storeKey, type, stateName] = expr.split('.')
-
+    log('subscribe', expr)
     if (type === 'state') {
       if (this.stateWatchers[storeKey] == null) {
         this.stateWatchers[storeKey] = {}
@@ -74,8 +79,12 @@ export default class ValtioStore {
     if (type === 'state') {
       this.storeStates[storeKey][stateName] = payload[0]
     } else if (type === 'scoped') {
-      if (this.storeModules[storeKey][stateName]?.set) {
-        this.storeModules[storeKey][stateName].set(...payload)
+      if (typeof this.storeModules[storeKey]?.scoped[stateName]?.set === 'function') {
+        try {
+          this.storeModules[storeKey]?.scoped[stateName]?.set(...payload, this.storeStates[storeKey])
+        } catch (e) {
+          error('dispatchChange Error', e)
+        }
       }
     }
   }

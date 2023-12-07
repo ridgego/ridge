@@ -86,10 +86,8 @@ class EditorElement extends Element {
   selected () {
     this.invoke('selected')
 
-    const parent = this.getParent()
-
-    if (parent && parent.invoke) {
-      parent.invoke('childSelected', [this])
+    if (this.parent && this.parent.invoke) {
+      this.parent.invoke('childSelected', [this])
     }
   }
 

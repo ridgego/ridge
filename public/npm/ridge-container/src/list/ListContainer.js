@@ -3,10 +3,13 @@ import BaseContainer from '../BaseContainer.js'
 export default class ListContainer extends BaseContainer {
   async mounted () {
     if (this.isRuntime) {
-      this.forceUpdateChildren = false
+      // this.forceUpdateChildren = false
+      // 取消模板的挂载
       this.unmountChildren()
-      this.renderUpdateListItems()
-      this.itemTemplate = this.children[0]
+      if (this.children.length >= 1) {
+        this.itemTemplate = this.children[0]
+        this.renderUpdateListItems()
+      }
     } else {
       if (this.children.length > 1) {
       }
@@ -45,39 +48,15 @@ export default class ListContainer extends BaseContainer {
    * 运行期间更新渲染列表
    */
   renderUpdateListItems () {
-    const { itemKey, dataSource } = this.props
+    const { dataSource } = this.props
     if (dataSource && this.itemTemplate) {
+      if (this.items == null) {
+        this.items = []
+      }
       for (let index = 0; index < dataSource.length; index++) {
         const data = dataSource[index]
-        // 先找到是否有之前的dom
-        let existedEl = this.containerEl.children[index]
-        if (itemKey) {
-          existedEl = this.containerEl.querySelector('div[key="' + data[itemKey] + '"]')
-        }
-        if (existedEl) {
-          if (existedEl !== this.containerEl.children[index]) {
-            this.containerEl.insertBefore(existedEl, this.containerEl.children[index])
-          }
-          const ridgeNode = existedEl.ridgeNode
-
-          // 更新属性后强制更新
-          // wrapper.listIndex = index
-          ridgeNode.setScopedData({
-            i: index,
-            list: dataSource,
-            item: data
-          })
-          ridgeNode.forceUpdate()
-        } else {
+        if (this.items[index] == null) {
           const newEl = document.createElement('div')
-          if (itemKey) {
-            newEl.setAttribute('key', data[itemKey])
-          }
-          if (this.containerEl.children[index]) {
-            this.containerEl.insertBefore(newEl, this.containerEl.children[index])
-          } else {
-            this.containerEl.appendChild(newEl)
-          }
           const itemComponent = this.itemTemplate.clone()
           itemComponent.setScopedData({
             i: index,
@@ -85,12 +64,21 @@ export default class ListContainer extends BaseContainer {
             item: data
           })
           itemComponent.mount(newEl)
+          this.items[index] = itemComponent
+          this.containerEl.appendChild(newEl)
+        } else {
+          this.items[index].setScopedData({
+            i: index,
+            list: dataSource,
+            item: data
+          })
+          this.items[index].forceUpdate()
         }
       }
 
-      // 删除多出的项目
-      while (this.containerEl.childElementCount > dataSource.length) {
-        this.containerEl.lastChild.view.unmount()
+      while (this.items.length > dataSource.length) {
+        const pop = this.items.pop()
+        pop.unmount()
       }
     }
   }

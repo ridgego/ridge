@@ -65,7 +65,7 @@ const StateBindEdit = withField(({
           >确定
           </Button>
           <Button
-            theme='solid' type='warn' onClick={() => {
+            theme='solid' type='secondary' onClick={() => {
               onChange(null)
               setVisible(false)
             }}

@@ -19,13 +19,13 @@ export default class SwitchContainer extends BaseContainer {
    */
   async toggleState (index) {
     const { current } = this.props
-    const childElements = this.getChildElements()
 
     let currentIndex = current == null ? 0 : current
     if (index != null) {
       currentIndex = index
     }
 
+    const childElements = this.containerEl.children
     for (let i = 0; i < childElements.length; i++) {
       if (i === currentIndex) {
         childElements[i].style.display = 'initial'
@@ -35,6 +35,7 @@ export default class SwitchContainer extends BaseContainer {
     }
   }
 
+  // Editor Only
   childSelected (childEl) {
     const childElements = this.getChildElements()
 
