@@ -13,6 +13,8 @@ export default class ValtioStore {
     this.watchers = {}
 
     this.stateWatchers = {} // Watch State by StoreName
+
+    this.callbackMap = new Map() // 组件及更新方法映射
   }
 
   /**
@@ -58,19 +60,44 @@ export default class ValtioStore {
     return result
   }
 
-  subscribe (expr, cb) {
+  // 对表达式进行订阅
+  subscribe (expr, cb, uuid) {
     const [storeKey, type, stateName] = expr.split('.')
     log('subscribe', expr)
-    if (type === 'state') {
-      if (this.stateWatchers[storeKey] == null) {
-        this.stateWatchers[storeKey] = {}
-      }
-      if (this.stateWatchers[storeKey][stateName] == null) {
-        this.stateWatchers[storeKey][stateName] = []
-      }
-      this.stateWatchers[storeKey][stateName].push(cb)
-    } else if (type === 'scoped') {
+    this.stateWatchers[storeKey] = this.stateWatchers[storeKey] ?? {}
 
+    this.callbackMap.set(uuid, cb)
+    if (type === 'state') {
+      this.stateWatchers[storeKey][stateName] = this.stateWatchers[storeKey][stateName] ?? new Set()
+      this.stateWatchers[storeKey][stateName].add(uuid)
+    } else if (type === 'scoped') {
+      const stateKeys = Object.keys(this.storeStates[storeKey])
+      try {
+        // 读取函数定义， 获取 scoped 方法依赖的state
+        const scopedFunctionText = this.storeModules[storeKey].scoped?.[stateName]?.toString()
+        for (const stateKey of stateKeys) {
+          if (scopedFunctionText.indexOf(stateKey) > -1) {
+            this.stateWatchers[storeKey][stateKey] = this.stateWatchers[storeKey][stateKey] ?? new Set()
+            this.stateWatchers[storeKey][stateKey].add(uuid)
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    } else if (type === 'computed') {
+      const stateKeys = Object.keys(this.storeStates[storeKey])
+      try {
+        // 读取函数定义， 获取 scoped 方法依赖的state
+        const scopedFunctionText = this.storeModules[storeKey].computed?.[stateName]?.toString()
+        for (const stateKey of stateKeys) {
+          if (scopedFunctionText.indexOf(stateKey) > -1) {
+            this.stateWatchers[storeKey][stateKey] = this.stateWatchers[storeKey][stateKey] ?? new Set()
+            this.stateWatchers[storeKey][stateKey].add(uuid)
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
     }
   }
 
@@ -127,20 +154,6 @@ export default class ValtioStore {
       this.storeStates[moduleName] = proxy(StoreModule.data)
     }
 
-    // if (StoreModule.computed) {
-    //   this.stores[moduleName].computed = {}
-    //   for (const key of Object.keys(StoreModule.computed)) {
-    //     const computedState = StoreModule.computed[key]
-    //     if (typeof computedState === 'function') { // only getter
-    //       try {
-    //         this.stores[moduleName].computed[key] = computedState(this.stores[moduleName].state)
-    //       } catch (e) {
-    //         console.error('Error init computed', moduleName, key)
-    //         console.error('Error detail', e)
-    //       }
-    //     }
-    //   }
-    // }
     if (this.storeStates[moduleName]) {
       subscribe(this.storeStates[moduleName], (mutations) => {
         log('mutations', mutations)
@@ -165,5 +178,9 @@ export default class ValtioStore {
         cb(newValue)
       })
     }
+  }
+
+  scheduleCallback () {
+
   }
 }

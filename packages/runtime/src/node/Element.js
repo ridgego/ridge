@@ -1,6 +1,7 @@
 import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
+import { nanoid } from '../utils/string'
 import BaseNode from './BaseNode.js'
 const log = debug('ridge:element')
 
@@ -11,6 +12,7 @@ class Element extends BaseNode {
     componentDefinition
   }) {
     super()
+    this.uuid = 'ins-' + nanoid(8)
     this.config = config
     this.composite = composite
     this.componentDefinition = componentDefinition
@@ -140,12 +142,18 @@ class Element extends BaseNode {
     }
   }
 
+  // 动态指定的属性和样式的更新
   initSubscription () {
-    // subscribe for update
-    new Set([...Object.values(this.config.styleEx), ...Object.values(this.config.propEx)]).forEach(expr => {
+    Object.values(this.config.styleEx).forEach(expr => {
       this.composite.store?.subscribe && this.composite.store.subscribe(expr, () => {
-        this.forceUpdate()
-      })
+        this.forceUpdateStyle()
+      }, this.uuid + '-style')
+    })
+
+    Object.values(this.config.propEx).forEach(expr => {
+      this.composite.store?.subscribe && this.composite.store.subscribe(expr, () => {
+        this.forceUpdateProperty()
+      }, this.uuid + '-prop')
     })
   }
 
@@ -173,14 +181,23 @@ class Element extends BaseNode {
     return null
   }
 
+
+  forceUpdateStyle () {
+    this.updateConnectedStyle()
+    this.updateStyle()
+  }
+
+  forceUpdateProperty () {
+    this.updateConnectedProperties()
+    this.updateProps()
+  }
+
   /**
    * Re-evaluate connected properties and styles, update component view
    */
   forceUpdate () {
-    this.updateConnectedStyle()
-    this.updateStyle()
-    this.updateConnectedProperties()
-    this.updateProps()
+    this.forceUpdateStyle()
+    this.forceUpdateProperty()
   }
 
   /**

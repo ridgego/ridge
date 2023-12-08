@@ -28,7 +28,7 @@ export default class SwitchContainer extends BaseContainer {
     const childElements = this.containerEl.children
     for (let i = 0; i < childElements.length; i++) {
       if (i === currentIndex) {
-        childElements[i].style.display = 'initial'
+        childElements[i].style.display = ''
       } else {
         childElements[i].style.display = 'none'
       }
