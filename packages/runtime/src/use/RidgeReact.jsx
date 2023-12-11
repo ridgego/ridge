@@ -13,7 +13,6 @@ export default ({
 }) => {
   const ref = useRef(null)
 
-
   useEffect(() => {
     let context = ref.ridgeContext
     if (globalContext) {

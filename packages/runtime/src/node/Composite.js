@@ -139,6 +139,7 @@ class Composite extends BaseNode {
   getScopedData () {
     return []
   }
+
   /**
    * Import/Update Composite Styles
    */
@@ -169,6 +170,36 @@ class Composite extends BaseNode {
     })
   }
 
+  initializeEvents () {
+    // 属性名为value并且与state连接时， 增加 input 事件，事件传值回写到state
+    if (this.config.propEx.value) {
+      this.events.input = val => {
+        this.composite.store.dispatchChange(this.config.propEx.value, [val, ...this.getScopedData()])
+      }
+    }
+
+    for (const [eventName, actions] of Object.entries(this.config.events)) {
+      this.events[eventName] = (...payload) => {
+        for (const action of actions) {
+          if (action.store && action.method) {
+            const scopeData = this.getScopedData()
+            const event = {
+              payload,
+              param: action.payload
+            }
+            this.composite.store.doStoreAction(action.store, action.method, event, scopeData)
+          }
+        }
+      }
+    }
+  }
+
+  emit (name, ...payload) {
+    if (this.events[name]) {
+      this.events[name](payload)
+    }
+  }
+
   /**
    * Import JS Files
    */
@@ -190,7 +221,9 @@ class Composite extends BaseNode {
    * Load Composite Store
    * */
   async loadStore () {
-    this.store = new ValtioStore()
+    this.store = new ValtioStore({
+      emit: this.emit
+    })
     this.store.load(this.jsModules)
   }
 }

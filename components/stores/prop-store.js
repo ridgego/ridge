@@ -14,7 +14,7 @@ export default {
     editEnabled: state => {
       return state.editIndex > -1
     },
-    propNameValid: (state) => {
+    propNameValid: state => {
       return state.properties.length
     }
   },
@@ -45,34 +45,40 @@ export default {
 
   // 监听值改变
   watch: {
-    properties: function (oldValue, newValue) {
-      this.emit('input', newValue)
+    properties: function (context) {
+      context.emit('input', context.properties)
     }
   },
 
   // 动作，可发起状态变化
   actions: {
-    addProperty () {
-      this.properties.push({
+    addProperty: (event, context) => {
+      const { state } = context
+      state.properties.push({
         name: 'name',
         value: 'value'
       })
-      this.editIndex = this.properties.length - 1
+      state.editIndex = state.properties.length - 1
     },
 
-    editProperty (scope) {
-      this.editIndex = scope.i
-    },
-
-    saveProperty () {
-      this.editIndex = -1
-    },
-
-    remove (scope) {
-      if (this.editIndex === scope.i) {
-        this.editIndex = -1
+    editProperty: (event, context) => {
+      const { scope, state } = context
+      if (scope) {
+        state.editIndex = scope.i
       }
-      this.properties.splice(scope.i, 1)
+    },
+
+    saveProperty: (event, context) => {
+      const { state } = context
+      state.editIndex = -1
+    },
+
+    remove: (event, context) => {
+      const { state, scope } = context
+      if (state.editIndex === scope.i) {
+        state.editIndex = -1
+      }
+      state.properties.splice(scope.i, 1)
     }
   }
 }

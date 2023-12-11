@@ -5,10 +5,6 @@ import { ThemeContext } from '../movable/MoveablePanel.jsx'
 import debug from 'debug'
 
 import context from '../../service/RidgeEditorContext.js'
-
-import {
-  EVENT_FILE_TREE_CHANGE, EVENT_ELEMENT_SELECTED, EVENT_PAGE_LOADED, EVENT_PAGE_CONFIG_CHANGE, EVENT_ELEMENT_PROP_CHANGE, EVENT_ELEMENT_EVENT_CHANGE, EVENT_PAGE_PROP_CHANGE, EVENT_PAGE_RENAMED, EVENT_ELEMENT_DRAG_END
-} from '../../constant.js'
 const trace = debug('editor:config-panel')
 
 const COMPONENT_BASIC_FIELDS = [
@@ -59,6 +55,11 @@ const COMPONENT_ROOT_FIELDS = [
     width: '50%',
     field: 'style.visible',
     fieldEx: 'styleEx.visible'
+  }, {
+    label: '填满页面',
+    width: '50%',
+    type: 'boolean',
+    field: 'style.full'
   }
 ]
 
@@ -352,12 +353,12 @@ export default class ComponentPanel extends React.Component {
               getFormApi={eventPropsAPI} onValueChange={componentEventValueChange}
             />
           </TabPane>
-          <TabPane tab='样式' itemKey='style'>
+          {/* <TabPane tab='样式' itemKey='style'>
             <ObjectForm
               fields={COMPONENT_STYLE_FIELDS}
               getFormApi={basicStylesAPI} onValueChange={componentStyleValueChange}
             />
-          </TabPane>
+          </TabPane> */}
         </Tabs>
 
         <Tabs

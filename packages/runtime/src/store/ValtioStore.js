@@ -1,12 +1,14 @@
 import debug from 'debug'
 import { proxy, subscribe, snapshot } from 'valtio/vanilla'
+
 const log = debug('ridge:store')
 const error = debug('ridge:store-error')
 /**
  * Store engine based on Valtio Lib(Proxied Object)
  **/
 export default class ValtioStore {
-  constructor () {
+  constructor (context) {
+    this.context = context // 上下文
     this.storeModules = {} // Store by Name
     this.storeStates = {} // Valtio proxied state by StoreName
     this.storeComputed = {}
@@ -15,6 +17,8 @@ export default class ValtioStore {
     this.stateWatchers = {} // Watch State by StoreName
 
     this.callbackMap = new Map() // 组件及更新方法映射
+
+    this.scheduledJobs = new Set()
   }
 
   /**
@@ -116,10 +120,20 @@ export default class ValtioStore {
     }
   }
 
-  doStoreAction (storeName, actionName, payload) {
+  doStoreAction (storeName, actionName, event, scopedData) {
     if (this.storeModules[storeName] && this.storeModules[storeName].actions[actionName]) {
       try {
-        const exeResult = this.storeModules[storeName].actions[actionName].apply(this.storeStates[storeName], payload.filter(n => n != null))
+        const context = {
+          state: this.storeStates[storeName],
+          scopes: scopedData,
+          ...this.context
+        }
+
+        if (scopedData && scopedData.length >= 1) {
+          context.scope = scopedData[0]
+        }
+
+        const exeResult = this.storeModules[storeName].actions[actionName].call(null, event, context)
         if (typeof exeResult === 'object') {
           Object.assign(this.storeStates[storeName], exeResult)
         }
@@ -130,7 +144,7 @@ export default class ValtioStore {
   }
 
   /**
-   * 使用Pinia引擎进行store初始化
+   * 进行Store初始化
    * @param {*} moduleName
    * @param {*} storeModule
    */
@@ -161,9 +175,9 @@ export default class ValtioStore {
         for (const mutation of mutations) {
           const [action, statePath, newValue, oldValue] = mutation
           log('mutation', action, statePath.join('.'), newValue, oldValue)
-
           this.setStateValue(moduleName, statePath[0], stateValue[statePath[0]])
         }
+        this.flushScheduledJobs()
       })
     }
   }
@@ -174,13 +188,20 @@ export default class ValtioStore {
     const watchers = this.stateWatchers[module][state]
 
     if (watchers) {
-      watchers.forEach(cb => {
-        cb(newValue)
-      })
+      this.scheduleCallback(watchers)
     }
   }
 
-  scheduleCallback () {
+  scheduleCallback (watcherIds) {
+    for (const id of watcherIds) {
+      this.scheduledJobs.add(id)
+    }
+  }
 
+  flushScheduledJobs () {
+    for (const jobId of this.scheduledJobs) {
+      this.callbackMap.get(jobId)()
+    }
+    this.scheduledJobs.clear()
   }
 }

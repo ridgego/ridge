@@ -135,7 +135,12 @@ class Element extends BaseNode {
       this.events[eventName] = (...payload) => {
         for (const action of actions) {
           if (action.store && action.method) {
-            this.composite.store.doStoreAction(action.store, action.method, [...payload, ...this.getScopedData(), action.payload])
+            const scopeData = this.getScopedData()
+            const event = {
+              payload,
+              param: action.payload
+            }
+            this.composite.store.doStoreAction(action.store, action.method, event, scopeData)
           }
         }
       }
@@ -180,7 +185,6 @@ class Element extends BaseNode {
     }
     return null
   }
-
 
   forceUpdateStyle () {
     this.updateConnectedStyle()

@@ -281,7 +281,7 @@ class AppFileList extends React.Component {
       >重命名
       </Dropdown.Item>
     )
-    MORE_MENUS.push(<Dropdown.Divider key='div'/>)
+    MORE_MENUS.push(<Dropdown.Divider key='div' />)
     MORE_MENUS.push(
       <Dropdown.Item
         key='delete'
@@ -324,6 +324,7 @@ class AppFileList extends React.Component {
     this.setState({
       exportToastId: id
     })
+    const { appService } = context.services
     await appService.exportAppArchive()
     Toast.close(id)
     this.setState({
@@ -415,6 +416,7 @@ class AppFileList extends React.Component {
       <>
         <div className='file-actions'>
           <RenderCreateDropDown />
+          {this.renderAppDropDown()}
         </div>
         <DialogCreate
           show={dialogCreateShow}
@@ -464,7 +466,7 @@ class AppFileList extends React.Component {
             }}
           />}
         {!treeData && <div className='tree-loading'><Spin size='middle' /></div>}
-        {this.renderAppDropDown()}
+        {/* {this.renderAppDropDown()} */}
       </>
     )
   }
