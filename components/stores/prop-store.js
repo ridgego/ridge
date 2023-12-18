@@ -2,11 +2,17 @@ export default {
   // 名称必须设置，在一个页面里必须唯一
   name: 'PropertiesStore',
   // 状态集合, 固定值可以直接返回对象。如果从配置（页面属性）初始化，可以为函数
-  state: (config) => {
-    return {
+  state: (properties, state) => {
+    const stateObject = {
       editIndex: -1,
-      properties: config ?? []
+      properties: [],
+      ...state
     }
+
+    if (properties && Array.isArray(properties.value)) {
+      stateObject.properties = properties.value
+    }
+    return stateObject
   },
 
   // 从state计算的值
@@ -45,8 +51,8 @@ export default {
 
   // 监听值改变
   watch: {
-    properties: function (context) {
-      context.emit('input', context.properties)
+    properties: function (value, context) {
+      context.composite.emit('input', value)
     }
   },
 

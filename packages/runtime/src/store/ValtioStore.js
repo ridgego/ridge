@@ -7,18 +7,29 @@ const error = debug('ridge:store-error')
  * Store engine based on Valtio Lib(Proxied Object)
  **/
 export default class ValtioStore {
-  constructor (context) {
-    this.context = context // 上下文
-    this.storeModules = {} // Store by Name
-    this.storeStates = {} // Valtio proxied state by StoreName
-    this.storeComputed = {}
-    this.watchers = {}
+  constructor (composite) {
+    this.composite = composite // 所在组件
+    this.properties = composite.properties // 初始化store参数属性
 
-    this.stateWatchers = {} // Watch State by StoreName
+    // Store定义
+    this.storeModules = {}
+    // Store实时状态
+    this.storeStates = {}
 
-    this.callbackMap = new Map() // 组件及更新方法映射
-
+    // 状态监听者
+    this.stateWatchers = {}
+    // 组件及更新方法映射
+    this.callbackMap = new Map()
     this.scheduledJobs = new Set()
+  }
+
+  // 设置初始化参数,设置时,所有注册store会全部初始化
+  setProperties (properties) {
+    this.properties = properties
+
+    for (const StoreModule of Object.values(this.storeModules)) {
+      this.initializeModule(StoreModule)
+    }
   }
 
   /**
@@ -126,7 +137,7 @@ export default class ValtioStore {
         const context = {
           state: this.storeStates[storeName],
           scopes: scopedData,
-          ...this.context
+          composite: this.composite
         }
 
         if (scopedData && scopedData.length >= 1) {
@@ -138,7 +149,7 @@ export default class ValtioStore {
           Object.assign(this.storeStates[storeName], exeResult)
         }
       } catch (e) {
-        log('doStoreAction Error', e)
+        console.error('doStoreAction Error', e)
       }
     }
   }
@@ -156,32 +167,53 @@ export default class ValtioStore {
     }
     const moduleName = StoreModule.name
     this.storeModules[moduleName] = StoreModule
-    this.storeStates[moduleName] = {}
 
-    if (typeof StoreModule.state === 'function') {
-      this.storeStates[moduleName] = proxy(StoreModule.state())
-    } else if (typeof StoreModule.state === 'object') {
-      this.storeStates[moduleName] = proxy(StoreModule.state)
-    } else if (typeof StoreModule.data === 'function') {
-      this.storeStates[moduleName] = proxy(StoreModule.data())
-    } else if (typeof StoreModule.data === 'object') {
-      this.storeStates[moduleName] = proxy(StoreModule.data)
-    }
-
-    if (this.storeStates[moduleName]) {
-      subscribe(this.storeStates[moduleName], (mutations) => {
-        log('mutations', mutations)
-        const stateValue = snapshot(this.storeStates[moduleName])
-        for (const mutation of mutations) {
-          const [action, statePath, newValue, oldValue] = mutation
-          log('mutation', action, statePath.join('.'), newValue, oldValue)
-          this.setStateValue(moduleName, statePath[0], stateValue[statePath[0]])
-        }
-        this.flushScheduledJobs()
-      })
-    }
+    this.initializeModule(StoreModule)
   }
 
+  // 初始化Store
+  initializeModule (StoreModule) {
+    const moduleName = StoreModule.name
+
+    // 从属性初始化组件state
+    if (typeof StoreModule.state === 'function') {
+      try {
+        this.storeStates[moduleName] = proxy(StoreModule.state(this.properties, this.storeStates[moduleName] ? snapshot(this.storeStates[moduleName]) : {}))
+      } catch (e) {
+        console.error('initializeModule Error', e)
+      }
+    } else if (typeof StoreModule.state === 'object') {
+      this.storeStates[moduleName] = proxy(StoreModule.state)
+    }
+
+    // 判断 初始化过后部重复监听
+    if (this.storeStates[moduleName]) {
+      // 初始化监听state变化
+      subscribe(this.storeStates[moduleName], mutations => {
+        this.onMutation(moduleName, mutations)
+      })
+    }
+
+    // 更新所有相关组件属性
+    for (const stateWatchers of Object.values(this.stateWatchers[moduleName] ?? {})) {
+      this.scheduleCallback(stateWatchers)
+    }
+    this.flushScheduledJobs()
+  }
+
+  // State改变处理
+  onMutation (moduleName, mutations) {
+    log('mutations', mutations)
+    const stateValue = snapshot(this.storeStates[moduleName])
+    for (const mutation of mutations) {
+      const [action, statePath, newValue, oldValue] = mutation
+      log('mutation', action, statePath.join('.'), newValue, oldValue)
+      this.setStateValue(moduleName, statePath[0], stateValue[statePath[0]])
+    }
+    this.flushScheduledJobs()
+  }
+
+  // state变更
   setStateValue (module, state, newValue) {
     log('state value', module, state, newValue)
 
@@ -189,6 +221,13 @@ export default class ValtioStore {
 
     if (watchers) {
       this.scheduleCallback(watchers)
+    }
+
+    if (this.storeModules[module].watch && this.storeModules[module].watch[state]) {
+      this.storeModules[module].watch[state](newValue, {
+        state: this.storeStates[module],
+        composite: this.composite
+      })
     }
   }
 

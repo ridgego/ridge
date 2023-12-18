@@ -259,18 +259,21 @@ export default class ComponentPanel extends React.Component {
         }),
         required: false,
         multiple: true
+      }, {
+        field: 'properties',
+        control: 'properties'
       }]
     })
 
-    const { cssFiles, jsFiles, storeFiles, style, name } = editorComposite.config
+    const { cssFiles, jsFiles, style, name, properties } = editorComposite.config
 
     this.pagePropFormApi.setValue('cssFiles', cssFiles, {
       notNotify: true
     })
-    this.pagePropFormApi.setValue('jsFiles', jsFiles, {
+    this.pagePropFormApi.setValue('properties', properties, {
       notNotify: true
     })
-    this.pagePropFormApi.setValue('storeFiles', storeFiles, {
+    this.pagePropFormApi.setValue('jsFiles', jsFiles, {
       notNotify: true
     })
     this.pagePropFormApi.setValue('style', style, {

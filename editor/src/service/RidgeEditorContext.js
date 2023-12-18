@@ -102,10 +102,9 @@ class RidgeEditorContext extends RidgeContext {
       const { appService } = this.services
       const pageJSONObject = this.editorComposite.exportPageJSON()
 
-      this.pageJSON = pageJSONObject
       debug('Save Page ', pageJSONObject)
       try {
-        await appService.savePageContent(pageJSONObject.id, pageJSONObject)
+        await appService.savePageContent(this.currentOpenFile.id, pageJSONObject)
       } catch (e) {
         console.error('save page error', e)
       }

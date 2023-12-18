@@ -1,6 +1,6 @@
 import React from 'react'
 import { withField } from '@douyinfe/semi-ui'
-import { RidgeReact } from 'ridge'
+import { RidgeReact } from 'ridge-runtime'
 
 export const PropertiesEdit = ({
   page,
@@ -8,7 +8,12 @@ export const PropertiesEdit = ({
   onChange
 }) => {
   return (
-    <RidgeReact value={value} onChange={onChange} app='ridge-editor-components' page={page} />
+    <RidgeReact
+      app='ridge-editor-components' page={page}
+      value={value} input={val => {
+        onChange(val)
+      }}
+    />
   )
 }
 

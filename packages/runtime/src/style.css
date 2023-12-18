@@ -9,12 +9,19 @@ html, body {
   outline: none;
 }
 
-
+.ridge-composite {
+    position: relative;
+}
 
 .ridge-composite > .ridge-element {
     position: absolute;
     left: 0;
     top: 0;
+}
+
+.ridge-is-full {
+    width: 100%;
+    height: 100%;
 }
 
 .ridge-is-hidden {

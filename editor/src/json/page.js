@@ -11,9 +11,7 @@ export default {
   properties: [],
   cssFiles: [],
   jsFiles: [],
-  storeFiles: [],
-  elements: [],
-  rootElements: []
+  elements: []
 }
 const JS_TEMPLATE = `
 export default {

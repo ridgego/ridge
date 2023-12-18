@@ -41,7 +41,7 @@ class RidgeContext {
 
   unDelegateMethods (target, methods, source = this) {
     for (const method of methods) {
-       delete source[method]
+      delete source[method]
     }
   }
 
@@ -49,28 +49,25 @@ class RidgeContext {
 
   }
 
-  async mountPage (el, appName, pagePath) {
-    const jsonPath = (this.opts.baseUrl + '/' + appName + '/' + pagePath).replace(/\/\//g, '/')
-    const pageJSONObject = await ky.get(jsonPath).json()
-    this.loadPage(el, pageJSONObject, 'hosted', appName)
-  }
+  async createComposite (baseUrl, pagePath, properties) {
+    const appBaseUrl = (baseUrl.startsWith('/') || baseUrl.startsWith('http')) ? baseUrl : (this.baseUrl + '/' + baseUrl)
 
-  /**
-   * 加载、显示页面到某个页面el
-   * @param {*} el 页面元素
-   * @param {*} pageConfig 页面配置
-   * @param {*} mode 模式 edit/run
-   * @returns
-   */
-  loadPage (el, pageConfig, mode, app) {
-    const pageManager = new Composite({ pageConfig: JSON.parse(JSON.stringify(pageConfig)), ridge: this, mode, app })
-    pageManager.loadAndMount(el || document.body)
-    return pageManager
+    try {
+      const pageJSONObject = await this.loadJSON((appBaseUrl + '/' + pagePath + '.json').replace(/\/\//g, '/'))
+      // ky.get((appBaseUrl + '/' + pagePath + '.json').replace(/\/\//g, '/')).json()
+      const composite = new Composite({ config: pageJSONObject, context: this, appBaseUrl, properties })
+
+      return composite
+    } catch (e) {
+      console.error('createComposite error', e)
+      return null
+    }
   }
 }
 
 export default RidgeContext
 
 export {
+  RidgeContext,
   VERSION
 }

@@ -105,7 +105,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
                 libraryTarget: 'this',
                 // 如果代码中有import() 异步引入的部分，打包后会自动增加server地址前缀
                 // publicPath: `${NPM_SERVER}/${packageJson.name}/${packageJson.version}/${BUILD_PATH}/`,
-                publicPath: './',
+                publicPath: 'auto',
                 // 编译输出到项目BUILD_PATH目录下
                 path: path.resolve(packagePath, './' + BUILD_PATH)
             }
@@ -127,17 +127,12 @@ args.option('dir', 'The Front Component Project Root Path', './')
     
             output = {
                 filename: '[name].js',
-                // chunkData => {
-                //     return chunkData.chunk.name.substring(0, chunkData.chunk.name.indexOf('.')) + '.js';
-                // },
-                // filename: '[name].js',
-                // 图元的全局唯一ID (pelUId) 也是图元的下载地址
                 library: `${packageJson.name}/[name]`,
                 // 代码输出格式，amd方式将依赖也输出到define上，未来在运行时需要针对amd加载做相关处理
                 libraryTarget: 'this',
                 // 如果代码中有import() 异步引入的部分，打包后会自动增加server地址前缀
                 // publicPath: `${NPM_SERVER}/${packageJson.name}/${packageJson.version}/${BUILD_PATH}/`,
-                publicPath: './',
+                publicPath: 'auto',
                 // 编译输出到项目BUILD_PATH目录下
                 path: path.resolve(packagePath, './' + BUILD_PATH)
             }

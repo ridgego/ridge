@@ -49,10 +49,10 @@ export default class ListContainer extends BaseContainer {
    */
   renderUpdateListItems () {
     const { dataSource } = this.props
-    if (dataSource && this.itemTemplate) {
-      if (this.items == null) {
-        this.items = []
-      }
+    if (this.items == null) {
+      this.items = []
+    }
+    if (Array.isArray(dataSource) && this.itemTemplate) {
       for (let index = 0; index < dataSource.length; index++) {
         const data = dataSource[index]
         if (this.items[index] == null) {
@@ -79,6 +79,13 @@ export default class ListContainer extends BaseContainer {
       while (this.items.length > dataSource.length) {
         const pop = this.items.pop()
         pop.unmount()
+      }
+    } else {
+      if (this.items.length) {
+        for (const itemComponent of this.items) {
+          itemComponent.unmount()
+        }
+        this.items = []
       }
     }
   }

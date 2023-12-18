@@ -11,13 +11,17 @@ const debug = Debug('ridge:manager')
 class Composite extends BaseNode {
   constructor ({
     el,
+    appBaseUrl,
     config,
+    properties,
     context
   }) {
     super()
     this.config = config
     this.context = context
+    this.appBaseUrl = appBaseUrl
     this.el = el
+    this.properties = properties
     this.initialize()
   }
 
@@ -55,6 +59,7 @@ class Composite extends BaseNode {
       this.nodes[node.getId()] = node
     }
     this.initChildren()
+    this.events = {}
   }
 
   initChildren () {
@@ -81,13 +86,14 @@ class Composite extends BaseNode {
     if (el) {
       this.el = el
     }
+    // 挂载前事件
+    this.emit('postMount')
     this.updateStyle()
     this.onPageMounted && this.onPageMounted()
 
     this.jsModules = await this.importJSFiles()
     await this.importStyleFiles()
     await this.loadStore()
-
     const promises = []
     for (const childNode of this.children) {
       const div = document.createElement('div')
@@ -97,6 +103,9 @@ class Composite extends BaseNode {
 
     await Promise.allSettled(promises)
     this.onPageLoaded && this.onPageLoaded()
+
+    this.initializeEvents()
+    this.emit('loaded')
   }
 
   // 卸载
@@ -140,15 +149,28 @@ class Composite extends BaseNode {
     return []
   }
 
-  /**
-   * Import/Update Composite Styles
-   */
+  // 导入组合样式
   async importStyleFiles () {
     const { cssFiles } = this.config
 
     for (const cssFile of cssFiles ?? []) {
-      await this.context.loadScript(this.context.baseUrl + '/' + this.app + '/' + cssFile)
+      await this.context.loadScript(this.appBaseUrl + '/' + cssFile)
     }
+  }
+
+  // 导入页面脚本文件
+  async importJSFiles () {
+    const { jsFiles } = this.config
+
+    const jsModules = []
+
+    for (const filePath of jsFiles ?? []) {
+      const JsModule = await this.loadModule(this.appBaseUrl + '/' + filePath)
+      if (JsModule) {
+        jsModules.push(JsModule)
+      }
+    }
+    return jsModules
   }
 
   async loadModule (jsPath) {
@@ -171,59 +193,23 @@ class Composite extends BaseNode {
   }
 
   initializeEvents () {
-    // 属性名为value并且与state连接时， 增加 input 事件，事件传值回写到state
-    if (this.config.propEx.value) {
-      this.events.input = val => {
-        this.composite.store.dispatchChange(this.config.propEx.value, [val, ...this.getScopedData()])
-      }
-    }
+  }
 
-    for (const [eventName, actions] of Object.entries(this.config.events)) {
-      this.events[eventName] = (...payload) => {
-        for (const action of actions) {
-          if (action.store && action.method) {
-            const scopeData = this.getScopedData()
-            const event = {
-              payload,
-              param: action.payload
-            }
-            this.composite.store.doStoreAction(action.store, action.method, event, scopeData)
-          }
-        }
-      }
-    }
+  on (name, callback) {
+    this.events[name] = callback
   }
 
   emit (name, ...payload) {
     if (this.events[name]) {
-      this.events[name](payload)
+      this.events[name](...payload)
     }
-  }
-
-  /**
-   * Import JS Files
-   */
-  async importJSFiles () {
-    const { jsFiles } = this.config
-
-    const jsModules = []
-
-    for (const filePath of jsFiles ?? []) {
-      const JsModule = await this.loadModule(this.context.baseUrl + '/' + this.app + '/' + filePath)
-      if (JsModule) {
-        jsModules.push(JsModule)
-      }
-    }
-    return jsModules
   }
 
   /**
    * Load Composite Store
    * */
   async loadStore () {
-    this.store = new ValtioStore({
-      emit: this.emit
-    })
+    this.store = new ValtioStore(this)
     this.store.load(this.jsModules)
   }
 }
