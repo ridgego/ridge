@@ -136,6 +136,7 @@ class RidgeEditorContext extends RidgeContext {
     const { configPanel, outlinePanel, menuBar } = this.services
     if (page) {
       this.pageContent = page.content
+      this.pageContent.name = page.name
     }
     if (this.editorComposite) {
       // await this.saveCurrentPage()
@@ -251,6 +252,15 @@ class RidgeEditorContext extends RidgeContext {
     }
   }
 
+  onFileRenamed (id, newName) {
+    if (this.currentOpenFile && this.currentOpenFile.id === id) {
+      this.editorComposite.config.name = newName
+      const { configPanel, outlinePanel } = this.services
+      
+      configPanel.updatePageConfigFields()
+    }
+  }
+
   createElement (definition) {
     const div = document.createElement('div')
     const ridgeNode = this.editorComposite.createNewElement(definition)
@@ -304,6 +314,7 @@ class RidgeEditorContext extends RidgeContext {
     if (this.editorComposite) {
       this.editorComposite.unmount()
     }
+    this.currentOpenFile = null
     this.editorComposite = null
     this.workspaceControl.disable()
     this.Editor.togglePageClose()

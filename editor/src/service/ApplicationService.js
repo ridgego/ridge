@@ -61,6 +61,7 @@ export default class ApplicationService {
   }
 
   async createDirectory (parent, name) {
+    trace('createDirectory', parent, name)
     const one = await this.collection.findOne({
       parent,
       name
@@ -72,7 +73,7 @@ export default class ApplicationService {
     const dirObject = {
       parent,
       id: nanoid(10),
-      name: name,
+      name,
       type: 'directory'
     }
     const dir = await this.collection.insert(dirObject)
@@ -85,7 +86,8 @@ export default class ApplicationService {
    * @param {*} name
    * @param {*} content
    */
-  async createComposite (parentId, name) {
+  async createComposite (parentId, name, composite) {
+    trace('createComposite', parentId, name)
     const one = await this.collection.findOne({
       parentId,
       name
@@ -95,7 +97,7 @@ export default class ApplicationService {
     }
 
     const id = nanoid(10)
-    const pageContent = pageJSONTemplate
+    const pageContent = composite ?? pageJSONTemplate
 
     const pageObject = {
       id,
@@ -116,6 +118,7 @@ export default class ApplicationService {
    * @returns
    */
   async createFile (parentId, name, blob, mimeType) {
+    trace('createFile', parentId, name)
     const one = await this.collection.findOne({
       parent: parentId,
       name
@@ -221,7 +224,7 @@ export default class ApplicationService {
       const newId = nanoid(10)
       const newObject = {
         id: newId,
-        name: await this.getNewFileName(existed.parent, existed.name, n => `(${n})`),
+        name: existed.name + '_' + newId,
         type: existed.type,
         parent: existed.parent,
         mimeType: existed.mimeType,
@@ -237,27 +240,46 @@ export default class ApplicationService {
   }
 
   // 删除一个节点到回收站
-  async trash (id) {
-    const existed = await this.collection.findOne({ id })
-    if (existed) {
-      if (existed.type !== 'directory') {
-        await this.store.removeItem(id)
+  async deleteFile (id) {
+    let file = null
+    if (typeof id === 'string') {
+      file = await this.collection.findOne({ id })
+    } else {
+      file = id
+    }
+
+    if (file) {
+      if (file.type !== 'directory') {
+        await this.store.removeItem(file.id)
       }
       // 递归删除
       const children = await this.collection.find({
-        parent: id
+        parent: file.id
       })
       if (children.length) {
         for (const child of children) {
-          await this.trash(child.id, false)
+          await this.deleteFile(child.id)
         }
       }
-      await this.collection.remove({ id })
+      await this.collection.remove({ id: file.id })
+      return true
+    } else {
+      return false
+    }
+  }
+
+  async deleteFileByPath (path) {
+    const file = await this.getFileByPath(path)
+
+    if (file) {
+      return await this.deleteFile(file)
+    } else {
+      return false
     }
   }
 
   async getPackageJSONObject () {
-    const file = this.getFileByPath('package.json')
+    const file = this.getFileByPath('/package.json')
     if (file == null) {
       return null
     } else {
@@ -303,31 +325,6 @@ export default class ApplicationService {
       }
       return file
     }
-  }
-
-  /**
-   * 根据路径获取文件
-   */
-  getFileByPath (filePath) {
-    if (!this.fileTree) {
-      return null
-    }
-    const fileNames = filePath.split('/').filter(fileName => fileName)
-    let siblingNodes = this.fileTree
-    let currentFile = null
-
-    for (const fileName of fileNames) {
-      if (fileName) {
-        currentFile = siblingNodes && siblingNodes.filter(file => file.label === fileName)[0]
-
-        if (currentFile == null) {
-          return null
-        } else {
-          siblingNodes = currentFile.children || []
-        }
-      }
-    }
-    return currentFile
   }
 
   /**
@@ -454,7 +451,7 @@ export default class ApplicationService {
   }
 
   async importAppArchive (file) {
-    await this.backUpService.importAppArchive(file, this.collection, this.store)
+    return await this.backUpService.importAppArchive(file, this.collection, this.store)
   }
 
   async backUpAppArchive (tag) {

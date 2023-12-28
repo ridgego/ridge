@@ -10,69 +10,49 @@ export default {
     name: 'children',
     hidden: true,
     type: 'children'
-  }],
-  childStyle: [{
-    label: 'X',
-    width: '50%',
-    control: 'number',
-    field: 'style.x',
-    fieldEx: 'styleEx.x'
   }, {
-    label: 'Y',
-    width: '50%',
-    control: 'number',
-    field: 'style.y',
-    fieldEx: 'styleEx.y'
-  }, {
-    label: 'W',
-    width: '50%',
-    control: 'number',
-    field: 'style.width',
-    fieldEx: 'styleEx.width'
-  }, {
-    label: 'H',
-    width: '50%',
-    control: 'number',
-    field: 'style.height',
-    fieldEx: 'styleEx.height'
-  }, {
-    field: 'style.relative',
-    type: 'array',
-    label: '定位',
-    control: 'checkboxgroup',
-    bindable: false,
-    optionList: [{
-      label: '靠左固定',
-      icon: 'IconAlignHLeftStroked',
-      value: 'left'
-    }, {
-      label: '靠上固定',
-      icon: 'IconAlignVTopStroked',
-      value: 'top'
-    }, {
-      label: '靠下固定',
-      icon: 'IconAlignVBottomStroked',
-      value: 'bottom'
-    },
-    {
-      label: '靠右固定',
-      icon: 'IconAlignHRightStroked',
-      value: 'right'
-    }, {
-      label: '相对垂直中线固定',
-      icon: 'IconAlignHCenterStroked',
-      value: 'hcenter'
-    },
-    {
-      label: '相对水平中线固定',
-      icon: 'IconAlignVCenterStroked',
-      value: 'vcenter'
-    }]
+    label: '边框',
+    name: 'border',
+    type: 'border',
+    value: '1px solid #ccc'
   }, {
     name: 'classNames',
     label: '样式',
     type: 'class',
     value: []
+  }],
+  childProps: [{
+    label: '距左',
+    width: '50%',
+    control: 'string',
+    field: 'style.left'
+  }, {
+    label: '距上',
+    width: '50%',
+    control: 'string',
+    field: 'style.top'
+  }, {
+    label: '距右',
+    width: '50%',
+    control: 'string',
+    field: 'style.right'
+  }, {
+    label: '距下',
+    width: '50%',
+    control: 'string',
+    field: 'style.bottom'
+  }, {
+    label: '宽度',
+    width: '50%',
+    control: 'number',
+    field: 'style.width',
+    fieldEx: 'styleEx.width'
+  }, {
+    label: '高度',
+    width: '50%',
+    control: 'number',
+    field: 'style.height',
+    fieldEx: 'styleEx.height'
   }],
   width: 540,
   height: 360

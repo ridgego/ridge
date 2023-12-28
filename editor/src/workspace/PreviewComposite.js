@@ -22,7 +22,7 @@ class PreviewComposite extends EditorComposite {
    * Load Composite Store
    **/
   async loadStore () {
-    this.store = new ValtioStore()
+    this.store = new ValtioStore(this)
     this.store.load(this.jsModules)
   }
 

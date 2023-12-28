@@ -18,7 +18,7 @@ const COMPONENT_BASIC_FIELDS = [
 
 const COMPONENT_ROOT_FIELDS = [
   {
-    label: 'X',
+    label: '距左',
     control: 'number',
     width: '50%',
     readonly: (values) => {
@@ -27,7 +27,7 @@ const COMPONENT_ROOT_FIELDS = [
     field: 'style.x',
     fieldEx: 'styleEx.x'
   }, {
-    label: 'Y',
+    label: '距上',
     width: '50%',
     control: 'number',
     readonly: (values) => {
@@ -37,13 +37,13 @@ const COMPONENT_ROOT_FIELDS = [
     fieldEx: 'styleEx.Y'
   },
   {
-    label: 'W',
+    label: '宽度',
     width: '50%',
     control: 'number',
     field: 'style.width',
     fieldEx: 'styleEx.width'
   }, {
-    label: 'H',
+    label: '高度',
     width: '50%',
     control: 'number',
     field: 'style.height',
@@ -56,7 +56,7 @@ const COMPONENT_ROOT_FIELDS = [
     field: 'style.visible',
     fieldEx: 'styleEx.visible'
   }, {
-    label: '填满页面',
+    label: '填满',
     width: '50%',
     type: 'boolean',
     field: 'style.full'

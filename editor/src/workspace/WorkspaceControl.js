@@ -187,8 +187,8 @@ export default class WorkSpaceControl {
     }) => {
       const style = {}
       const matched = transform.match(/[0-9.]+/g)
-      style.x = drag.translate[0]
-      style.y = drag.translate[1]
+      // style.x = drag.translate[0]
+      // style.y = drag.translate[1]
       // target.style.transform = transform
       if (delta[0]) {
         style.width = width
@@ -451,8 +451,15 @@ export default class WorkSpaceControl {
     if (targetParent) {
       // 放入一个容器
       trace('Into container', targetParent)
+
+      const bcr = el.getBoundingClientRect()
+      const pbcr = targetEl.getBoundingClientRect()
+
       context.editorComposite.removeChild(el.ridgeNode)
-      targetParent.appendChild(el.ridgeNode, { x, y })
+      targetParent.appendChild(el.ridgeNode, {
+        x: Math.floor((bcr.x - pbcr.x) / this.zoom),
+        y: Math.floor((bcr.y - pbcr.y) / this.zoom)
+      })
     }
     context.onElementMoveEnd(el)
     this.moveable.updateTarget()

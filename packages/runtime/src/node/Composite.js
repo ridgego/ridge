@@ -138,6 +138,9 @@ class Composite extends BaseNode {
         childNode.el.classList.add('ridge-is-full')
         childNode.el.classList.remove('ridge-is-absolute')
       } else {
+        childNode.el.style.position = 'absolute'
+        childNode.el.style.left = 0
+        childNode.el.style.top = 0
         childNode.el.style.transform = `translate(${style.x}px, ${style.y}px)`
         childNode.el.style.width = style.width ? (style.width + 'px') : ''
         childNode.el.style.height = style.height ? (style.height + 'px') : ''

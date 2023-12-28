@@ -4,7 +4,7 @@ import debug from 'debug'
 import { Button, Input, Tree, Dropdown, Typography, Toast, Upload, ImagePreview, Spin, Modal, Popover, Form } from '@douyinfe/semi-ui'
 import { IconPlus, IconImport, IconSetting, IconFolderOpen, IconMusic, IconImage, IconExport, IconCloudUploadStroked, IconBriefStroked, IconFont, IconPlusStroked, IconCopy, IconEdit, IconPaperclip, IconFolderStroked, IconFolder, IconMoreStroked, IconDeleteStroked } from '@douyinfe/semi-icons'
 import context from '../../service/RidgeEditorContext.js'
-import { eachNode, getFileTree } from './buildFileTree.js'
+import { eachNode } from './buildFileTree.js'
 import DialogRename from './DialogRename.jsx'
 import DialogCreate from './DialogCreate.jsx'
 import { stringToBlob } from '../../utils/blob.js'
@@ -91,7 +91,13 @@ class AppFileList extends React.Component {
     const { selectedNodeKey } = this.state
     if (selectedNodeKey) {
       const node = this.nodeMap[selectedNodeKey]
-      return node.path
+      if (node.type === 'directory') {
+        return node.path
+      } else if (node.parentNode) {
+        return node.parentNode.path
+      } else {
+        return '/'
+      }
     } else {
       return '/'
     }
@@ -172,6 +178,7 @@ class AppFileList extends React.Component {
 
     const result = await appService.rename(selectedNodeKey, valueRename)
 
+    context.onFileRenamed(selectedNodeKey, valueRename);
     if (result) {
       await this.loadAndUpdateFileTree()
       this.setState({
@@ -187,7 +194,7 @@ class AppFileList extends React.Component {
       content: '删除后文件无法找回，推荐您可先通过导出进行备份',
       onOk: async () => {
         const { appService } = context.services
-        await appService.trash(data.key)
+        await appService.deleteFile(data.key)
         this.setState({
           selectedNodeKey: null
         })
@@ -197,9 +204,10 @@ class AppFileList extends React.Component {
     })
   }
 
-  copy = async node => {
+  onCopyClicked = async node => {
     const { appService } = context.services
     await appService.copy(node.key)
+    this.loadAndUpdateFileTree()
     Toast.success('文件复制完成')
   }
 
@@ -227,10 +235,10 @@ class AppFileList extends React.Component {
     } else {
       parentId = node.parent
     }
-    const { appService } = ridge
+    const { appService } = context.services
     const moveResult = await appService.move(dragNode.key, parentId)
     if (moveResult) {
-      // await this.updateFileTree()
+      await this.loadAndUpdateFileTree()
     } else {
       Toast.warning({
         content: '目录移动错误：存在同名的文件',
@@ -263,15 +271,15 @@ class AppFileList extends React.Component {
       >复制
       </Dropdown.Item>
     )
-    MORE_MENUS.push(
-      <Dropdown.Item
-        key='export'
-        icon={<IconExport />} onClick={() => {
-          this.onExportClicked(data)
-        }}
-      >导出
-      </Dropdown.Item>
-    )
+    // MORE_MENUS.push(
+    //   <Dropdown.Item
+    //     key='export'
+    //     icon={<IconExport />} onClick={() => {
+    //       this.onExportClicked(data)
+    //     }}
+    //   >导出
+    //   </Dropdown.Item>
+    // )
     MORE_MENUS.push(
       <Dropdown.Item
         key='rename'
@@ -349,18 +357,21 @@ class AppFileList extends React.Component {
             >
               <Upload
                 action='none'
+                accept='.zip'
                 showUploadList={false} uploadTrigger='custom' onFileChange={files => {
                   Modal.confirm({
                     zIndex: 10001,
                     title: '确认导入应用',
                     content: '导入应用会首先覆盖现有应用，如果有需要的工作，建议您首先导出备份。 是否继续?',
                     onOk: () => {
-                      ridge.backUpService.importAppArchive(files[0]).then(result => {
+                      const { appService } = context.services
+                      appService.importAppArchive(files[0]).then(result => {
                         Toast.info('成功导入应用，共' + result.length + '个文件')
+                        this.loadAndUpdateFileTree()
                       })
                     }
                   })
-                }} accept='.zip'
+                }}
               >
                 导入应用
               </Upload>

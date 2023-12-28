@@ -16,10 +16,10 @@ class EditorElement extends Element {
     }
   }
 
-  appendChild (node) {
+  appendChild (node, { x, y }) {
     this.children.push(node)
     node.parent = this
-    this.invoke('appendChild', [node])
+    this.invoke('appendChild', [node, { x, y }])
   }
 
   removeChild (node) {
@@ -27,6 +27,9 @@ class EditorElement extends Element {
     node.parent = null
 
     this.invoke('removeChild', [node])
+  }
+
+  getPositionInViewPort () {
   }
 
   /**
@@ -64,13 +67,18 @@ class EditorElement extends Element {
     this.updateProps()
   }
 
-  updateConfig (config) {
-    _.merge(this.config, config)
+  updateConfig (config, updateOnly) {
+    Object.assign(this.config, config)
+    // _.merge(this.config, config)
 
     // 更新配置属性到运行
     Object.assign(this.properties, config.props)
-    this.updateStyle()
-    this.updateProps()
+    this.style = config.style
+
+    if (updateOnly !== true) {
+      this.updateStyle()
+      this.updateProps()
+    }
   }
 
   childRemoved (node) {

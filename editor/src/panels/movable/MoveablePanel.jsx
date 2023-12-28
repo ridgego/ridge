@@ -113,7 +113,7 @@ export default class MoveablePanel extends React.Component {
           <div className='title-bar' style={titleStyle}>
             <IconHandle className='icon-handle' />
             {title && <Text className='title-text'>{title}</Text>}
-            {openSearch && <Input
+            {/*{openSearch && <Input
               placeholder='输入查询条件' prefix={<IconSearchStroked />} suffix={<IconClose onClick={closeSearch} />} className='toggle-search'
               value={search} onChange={val => {
                 this.setState({
@@ -128,7 +128,7 @@ export default class MoveablePanel extends React.Component {
                   search: ''
                 })
               }}
-            />
+            />*/}
           </div>
           <div
             className='panel-content'

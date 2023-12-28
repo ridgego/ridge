@@ -168,7 +168,7 @@ export default class BackUpService {
         if (filePath.endsWith('.json')) { // 对json文件判断是否为图纸，是图纸则导入
           const jsonObject = JSON.parse(await zipObject.async('text'))
           if (jsonObject.elements) {
-            await appService.createPage(parentId, basename(filename, '.json'), jsonObject)
+            await appService.createComposite(parentId, basename(filename, '.json'), jsonObject)
           } else {
             await appService.createFile(parentId, filename, new File([JSON.stringify(jsonObject)], filename), 'text/json')
           }

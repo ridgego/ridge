@@ -78,12 +78,12 @@ export default class BaseContainer {
   /**
    * 增加子节点
    */
-  appendChild (childNode) {
+  appendChild (childNode, { x, y }) {
     this.onDragOut()
     const el = childNode.el
     this.containerEl.appendChild(el)
+    this.onChildAppended(childNode, { x, y })
     this.updateChildStyle(childNode)
-    this.onChildAppended(childNode)
   }
 
   /**
@@ -114,13 +114,6 @@ export default class BaseContainer {
       const shadowNode = document.createElement('div')
       shadowNode.classList.add('drop-shadow')
       shadowNode.innerHTML = '可以放入容器内'
-
-      // const tag = document.createElement('div')
-      // tag.classList.add('drop-tag')
-
-      // tag.innerHTML = this.props.__view.config.title
-
-      // shadowNode.appendChild(tag)
 
       this.el.appendChild(shadowNode)
 

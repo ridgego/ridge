@@ -23,7 +23,7 @@ export default class ValtioStore {
     this.scheduledJobs = new Set()
   }
 
-  // 设置初始化参数,设置时,所有注册store会全部初始化
+  // 设置初始化参数,设置时,所有注册store会全部初始化。 同时页面会重新渲染（按必要）
   setProperties (properties) {
     this.properties = properties
 
@@ -71,7 +71,7 @@ export default class ValtioStore {
         error('getStoreValue Error', e)
       }
     }
-    log('getStoreValue', expr, result)
+    // log('getStoreValue', expr, result)
     return result
   }
 
