@@ -1,6 +1,8 @@
 import { Element } from 'ridge-runtime'
 import _ from 'lodash'
 
+import context from '../service/RidgeEditorContext.js'
+
 class EditorElement extends Element {
   getProperties () {
     return Object.assign({}, this.config.props, {
@@ -26,10 +28,14 @@ class EditorElement extends Element {
     this.children = this.children.filter(n => n !== node)
     node.parent = null
 
-    this.invoke('removeChild', [node])
-  }
+    // 设置到顶级的位置
+    const { workspaceControl } = context
 
-  getPositionInViewPort () {
+    const rectConfig = workspaceControl.getElementRectConfig(node.el)
+
+    this.invoke('removeChild', [node])
+
+    node.setStyleConfig(rectConfig)
   }
 
   /**
@@ -50,15 +56,27 @@ class EditorElement extends Element {
     }
   }
 
-  updateStyleConfig (style) {
-    _.merge(this.config.style, style)
+  setVisible (visible) {
+    this.config.style.visible = visible
+    this.style.visible = visible
     this.updateStyle()
+  }
 
-    if (style.locked) {
-      this.el.classList.add('is-locked')
-    } else {
-      this.el.classList.remove('is-locked')
-    }
+  setLocked (locked) {
+    this.config.locked = locked
+  }
+
+  updateStyleConfig (style) {
+    console.log('updateStyleConfig', style)
+    _.merge(this.config.style, style)
+    this.style = this.config.style
+    this.updateStyle()
+  }
+
+  setStyleConfig (style) {
+    this.config.style = style
+    this.style = this.config.style
+    this.updateStyle()
   }
 
   updateChildConfig (childNodes) {
@@ -68,12 +86,13 @@ class EditorElement extends Element {
   }
 
   updateConfig (config, updateOnly) {
+    console.log('updateConfig', config)
     Object.assign(this.config, config)
     // _.merge(this.config, config)
 
     // 更新配置属性到运行
     Object.assign(this.properties, config.props)
-    this.style = config.style
+    this.style = JSON.parse(JSON.stringify(config.style))
 
     if (updateOnly !== true) {
       this.updateStyle()

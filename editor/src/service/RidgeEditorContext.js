@@ -4,6 +4,7 @@ import Debug from 'debug'
 import RidgeContext, { Element } from 'ridge-runtime'
 import ApplicationService from './ApplicationService.js'
 import WorkSpaceControl from '../workspace/WorkspaceControl.js'
+import _ from 'lodash'
 
 import EditorComposite from '../workspace/EditorComposite.js'
 import PreviewComposite from '../workspace/PreviewComposite.js'
@@ -256,7 +257,7 @@ class RidgeEditorContext extends RidgeContext {
     if (this.currentOpenFile && this.currentOpenFile.id === id) {
       this.editorComposite.config.name = newName
       const { configPanel, outlinePanel } = this.services
-      
+
       configPanel.updatePageConfigFields()
     }
   }
@@ -285,7 +286,8 @@ class RidgeEditorContext extends RidgeContext {
   /**
    * 组件配置属性变更
    **/
-  updateComponentConfig (view, config) {
+  updateComponentConfig (view, configValues) {
+    const config = _.cloneDeep(configValues)
     const titleChanged = config.title !== view.config.title
 
     view.updateConfig(config)
@@ -298,8 +300,8 @@ class RidgeEditorContext extends RidgeContext {
     this.workspaceControl.updateMovable()
   }
 
-  updateComponentStyle (view, config) {
-    view.updateStyleConfig(config)
+  updateComponentStyle (editorElement, config) {
+    editorElement.updateStyleConfig(config)
   }
 
   async onCodeEditComplete (id, code) {

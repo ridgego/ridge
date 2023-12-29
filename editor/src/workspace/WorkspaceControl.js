@@ -186,7 +186,7 @@ export default class WorkSpaceControl {
       transform
     }) => {
       const style = {}
-      const matched = transform.match(/[0-9.]+/g)
+      // const matched = transform.match(/[0-9.]+/g)
       // style.x = drag.translate[0]
       // style.y = drag.translate[1]
       // target.style.transform = transform
@@ -499,22 +499,14 @@ export default class WorkSpaceControl {
   onElementDragStart (el, event) {
     if (el.ridgeNode && el.ridgeNode.parent && el.ridgeNode.parent !== context.editorComposite) {
       // 当节点放置容器内时，首先脱离节点并将其放置到根的同样位置
-      const beforeRect = el.getBoundingClientRect()
-      const rbcr = this.viewPortEl.getBoundingClientRect()
+      const rectConfig = this.getElementRectConfig(el)
 
       el.ridgeNode.parent.removeChild(el.ridgeNode)
       context.editorComposite.appendChild(el.ridgeNode)
 
       context.services.outlinePanel.updateOutline()
-      // this.viewPortEl.appendChild(el)
 
-      el.ridgeNode.updateStyleConfig({
-        position: 'absolute',
-        x: (beforeRect.x - rbcr.x) / this.zoom,
-        y: (beforeRect.y - rbcr.y) / this.zoom,
-        width: beforeRect.width / this.zoom,
-        height: beforeRect.height / this.zoom
-      })
+      el.ridgeNode.updateStyleConfig(rectConfig)
     }
 
     this.checkDropTargetStatus({
@@ -522,6 +514,19 @@ export default class WorkSpaceControl {
       clientX: event.clientX,
       clientY: event.clientY
     })
+  }
+
+  getElementRectConfig (el) {
+    const beforeRect = el.getBoundingClientRect()
+    const rbcr = this.viewPortEl.getBoundingClientRect()
+
+    return {
+      position: 'absolute',
+      x: (beforeRect.x - rbcr.x) / this.zoom,
+      y: (beforeRect.y - rbcr.y) / this.zoom,
+      width: beforeRect.width / this.zoom,
+      height: beforeRect.height / this.zoom
+    }
   }
 
   /**
@@ -535,42 +540,28 @@ export default class WorkSpaceControl {
     document.querySelectorAll('.ridge-element.selected').forEach(el => {
       el.classList.remove('selected')
     })
-    const filtered = elements.filter(el => !el.classList.contains('is-hidden'))
 
-    // 触发上下文选中 （可能会切换显隐）
-    if (filtered && filtered.length === 1) {
-      context.onElementSelected(filtered[0])
-    } else {
-      context.onPageSelected()
-    }
-
-    if (filtered) {
-      context.selected = filtered
-    }
-
-    // 单选支持选中并设置为不可resize/move
-    if (filtered.length === 1) {
-      if (filtered[0].offsetParent /* 必须显示 */) {
-        if (filtered[0].classList.contains('is-locked') || filtered[0].classList.contains('is-full')) {
+    if (elements && elements.length > 0) {
+      if (elements.length === 1) {
+        context.onElementSelected(elements[0])
+        this.moveable.target = elements
+        if (elements[0].classList.contains('ridge-is-locked')) {
+          this.moveable.draggable = false
           this.moveable.resizable = false
         } else {
+          this.moveable.draggable = true
           this.moveable.resizable = true
         }
-        this.disableClickThrough = disableClickThrough
-        this.selected = filtered
-
-        filtered.forEach(el => {
-          el.classList.add('selected')
-        })
-        this.moveable.target = filtered
-        this.moveable.updateTarget()
+      } else {
+        this.moveable.target = elements.filter(el => el.parentElement.classList.contains('ridge-composite'))
+        // 多个的时候 只选择根元素
       }
     } else {
-      this.moveable.resizable = true
-      // 多选排除locked
-      this.selected = filtered.filter(el => !el.classList.contains('is-locked'))
-      this.moveable.target = filtered.filter(el => !el.classList.contains('is-locked'))
+      context.onPageSelected()
+      this.selected = []
+      this.moveable.target = null
     }
+    this.moveable.updateTarget()
   }
 
   unSelectElements (elements) {

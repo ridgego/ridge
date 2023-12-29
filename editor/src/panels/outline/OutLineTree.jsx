@@ -124,22 +124,33 @@ class OutLineTree extends React.Component {
 
   toggleLock = (data) => {
     const view = context.getNode(data.element)
-    const lockStatus = !view.config.style.locked
-    view.updateStyleConfig({ locked: lockStatus })
+    view.setLocked(!view.config.locked)
     context.workspaceControl.selectElements([view.el])
   }
 
   toggleVisible = (data) => {
     const view = context.getNode(data.element)
-    const visible = !view.config.style.visible
-    view.updateStyleConfig({ visible })
-    context.workspaceControl.selectElements([view.el])
+    view.setVisible(!view.config.visible)
+
+    if (view.config.visible) {
+      context.workspaceControl.selectElements([view.el])
+    } else {
+      context.workspaceControl.selectElements([])
+    }
     this.updateOutline()
   }
 
   renderFullLabel = (label, data) => {
     const { toggleLock, toggleVisible } = this
-    const { visible, locked } = data.element.config.style
+    let { visible, locked } = data.element.config
+
+    if (visible !== false) {
+      visible = true
+    }
+    if (locked !== true) {
+      locked = false
+    }
+
     return (
       <div className={'tree-label ' + (visible ? 'is-visible' : 'is-hidden') + ' ' + (locked ? 'is-locked' : '')}>
         <Space className='label-content'>
