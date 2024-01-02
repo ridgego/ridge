@@ -25,6 +25,7 @@ export default class WorkSpaceControl {
     this.initKeyBind()
     this.initComponentDrop()
 
+    this.selected = []
     this.viewPortEl.style.transformOrigin = 'center center'
   }
 
@@ -167,7 +168,7 @@ export default class WorkSpaceControl {
 
     this.moveable.on('dragEnd', ev => {
       const target = ev.target
-      if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
+      if (!sm.isTargetMovable(target)) {
         return
       }
       if (ev.isDrag) {
@@ -315,16 +316,6 @@ export default class WorkSpaceControl {
       return
     }
 
-    // 组件重叠时处理  起到何种作用？
-    if (this.moveable.target && this.moveable.target.length === 1 && !this.moveable.target[0].contains(target)) {
-      const { clientX, clientY } = inputEvent
-      const bc = this.moveable.target[0].getBoundingClientRect()
-      if (clientX > bc.x && clientX < (bc.x + bc.width) && clientY > bc.y && clientY < (bc.y + bc.height)) {
-        // e.stop()
-        // return
-      }
-    }
-
     // 拖拽起始位置位于元素内
     const closestRidgeNode = target.closest('.ridge-element')
     if (this.isElementMovable(closestRidgeNode)) {
@@ -333,25 +324,6 @@ export default class WorkSpaceControl {
     }
 
     if (closestRidgeNode) {
-      // 变框选为选择单个节点并拖拽开始
-      // if (inputEvent.shiftKey) {
-      //   // shift时，原地复制一个节点，选中节点继续拖拽
-      //   const rect = closestRidgeNode.getBoundingClientRect()
-      //   const cloned = this.pageManager.cloneElement(closestRidgeNode.elementWrapper)
-      //   this.placeElementAt(cloned.el, rect.x + rect.width / 2, rect.y + rect.height / 2)
-      // }
-
-      // 清除既有选中
-      // if (this.moveable.target && this.moveable.target.length) {
-      //   this.moveable.target = []
-      // }
-
-      if (closestRidgeNode.classList.contains('ridge-is-locked') || closestRidgeNode.classList.contains('ridge-is-full')) {
-        this.moveable.resizable = false
-      } else {
-        this.moveable.resizable = true
-      }
-
       // 穿透选择
       if (this.moveable.target && this.moveable.target.length === 1 && this.moveable.target[0].contains(closestRidgeNode) && this.disableClickThrough) {
         // 当前已经选择target并且包含了点击的节点，并且设置了禁用穿透选择，则不选择到子节点
@@ -546,31 +518,46 @@ export default class WorkSpaceControl {
   selectElements (elements, disableClickThrough) {
     this.disableClickThrough = false
 
+    // 去除之前选中状态
     document.querySelectorAll('.ridge-element.selected').forEach(el => {
       el.classList.remove('selected')
     })
 
     if (elements && elements.length > 0) {
-      if (elements.length === 1) {
-        context.onElementSelected(elements[0])
-        this.moveable.target = elements
-        // if (elements[0].classList.contains('ridge-is-locked')) {
-        //   this.moveable.draggable = false
-        //   this.moveable.resizable = false
-        // } else {
-        //   this.moveable.draggable = true
-        //   this.moveable.resizable = true
-        // }
-      } else {
-        this.moveable.target = elements.filter(el => el.parentElement.classList.contains('ridge-composite'))
+      this.selected = elements.filter(el => !el.classList.contains('ridge-is-hidden'))
+      if (this.selected.length > 1) {
         // 多个的时候 只选择根元素
+        this.selected = elements.filter(el => el.parentElement.classList.contains('ridge-composite'))
       }
+      if (this.selected.length === 1) {
+        context.onElementSelected(this.selected[0])
+      }
+      this.moveable.target = this.selected
     } else {
       context.onPageSelected()
       this.selected = []
       this.moveable.target = null
     }
+    this.setSelectedStatus()
     this.moveable.updateTarget()
+  }
+
+  // 更新选择的状态
+  setSelectedStatus () {
+    if (this.selected.length === 1) {
+      const el = this.selected[0]
+      if (el.classList.contains('ridge-is-locked') || el.classList.contains('ridge-is-full')) {
+        this.moveable.moveable = false
+        this.moveable.resizable = false
+      } else {
+        this.moveable.moveable = true
+        this.moveable.resizable = true
+      }
+    } else if (this.selected.length > 1) {
+      this.moveable.resizable = false
+    }
+    this.moveable.elementGuidelines = [document.querySelector('.viewport-container'),
+      ...Array.from(document.querySelectorAll('.viewport-container > .ridge-element:not(.ridge-is-hidden)')).filter(el => this.selected.indexOf(el) === -1)]
   }
 
   isTargetMovable (el) {

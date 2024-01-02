@@ -62,6 +62,11 @@ class EditorElement extends Element {
   }
 
   setLocked (locked) {
+    if (locked) {
+      this.el.classList.add('ridge-is-locked')
+    } else {
+      this.el.classList.remove('ridge-is-locked')
+    }
     this.config.locked = locked
   }
 

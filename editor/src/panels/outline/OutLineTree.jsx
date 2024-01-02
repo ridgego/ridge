@@ -80,7 +80,7 @@ class OutLineTree extends React.Component {
 
   onNodeSelected (val) {
     const node = context.getNode(val)
-    if (node && node.el) {
+    if (node && node.el && node.config.visible) {
       context.workspaceControl.selectElements([node.el], true)
     }
     this.setState({

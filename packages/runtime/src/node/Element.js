@@ -246,7 +246,7 @@ class Element extends BaseNode {
    **/
   updateStyle () {
     if (this.el) {
-      // 处理锁定和显隐状态
+      // 处理显隐状态
       if (this.config.visible === false) {
         this.el.classList.add('ridge-is-hidden')
       } else if (this.config.visible === true) {
