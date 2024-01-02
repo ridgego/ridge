@@ -131,7 +131,7 @@ class Element extends BaseNode {
       }
     }
 
-    for (const [eventName, actions] of Object.entries(this.config.events)) {
+    for (const [eventName, actions] of Object.entries(this.config.events ?? {})) {
       this.events[eventName] = (...payload) => {
         for (const action of actions) {
           if (action.store && action.method) {
@@ -249,18 +249,12 @@ class Element extends BaseNode {
       // 处理锁定和显隐状态
       if (this.config.visible === false) {
         this.el.classList.add('ridge-is-hidden')
-      } else {
+      } else if (this.config.visible === true) {
         this.el.classList.remove('ridge-is-hidden')
-      }
-
-      if (this.config.locked === true) {
-        this.el.classList.add('ridge-is-locked')
-      } else {
-        this.el.classList.remove('ridge-is-locked')
       }
     }
     this.parent && this.parent.updateChildStyle(this)
-    this.invoke('updateStyle', [this])
+    this.invoke('onStyleUpdated', [this])
   }
 
   /**

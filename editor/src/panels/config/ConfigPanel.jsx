@@ -21,8 +21,8 @@ const COMPONENT_ROOT_FIELDS = [
     label: '距左',
     control: 'number',
     width: '50%',
-    readonly: (values) => {
-      return !(values && values.style && values.style.position === 'absolute')
+    readonly: (config) => {
+      return config && (config.full || config.locked)
     },
     field: 'style.x',
     fieldEx: 'styleEx.x'
@@ -30,8 +30,8 @@ const COMPONENT_ROOT_FIELDS = [
     label: '距上',
     width: '50%',
     control: 'number',
-    readonly: (values) => {
-      return !(values && values.style && values.style.position === 'absolute')
+    readonly: (config) => {
+      return config && (config.full || config.locked)
     },
     field: 'style.y',
     fieldEx: 'styleEx.Y'
@@ -40,6 +40,9 @@ const COMPONENT_ROOT_FIELDS = [
     label: '宽度',
     width: '50%',
     control: 'number',
+    readonly: (config) => {
+      return config && (config.full || config.locked)
+    },
     field: 'style.width',
     fieldEx: 'styleEx.width'
   }, {
@@ -47,39 +50,23 @@ const COMPONENT_ROOT_FIELDS = [
     width: '50%',
     control: 'number',
     field: 'style.height',
+    readonly: (config) => {
+      return config && (config.full || config.locked)
+    },
     fieldEx: 'styleEx.height'
   }, {
     label: '显示',
     type: 'boolean',
     control: 'checkbox',
     width: '50%',
-    field: 'style.visible',
-    fieldEx: 'styleEx.visible'
+    field: 'visible'
   }, {
     label: '填满',
     width: '50%',
     type: 'boolean',
-    field: 'style.full'
+    field: 'full'
   }
 ]
-
-const COMPONENT_STYLE_FIELDS = [{
-  label: '填满页面',
-  width: '50%',
-  type: 'boolean',
-  field: 'style.full'
-}, {
-  label: '透明度',
-  type: 'number',
-  width: '50%',
-  field: 'style.opacity',
-  fieldEx: 'styleEx.opacity'
-}, {
-  label: '层高',
-  type: 'number',
-  width: '50%',
-  field: 'style.zIndex'
-}]
 
 const PAGE_FIELDS = [
   {
@@ -189,17 +176,8 @@ export default class ComponentPanel extends React.Component {
       nodePropFields,
       nodeEventFields
     }, () => {
-      // this.componentPropFormApi.reset()
-      // this.componentEventFormApi.reset()
-      // this.componentStyleFormApi.reset()
-
-      for (const key of ['title', 'props', 'propEx', 'style', 'styleEx', 'id']) {
-        this.componentPropFormApi.setValue(key, JSON.parse(JSON.stringify(view.config[key])), {
-          notNotify: true
-        })
-      }
-
-      this.componentEventFormApi.setValue('events', JSON.parse(JSON.stringify(view.config.events)), {
+      this.updateComponentConfig(view)
+      this.componentEventFormApi.setValue('events', view.config.events, {
         notNotify: true
       })
     })
@@ -207,8 +185,8 @@ export default class ComponentPanel extends React.Component {
 
   updateComponentConfig (view) {
     if (view === this.componentView) {
-      for (const key of ['title', 'props', 'propEx', 'style', 'styleEx', 'id']) {
-        this.componentPropFormApi.setValue(key, JSON.parse(JSON.stringify(view.config[key])), {
+      for (const key of ['title', 'props', 'propEx', 'style', 'styleEx', 'id', 'visible', 'full']) {
+        this.componentPropFormApi.setValue(key, view.config[key], {
           notNotify: true
         })
       }

@@ -132,12 +132,15 @@ class Composite extends BaseNode {
 
   // 更新子节点位置样式
   updateChildStyle (childNode) {
-    const style = childNode.config.style
     if (childNode.el) {
-      if (style.full) {
+      if (childNode.config.full) {
         childNode.el.classList.add('ridge-is-full')
-        childNode.el.classList.remove('ridge-is-absolute')
+        childNode.el.style.transform = 'none'
+        childNode.el.style.width = ''
+        childNode.el.style.height = ''
       } else {
+        const style = childNode.config.style
+        childNode.el.classList.remove('ridge-is-full')
         childNode.el.style.position = 'absolute'
         childNode.el.style.left = 0
         childNode.el.style.top = 0

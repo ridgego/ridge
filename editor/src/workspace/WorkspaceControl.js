@@ -147,7 +147,7 @@ export default class WorkSpaceControl {
 
     this.moveable.on('drag', ev => {
       const target = ev.target
-      if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
+      if (!sm.isTargetMovable(target)) {
         return
       }
       if (this.workspaceMovable.dragWorkSpace) {
@@ -185,10 +185,13 @@ export default class WorkSpaceControl {
       delta,
       transform
     }) => {
+      if (!sm.isTargetResizable(target)) {
+        return
+      }
       const style = {}
-      // const matched = transform.match(/[0-9.]+/g)
-      // style.x = drag.translate[0]
-      // style.y = drag.translate[1]
+      const matched = transform.match(/[0-9.]+/g)
+      style.x = drag.translate[0]
+      style.y = drag.translate[1]
       // target.style.transform = transform
       if (delta[0]) {
         style.width = width
@@ -216,6 +219,9 @@ export default class WorkSpaceControl {
         target,
         transform
       }) => {
+        if (!sm.isTargetMovable(target)) {
+          return
+        }
         if (!target.ridgeNode.config.parent) {
           target.style.transform = transform
         }
@@ -241,6 +247,9 @@ export default class WorkSpaceControl {
         delta,
         transform
       }) => {
+        if (!sm.isTargetResizable(target)) {
+          return
+        }
         target.style.transform = transform
         delta[0] && (target.style.width = `${width}px`)
         delta[1] && (target.style.height = `${height}px`)
@@ -545,13 +554,13 @@ export default class WorkSpaceControl {
       if (elements.length === 1) {
         context.onElementSelected(elements[0])
         this.moveable.target = elements
-        if (elements[0].classList.contains('ridge-is-locked')) {
-          this.moveable.draggable = false
-          this.moveable.resizable = false
-        } else {
-          this.moveable.draggable = true
-          this.moveable.resizable = true
-        }
+        // if (elements[0].classList.contains('ridge-is-locked')) {
+        //   this.moveable.draggable = false
+        //   this.moveable.resizable = false
+        // } else {
+        //   this.moveable.draggable = true
+        //   this.moveable.resizable = true
+        // }
       } else {
         this.moveable.target = elements.filter(el => el.parentElement.classList.contains('ridge-composite'))
         // 多个的时候 只选择根元素
@@ -562,6 +571,22 @@ export default class WorkSpaceControl {
       this.moveable.target = null
     }
     this.moveable.updateTarget()
+  }
+
+  isTargetMovable (el) {
+    if (el.classList.contains('ridge-is-locked') || el.classList.contains('ridge-is-full')) {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  isTargetResizable (el) {
+    if (el.classList.contains('ridge-is-locked') || el.classList.contains('ridge-is-full')) {
+      return false
+    } else {
+      return true
+    }
   }
 
   unSelectElements (elements) {

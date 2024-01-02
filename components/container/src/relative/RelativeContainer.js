@@ -93,8 +93,4 @@ export default class RelativeContainer extends BaseContainer {
       }
     }
   }
-
-  updateStyle (style) {
-    console.log('update style', style)
-  }
 }

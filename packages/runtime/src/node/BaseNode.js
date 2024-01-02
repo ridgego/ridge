@@ -20,7 +20,6 @@ class BaseNode {
     this.status = status
 
     if (!this.el) return
-    // remove old status
     const overlays = this.el.querySelectorAll('.ridge-overlay')
     for (const overlay of overlays) {
       overlay.parentElement.removeChild(overlay)

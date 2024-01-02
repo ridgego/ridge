@@ -67,7 +67,7 @@ export default class SwitchContainer extends BaseContainer {
     return style
   }
 
-  updateStyle () {
+  onStyleUpdated () {
     this.containerEl.style.position = 'relative'
   }
 }

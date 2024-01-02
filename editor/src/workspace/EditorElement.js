@@ -57,8 +57,7 @@ class EditorElement extends Element {
   }
 
   setVisible (visible) {
-    this.config.style.visible = visible
-    this.style.visible = visible
+    this.config.visible = visible
     this.updateStyle()
   }
 
@@ -88,13 +87,19 @@ class EditorElement extends Element {
   updateConfig (config, updateOnly) {
     console.log('updateConfig', config)
     Object.assign(this.config, config)
-    // _.merge(this.config, config)
 
     // 更新配置属性到运行
     Object.assign(this.properties, config.props)
-    this.style = JSON.parse(JSON.stringify(config.style))
+    this.style = config.style
 
     if (updateOnly !== true) {
+      if (this.el) {
+        if (this.config.locked === true) {
+          this.el.classList.add('ridge-is-locked')
+        } else {
+          this.el.classList.remove('ridge-is-locked')
+        }
+      }
       this.updateStyle()
       this.updateProps()
     }
