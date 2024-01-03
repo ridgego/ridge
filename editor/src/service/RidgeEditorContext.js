@@ -300,10 +300,6 @@ class RidgeEditorContext extends RidgeContext {
     this.workspaceControl.updateMovable()
   }
 
-  updateComponentStyle (editorElement, config) {
-    editorElement.updateStyleConfig(config)
-  }
-
   async onCodeEditComplete (id, code) {
     await this.services.appService.updateFileContent(id, code)
 

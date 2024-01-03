@@ -70,9 +70,20 @@ class EditorElement extends Element {
     this.config.locked = locked
   }
 
+  // 更新
   updateStyleConfig (style) {
     console.log('updateStyleConfig', style)
-    _.merge(this.config.style, style)
+
+    let updated = null
+    if (this.parent) {
+      updated = this.parent.invoke('updateChildStyleConfig', [style])
+    }
+    if (updated) {
+      Object.assign(this.config.style, updated)
+    } else {
+      Object.assign(this.config.style, style)
+    }
+
     this.style = this.config.style
     this.updateStyle()
   }

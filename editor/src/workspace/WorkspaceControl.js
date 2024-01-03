@@ -200,7 +200,7 @@ export default class WorkSpaceControl {
       if (delta[1]) {
         style.height = height
       }
-      context.updateComponentStyle(target.ridgeNode, style)
+      target.ridgeNode.updateStyleConfig(style)
     })
 
     this.moveable.on('resizeEnd', ({

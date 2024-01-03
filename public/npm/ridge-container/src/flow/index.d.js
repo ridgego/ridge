@@ -29,13 +29,18 @@ export default {
     value: []
   }],
   childProps: [{
-    field: 'style.margin',
-    label: '外边距',
+    field: 'style.width',
+    label: '宽度',
     type: 'string',
     width: '50%'
   }, {
-    field: 'style.width',
-    label: '长度',
+    field: 'style.height',
+    label: '高度',
+    type: 'string',
+    width: '50%'
+  }, {
+    field: 'style.margin',
+    label: '外边距',
     type: 'string',
     width: '50%'
   }, {
