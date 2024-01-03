@@ -21,6 +21,12 @@ export default class FlowContainer extends BaseContainer {
   getChildStyle (view) {
     const style = this.getResetStyle()
 
+    if (view.config.style.block) {
+      style.display = 'block'
+    } else {
+      style.display = 'inline-block'
+    }
+
     if (view.config.style.margin) {
       style.margin = view.config.style.margin
     } else {

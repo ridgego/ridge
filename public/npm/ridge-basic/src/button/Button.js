@@ -22,7 +22,7 @@ export default class Button {
     const { text, classNames } = this.props
 
     this.button.innerHTML = text
-   
+
     this.button.className = (classNames || []).join(' ')
   }
 

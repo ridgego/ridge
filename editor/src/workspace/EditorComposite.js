@@ -197,7 +197,10 @@ class EditorComposite extends Composite {
       styleEx: {},
       props: {},
       propEx: {},
-      events: {}
+      events: {},
+      visible: true,
+      locked: false,
+      full: false
     }
 
     const element = new EditorElement({
