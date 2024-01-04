@@ -73,6 +73,10 @@ export default class ReactRenderer extends Renderer {
     }
   }
 
+  hasMethod (method) {
+    return this.renderRef && this.renderRef.current && this.renderRef.current[method] && typeof this.renderRef.current[method] === 'function'
+  }
+
   /**
    * 更新属性，使渲染器重新渲染
    * React的虚拟DOM机制使得React的组件重新render到具体element时会只更新变化的DOM

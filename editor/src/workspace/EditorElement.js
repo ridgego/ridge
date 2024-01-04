@@ -18,10 +18,18 @@ class EditorElement extends Element {
     }
   }
 
-  appendChild (node, { x, y }) {
-    this.children.push(node)
+  appendChild (node, { x, y }, rect) {
+    let order = -1
+    if (this.hasMethod('checkNodeOrder')) {
+      order = this.invoke('checkNodeOrder', [rect])
+    }
+    if (order > -1) {
+      this.children.splice(order, 0, node)
+    } else {
+      this.children.push(node)
+    }
     node.parent = this
-    this.invoke('appendChild', [node, { x, y }])
+    this.invoke('appendChild', [node, { x, y }, order])
   }
 
   removeChild (node) {

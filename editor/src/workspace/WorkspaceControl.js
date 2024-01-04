@@ -440,7 +440,7 @@ export default class WorkSpaceControl {
       targetParent.appendChild(el.ridgeNode, {
         x: Math.floor((bcr.x - pbcr.x) / this.zoom),
         y: Math.floor((bcr.y - pbcr.y) / this.zoom)
-      })
+      }, bcr)
     }
     context.onElementMoveEnd(el)
     this.moveable.updateTarget()

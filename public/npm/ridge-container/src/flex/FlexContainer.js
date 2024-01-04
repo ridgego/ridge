@@ -27,6 +27,38 @@ export default class FlexBoxContainer extends BaseContainer {
     return containerStyle
   }
 
+  // 放入一个新的rect后，根据位置放置其所在子节点的索引
+  checkNodeOrder (rect) {
+    const centerX = rect.x + rect.width / 2
+    const centerY = rect.y + rect.height / 2
+    const childNodes = this.containerEl.childNodes
+    const {
+      // 相关系统变量
+      direction = 'row'
+    } = this.props
+
+    if (direction === 'row') {
+      // 横向
+      for (let i = 0; i < childNodes.length; i++) {
+        const bc = childNodes[i].getBoundingClientRect()
+        const compareX = bc.x + bc.width / 2
+        if (compareX > centerX) {
+          return i
+        }
+      }
+    } else if (direction === 'column') {
+      // 纵向
+      for (let i = 0; i < childNodes.length; i++) {
+        const bc = childNodes[i].getBoundingClientRect()
+        const compareY = bc.y + bc.height / 2
+        if (compareY > centerY) {
+          return i
+        }
+      }
+    }
+    return -1
+  }
+
   getChildStyle (view) {
     const style = this.getResetStyle()
     const configStyle = view.config.style

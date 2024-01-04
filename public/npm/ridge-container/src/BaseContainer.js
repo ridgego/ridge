@@ -75,13 +75,21 @@ export default class BaseContainer {
     }
   }
 
+  checkNodeOrder (rect) {
+    return -1
+  }
+
   /**
    * 增加子节点
    */
-  appendChild (childNode, { x, y }) {
+  appendChild (childNode, { x, y }, index) {
     this.onDragOut()
     const el = childNode.el
-    this.containerEl.appendChild(el)
+    if (index > -1 && this.containerEl.childNodes[index]) {
+      this.containerEl.insertBefore(el, this.containerEl.childNodes[index])
+    } else {
+      this.containerEl.appendChild(el)
+    }
     this.onChildAppended(childNode, { x, y })
     this.updateChildStyle(childNode)
   }
