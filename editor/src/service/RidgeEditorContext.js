@@ -191,7 +191,10 @@ class RidgeEditorContext extends RidgeContext {
     // Design -> Preview
     if (this.editorComposite) {
       await this.saveCurrentPage()
-      this.closeCurrentPage()
+      this.editorComposite.unmount()
+      this.editorComposite = null
+      this.workspaceControl.disable()
+      this.Editor.togglePageClose()
       this.loadPreview()
     } else if (this.runtimeComposite) {
       this.runtimeComposite.unmount()

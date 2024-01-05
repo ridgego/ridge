@@ -4,6 +4,7 @@ import { EditorView, basicSetup } from 'codemirror'
 import { tooltips, keymap } from '@codemirror/view'
 import { indentWithTab } from '@codemirror/commands'
 import { javascript } from '@codemirror/lang-javascript'
+import { json } from '@codemirror/lang-json'
 
 import { css } from '@codemirror/lang-css'
 
@@ -26,6 +27,10 @@ export default ({
       if (type === 'text/javascript') {
         langfunc = javascript()
       }
+      if (type === 'text/json') {
+        langfunc = json()
+      }
+
       ref.current.editorComposite = new EditorView({
         doc: value,
         extensions: [basicSetup, keymap.of([indentWithTab]), langfunc, tooltips({

@@ -76,7 +76,6 @@ class PreviewMenuBar extends React.Component {
   }
 
   onSelectVpChange = (key) => {
-
     if (key === 'config') {
       this.changeViewPort(context.pageContent.style.width, context.pageContent.style.height)
       this.setState({

@@ -1,5 +1,15 @@
 import BaseContainer from '../BaseContainer'
 
+const styleSize = len => {
+  if (typeof len === 'number') {
+    return len + 'px'
+  } else if (typeof len === 'string' && len.match(/^[0-9]+$/)) {
+    return len + 'px'
+  } else {
+    return len
+  }
+}
+
 export default class FlowContainer extends BaseContainer {
   getContainerStyle () {
     const {
@@ -23,6 +33,26 @@ export default class FlowContainer extends BaseContainer {
     return style
   }
 
+  // 放入一个新的rect后，根据位置放置其所在子节点的索引
+  checkNodeOrder (rect) {
+    const centerX = rect.x + rect.width / 2
+    const centerY = rect.y + rect.height / 2
+    const childNodes = this.containerEl.childNodes
+
+    let before = -1
+    // 横向
+    for (let i = childNodes.length - 1; i >= 0; i--) {
+      const bc = childNodes[i].getBoundingClientRect()
+      const compareX = bc.x + bc.width / 2
+      const compareY = bc.y + bc.height / 2
+
+      if (compareX > centerX && compareY > centerY) {
+        before = i
+      }
+    }
+    return before
+  }
+
   getChildStyle (view) {
     const style = this.getResetStyle()
 
@@ -32,12 +62,8 @@ export default class FlowContainer extends BaseContainer {
       style.display = 'inline-block'
     }
 
-    if (view.config.style.width) {
-      style.width = view.config.style.width + 'px'
-    }
-    if (view.config.style.height) {
-      style.height = view.config.style.height + 'px'
-    }
+    style.width = styleSize(view.config.style.width)
+    style.height = styleSize(view.config.style.height)
 
     if (view.config.style.margin) {
       style.margin = view.config.style.margin
