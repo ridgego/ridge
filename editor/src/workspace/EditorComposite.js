@@ -1,6 +1,7 @@
 import { Composite } from 'ridge-runtime'
 import EditorElement from './EditorElement.js'
 import { nanoid } from '../utils/string'
+import _ from 'lodash'
 /**
  * Views Mount on Editor
  **/
@@ -276,7 +277,7 @@ class EditorComposite extends Composite {
     }
     this.config.children = this.children.map(n => n.getId())
 
-    return JSON.parse(JSON.stringify(this.config))
+    return _.cloneDeep(this.config)
   }
 }
 

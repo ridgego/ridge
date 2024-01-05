@@ -17,6 +17,12 @@ class MenuBar extends React.Component {
     }
   }
 
+  setPageChanged (changed) {
+    this.setState({
+      pageChanged: changed
+    })
+  }
+
   setZoom (zoom) {
     this.setState({
       zoom
@@ -52,7 +58,7 @@ class MenuBar extends React.Component {
         }}
       >
         <Space className='bar-content'>
-          <Badge dot={pageChanged}>
+          <Badge dot={pageChanged} type='danger'>
             <Button type='tertiary' theme='borderless' icon={<IconSaveStroked />} size='small' onClick={savePage} />
           </Badge>
           <div style={{ width: '180px' }}>

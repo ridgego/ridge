@@ -29,6 +29,8 @@ class RidgeEditorContext extends RidgeContext {
     this.services.appService = new ApplicationService()
     window.ridge = this
     window.editor = this
+
+    this.checkInterval = setInterval(this.checkModification.bind(this), 2000)
   }
 
   async editorDidMount (Editor, workspaceEl, viewPortContainerEl) {
@@ -96,23 +98,6 @@ class RidgeEditorContext extends RidgeContext {
   }
 
   /**
-   * Save current edit page
-   */
-  async saveCurrentPage () {
-    if (this.editorComposite) {
-      const { appService } = this.services
-      const pageJSONObject = this.editorComposite.exportPageJSON()
-
-      debug('Save Page ', pageJSONObject)
-      try {
-        await appService.savePageContent(this.currentOpenFile.id, pageJSONObject)
-      } catch (e) {
-        console.error('save page error', e)
-      }
-    }
-  }
-
-  /**
    * Open app files in editor space
    */
   async openFile (id) {
@@ -146,7 +131,7 @@ class RidgeEditorContext extends RidgeContext {
 
     this.editorComposite = new EditorComposite({
       el: this.viewPortContainerEl,
-      config: this.pageContent,
+      config: _.cloneDeep(this.pageContent),
       context: this
     })
 
@@ -305,6 +290,37 @@ class RidgeEditorContext extends RidgeContext {
 
     if (this.editorComposite) {
       await this.editorComposite.refresh()
+    }
+  }
+
+  checkModification () {
+    if (this.editorComposite && this.pageContent) {
+      const pageJSONObject = this.editorComposite.exportPageJSON()
+
+      this.isModified = !_.isEqual(pageJSONObject, this.pageContent)
+
+      this.services.menuBar && this.services.menuBar.setPageChanged(this.isModified)
+    }
+
+    this.isModified = true
+  }
+
+  /**
+   * Save current edit page
+   */
+  async saveCurrentPage () {
+    if (this.editorComposite) {
+      const { appService } = this.services
+      const pageJSONObject = this.editorComposite.exportPageJSON()
+
+      debug('Save Page ', pageJSONObject)
+      try {
+        await appService.savePageContent(this.currentOpenFile.id, pageJSONObject)
+        this.pageContent = pageJSONObject
+        this.services.menuBar.setPageChanged(false)
+      } catch (e) {
+        console.error('save page error', e)
+      }
     }
   }
 

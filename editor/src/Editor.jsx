@@ -122,7 +122,7 @@ export default class Editor extends React.Component {
     const {
       state,
       workspaceRef,
-      viewPortContainerRef,
+      viewPortContainerRef
     } = this
 
     const {
