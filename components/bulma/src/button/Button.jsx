@@ -1,6 +1,25 @@
 import React from 'react'
 export default ({
+  text = '',
+  size,
+  color,
+  light,
+  outline,
+  loading,
+  disabled,
+  rounded,
   classNames = []
 }) => {
-  return <button className={[...classNames, 'button'].join(' ')} />
+  return (
+    <button
+      className={[...classNames,
+        light ? 'is-light' : '',
+        outline ? 'is-outlined' : '',
+        loading ? 'is-loading' : '',
+        rounded ? 'is-rounded' : '',
+        size, color, 'button'].join(' ')}
+      disabled={disabled}
+    >{text}
+    </button>
+  )
 }
