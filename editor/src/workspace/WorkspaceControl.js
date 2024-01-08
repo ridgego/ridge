@@ -781,13 +781,13 @@ export default class WorkSpaceControl {
       }
     })
 
-    this.workspaceEl.onwheel = (event) => {
-      event.preventDefault()
-      let targetZoom = this.zoom + (event.deltaY > 0 ? -1 : 1) * 0.01
-      targetZoom = Math.min(Math.max(0.1, targetZoom), 2)
+    // this.workspaceEl.onwheel = (event) => {
+    //   event.preventDefault()
+    //   let targetZoom = this.zoom + (event.deltaY > 0 ? -1 : 1) * 0.01
+    //   targetZoom = Math.min(Math.max(0.1, targetZoom), 2)
 
-      this.zoomBack && this.zoomBack(targetZoom)
-      this.setZoom(targetZoom)
-    }
+    //   this.zoomBack && this.zoomBack(targetZoom)
+    //   this.setZoom(targetZoom)
+    // }
   }
 }

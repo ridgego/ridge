@@ -30,7 +30,7 @@ class PreviewMenuBar extends React.Component {
         label: <Space>
           <Text>{vp.name}</Text>
           <Text type='tertiary'>{vp.width}-{vp.height}</Text>
-        </Space>
+               </Space>
       }
     })
     this.state = {
@@ -100,7 +100,7 @@ class PreviewMenuBar extends React.Component {
     const { visible } = props
     return (
       <div
-        className='menu-bar'
+        className='preview-menu-bar'
         style={{
           display: visible ? '' : 'none'
         }}
@@ -120,8 +120,9 @@ class PreviewMenuBar extends React.Component {
                />
           <Button
             type='primary'
+            size='small'
             theme='solid'
-            icon={<IconPause />} onClick={toggoleRunMode}
+            onClick={toggoleRunMode}
           >返回编辑
           </Button>
         </Space>

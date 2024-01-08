@@ -170,8 +170,7 @@ class RidgeEditorContext extends RidgeContext {
     // update view port and fit
     this.runtimeComposite.updateViewPort(this.pageContent.style.width, this.pageContent.style.height)
     const { previewBar } = this.services
-    this.workspaceControl.fitToCenter()
-
+    // this.workspaceControl.fitToCenter()
     // update bar
     previewBar.setState({
       width: this.pageContent.style.width,
@@ -179,7 +178,7 @@ class RidgeEditorContext extends RidgeContext {
     })
   }
 
-  updatePreviewSize (width, height) {
+  updatePreviewSize1 (width, height) {
     this.runtimeComposite.updateViewPort(width, height)
     this.workspaceControl.fitToCenter()
   }
