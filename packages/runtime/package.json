@@ -1,7 +1,7 @@
 {
   "name": "ridge-runtime",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "build/ridge.min.js",
   "scripts": {
     "lint": "eslint",
     "runtime": "webpack serve --config ./page/webpack.config.js --open",

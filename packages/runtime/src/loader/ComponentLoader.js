@@ -3,6 +3,25 @@ import debug from 'debug'
 import loadjs from 'loadjs'
 import memoize from 'lodash/memoize'
 
+import { loads } from './dependencies'
+
+const EXTERNALS = [{
+  module: 'react',
+  root: 'React',
+  dist: 'react/umd/react.production.min.js'
+},
+{
+  module: 'react-dom',
+  dependencies: ['react'],
+  root: 'ReactDOM',
+  dist: 'react-dom/umd/react-dom.production.min.js'
+},
+{
+  module: 'vue',
+  root: 'Vue',
+  dist: 'vue/dist/vue.min.js'
+}]
+
 const log = debug('ridge:loader')
 
 /**
@@ -117,9 +136,13 @@ class ComponentLoader {
       rcd.icon = `${this.baseUrl}/${packageName}/${rcd.icon}`
     }
 
+    if (rcd.type === 'react') {
+      await this.loadScript(`${this.baseUrl}/react/umd/react.production.min.js`)
+      await this.loadScript(`${this.baseUrl}/react-dom/umd/react-dom.production.min.js`)
+    }
+
     // 处理渲染器，加载渲染器依赖
     if (rcd.component) {
-
       // 支持异步的加载情况
       if (typeof rcd.component === 'function') {
         if (rcd.component.constructor.name === 'AsyncFunction') {
@@ -225,9 +248,25 @@ class ComponentLoader {
    * @param {String} packageName 组件包名称
    */
   async confirmPackageDependencies (packageObject) {
+    // await this.loadScript(`${this.baseUrl}/react/umd/react.production.min.js`)
+    // await this.loadScript(`${this.baseUrl}/react-dom/umd/react-dom.production.min.js`)
+
+    await this.loadFrameworkDep(packageObject)
     if (packageObject.externals) {
       for (const external of packageObject.externals) {
         await this.loadScript(`${this.baseUrl}/${packageObject.name}/${external}`)
+      }
+    }
+  }
+
+  async loadFrameworkDep (packageJSONObject) {
+    if (packageJSONObject.dependencies) {
+      for (const pkgName of Object.keys(packageJSONObject.dependencies)) {
+        if (loads[pkgName]) {
+          for (const loadPath of loads[pkgName]) {
+            await this.loadScript(`${this.baseUrl}/${loadPath}`)
+          }
+        }
       }
     }
   }

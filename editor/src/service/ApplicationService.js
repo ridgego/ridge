@@ -304,13 +304,13 @@ export default class ApplicationService {
     if (!packageJSONFile) {
       files.push(await this.createFile(-1, 'package.json', stringToBlob(JSON.stringify({
         name: 'ridge-app-hello',
-        description: 'My First Ridge App #RidgeApp #HelloWorld',
         version: '1.0.0',
+        description: 'My First Ridge App #RidgeApp #HelloWorld',
         dependencies: {
           'ridge-basic': '1.0.0',
           'ridge-container': '1.0.0'
         }
-      }), 'text/json')))
+      }, null, 2), 'text/json')))
     }
     return files
   }

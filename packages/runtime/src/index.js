@@ -1,4 +1,5 @@
 import Ridge, { VERSION } from './Ridge'
+import { externals } from './loader/dependencies.js'
 import Composite from './node/Composite.js'
 import Element from './node/Element.js'
 import ValtioStore from './store/ValtioStore.js'
@@ -12,5 +13,6 @@ export {
   Composite,
   Element,
   ValtioStore,
+  externals,
   RidgeReact
 }

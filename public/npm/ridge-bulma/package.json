@@ -1,18 +1,17 @@
 {
   "name": "ridge-bulma",
   "version": "1.0.0",
-  "icon": "bi bi-bookmark-check",
+  "icon": "icons/bulma.svg",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "build-fc",
-    "watch": "build-fc -w -s",
-    "help": "build-fc --help",
-    "bs": "build-fc -s",
-    "pd": "npm publish --tag dev"
+    "build": "rcbuild",
+    "watch": "rcbuild -w -s",
+    "help": "rcbuild --help",
+    "bs": "rcbuild -s"
   },
   "externals": [
-    "bulma.min.css"
+    "bulma.css"
   ],
   "files": [
     "build"
@@ -35,5 +34,8 @@
     "text",
     "textarea",
     "title"
-  ]
+  ],
+  "dependencies": {
+    "react": "^18.2.0"
+  }
 }
