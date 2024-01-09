@@ -1,0 +1,28 @@
+{
+  "name": "ridge-weather",
+  "version": "1.0.0",
+  "description": "Weather Components For building ridge weather composites",
+  "main": "index.js",
+  "scripts": {
+    "build": "rcbuild",
+    "watch": "rcbuild -w -s",
+    "help": "rcbuild --help",
+    "bus": "rcbuild -s",
+    "pud": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "externals": [
+    "echarts.min.js"
+  ],
+  "icon": "icon.svg",
+  "author": "Sdr Han",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "components": [
+    "weather-icons"
+  ]
+}

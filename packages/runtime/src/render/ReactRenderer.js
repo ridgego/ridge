@@ -67,9 +67,6 @@ export default class ReactRenderer extends Renderer {
     // return a reference to the component (or returns null for stateless components).
     if (this.renderRef && this.renderRef.current && this.renderRef.current[method] && typeof this.renderRef.current[method] === 'function') {
       return this.renderRef.current[method](...(args || []))
-    } else {
-      console.error('无法调用无状态组件的方法!')
-      return null
     }
   }
 

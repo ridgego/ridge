@@ -1,0 +1,6 @@
+.weather-icon {
+    mask-size: 100%;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100%;
+    -webkit-mask-repeat: no-repeat;
+}
