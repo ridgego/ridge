@@ -41,6 +41,16 @@ class EditorComposite extends Composite {
         this.parseJsStoreModule(jsModules)
       }
     }
+    // Store型节点加载store
+    const storeNodes = this.getNodes(node => node.config.store)
+
+    for (const storeNode of storeNodes) {
+      await storeNode.load()
+      this.parseJsStoreModule(Object.assign(storeNode.componentDefinition.component, {
+        name: this.config.id,
+        label: this.config.title
+      }))
+    }
   }
 
   updateStyle () {
@@ -146,7 +156,7 @@ class EditorComposite extends Composite {
     if (jsStoreModule.state) {
       let initStateObject = {}
       if (typeof jsStoreModule.state === 'function') {
-        initStateObject = jsStoreModule.state()
+        initStateObject = jsStoreModule.state({})
       } else if (typeof jsStoreModule.state === 'object') {
         initStateObject = jsStoreModule.state
       }

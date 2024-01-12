@@ -1,10 +1,10 @@
 import React from 'react'
 import { Button, Divider, Badge, Space, InputNumber, Typography, Select } from '@douyinfe/semi-ui'
-import { IconPause, IconSaveStroked, IconGridView1, IconPlay } from '@douyinfe/semi-icons'
 import context from '../../service/RidgeEditorContext.js'
 import './style.less'
 const { Text } = Typography
 
+/*
 const VIEW_PORTS = [{
   name: 'Apple iPhone 15 Pro Max',
   width: 430,
@@ -18,45 +18,30 @@ const VIEW_PORTS = [{
   width: 810,
   height: 1080
 }]
-
+*/
 class PreviewMenuBar extends React.Component {
   constructor () {
     super()
     context.services.previewBar = this
 
-    const viewPortList = VIEW_PORTS.map(vp => {
-      return {
-        value: vp.name,
-        label: <Space>
-          <Text>{vp.name}</Text>
-          <Text type='tertiary'>{vp.width}-{vp.height}</Text>
-               </Space>
-      }
-    })
+    // const viewPortList = VIEW_PORTS.map(vp => {
+    //   return {
+    //     value: vp.name,
+    //     label: <Space>
+    //       <Text>{vp.name}</Text>
+    //       <Text type='tertiary'>{vp.width}-{vp.height}</Text>
+    //     </Space>
+    //   }
+    // })
     this.state = {
-      vpName: 'default',
-      viewPortList: [...viewPortList, {
-        value: 'config',
-        label: '设计宽高'
-      }],
+      // vpName: 'default',
+      // viewPortList: [...viewPortList, {
+      //   value: 'config',
+      //   label: '设计宽高'
+      // }],
       width: 0,
       height: 0
     }
-  }
-
-  setZoom (zoom) {
-    this.setState({
-      zoom
-    })
-  }
-
-  zoomChange = zoom => {
-    context.workspaceControl.setZoom(zoom)
-    this.setZoom(zoom)
-  }
-
-  toggleContainerMask = () => {
-
   }
 
   toggoleRunMode = () => {
@@ -72,7 +57,6 @@ class PreviewMenuBar extends React.Component {
       height
     })
     context.updatePreviewSize(width, height)
-    // context.updatePreviewSize()
   }
 
   onSelectVpChange = (key) => {
@@ -105,10 +89,10 @@ class PreviewMenuBar extends React.Component {
           display: visible ? '' : 'none'
         }}
       >
-        <Space className='bar-content'>
-          <Select
+        <Space className='bar-content' align='center'>
+          {/* <Select
             size='small' style={{ width: 160 }} optionList={viewPortList} value={vpName} onChange={onSelectVpChange}
-          />
+          /> */}
           <InputNumber
             size='small' style={{ width: 80 }} value={width} onChange={val => {
               changeViewPort(val, height)

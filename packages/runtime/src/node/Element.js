@@ -1,6 +1,7 @@
 import debug from 'debug'
 import ReactRenderer from '../render/ReactRenderer'
 import VanillaRender from '../render/VanillaRenderer'
+import StoreRender from '../render/StoreRender.js'
 import { nanoid } from '../utils/string'
 import BaseNode from './BaseNode.js'
 const log = debug('ridge:element')
@@ -170,6 +171,11 @@ class Element extends BaseNode {
     try {
       if (this.componentDefinition.type === 'vanilla') {
         const render = new VanillaRender(this.componentDefinition.component, this.getProperties())
+        render.mount(this.el)
+        this.removeStatus()
+        return render
+      } else if (this.componentDefinition.type === 'store') {
+        const render = new StoreRender(this.componentDefinition.component)
         render.mount(this.el)
         this.removeStatus()
         return render

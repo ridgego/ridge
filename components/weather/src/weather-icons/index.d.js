@@ -1,7 +1,8 @@
 import WeatherIcon from './WeatherIcon'
 
 export default {
-  name: '天气图片',
+  name: 'WeatherIcon',
+  title: '天气图标',
   component: WeatherIcon,
   props: [{
     name: 'value',

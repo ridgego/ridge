@@ -129,6 +129,8 @@ class RidgeEditorContext extends RidgeContext {
       this.editorComposite.unmount()
     }
 
+    delete this.viewPortContainerEl.style.marginTop
+
     this.editorComposite = new EditorComposite({
       el: this.viewPortContainerEl,
       config: _.cloneDeep(this.pageContent),
@@ -162,6 +164,7 @@ class RidgeEditorContext extends RidgeContext {
       config: this.pageContent,
       context: this
     })
+    this.viewPortContainerEl.style.marginTop = '32px'
     await this.runtimeComposite.mount(this.viewPortContainerEl)
 
     // toggle editor
@@ -178,9 +181,9 @@ class RidgeEditorContext extends RidgeContext {
     })
   }
 
-  updatePreviewSize1 (width, height) {
+  updatePreviewSize (width, height) {
     this.runtimeComposite.updateViewPort(width, height)
-    this.workspaceControl.fitToCenter()
+    // this.workspaceControl.fitToCenter()
   }
 
   /**

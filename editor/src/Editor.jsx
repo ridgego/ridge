@@ -1,5 +1,4 @@
 import React from 'react'
-import debug from 'debug'
 import { Spin, ImagePreview } from '@douyinfe/semi-ui'
 import ConfigPanel from './panels/config/index.jsx'
 import RightBottomPanel from './panels/outline/index.jsx'
@@ -15,10 +14,6 @@ import './editor.less'
 import {
   PANEL_SIZE_1920, PANEL_SIZE_1366
 } from './constant.js'
-
-import { IconExit } from '@douyinfe/semi-icons'
-
-const trace = debug('ridge:editor')
 
 export default class Editor extends React.Component {
   constructor (props) {

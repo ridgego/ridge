@@ -59,8 +59,18 @@ class MenuBar extends React.Component {
       >
         <Space className='bar-content'>
           <Badge dot={pageChanged} type='danger'>
-            <Button type='tertiary' theme='borderless' icon={<IconSaveStroked />} size='small' onClick={savePage} />
+            <Button
+              type='tertiary' icon={<i className='bi bi-floppy' />} theme='borderless' onClick={savePage}
+            />
           </Badge>
+
+          <Button
+            type='tertiary'
+            theme='borderless'
+            icon={<i className='bi bi-camera' />} onClick={() => {
+              context.workspaceControl.capture()
+            }}
+          />
           <div style={{ width: '180px' }}>
             <Slider min={10} max={200} marks={{ 50: '', 100: '', 150: '' }} value={zoom * 100} onChange={zoom => zoomChange(zoom / 100)} showBoundary={false} size='small' />
           </div>
@@ -98,7 +108,7 @@ class MenuBar extends React.Component {
           <Button
             type='tertiary'
             theme='borderless'
-            icon=<IconPlay /> onClick={() => { context.toggleMode() }}
+            icon={<i className='bi bi-play-fill' />} onClick={() => { context.toggleMode() }}
           >预览
           </Button>
           {/* <Button

@@ -61,6 +61,11 @@ class EditorElement extends Element {
           this.children = []
         }
       }
+
+      // 设置store标志
+      if (this.componentDefinition.type === 'store') {
+        this.config.store = true
+      }
     }
   }
 

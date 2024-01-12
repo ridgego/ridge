@@ -1,6 +1,7 @@
 import Selecto from 'selecto'
 import { createMoveable } from './moveable'
 import Mousetrap from 'mousetrap'
+import html2canvas from 'html2canvas'
 
 import debug from 'debug'
 import { fitRectIntoBounds } from '../utils/rectUtils'
@@ -653,7 +654,15 @@ export default class WorkSpaceControl {
 
   capture () {
     if (this.moveable.target) {
-      window.html2canvas(this.moveable.target[0].firstChild, {
+      html2canvas(this.moveable.target[0].firstChild, {
+        backgroundColor: null
+      }).then(canvas => {
+        const url = canvas.toDataURL('image/png')
+
+        this.downloadImg('capture.png', url)
+      })
+    } else {
+      html2canvas(this.viewPortEl, {
         backgroundColor: null
       }).then(canvas => {
         const url = canvas.toDataURL('image/png')

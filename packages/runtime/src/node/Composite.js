@@ -35,8 +35,13 @@ class Composite extends BaseNode {
     await Promise.allSettled(promises)
   }
 
-  getNodes () {
-    return Object.values(this.nodes)
+  getNodes (filter) {
+    const nodes = Object.values(this.nodes)
+    if (filter) {
+      return nodes.filter(filter)
+    } else {
+      return nodes
+    }
   }
 
   getRootNodes () {
@@ -59,6 +64,12 @@ class Composite extends BaseNode {
       this.nodes[node.getId()] = node
     }
     this.initChildren()
+
+    this.classList = new Set()
+
+    for (const className of this.el.classList) {
+      this.classList.add(className)
+    }
     this.events = {}
   }
 
@@ -125,6 +136,13 @@ class Composite extends BaseNode {
       classNames && classNames.forEach(cn => {
         this.el.classList.add(cn)
       })
+
+      const allClassList = [...classNames, ...this.classList]
+      for (const className of this.el.classList) {
+        if (allClassList.indexOf(className) === -1) {
+          this.el.classList.remove(className)
+        }
+      }
       this.el.classList.add('ridge-composite')
       // this.el.style.position = 'relative'
     }
@@ -217,6 +235,16 @@ class Composite extends BaseNode {
   async loadStore () {
     this.store = new ValtioStore(this)
     this.store.load(this.jsModules)
+
+    // Store型节点加载store
+    const storeNodes = this.getNodes().filter(node => node.config.store)
+
+    for (const storeNode of storeNodes) {
+      await storeNode.load()
+      this.store.load([Object.assign(storeNode.componentDefinition.component, {
+        name: storeNode.config.id
+      })])
+    }
   }
 }
 
