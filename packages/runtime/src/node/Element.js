@@ -175,7 +175,9 @@ class Element extends BaseNode {
         this.removeStatus()
         return render
       } else if (this.componentDefinition.type === 'store') {
-        const render = new StoreRender(this.componentDefinition.component)
+        const render = new StoreRender(Object.assign({}, this.componentDefinition.component, {
+          title: this.config.title
+        }))
         render.mount(this.el)
         this.removeStatus()
         return render

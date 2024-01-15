@@ -132,21 +132,20 @@ class RidgeEditorContext extends RidgeContext {
     delete this.viewPortContainerEl.style.marginTop
 
     this.editorComposite = new EditorComposite({
-      el: this.viewPortContainerEl,
+      // el: this.viewPortContainerEl,
       config: _.cloneDeep(this.pageContent),
       context: this
     })
 
-    this.editorComposite.updateStyle()
+    // this.editorComposite.updateStyle()
+    await this.editorComposite.load()
+    await this.editorComposite.mount(this.viewPortContainerEl)
 
     if (!this.workspaceControl.enabled) {
       this.workspaceControl.enable()
     }
     const zoom = this.workspaceControl.fitToCenter()
     menuBar.setZoom(zoom)
-
-    await this.editorComposite.load()
-    await this.editorComposite.mount()
 
     this.Editor.togglePageEdit()
     configPanel.updatePageConfigFields()
@@ -285,6 +284,7 @@ class RidgeEditorContext extends RidgeContext {
     if (titleChanged) {
       const { outlinePanel } = this.services
       outlinePanel.updateOutline()
+      this.editorComposite.loadStore()
     }
 
     this.workspaceControl.updateMovable()

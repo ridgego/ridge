@@ -46,9 +46,15 @@ class EditorComposite extends Composite {
 
     for (const storeNode of storeNodes) {
       await storeNode.load()
+      // 特殊处理：编辑时更新显示的标题
+      if (storeNode.renderer) {
+        storeNode.renderer.update({
+          title: storeNode.config.title
+        })
+      }
       this.parseJsStoreModule(Object.assign(storeNode.componentDefinition.component, {
-        name: this.config.id,
-        label: this.config.title
+        name: storeNode.config.id,
+        label: storeNode.config.title
       }))
     }
   }
@@ -146,7 +152,8 @@ class EditorComposite extends Composite {
   parseJsStoreModule (jsStoreModule) {
     const storeModule = {
       module: jsStoreModule,
-      name: jsStoreModule.name ?? '未命名', // module name
+      label: jsStoreModule.label ?? '未命名',
+      name: jsStoreModule.name, // module name
       actions: [], // module actions
       states: [], // module global state includes computed, but only on runtime they are different
       scoped: [] // only for scoped binding (now only list)

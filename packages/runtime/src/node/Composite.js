@@ -64,12 +64,6 @@ class Composite extends BaseNode {
       this.nodes[node.getId()] = node
     }
     this.initChildren()
-
-    this.classList = new Set()
-
-    for (const className of this.el.classList) {
-      this.classList.add(className)
-    }
     this.events = {}
   }
 
@@ -96,6 +90,10 @@ class Composite extends BaseNode {
   async mount (el) {
     if (el) {
       this.el = el
+      this.classList = new Set()
+      for (const className of this.el.classList) {
+        this.classList.add(className)
+      }
     }
     // 挂载前事件
     this.emit('postMount')
