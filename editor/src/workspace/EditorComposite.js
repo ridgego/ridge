@@ -66,6 +66,8 @@ class EditorComposite extends Composite {
 
       this.el.style.width = width + 'px'
       this.el.style.height = height + 'px'
+
+      this.el.classList.add('is-edit')
     }
   }
 
@@ -236,6 +238,7 @@ class EditorComposite extends Composite {
     super.unmount()
     this.el.style.width = 0
     this.el.style.height = 0
+    this.el.classList.remove('is-edit')
   }
 
   appendChild (node) {

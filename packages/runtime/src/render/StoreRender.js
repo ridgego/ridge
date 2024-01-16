@@ -13,10 +13,10 @@ export default class StoreRender extends Renderer {
 
   mount (el) {
     this.el = el
-    this.el.innerHTML = `<div class="store-component"><i class="bi bi-sliders"></i><div class="title">${this.StoreComponent.title ?? this.StoreComponent.name}</div></div>`
+    this.el.innerHTML = `<div class="store-component"><i class="bi bi-sliders"></i><div class="store-name">${this.StoreComponent.title ?? this.StoreComponent.name}</div></div>`
   }
 
   update ({ title }) {
-    this.el.innerHTML = `<div class="store-component"><i class="bi bi-sliders"></i><div class="title">${title}</div></div>`
+    this.el.innerHTML = `<div class="store-component"><i class="bi bi-sliders"></i><div class="store-name">${title}</div></div>`
   }
 }

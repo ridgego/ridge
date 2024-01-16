@@ -5,23 +5,6 @@ import memoize from 'lodash/memoize'
 
 import { loads } from './dependencies'
 
-const EXTERNALS = [{
-  module: 'react',
-  root: 'React',
-  dist: 'react/umd/react.production.min.js'
-},
-{
-  module: 'react-dom',
-  dependencies: ['react'],
-  root: 'ReactDOM',
-  dist: 'react-dom/umd/react-dom.production.min.js'
-},
-{
-  module: 'vue',
-  root: 'Vue',
-  dist: 'vue/dist/vue.min.js'
-}]
-
 const log = debug('ridge:loader')
 
 /**

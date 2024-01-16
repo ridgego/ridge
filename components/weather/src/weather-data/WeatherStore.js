@@ -1,5 +1,7 @@
+import axios from 'axios'
+
 export default {
-  state: ({ location }) => {
+  state: () => {
     return {
       last_updated_epoch: 1705019400,
       last_updated: '--',
@@ -28,14 +30,31 @@ export default {
     }
   },
 
+  setup: context => {
+    context.getRealTime(context)
+    context.timer = setTimeout(() => {
+      context.getRealTime()
+    }, 60 * 60 * 1000)
+  },
+
+  exit: context => {
+    window.clearTimeout(context.timer)
+  },
+
   watch: {
 
   },
 
   actions: {
     // 获取实时天气
-    getRealTime () {
+    async getRealTime (context) {
+      if (context.properties.location && context.properties.token) {
+        const result = await axios.get(`//api.weatherapi.com/v1/current.json?q=${context.properties.location}&aqi=no&key=${context.properties.token}`)
 
+        Object.assign(context.state, result.data.current)
+        Object.assign(context.state, result.data.current.condition)
+        console.log(result)
+      }
     }
   }
 }

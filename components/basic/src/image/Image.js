@@ -11,8 +11,7 @@ export default class Image {
 
   render () {
     const {
-      objectFit, src, borderRadius, borderWidth,
-      borderStyle, borderColor, className, fillColor
+      objectFit, src, borderRadius, border, className, fillColor
     } = this.props
     this.el.innerHTML = ''
 
@@ -31,18 +30,27 @@ export default class Image {
       fillDiv.style.maskRepeat = 'no-repeat'
       fillDiv.style.webkitMaskSize = objectFit
       fillDiv.style.maskSize = objectFit
-      fillDiv.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`
+      fillDiv.style.border = border
     } else {
       this.img = document.createElement('img')
       this.el.append(this.img)
 
-      this.img.src = src
-      this.img.style.objectFit = objectFit
-      this.img.className = 'ridge-image ' + className.join(' ')
-      this.img.style.width = '100%'
-      this.img.style.height = '100%'
-      this.img.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`
-      this.img.style.borderRadius = borderRadius
+      if (src) {
+        this.img.src = src
+        this.img.style.objectFit = objectFit
+        this.img.className = 'ridge-image ' + className.join(' ')
+        this.img.style.width = '100%'
+        this.img.style.height = '100%'
+        this.img.style.border = border
+        this.img.style.borderRadius = borderRadius
+      } else {
+        this.img.src = 'data:image/svg+xml,%3Csvg xmlns="http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath fill="%23eee" d="m14 6l-3.75 5l2.85 3.8l-1.6 1.2C9.81 13.75 7 10 7 10l-6 8h22z"%2F%3E%3C%2Fsvg%3E'
+        this.img.className = 'ridge-image ' + className.join(' ')
+        this.img.style.width = '100%'
+        this.img.style.height = '100%'
+        this.img.style.background = '#dedede'
+        this.img.style.borderRadius = borderRadius
+      }
     }
   }
 

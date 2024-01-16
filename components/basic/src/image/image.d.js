@@ -13,6 +13,7 @@ export default {
     name: 'src',
     type: 'image',
     label: '地址',
+    connect: true,
     value: ''
   }, {
     name: 'objectFit',
@@ -34,45 +35,15 @@ export default {
     }],
     value: 'cover'
   }, {
-    name: 'borderWidth',
+    name: 'border',
     label: '边框',
-    type: 'number',
-    width: 96,
-    value: 0
-  }, {
-    name: 'borderStyle',
-    type: 'select',
-    value: 'solid',
-    width: 72,
-    options: [{
-      label: '实线',
-      value: 'solid'
-    }, {
-      label: '虚线',
-      value: 'dashed'
-    }, {
-      label: '点线',
-      value: 'dotted'
-    }, {
-      label: '双实线',
-      value: 'double'
-    }]
-  }, {
-    name: 'borderColor',
-    width: 28,
-    type: 'color',
-    value: '#AAA'
+    type: 'border'
   }, {
     name: 'borderRadius',
     label: '圆角',
     width: '50%',
     type: 'string',
     value: '0px'
-  }, {
-    name: 'fillColor',
-    label: '填充色',
-    width: '50%',
-    type: 'color'
   }, {
     name: 'className',
     label: '样式',

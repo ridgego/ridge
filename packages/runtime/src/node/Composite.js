@@ -25,6 +25,22 @@ class Composite extends BaseNode {
     this.initialize()
   }
 
+  /**
+   * 根据页面配置读取页面控制对象结构
+   * @param {Element} el DOM 根元素
+   */
+  initialize () {
+    debug('Ridge Composite initialize:', this.config)
+    this.nodes = {}
+    for (let i = 0; i < this.config.elements.length; i++) {
+      const node = this.createElement(this.config.elements[i])
+      this.nodes[node.getId()] = node
+    }
+    this.initChildren()
+    this.events = {}
+    this.classList = new Set()
+  }
+
   // 预加载所有组件
   async load () {
     const promises = []
@@ -50,21 +66,6 @@ class Composite extends BaseNode {
 
   getNode (id) {
     return this.nodes[id]
-  }
-
-  /**
-   * 根据页面配置读取页面控制对象结构
-   * @param {Element} el DOM 根元素
-   */
-  initialize () {
-    debug('Ridge Composite initialize:', this.config)
-    this.nodes = {}
-    for (let i = 0; i < this.config.elements.length; i++) {
-      const node = this.createElement(this.config.elements[i])
-      this.nodes[node.getId()] = node
-    }
-    this.initChildren()
-    this.events = {}
   }
 
   initChildren () {
@@ -122,12 +123,13 @@ class Composite extends BaseNode {
     for (const childNode of this.children) {
       childNode.unmount()
     }
+    this.store && this.store.destory()
   }
 
   // 更新自身样式
   updateStyle () {
     if (this.config.style && this.el) {
-      const { background, classNames } = this.config.style
+      const { background, classNames = [] } = this.config.style
       background && Object.assign(this.el.style, {
         background
       })
@@ -231,8 +233,9 @@ class Composite extends BaseNode {
    * Load Composite Store
    * */
   async loadStore () {
+    // 加载页面引入的storejs
     this.store = new ValtioStore(this)
-    this.store.load(this.jsModules)
+    this.store.load(this.jsModules, this.properties)
 
     // Store型节点加载store
     const storeNodes = this.getNodes().filter(node => node.config.store)
@@ -241,7 +244,7 @@ class Composite extends BaseNode {
       await storeNode.load()
       this.store.load([Object.assign(storeNode.componentDefinition.component, {
         name: storeNode.config.id
-      })])
+      })], storeNode.getProperties())
     }
   }
 }

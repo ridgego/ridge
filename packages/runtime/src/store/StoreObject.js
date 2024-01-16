@@ -5,33 +5,47 @@ const log = debug('ridge:store')
 const error = debug('ridge:store-error')
 
 export default class ValtioStoreObject {
-  constructor (module, composite) {
+  constructor (module) {
     this.module = module
-    this.composite = composite
 
     this.watchers = {}
-    this.states = {}
+    this.state = {}
 
+    this.context = {}
     this.scheduledJobs = new Set()
   }
 
+  getContext (scope = {}) {
+    return Object.assign(this.context, {
+      properties: this.properties,
+      state: this.state,
+      ...(this.module.actions ?? {}),
+      ...scope
+    })
+  }
+
   initStore (properties) {
+    this.properties = properties
     if (!this.module) return
     // 从属性初始化组件state
     if (typeof this.module.state === 'function') {
       try {
-        this.states = proxy(this.module.state(properties))
+        this.state = proxy(this.module.state(properties))
+
+        if (this.module.setup) {
+          this.module.setup(this.getContext())
+        }
       } catch (e) {
         console.error('initializeModule Error', e)
       }
     } else if (typeof this.module.state === 'object') {
-      this.states = proxy(this.module.state.state)
+      this.state = proxy(this.module.state.state)
     }
 
     // 判断 初始化过后部重复监听
-    if (this.states) {
+    if (this.state) {
       // 初始化监听state变化
-      subscribe(this.states, mutations => {
+      subscribe(this.state, mutations => {
         this.onMutations(mutations)
       })
     }
@@ -39,6 +53,7 @@ export default class ValtioStoreObject {
   }
 
   updateProps (properties) {
+    this.properties = properties
     if (this.module.propsUpdate) {
       this.module.propsUpdate(properties)
     }
@@ -51,7 +66,7 @@ export default class ValtioStoreObject {
    * @param {*} callback 回调方法
    */
   subscribe (type, name, callback) {
-    const stateKeys = Object.keys(this.states)
+    const stateKeys = Object.keys(this.state)
     switch (type) {
       case 'state':
         this.watchers[name] = this.watchers[name] ?? new Set()
@@ -100,9 +115,9 @@ export default class ValtioStoreObject {
    * @returns
    */
   getValue (type, name, payload) {
-    const stateValues = snapshot(this.states)
+    const stateValues = snapshot(this.state)
     let result = null
-    if (type === 'state' && this.states[name]) {
+    if (type === 'state' && this.state[name]) {
       result = stateValues[name]
     } else if (type === 'scoped') {
       try {
@@ -135,7 +150,7 @@ export default class ValtioStoreObject {
 
   dispatchChange (type, stateName, payload) {
     if (type === 'state') {
-      this.states[stateName] = payload[0]
+      this.state[stateName] = payload[0]
     } else if (type === 'scoped') {
       if (typeof this.module.scoped[stateName]?.set === 'function') {
         try {
@@ -151,15 +166,15 @@ export default class ValtioStoreObject {
     if (this.module.actions && this.module.actions[actionName]) {
       try {
         const context = {
-          states: this.states,
-          scopes: scopedData
+          scopes: scopedData,
+          event
         }
         if (scopedData && scopedData.length >= 1) {
           context.scope = scopedData[0]
         }
-        const exeResult = this.module.actions[actionName].call(null, event, context)
+        const exeResult = this.module.actions[actionName].call(null, this.getContext(context))
         if (typeof exeResult === 'object') {
-          Object.assign(this.states, exeResult)
+          Object.assign(this.state, exeResult)
         }
       } catch (e) {
         console.error('doStoreAction Error', e)
@@ -169,7 +184,7 @@ export default class ValtioStoreObject {
 
   onMutations (mutations) {
     log('mutations', mutations)
-    const stateValue = snapshot(this.states)
+    const stateValue = snapshot(this.state)
     for (const mutation of mutations) {
       const [action, statePath, newValue, oldValue] = mutation
       log('mutation', action, statePath.join('.'), newValue, oldValue)
@@ -188,10 +203,7 @@ export default class ValtioStoreObject {
     }
 
     if (this.module.watch && this.module.watch[state]) {
-      this.module.watch[state](newValue, {
-        state: this.states,
-        composite: this.composite
-      })
+      this.module.watch[state](newValue, this.getContext())
     }
   }
 
@@ -210,5 +222,9 @@ export default class ValtioStoreObject {
       }
     }
     this.scheduledJobs.clear()
+  }
+
+  destory () {
+    this.module.destory && this.module.destory(this.getContext())
   }
 }
