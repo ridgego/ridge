@@ -18,7 +18,11 @@ export default class Text {
       text, textAlign,
       fontFamily, fontSize, color, fontWeight, fontItalic, borderRadius, verticalAlign, backgroundColor
     } = this.props
-    this.textDiv.innerHTML = text || ''
+    if (text != null) {
+      this.textDiv.innerHTML = text
+    } else {
+      this.textDiv.innerHTML = ''
+    }
     this.textDiv.style.fontFamily = fontFamily
     if (fontWeight) {
       this.textDiv.style.fontWeight = 'bold'

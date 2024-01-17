@@ -28,7 +28,7 @@ export default class Input {
   render () {
     const {
       value, placeholder, fontFamily, fontSize, color, textAlign,
-      backgroundColor, borderWidth, borderStyle, borderColor, borderRadius, classNames
+      backgroundColor, border, padding, borderRadius, classNames
     } = this.props
 
     if (placeholder != null) {
@@ -45,7 +45,8 @@ export default class Input {
     this.input.style.fontFamily = fontFamily
     this.input.style.fontSize = fontSize + 'px'
     this.input.style.color = color
-    this.input.style.border = `${borderWidth || 0}px ${borderStyle || 'solid'} ${borderColor || '#ccc'}`
+    this.input.style.border = border
+    this.input.style.padding = padding
     this.input.style.borderRadius = borderRadius + 'px'
     this.input.style.backgroundColor = backgroundColor
     this.input.className = (classNames || []).join(' ')

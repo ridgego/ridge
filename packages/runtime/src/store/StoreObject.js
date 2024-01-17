@@ -26,22 +26,23 @@ export default class ValtioStoreObject {
 
   initStore (properties) {
     this.properties = properties
+    this.context.properties = properties
     if (!this.module) return
     // 从属性初始化组件state
     if (typeof this.module.state === 'function') {
       try {
         this.state = proxy(this.module.state(properties))
-
-        if (this.module.setup) {
-          this.module.setup(this.getContext())
-        }
       } catch (e) {
         console.error('initializeModule Error', e)
       }
     } else if (typeof this.module.state === 'object') {
       this.state = proxy(this.module.state.state)
     }
-
+    this.context.state = this.state
+    Object.assign(this.context, this.module.actions ?? {})
+    if (this.module.setup) {
+      this.module.setup.call(this.context)
+    }
     // 判断 初始化过后部重复监听
     if (this.state) {
       // 初始化监听state变化
@@ -117,7 +118,7 @@ export default class ValtioStoreObject {
   getValue (type, name, payload) {
     const stateValues = snapshot(this.state)
     let result = null
-    if (type === 'state' && this.state[name]) {
+    if (type === 'state' && this.state[name] != null) {
       result = stateValues[name]
     } else if (type === 'scoped') {
       try {
@@ -203,7 +204,7 @@ export default class ValtioStoreObject {
     }
 
     if (this.module.watch && this.module.watch[state]) {
-      this.module.watch[state](newValue, this.getContext())
+      this.module.watch[state].call(this.context, newValue)
     }
   }
 
