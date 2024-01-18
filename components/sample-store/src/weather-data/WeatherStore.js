@@ -34,6 +34,8 @@ export default {
 
   setup () {
     this.updateCurrentRealtime()
+    this.debounceUpdate = _.debounce(this.updateCurrentRealtime, 500)
+
     this.timer = setTimeout(() => {
       this.updateCurrentRealtime()
     }, 60 * 60 * 1000)
@@ -45,9 +47,7 @@ export default {
 
   watch: {
     location () {
-      _.throttle(() => {
-        this.updateCurrentRealtime()
-      }, 500)
+      this.debounceUpdate()
     }
   },
 
@@ -55,11 +55,16 @@ export default {
     // 获取实时天气
     async updateCurrentRealtime () {
       if (this.state.location && this.properties.token) {
-        const result = await axios.get(`//api.weatherapi.com/v1/current.json?q=${this.state.location}&aqi=no&key=${this.properties.token}`)
+        try {
+          const result = await axios.get(`//api.weatherapi.com/v1/current.json?q=${this.state.location}&aqi=no&key=${this.properties.token}&lang=zh`)
+  
+          Object.assign(this.state, result.data.current)
+          this.state.temp_c = this.state.temp_c + '°'
+          Object.assign(this.state, result.data.current.condition)
+          console.log(result)
+        } catch (e) {
 
-        Object.assign(this.state, result.data.current)
-        Object.assign(this.state, result.data.current.condition)
-        console.log(result)
+        }
       }
     }
   }

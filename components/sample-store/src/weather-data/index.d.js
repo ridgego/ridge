@@ -2,7 +2,7 @@ import WeatherStore from './WeatherStore'
 
 export default {
   name: 'WeatherData',
-  icon: 'svgs/weatherapi_logo.webp',
+  icon: 'icons/weather.png',
   title: '天气数据',
   type: 'store',
   component: WeatherStore,

@@ -1,5 +1,5 @@
 {
-  "name": "ridge-weather",
+  "name": "ridge-sample-store",
   "version": "1.0.0",
   "description": "Weather Components For building ridge weather composites",
   "main": "index.js",
@@ -13,7 +13,7 @@
   "files": [
     "build"
   ],
-  "icon": "icon.svg",
+  "icon": "icons/icon.png",
   "author": "ikun",
   "license": "ISC",
   "dependencies": {
@@ -22,7 +22,7 @@
     "react": "^18.2.0"
   },
   "components": [
-    "weather-data",
-    "weather-icons"
+    "todo-store",
+    "weather-data"
   ]
 }

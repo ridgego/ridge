@@ -1,0 +1,26 @@
+{
+  "name": "ridge-todo",
+  "version": "1.0.0",
+  "description": "Todo Components for ridge",
+  "main": "index.js", 
+  "scripts": {
+    "build": "rcbuild",
+    "watch": "rcbuild -w -s",
+    "help": "rcbuild --help",
+    "bus": "rcbuild -s",
+    "pud": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "icon": "icon.svg",
+  "author": "ikun",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "components": [
+    "weather-data",
+    "weather-icons"
+  ]
+}

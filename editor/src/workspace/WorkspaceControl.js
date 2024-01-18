@@ -722,7 +722,7 @@ export default class WorkSpaceControl {
         for (const el of this.selected) {
           const ridgeNode = context.getNode(el)
           ridgeNode.updateStyleConfig({
-            x: ridgeNode.config.style.y - 1
+            y: ridgeNode.config.style.y - 1
           })
         }
         this.moveable.updateTarget()
@@ -733,7 +733,7 @@ export default class WorkSpaceControl {
         for (const el of this.selected) {
           const ridgeNode = context.getNode(el)
           ridgeNode.updateStyleConfig({
-            x: ridgeNode.config.style.y + 1
+            y: ridgeNode.config.style.y + 1
           })
         }
         this.moveable.updateTarget()

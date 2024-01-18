@@ -1,0 +1,28 @@
+{
+  "name": "ridge-sample-store",
+  "version": "1.0.0",
+  "description": "Weather Components For building ridge weather composites",
+  "main": "index.js",
+  "scripts": {
+    "build": "rcbuild",
+    "watch": "rcbuild -w -s",
+    "help": "rcbuild --help",
+    "bus": "rcbuild -s",
+    "pud": "npm publish --tag dev"
+  },
+  "files": [
+    "build"
+  ],
+  "icon": "icons/icon.png",
+  "author": "ikun",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.5",
+    "lodash": "^4.7.15",
+    "react": "^18.2.0"
+  },
+  "components": [
+    "todo-store",
+    "weather-data"
+  ]
+}
