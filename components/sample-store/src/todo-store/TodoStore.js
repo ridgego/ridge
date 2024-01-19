@@ -13,6 +13,10 @@ export default {
 
     activeTodoList: state => {
       return state.todoList.filter(todo => todo.finished === -1)
+    },
+
+    todoItemText: (state, scope) => {
+      return scope?.item?.text
     }
   },
 

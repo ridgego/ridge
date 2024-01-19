@@ -158,6 +158,7 @@ class EditorComposite extends Composite {
       name: jsStoreModule.name, // module name
       actions: [], // module actions
       states: [], // module global state includes computed, but only on runtime they are different
+      computed: [],
       scoped: [] // only for scoped binding (now only list)
     }
     this.storeModules.push(storeModule)
@@ -179,6 +180,14 @@ class EditorComposite extends Composite {
     if (jsStoreModule.scoped) {
       for (const key of Object.keys(jsStoreModule.scoped)) {
         storeModule.scoped.push({
+          name: key
+        })
+      }
+    }
+
+    if (jsStoreModule.computed) {
+      for (const key of Object.keys(jsStoreModule.computed)) {
+        storeModule.computed.push({
           name: key
         })
       }

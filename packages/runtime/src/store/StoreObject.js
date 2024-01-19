@@ -139,9 +139,9 @@ export default class ValtioStoreObject {
       const computed = this.module.computed[name]
       if (computed) {
         if (typeof computed === 'function') {
-          result = computed.apply(stateValues, [stateValues])
+          result = computed.apply(stateValues, [stateValues, ...payload])
         } else if (typeof computed.get === 'function') {
-          result = computed.get.apply(stateValues, [stateValues])
+          result = computed.get.apply(stateValues, [stateValues, ...payload])
         }
       }
     }
@@ -166,14 +166,14 @@ export default class ValtioStoreObject {
   doStoreAction (actionName, event, scopedData) {
     if (this.module.actions && this.module.actions[actionName]) {
       try {
-        const context = {
+        const scope = {
           scopes: scopedData,
           event
         }
         if (scopedData && scopedData.length >= 1) {
-          context.scope = scopedData[0]
+          scope.scope = scopedData[0]
         }
-        const exeResult = this.module.actions[actionName].call(null, this.getContext(context))
+        const exeResult = this.module.actions[actionName].call(this.context, scope)
         if (typeof exeResult === 'object') {
           Object.assign(this.state, exeResult)
         }

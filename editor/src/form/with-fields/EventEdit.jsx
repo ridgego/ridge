@@ -90,9 +90,9 @@ const EventEdit = withField(({
               data.method = method
             }}
           >
-            {storeModules.map(({ name, actions }) => {
+            {storeModules.map(({ label, name, actions }) => {
               return (
-                <Select.OptGroup label={name} key={name}>
+                <Select.OptGroup label={label ?? name} key={name}>
                   {actions.map(action => {
                     return <Select.Option key={action.name} value={name + '.' + action.name}>{action.label || action.name}</Select.Option>
                   })}

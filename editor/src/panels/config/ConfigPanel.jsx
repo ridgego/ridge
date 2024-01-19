@@ -237,9 +237,6 @@ export default class ComponentPanel extends React.Component {
         }),
         required: false,
         multiple: true
-      }, {
-        field: 'properties',
-        control: 'properties'
       }]
     })
 

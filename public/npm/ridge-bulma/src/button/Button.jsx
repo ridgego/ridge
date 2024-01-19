@@ -8,10 +8,12 @@ export default ({
   loading,
   disabled,
   rounded,
+  onClick,
   classNames = []
 }) => {
   return (
     <button
+      onClick={onClick}
       className={[...classNames,
         light ? 'is-light' : '',
         outline ? 'is-outlined' : '',

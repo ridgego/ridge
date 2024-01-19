@@ -27,9 +27,9 @@ const StateBindEdit = withField(({
           label: state.label ?? state.name
         })
       }
-      for (const scope of storeModule.scoped) {
+      for (const scope of storeModule.computed) {
         storeNode.children.push({
-          key: storeModule.name + '.scoped.' + scope.name,
+          key: storeModule.name + '.computed.' + scope.name,
           label: scope.label ?? scope.name
         })
       }

