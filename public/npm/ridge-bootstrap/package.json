@@ -1,17 +1,18 @@
 {
   "name": "ridge-bootstrap",
   "version": "1.0.0",
-  "icon": "bi bi-bootstrap",
+  "icon": "icons/icon.svg",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "build-fc",
-    "watch": "build-fc -w -s",
-    "help": "build-fc --help",
+    "build": "rcbuild",
+    "watch": "rcbuild -w -s",
+    "help": "rcbuild --help",
     "pd": "npm publish --tag dev"
   },
   "externals": [
     "bootstrap.min.css",
+    "bootstrap-icons.min.css",
     "bootstrap.bundle.min.js"
   ],
   "files": [
@@ -19,5 +20,13 @@
   ],
   "author": "",
   "license": "ISC",
-  "components": []
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "components": [
+    "button",
+    "checkbox",
+    "input",
+    "typography"
+  ]
 }

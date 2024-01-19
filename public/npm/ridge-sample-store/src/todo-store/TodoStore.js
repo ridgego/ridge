@@ -2,6 +2,7 @@ export default {
   state: () => {
     return {
       todoText: '',
+      todoInvalid: false,
       todoList: []
     }
   },
@@ -27,14 +28,26 @@ export default {
   },
 
   exit () {},
-  watch: {},
+  watch: {
+    todoText (val) {
+      if (val === '') {
+        this.state.todoInvalid = true
+      } else {
+        this.state.todoInvalid = false
+      }
+    }
+  },
 
   actions: {
     addTodo () {
-      this.state.todoList.push({
-        text: this.state.todoText,
-        finished: -1
-      })
+      if (this.state.todoText !== '') {
+        this.state.todoList.push({
+          text: this.state.todoText,
+          finished: -1
+        })
+      } else {
+        this.state.todoInvalid = true
+      }
     },
 
     finishTodo (scope) {

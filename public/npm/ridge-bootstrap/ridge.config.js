@@ -1,3 +1,3 @@
 module.exports = {
-  copy: '../../public/npm_packages/ridge-bootstrap'
+  copy: '../../public/npm/ridge-bootstrap'
 }
