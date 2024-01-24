@@ -1,15 +1,28 @@
 import React from 'react'
 export default ({
   text = '',
-  value,
-  size = 14,
-  input,
-  classNames,
+  icon = '',
+  type = 'text-bg-primary',
+  pill = false,
+  showClose = false,
+  classNames = [],
+  onClose,
   onClick
 }) => {
   return (
-    <span className='badge d-flex align-items-center p-1 pe-2 text-warning-emphasis bg-warning-subtle border border-warning-subtle rounded-pill'>
-      <img class='rounded-circle me-1' width='24' height='24' src='https://github.com/mdo.png' alt='' />Warning
+    <span
+      style={{ width: '100%', height: '100%' }}
+      onClick={onClick}
+      className={[...classNames, 'badge', 'd-flex', 'justify-content-center', 'align-items-center', type, pill ? 'rounded-pill' : ''].join(' ')}
+    >
+      {icon && <i className={'bi me-1 ' + icon} />}{text}
+      {showClose &&
+        <i
+          class='bi bi-x-circle-fill ms-1' style={{ cursor: 'pointer' }} onClick={e => {
+            e.stopPropagation()
+            onClose && onClose()
+          }}
+        />}
     </span>
   )
 }

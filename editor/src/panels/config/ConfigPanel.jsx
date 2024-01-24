@@ -146,7 +146,7 @@ export default class ComponentPanel extends React.Component {
     const nodeEventFields = []
     // 能加载到节点定义
     if (view.componentDefinition) {
-      for (const prop of view.componentDefinition.props) {
+      for (const prop of view.componentDefinition.props ?? []) {
         const field = {}
         if (prop.connect) {
           Object.assign(field, prop, {
@@ -161,7 +161,7 @@ export default class ComponentPanel extends React.Component {
         nodePropFields.push(field)
       }
 
-      for (const event of view.componentDefinition.events || []) {
+      for (const event of view.componentDefinition.events ?? []) {
         const control = {
           label: event.label,
           type: 'function',

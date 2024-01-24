@@ -7,10 +7,12 @@ const FieldTreeSelect = withField(({
   const [treeData, setTreeData] = useState([])
 
   useEffect(() => {
-    if (options.treeData) {
+    if (typeof options.treeData === 'function') {
       options.treeData().then(d => {
         setTreeData(d.default)
       })
+    } else {
+      setTreeData(options.treeData)
     }
   }, [options])
   return (

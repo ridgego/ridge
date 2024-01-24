@@ -174,11 +174,11 @@ class Element extends BaseNode {
         render.mount(this.el)
         this.removeStatus()
         return render
-      } else if (this.componentDefinition.type === 'store') {
+      } else if (this.componentDefinition.type === 'store' || this.componentDefinition.type === 'style' || this.componentDefinition.type === 'script') {
         this.el.classList.add('is-store')
-        const render = new StoreRender(Object.assign({}, this.componentDefinition.component, {
+        const render = new StoreRender({
           title: this.config.title
-        }))
+        })
         render.mount(this.el)
         this.removeStatus()
         return render

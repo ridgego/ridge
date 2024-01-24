@@ -1,9 +1,8 @@
 import Input from './Input.jsx'
 export default {
   name: 'TextInput',
-  title: '单行输入',
   component: Input,
-  icon: 'icons/input-field.svg',
+  icon: 'icons/input.png',
   order: 1,
   type: 'react',
   props: [{

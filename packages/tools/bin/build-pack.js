@@ -200,7 +200,7 @@ args.option('dir', 'The Front Component Project Root Path', './')
                 ignored: /package.json/
             }, (err, stats) => {
                 if (err) {
-                    throw err;
+                    console.error('Build Error', err);
                 }
 
                 const info = stats.toJson();
@@ -230,8 +230,12 @@ args.option('dir', 'The Front Component Project Root Path', './')
                     }) + '\n\n');
                     console.log('  Build Complete.\n');
 
-                    if (ridgeConfig && ridgeConfig.copy) {
-                        fs.copySync(packagePath, path.resolve(packagePath, ridgeConfig.copy));
+                    try {
+                        if (ridgeConfig && ridgeConfig.copy) {
+                            fs.copySync(packagePath, path.resolve(packagePath, ridgeConfig.copy));
+                        }
+                    } catch (e) {
+                        console.error('copy fail', e)
                     }
                 }, 100)
             });

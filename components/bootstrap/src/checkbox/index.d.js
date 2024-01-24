@@ -1,9 +1,8 @@
 import CheckBox from './CheckBox.jsx'
 export default {
   name: 'checkbox',
-  title: '切换框',
   component: CheckBox,
-  icon: 'icons/checkbox.svg',
+  icon: 'icons/checkbox.png',
   order: 2,
   type: 'react',
   props: [{

@@ -42,24 +42,6 @@ export default {
     value: 400
   },
   {
-    name: 'decoration',
-    label: '样式',
-    width: '50%',
-    type: 'string',
-    value: 'none',
-    control: 'radiogroup',
-    optionList: [{
-      icon: 'bi bi-type-strikethrough',
-      value: 'line-through'
-    }, {
-      icon: 'bi bi-text-center',
-      value: 'dashed underline'
-    }, {
-      icon: 'bi bi-type-underline',
-      value: 'underline'
-    }]
-  },
-  {
     name: 'textAlign',
     label: '对齐',
     width: '50%',
@@ -105,6 +87,10 @@ export default {
     width: '50%',
     type: 'number',
     value: 0
+  }, {
+    name: 'classNames',
+    label: '样式',
+    type: 'style'
   }],
   width: 100,
   height: 22

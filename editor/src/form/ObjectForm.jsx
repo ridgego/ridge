@@ -28,6 +28,7 @@ import FontFamilyEdit from './with-fields/FontFamilyEdit.jsx'
 import BooleanEdit from './with-fields/BooleanEdit.jsx'
 import PropertiesEdit from './with-fields/PropertiesEdit.jsx'
 import FieldTreeSelect from './with-fields/TreeSelect.jsx'
+import ClassSelect from './with-fields/ClassSelect.jsx'
 
 export default class ObjectForm extends React.Component {
   constructor (props) {
@@ -58,7 +59,7 @@ export default class ObjectForm extends React.Component {
       fontFamily: (col, readonly) => <FontFamilyEdit label={col.label} field={col.field} disabled={readonly} />,
       border: (col, readonly) => <BorderEdit label={col.label} field={col.field} disabled={readonly} />,
       padding: (col, readonly) => <PaddingEdit disabled={readonly} {...col} />,
-      boxshadow: (col, readonly) => <BoxShadowEdit label={col.label} field={col.field} disabled={readonly} />,
+      // boxshadow: (col, readonly) => <BoxShadowEdit label={col.label} field={col.field} disabled={readonly} />,
       event: (col, readonly, options) => <EventEdit className='event-field' noLabel field={col.field} options={{ label: col.label, ...options }} />,
       image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
       icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
@@ -74,6 +75,7 @@ export default class ObjectForm extends React.Component {
       class: (col) => <ClassEdit label={col.label} field={col.field} options={col} />,
       properties: col => <PropertiesEdit noLabel field={col.field} page='hi1' />,
       tree: col => <FieldTreeSelect label={col.label} field={col.field} options={col} />,
+      style: col => <ClassSelect label={col.label} field={col.field} options={col} />,
       SeriesData: (col) => <SeriesTableEdit {...col} />
     }
   }

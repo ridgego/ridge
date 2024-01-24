@@ -5,15 +5,14 @@ import Renderer from './Renderer'
  * @param el  html层
  */
 export default class StoreRender extends Renderer {
-  constructor (StoreComponent, initOption = {}) {
+  constructor (options) {
     super()
-    this.StoreComponent = StoreComponent
-    this.props = initOption
+    this.options = options
   }
 
   mount (el) {
     this.el = el
-    this.el.innerHTML = `<div class="store-component"><i class="bi bi-sliders"></i><div class="store-name">${this.StoreComponent.title ?? this.StoreComponent.name}</div></div>`
+    this.el.innerHTML = `<div class="store-component"><i class="bi bi-sliders"></i><div class="store-name">${this.options.title ?? this.options.name}</div></div>`
   }
 
   update ({ title }) {

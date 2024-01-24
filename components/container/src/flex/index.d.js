@@ -80,7 +80,7 @@ export default {
   }, {
     name: 'classNames',
     label: '样式',
-    type: 'class',
+    type: 'style',
     value: []
   }],
   childProps: [{

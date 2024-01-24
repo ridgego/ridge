@@ -1,9 +1,8 @@
-import CheckBox from './Badge.jsx'
+import Badge from './Badge.jsx'
 export default {
   name: 'badge',
-  title: '徽章',
-  component: CheckBox,
-  icon: 'icons/checkbox.svg',
+  component: Badge,
+  icon: 'icons/badge.png',
   order: 2,
   type: 'react',
   props: [{
@@ -11,38 +10,55 @@ export default {
     label: '文本',
     connect: true,
     type: 'string',
-    value: '切换选项'
+    value: '标签'
   }, {
-    name: 'value',
-    label: '选中',
-    connect: true,
-    type: 'boolean'
-  },
-  {
-    name: 'size',
-    label: '字体大小',
-    type: 'number',
+    name: 'type',
+    label: '类型',
+    type: 'string',
+    control: 'select',
+    options: [{
+      label: '主色',
+      value: 'text-bg-primary'
+    }, {
+      label: '次要色',
+      value: 'text-bg-secondary'
+    }, {
+      label: '成功色',
+      value: 'text-bg-success'
+    }, {
+      label: '危险色',
+      value: 'text-bg-danger'
+    }]
+  }, {
+    name: 'icon',
+    label: '图标',
     width: '50%',
-    value: 14
+    type: 'string'
   }, {
-    name: 'disabled',
-    label: '禁用',
+    name: 'pill',
+    label: '圆形',
+    width: '50%',
+    type: 'boolean',
+    value: false
+  }, {
+    name: 'showClose',
+    label: '可关闭',
     width: '50%',
     type: 'boolean',
     value: false
   }, {
     name: 'classNames',
     label: '样式',
-    type: 'array',
-    control: 'tree',
-    treeData: async () => {
-      return import(/* webpackChunkName: "bootStyleList" */ '../styleList.js')
-    }
+    type: 'style',
+    value: []
   }],
   events: [{
-    label: '点击事件',
+    label: '点击',
     name: 'onClick'
+  }, {
+    label: '关闭',
+    name: 'onClose'
   }],
-  width: 80,
-  height: 32
+  width: 44,
+  height: 20
 }

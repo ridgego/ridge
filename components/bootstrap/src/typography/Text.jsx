@@ -7,7 +7,7 @@ export default ({
   verticalAlign,
   textAlign,
   padding,
-  style
+  classNames = []
 }) => {
   return (
     <div
@@ -21,7 +21,7 @@ export default ({
         alignItems: verticalAlign,
         justifyContent: textAlign,
         color
-      }} className={style}
+      }} className={classNames.join(' ')}
     >{text}
     </div>
   )

@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { withField, TextArea, RadioGroup, Radio } from '@douyinfe/semi-ui'
+import React from 'react'
+import { withField, RadioGroup, Radio } from '@douyinfe/semi-ui'
 
 const RadioGroupEdit = withField(({
   value,

@@ -1,9 +1,9 @@
 import Button from './Button.jsx'
 export default {
   name: 'button',
-  title: '按钮',
+  // title: '按钮',
   component: Button,
-  icon: 'icons/button.svg',
+  icon: 'icons/button.png',
   order: 1,
   type: 'react',
   props: [{
@@ -98,11 +98,7 @@ export default {
   }, {
     name: 'classNames',
     label: '样式',
-    type: 'array',
-    control: 'tree',
-    treeData: async () => {
-      return import(/* webpackChunkName: "bootStyleList" */ '../styleList.js')
-    }
+    type: 'style'
   }],
   events: [{
     label: '点击事件',

@@ -109,8 +109,8 @@ class ComponentListing extends React.Component {
     if (icon) {
       return (
         <div className='image-icon'>
-          <img src={icon} />
-          <Text>{label} </Text>
+          <img className={label ? '' : 'img-only'} src={icon} />
+          {label && <Text>{label} </Text>}
         </div>
       )
     } else {
