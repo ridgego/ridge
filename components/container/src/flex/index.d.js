@@ -6,7 +6,7 @@ export default {
   label: '弹性容器',
   type: 'vanilla',
   order: 3,
-  icon: 'icons/flexbox.svg',
+  icon: 'icons/flexbox.png',
   props: [{
     name: 'direction',
     label: '排列方向',

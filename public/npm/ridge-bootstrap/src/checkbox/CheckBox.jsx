@@ -1,8 +1,8 @@
 import React from 'react'
 export default ({
   text = '',
+  value,
   size = 14,
-  checked,
   input,
   onClick
 }) => {
@@ -10,9 +10,9 @@ export default ({
   return (
     <div class='form-check'>
       <input
-        class='form-check-input' type='checkbox' checked={checked} id={id} onChange={e => {
-          input && input(!checked)
-          onClick && onClick(!checked)
+        class='form-check-input' type='checkbox' checked={value} id={id} onChange={e => {
+          input && input(!value)
+          onClick && onClick(!value)
         }}
       />
       <label

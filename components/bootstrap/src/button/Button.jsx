@@ -3,8 +3,11 @@ export default ({
   text = '',
   type = 'primary',
   size = 14,
+  btnSize = '',
   outline,
   disabled,
+  classNames = [],
+  icon,
   onClick
 }) => {
   return (
@@ -16,11 +19,13 @@ export default ({
         width: '100%',
         height: '100%'
       }}
-      className={['btn',
+      className={['btn', btnSize, ...classNames,
         outline ? 'btn-outline-' + type : 'btn-' + type
       ].join(' ')}
       disabled={disabled}
-    >{text}
+    >
+      {icon && <i className={'bi ' + icon} />}
+      {text}
     </button>
   )
 }

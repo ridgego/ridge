@@ -12,6 +12,7 @@ export default class ListContainer extends BaseContainer {
       }
     } else {
       if (this.children.length > 1) {
+
       }
     }
   }
@@ -19,10 +20,12 @@ export default class ListContainer extends BaseContainer {
   getContainerStyle () {
     const {
       border,
+      overflow,
       padding
     } = this.props
     const containerStyle = {
       border,
+      overflow,
       padding: padding + 'px',
       boxSizing: 'border-box'
     }

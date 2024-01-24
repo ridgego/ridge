@@ -53,7 +53,7 @@ export default class ReactRenderer extends Renderer {
     Object.assign(this.props, {
       [event]: callback
     })
-    ReactDOM.render(React.createElement(this.JSXComponent, this.props), this.el)
+    this.root.render(React.createElement(this.JSXComponent, this.props), this.el)
   }
 
   /**
@@ -97,7 +97,7 @@ export default class ReactRenderer extends Renderer {
     if (this.renderRef && this.renderRef.current && typeof this.renderRef.current.updateProps === 'function') {
       this.renderRef.current.updateProps(props)
     } else {
-      ReactDOM.render(this.getRenderInstance(), this.el)
+      this.root.render(this.getRenderInstance(), this.el)
     }
   }
 

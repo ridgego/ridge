@@ -3,7 +3,7 @@ export default {
   name: 'button',
   title: '按钮',
   component: Button,
-  icon: 'icons/button.png',
+  icon: 'icons/button.svg',
   order: 1,
   type: 'react',
   props: [{
@@ -61,17 +61,48 @@ export default {
     width: '50%',
     type: 'boolean'
   }, {
+    name: 'btnSize',
+    label: '按钮尺寸',
+    type: 'string',
+    control: 'select',
+    width: '50%',
+    optionList: [{
+      label: '大',
+      value: '.btn-lg'
+    }, {
+      label: '正常',
+      value: ''
+    }, {
+      label: '小',
+      value: 'btn-sm'
+    }],
+    value: ''
+  }, {
     name: 'size',
     label: '字体大小',
     type: 'number',
     width: '50%',
     value: 14
   }, {
+    name: 'icon',
+    label: '图标',
+    type: 'string',
+    width: '50%',
+    value: ''
+  }, {
     name: 'disabled',
     label: '禁用',
     width: '50%',
     type: 'boolean',
     value: false
+  }, {
+    name: 'classNames',
+    label: '样式',
+    type: 'array',
+    control: 'tree',
+    treeData: async () => {
+      return import(/* webpackChunkName: "bootStyleList" */ '../styleList.js')
+    }
   }],
   events: [{
     label: '点击事件',

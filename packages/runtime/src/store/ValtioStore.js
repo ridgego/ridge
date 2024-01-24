@@ -65,17 +65,17 @@ export default class RidgeStore {
   }
 
   // 设置状态改变
-  dispatchChange (expr, payload) {
+  dispatchChange (expr, val, scoped) {
     const [storeKey, type, stateName] = expr.split('.')
     if (this.storeObjects[storeKey]) {
-      this.storeObjects[storeKey].dispatchChange(type, stateName, payload)
+      this.storeObjects[storeKey].dispatchChange(type, stateName, val, scoped)
     }
   }
 
   // 执行动作
-  doStoreAction (storeName, actionName, event, scopedData) {
+  doStoreAction (storeName, actionName, event, ...scopedData) {
     if (this.storeObjects[storeName]) {
-      this.storeObjects[storeName].doStoreAction(actionName, event, scopedData)
+      this.storeObjects[storeName].doStoreAction(actionName, event, ...scopedData)
     }
   }
 

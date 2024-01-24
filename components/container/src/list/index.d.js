@@ -47,6 +47,24 @@ export default {
     type: 'border',
     value: '1px solid #ddd'
   }, {
+    name: 'overflow',
+    label: '滚动条',
+    type: 'string',
+    control: 'select',
+    optionList: [{
+      label: '横向',
+      value: 'auto hidden'
+    }, {
+      label: '纵向',
+      value: 'hidden auto'
+    }, {
+      label: '横向+纵向',
+      value: 'auto'
+    }, {
+      label: '无',
+      value: 'hidden'
+    }]
+  }, {
     name: 'children',
     type: 'children',
     slot: ['item']

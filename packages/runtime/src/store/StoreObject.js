@@ -116,46 +116,46 @@ export default class ValtioStoreObject {
    * @returns
    */
   getValue (type, name, payload) {
-    const stateValues = snapshot(this.state)
     let result = null
-    if (type === 'state' && this.state[name] != null) {
-      result = stateValues[name]
-    } else if (type === 'scoped') {
-      try {
-        // 执行表达式
-        const scoped = this.module.scoped[name]
-        if (scoped) {
-          if (typeof scoped === 'function') {
-            result = scoped.apply(stateValues, [stateValues, ...payload])
-          } else if (typeof scoped.get === 'function') {
-            result = scoped.get.apply(stateValues, [stateValues, ...payload])
-          }
-        }
-      } catch (e) {
-        error('getStoreValue Error', e)
-      }
+    if (type === 'state') {
+      result = this.state[name]
     } else if (type === 'computed') {
       // 执行表达式
       const computed = this.module.computed[name]
       if (computed) {
         if (typeof computed === 'function') {
-          result = computed.apply(stateValues, [stateValues, ...payload])
+          result = computed.apply(this.context, [this.state, ...payload])
         } else if (typeof computed.get === 'function') {
-          result = computed.get.apply(stateValues, [stateValues, ...payload])
+          result = computed.get.apply(this.context, [this.state, ...payload])
         }
       }
     }
+    // else if (type === 'scoped') {
+    //   try {
+    //     // 执行表达式
+    //     const scoped = this.module.scoped[name]
+    //     if (scoped) {
+    //       if (typeof scoped === 'function') {
+    //         result = scoped.apply(this.context, [stateValues, ...payload])
+    //       } else if (typeof scoped.get === 'function') {
+    //         result = scoped.get.apply(this.context, [stateValues, ...payload])
+    //       }
+    //     }
+    //   } catch (e) {
+    //     error('getStoreValue Error', e)
+    //   }
+    // }
     // log('getStoreValue', expr, result)
     return result
   }
 
-  dispatchChange (type, stateName, payload) {
+  dispatchChange (type, stateName, val, ...scoped) {
     if (type === 'state') {
-      this.state[stateName] = payload[0]
-    } else if (type === 'scoped') {
-      if (typeof this.module.scoped[stateName]?.set === 'function') {
+      this.state[stateName] = val
+    } else if (type === 'computed') {
+      if (typeof this.module.computed[stateName]?.set === 'function') {
         try {
-          this.module.scoped[stateName]?.set(...payload, this)
+          this.module.computed[stateName]?.set.call(this, val, this.state, ...scoped)
         } catch (e) {
           error('dispatchChange Error', e)
         }
@@ -163,7 +163,7 @@ export default class ValtioStoreObject {
     }
   }
 
-  doStoreAction (actionName, event, scopedData) {
+  doStoreAction (actionName, event, ...scopedData) {
     if (this.module.actions && this.module.actions[actionName]) {
       try {
         const scope = {

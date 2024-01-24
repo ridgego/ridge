@@ -1,9 +1,9 @@
 import Text from './Text.jsx'
 export default {
   name: 'Text',
-  title: '单行文本',
+  title: '文本',
   component: Text,
-  icon: 'icons/text.png',
+  icon: 'icons/text-outline.svg',
   order: 4,
   type: 'react',
   props: [{

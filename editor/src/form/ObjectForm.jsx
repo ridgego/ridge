@@ -27,6 +27,7 @@ import AudioEdit from './with-fields/AudioEdit.jsx'
 import FontFamilyEdit from './with-fields/FontFamilyEdit.jsx'
 import BooleanEdit from './with-fields/BooleanEdit.jsx'
 import PropertiesEdit from './with-fields/PropertiesEdit.jsx'
+import FieldTreeSelect from './with-fields/TreeSelect.jsx'
 
 export default class ObjectForm extends React.Component {
   constructor (props) {
@@ -72,6 +73,7 @@ export default class ObjectForm extends React.Component {
       array: (col) => <ArrayEdit label={col.label} field={col.field} options={col} />,
       class: (col) => <ClassEdit label={col.label} field={col.field} options={col} />,
       properties: col => <PropertiesEdit noLabel field={col.field} page='hi1' />,
+      tree: col => <FieldTreeSelect label={col.label} field={col.field} options={col} />,
       SeriesData: (col) => <SeriesTableEdit {...col} />
     }
   }

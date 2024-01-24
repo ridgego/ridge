@@ -3,7 +3,7 @@ import Rect from './Rect'
 export default {
   name: 'rect',
   component: Rect,
-  icon: 'icon/rect.svg',
+  icon: 'icon/rect.png',
   type: 'vanilla',
   title: '矩形',
   order: 1,

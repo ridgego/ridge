@@ -128,7 +128,7 @@ class Element extends BaseNode {
     // 属性名为value并且与state连接时， 增加 input 事件，事件传值回写到state
     if (this.config.propEx.value) {
       this.events.input = val => {
-        this.composite.store.dispatchChange(this.config.propEx.value, [val, ...this.getScopedData()])
+        this.composite.store.dispatchChange(this.config.propEx.value, val, ...this.getScopedData())
       }
     }
 
@@ -141,7 +141,7 @@ class Element extends BaseNode {
               payload,
               param: action.payload
             }
-            this.composite.store.doStoreAction(action.store, action.method, event, scopeData)
+            this.composite.store.doStoreAction(action.store, action.method, event, ...scopeData)
           }
         }
       }

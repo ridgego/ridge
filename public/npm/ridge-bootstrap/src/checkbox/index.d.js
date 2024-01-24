@@ -3,7 +3,7 @@ export default {
   name: 'checkbox',
   title: '切换框',
   component: CheckBox,
-  icon: 'icons/checkbox.png',
+  icon: 'icons/checkbox.svg',
   order: 2,
   type: 'react',
   props: [{
@@ -13,8 +13,8 @@ export default {
     type: 'string',
     value: '切换选项'
   }, {
-    name: 'checked',
-    label: '是否选中',
+    name: 'value',
+    label: '选中',
     connect: true,
     type: 'boolean'
   },
@@ -36,5 +36,5 @@ export default {
     name: 'onClick'
   }],
   width: 80,
-  height: 40
+  height: 32
 }

@@ -3,7 +3,7 @@ export default {
   name: 'TextInput',
   title: '单行输入',
   component: Input,
-  icon: 'icons/input.png',
+  icon: 'icons/input-field.svg',
   order: 1,
   type: 'react',
   props: [{

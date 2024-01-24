@@ -9,15 +9,23 @@ export default {
 
   computed: {
     finishedTodoList: state => {
-      return state.todoList.filter(todo => todo.finished === 1)
+      return state.todoList.filter(todo => todo.finished)
     },
 
     activeTodoList: state => {
-      return state.todoList.filter(todo => todo.finished === -1)
+      return state.todoList.filter(todo => !todo.finished)
     },
-
+    // scoped computed value
     todoItemText: (state, scope) => {
       return scope?.item?.text
+    },
+    todoItemFinished: {
+      set: (val, state, scope) => {
+        scope.item.finished = val
+      },
+      get: (state, scope) => {
+        return scope?.item?.finished
+      }
     }
   },
 
@@ -30,9 +38,7 @@ export default {
   exit () {},
   watch: {
     todoText (val) {
-      if (val === '') {
-        this.state.todoInvalid = true
-      } else {
+      if (val !== '') {
         this.state.todoInvalid = false
       }
     }
@@ -43,19 +49,15 @@ export default {
       if (this.state.todoText !== '') {
         this.state.todoList.push({
           text: this.state.todoText,
-          finished: -1
+          finished: false
         })
+        this.state.todoText = ''
       } else {
         this.state.todoInvalid = true
       }
     },
-
-    finishTodo (scope) {
-      scope.item.finished = 1
-    },
-
-    activeTodo (scope) {
-      scope.item.finished = -1
+    removeTodo (context) {
+      this.state.todoList = this.state.todoList.filter(todo => todo !== context.scope.item)
     }
   }
 }

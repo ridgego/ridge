@@ -110,6 +110,7 @@ class ComponentListing extends React.Component {
       return (
         <div className='image-icon'>
           <img src={icon} />
+          <Text>{label} </Text>
         </div>
       )
     } else {

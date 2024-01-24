@@ -129,6 +129,7 @@ class Composite extends BaseNode {
   // 更新自身样式
   updateStyle () {
     if (this.config.style && this.el) {
+      this.el.style.background = ''
       const { background, classNames = [] } = this.config.style
       background && Object.assign(this.el.style, {
         background
@@ -144,6 +145,7 @@ class Composite extends BaseNode {
         }
       }
       this.el.classList.add('ridge-composite')
+
       // this.el.style.position = 'relative'
     }
   }
