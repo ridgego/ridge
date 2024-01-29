@@ -143,7 +143,7 @@ export default class Editor extends React.Component {
           ref={workspaceRef}
           className={'workspace ' + (containerMask ? 'show-container' : '')}
         >
-          <div className='viewport-container' ref={viewPortContainerRef} />
+          <div ref={viewPortContainerRef} />
           {
             !editorLoading &&
               <>

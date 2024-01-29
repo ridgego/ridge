@@ -197,9 +197,11 @@ class RidgeEditorContext extends RidgeContext {
       this.workspaceControl.disable()
       this.Editor.togglePageClose()
       this.loadPreview()
+      this.workspaceEl.style.overflow = 'auto'
     } else if (this.runtimeComposite) {
       this.runtimeComposite.unmount()
       await this.loadEdit()
+      this.workspaceEl.style.overflow = ''
     }
   }
 

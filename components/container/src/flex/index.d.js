@@ -73,11 +73,6 @@ export default {
     type: 'number',
     value: 8
   }, {
-    label: '边框',
-    name: 'border',
-    type: 'border',
-    value: '1px solid #ccc'
-  }, {
     name: 'classNames',
     label: '样式',
     type: 'style',

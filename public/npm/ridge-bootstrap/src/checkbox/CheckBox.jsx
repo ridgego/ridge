@@ -2,26 +2,32 @@ import React from 'react'
 export default ({
   text = '',
   value,
-  size = 14,
   input,
+  validState,
+  validMsg,
+  invalidMsg,
   onClick
 }) => {
-  const id = 'check-2'
+  let validName = ''
+  if (validState === true) {
+    validName = 'is-valid'
+  } else if (validState === false) {
+    validName = 'is-invalid'
+  }
+
   return (
-    <div class='form-check'>
+    <div className='form-check'>
       <input
-        class='form-check-input' type='checkbox' checked={value} id={id} onChange={e => {
+        className={['form-check-input', validName].join(' ')} type='checkbox' checked={value === true} onChange={e => {
           input && input(!value)
           onClick && onClick(!value)
         }}
       />
-      <label
-        class='form-check-label' for={id} style={{
-          fontSize: size + 'px'
-        }}
-      >
+      <label className={['form-check-label', validName].join(' ')}>
         {text}
       </label>
+      {validState === true && <div class='valid-feedback'>{validMsg}</div>}
+      {validState === false && <div class='invalid-feedback'>{invalidMsg}</div>}
     </div>
   )
 }

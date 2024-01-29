@@ -1,11 +1,11 @@
-import Image from './Image.js'
+import Image from './Image.jsx'
 
 export default {
   name: 'image',
   component: Image,
   icon: 'icon/image.svg',
   title: '图片',
-  type: 'vanilla',
+  type: 'react',
   order: 3,
   width: 260,
   height: 160,
@@ -35,19 +35,9 @@ export default {
     }],
     value: 'cover'
   }, {
-    name: 'border',
-    label: '边框',
-    type: 'border'
-  }, {
-    name: 'borderRadius',
-    label: '圆角',
-    width: '50%',
-    type: 'string',
-    value: '0px'
-  }, {
-    name: 'className',
+    name: 'classNames',
     label: '样式',
-    type: 'class',
+    type: 'style',
     value: []
   }]
 }

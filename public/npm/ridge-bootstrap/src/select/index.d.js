@@ -1,23 +1,34 @@
-import CheckBox from './CheckBox.jsx'
+import Select from './Select.jsx'
 export default {
-  name: 'checkbox',
-  component: CheckBox,
-  icon: 'icons/checkbox.png',
-  order: 2,
+  name: 'Select',
+  component: Select,
+  label: '下拉选择',
+  icon: 'icons/input.png',
+  order: 1,
   type: 'react',
   props: [{
-    name: 'text',
-    label: '文本',
+    name: 'value',
+    label: '内容',
     connect: true,
     type: 'string',
-    value: '切换选项'
+    value: ''
   }, {
-    name: 'value',
-    label: '选中',
+    name: 'options',
+    label: '选项',
     connect: true,
-    type: 'boolean'
-  },
-  {
+    type: 'array',
+    item: {
+      label: '选项1',
+      value: 'value1'
+    },
+    value: []
+  }, {
+    name: 'placeholder',
+    label: '提示信息',
+    connect: true,
+    type: 'string',
+    value: ''
+  }, {
     name: 'validState',
     label: '验证',
     connect: true,
@@ -45,6 +56,22 @@ export default {
     connect: true,
     type: 'string',
     value: '请检查输入项是否有效'
+  }, {
+    name: 'size',
+    label: '尺寸',
+    type: 'string',
+    control: 'select',
+    width: '50%',
+    options: [{
+      label: '小',
+      value: 'form-select-sm'
+    }, {
+      label: '正常',
+      value: ''
+    }, {
+      label: '大',
+      value: 'form-select-lg'
+    }]
   }, {
     name: 'disabled',
     label: '禁用',

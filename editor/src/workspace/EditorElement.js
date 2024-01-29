@@ -1,5 +1,6 @@
 import { Element } from 'ridge-runtime'
 import _ from 'lodash'
+import { nanoid } from '../utils/string'
 
 import context from '../service/RidgeEditorContext.js'
 
@@ -16,11 +17,13 @@ class EditorElement extends Element {
     if (this.config.props.children != null) {
       this.el.classList.add('ridge-container')
     }
+
+    this.setLocked(this.config.locked)
   }
 
-  appendChild (node, { x, y }, rect) {
+  appendChild (node, { x, y } = {}, rect) {
     let order = -1
-    if (this.hasMethod('checkNodeOrder')) {
+    if (this.hasMethod('checkNodeOrder') && rect) {
       order = this.invoke('checkNodeOrder', [rect])
     }
     if (order > -1) {
@@ -150,6 +153,32 @@ class EditorElement extends Element {
     if (this.parent && this.parent.invoke) {
       this.parent.invoke('childSelected', [this])
     }
+  }
+
+  /**
+   * 编辑期间复制
+   **/
+  clone () {
+    const clonedConfig = _.cloneDeep(this.config)
+    clonedConfig.id = nanoid(5)
+    const cloned = new EditorElement({
+      composite: this.composite,
+      componentDefinition: this.componentDefinition,
+      config: clonedConfig
+    })
+
+    if (this.children) {
+      cloned.children = []
+      for (const childNode of this.children) {
+        const childNodeCloned = childNode.clone()
+        childNodeCloned.parent = cloned
+        cloned.children.push(childNodeCloned)
+        this.composite.nodes[childNodeCloned.getId()] = childNodeCloned
+      }
+    }
+
+    this.composite.nodes[cloned.getId()] = cloned
+    return cloned
   }
 
   exportJSON () {

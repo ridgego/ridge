@@ -28,7 +28,10 @@
     "button",
     "checkbox",
     "icons",
+    "image",
     "input",
+    "radio",
+    "select",
     "style",
     "typography"
   ]

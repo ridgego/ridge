@@ -1,7 +1,7 @@
-import CheckBox from './CheckBox.jsx'
+import Radio from './Radio.jsx'
 export default {
-  name: 'checkbox',
-  component: CheckBox,
+  name: 'radio',
+  component: Radio,
   icon: 'icons/checkbox.png',
   order: 2,
   type: 'react',
@@ -16,6 +16,23 @@ export default {
     label: '选中',
     connect: true,
     type: 'boolean'
+  },
+  {
+    name: 'options',
+    label: '选项',
+    connect: true,
+    type: 'array',
+    item: {
+      label: '选项1',
+      value: 'value1'
+    },
+    value: [{
+      label: '选项1',
+      value: 'value1'
+    }, {
+      label: '选项2',
+      value: 'value2'
+    }]
   },
   {
     name: 'validState',

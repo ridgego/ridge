@@ -1,7 +1,7 @@
 import Button from './Button.jsx'
 export default {
   name: 'button',
-  // title: '按钮',
+  title: '按钮',
   component: Button,
   icon: 'icons/button.png',
   order: 1,

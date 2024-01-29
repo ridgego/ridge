@@ -13,6 +13,11 @@ class PreviewComposite extends EditorComposite {
     })
   }
 
+  updateStyle () {
+    super.updateStyle()
+    this.el.classList.remove('is-edit')
+  }
+
   updateViewPort (width, height) {
     this.el.style.width = width + 'px'
     this.el.style.height = height + 'px'

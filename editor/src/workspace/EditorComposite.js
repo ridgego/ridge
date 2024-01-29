@@ -68,6 +68,7 @@ class EditorComposite extends Composite {
       this.el.style.height = height + 'px'
 
       this.el.classList.add('is-edit')
+      this.el.classList.add('viewport-container')
     }
   }
 

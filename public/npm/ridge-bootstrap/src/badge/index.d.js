@@ -2,6 +2,7 @@ import Badge from './Badge.jsx'
 export default {
   name: 'badge',
   component: Badge,
+  title: '标签',
   icon: 'icons/badge.png',
   order: 2,
   type: 'react',

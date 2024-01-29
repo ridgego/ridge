@@ -18,10 +18,33 @@ export default {
     type: 'string',
     value: ''
   }, {
-    name: 'invalid',
-    label: '不合法',
+    name: 'validState',
+    label: '验证',
     connect: true,
-    type: 'boolean'
+    type: 'radiogroup',
+    options: [{
+      label: '有效',
+      value: true
+    }, {
+      label: '无效',
+      value: false
+    }, {
+      label: '无',
+      value: null
+    }],
+    value: null
+  }, {
+    name: 'validMsg',
+    label: '有效提示',
+    connect: true,
+    type: 'string',
+    value: ''
+  }, {
+    name: 'invalidMsg',
+    label: '无效提示',
+    connect: true,
+    type: 'string',
+    value: '请检查输入项是否有效'
   }, {
     name: 'size',
     label: '字体大小',

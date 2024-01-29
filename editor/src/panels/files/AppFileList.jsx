@@ -178,7 +178,7 @@ class AppFileList extends React.Component {
 
     const result = await appService.rename(selectedNodeKey, valueRename)
 
-    context.onFileRenamed(selectedNodeKey, valueRename);
+    context.onFileRenamed(selectedNodeKey, valueRename)
     if (result) {
       await this.loadAndUpdateFileTree()
       this.setState({
@@ -212,7 +212,9 @@ class AppFileList extends React.Component {
   }
 
   onOpenClicked = node => {
-    context.openFile(node.key)
+    if (node.type !== 'directory') {
+      context.openFile(node.key)
+    }
   }
 
   onRenameClicked = node => {

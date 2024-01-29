@@ -71,7 +71,10 @@ export default class WorkSpaceControl {
     })
 
     if (fitted.width !== vpbc.width) {
-      this.zoom = fitted.width / vpbc.width
+      this.viewPortX = 0
+      this.viewPortY = 0
+      return this.zoom
+      // this.zoom = fitted.width / vpbc.width
     }
 
     this.viewPortX = (wsbc.width - fitted.width) / 2
@@ -141,10 +144,10 @@ export default class WorkSpaceControl {
     })
 
     this.moveable.on('dragStart', ev => {
-      const target = ev.target
-      if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
-        return false
-      }
+      // const target = ev.target
+      // if (target.classList.contains('is-locked') || target.classList.contains('is-full')) {
+      //   return false
+      // }
     })
 
     this.moveable.on('drag', ev => {
@@ -158,24 +161,16 @@ export default class WorkSpaceControl {
       const config = ev.target.ridgeNode.config
       sm.onElementDragStart(ev.target, ev.inputEvent)
 
-      // if (config.parent) {
-      //   // 拖拽时就从父节点移除
-      // } else {
-      //   sm.checkDropTargetStatus(ev)
-      // }
-
       ev.target.style.transform = `translate(${config.style.x + ev.dist[0]}px,${config.style.y + ev.dist[1]}px)`
     })
 
     this.moveable.on('dragEnd', ev => {
       const target = ev.target
-      if (!sm.isTargetMovable(target)) {
-        return
-      }
-      if (ev.isDrag) {
-        sm.placeElementAt(ev.target, ev.clientX, ev.clientY)
+
+      if (ev.isDrag && sm.isTargetMovable(target)) {
+        sm.placeElementAt(target, ev.clientX, ev.clientY)
       } else {
-        sm.selectElements([ev.target])
+        sm.selectElements([target])
       }
     })
 
@@ -358,7 +353,7 @@ export default class WorkSpaceControl {
     }
     this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
     this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
-    this.selectElements(selected)
+    this.selectElements(selected.filter(el => el.parentElement))
   }
 
   initComponentDrop () {
@@ -546,14 +541,15 @@ export default class WorkSpaceControl {
   // 更新选择的状态
   setSelectedStatus () {
     if (this.selected.length === 1) {
-      const el = this.selected[0]
-      if (el.classList.contains('ridge-is-locked') || el.classList.contains('ridge-is-full')) {
-        this.moveable.moveable = false
-        this.moveable.resizable = false
-      } else {
-        this.moveable.moveable = true
-        this.moveable.resizable = true
-      }
+      this.moveable.moveable = true
+      this.moveable.resizable = true
+      // if (el.classList.contains('ridge-is-locked') || el.classList.contains('ridge-is-full')) {
+      //   this.moveable.moveable = false
+      //   this.moveable.resizable = false
+      // } else {
+      //   this.moveable.moveable = true
+      //   this.moveable.resizable = true
+      // }
     } else if (this.selected.length > 1) {
       this.moveable.resizable = false
     }
@@ -756,36 +752,14 @@ export default class WorkSpaceControl {
     Mousetrap.bind('ctrl+v', () => {
       if (this.copied && this.copied.length) {
         for (const el of this.copied) {
-          const newView = el.ridgeNode.clone(context.editorComposite)
+          const clonedElement = el.ridgeNode.clone()
           const div = document.createElement('div')
-          newView.loadAndMount(div).then(() => {
-            let parentWrapper = null
-            if (this.selected && this.selected.length === 1) {
-              if (this.selected[0] === el && this.selected[0].elementWrapper.parentWrapper) {
-                parentWrapper = this.selected[0].elementWrapper.parentWrapper
-              } else {
-                parentWrapper = this.selected[0].elementWrapper
-              }
-            }
-
-            if (parentWrapper) {
-              trace('复制到父容器内', parentWrapper)
-              const result = this.pageManager.attachToParent(parentWrapper, newView)
-              if (result === false) {
-                newView.updateStyleConfig({
-                  x: newView.config.style.x + 20,
-                  y: newView.config.style.y + 20
-                })
-                this.putElementToRoot(newView)
-              }
-            } else {
-              newView.updateStyleConfig({
-                x: newView.config.style.x + 20,
-                y: newView.config.style.y + 20
-              })
-              this.putElementToRoot(updateStyleConfig.el)
-            }
-          })
+          clonedElement.mount(div)
+          if (this.selected && this.selected.length === 1) {
+            this.selected[0].ridgeNode.appendChild(clonedElement)
+          } else {
+            context.editorComposite.appendChild(clonedElement)
+          }
         }
       }
     })

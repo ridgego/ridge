@@ -9,7 +9,7 @@
 class BaseNode {
   async load () {}
   async mount (el) {}
-  updateProps (props) {}
+  setProperties (props) {}
   unmount () {}
   invoke () {}
 

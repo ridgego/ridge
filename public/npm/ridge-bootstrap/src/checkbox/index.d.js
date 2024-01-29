@@ -18,11 +18,33 @@ export default {
     type: 'boolean'
   },
   {
-    name: 'size',
-    label: '字体大小',
-    type: 'number',
-    width: '50%',
-    value: 14
+    name: 'validState',
+    label: '验证',
+    connect: true,
+    type: 'radiogroup',
+    options: [{
+      label: '有效',
+      value: true
+    }, {
+      label: '无效',
+      value: false
+    }, {
+      label: '无',
+      value: null
+    }],
+    value: null
+  }, {
+    name: 'validMsg',
+    label: '有效提示',
+    connect: true,
+    type: 'string',
+    value: ''
+  }, {
+    name: 'invalidMsg',
+    label: '无效提示',
+    connect: true,
+    type: 'string',
+    value: '请检查输入项是否有效'
   }, {
     name: 'disabled',
     label: '禁用',

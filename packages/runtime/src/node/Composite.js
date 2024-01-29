@@ -91,7 +91,6 @@ class Composite extends BaseNode {
   async mount (el) {
     if (el) {
       this.el = el
-      this.classList = new Set()
       for (const className of this.el.classList) {
         this.classList.add(className)
       }
@@ -128,6 +127,8 @@ class Composite extends BaseNode {
 
   // 更新自身样式
   updateStyle () {
+    this.el.className = ''
+    this.el.classList.add('ridge-composite')
     if (this.config.style && this.el) {
       this.el.style.background = ''
       const { background, classNames = [] } = this.config.style
@@ -137,16 +138,6 @@ class Composite extends BaseNode {
       classNames && classNames.forEach(cn => {
         this.el.classList.add(cn)
       })
-
-      const allClassList = [...classNames, ...this.classList]
-      for (const className of this.el.classList) {
-        if (allClassList.indexOf(className) === -1) {
-          this.el.classList.remove(className)
-        }
-      }
-      this.el.classList.add('ridge-composite')
-
-      // this.el.style.position = 'relative'
     }
   }
 
@@ -229,6 +220,12 @@ class Composite extends BaseNode {
     if (this.events[name]) {
       this.events[name](...payload)
     }
+  }
+
+  setProperties (props) {
+    this.properties = props
+
+    this.store && this.store.setProperties(this.properties)
   }
 
   /**
