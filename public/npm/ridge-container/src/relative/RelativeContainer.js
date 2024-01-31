@@ -16,7 +16,7 @@ export default class RelativeContainer extends BaseContainer {
   onChildAppended (element, { x, y }) {
     // 因为子节点是从外部拖入，其xy 都是相对于根的，这里根据传入的相对当前父的xy做更新
     element.updateConfig({
-      style: { left: x + 'px', top: y + 'px', right: '', bottom: '', width: element.config.style.width, height: element.config.style.height }
+      style: { left: x ?? 0 + 'px', top: x ?? 0 + 'px', right: '', bottom: '', width: element.config.style.width, height: element.config.style.height }
     }, true)
   }
 

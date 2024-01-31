@@ -749,6 +749,11 @@ export default class WorkSpaceControl {
       }
     })
 
+    Mousetrap.bind('ctrl+s', (e) => {
+      e.preventDefault()
+      context.saveCurrentPage()
+    })
+
     Mousetrap.bind('ctrl+v', () => {
       if (this.copied && this.copied.length) {
         for (const el of this.copied) {

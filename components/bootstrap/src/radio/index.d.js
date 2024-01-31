@@ -2,7 +2,8 @@ import Radio from './Radio.jsx'
 export default {
   name: 'radio',
   component: Radio,
-  icon: 'icons/checkbox.png',
+  title: '单选',
+  icon: 'bi bi-ui-radios',
   order: 2,
   type: 'react',
   props: [{

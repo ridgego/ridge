@@ -2,7 +2,7 @@ import SwitchContainer from './SwitchContainer.js'
 export default {
   name: 'switch-container',
   component: SwitchContainer,
-  label: '切换容器',
+  label: '内容切换',
   type: 'vanilla',
   order: 7,
   icon: 'icons/switch.svg',

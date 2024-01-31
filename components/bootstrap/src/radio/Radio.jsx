@@ -19,7 +19,11 @@ export default ({
     <>
       {options && options.map(op =>
         <div className={['form-check', validName].join(' ')} key={op.value}>
-          <input disabled={disabled} className={['form-check-input', validName].join(' ')} type='radio' name='flexRadioDefault' id={op.value} checked={value === op.value} />
+          <input
+            disabled={disabled} className={['form-check-input', validName].join(' ')} type='radio' name={op.value} value={op.value} id={op.value} checked={value === op.value} onChange={e => {
+              input && input(e.target.value)
+            }}
+          />
           <label class='form-check-label' for={op.value}>
             {op.label}
           </label>

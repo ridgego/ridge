@@ -115,9 +115,9 @@ class ComponentLoader {
       await this.loadExternals(rcd.requires)
     }
 
-    if (rcd.icon) {
-      rcd.icon = `${this.baseUrl}/${packageName}/${rcd.icon}`
-    }
+    // if (rcd.icon) {
+    //   rcd.icon = `${this.baseUrl}/${packageName}/${rcd.icon}`
+    // }
 
     if (rcd.type === 'react') {
       await this.loadScript(`${this.baseUrl}/react/umd/react.production.min.js`)

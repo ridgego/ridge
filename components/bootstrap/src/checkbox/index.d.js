@@ -2,7 +2,7 @@ import CheckBox from './CheckBox.jsx'
 export default {
   name: 'checkbox',
   component: CheckBox,
-  icon: 'icons/checkbox.png',
+  icon: 'bi bi-check2-square',
   order: 2,
   type: 'react',
   props: [{

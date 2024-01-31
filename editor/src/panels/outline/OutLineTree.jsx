@@ -108,7 +108,11 @@ class OutLineTree extends React.Component {
     }
     // update icon
     if (element.componentDefinition && element.componentDefinition.icon) {
-      treeNodeObject.icon = <img className='item-icon' src={element.componentDefinition.icon} />
+      if (element.componentDefinition.icon.indexOf('/') > -1) {
+        treeNodeObject.icon = <img className='item-icon' src={element.componentDefinition.icon} />
+      } else {
+        treeNodeObject.icon = <i className={element.componentDefinition.icon} />
+      }
     }
 
     if (element.children) {

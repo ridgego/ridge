@@ -40,6 +40,25 @@ export const filterTree = (treeData, filterCb) => {
   return result
 }
 
+export const mapTree = (treeData, map) => {
+  const result = []
+
+  treeData.forEach(node => {
+    const mapped = map(node)
+    if (mapped) {
+      if (node.children) {
+        mapped.children = mapTree(node.children, map)
+        if (mapped.children.length) {
+          result.push(mapped)
+        }
+      } else {
+        result.push(mapped)
+      }
+    }
+  })
+  return result
+}
+
 const buildFileTree = (file, dir, files, each) => {
   const treeNode = {
     id: file.id,

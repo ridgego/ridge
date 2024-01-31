@@ -42,7 +42,7 @@ class EditorComposite extends Composite {
       }
     }
     // Store型节点加载store
-    const storeNodes = this.getNodes(node => node.config.store)
+    const storeNodes = this.getNodes(node => node.componentDefinition && node.componentDefinition.type === 'store')
 
     for (const storeNode of storeNodes) {
       await storeNode.load()
@@ -153,53 +153,58 @@ class EditorComposite extends Composite {
   }
 
   parseJsStoreModule (jsStoreModule) {
-    const storeModule = {
-      module: jsStoreModule,
-      label: jsStoreModule.label ?? '未命名',
-      name: jsStoreModule.name, // module name
-      actions: [], // module actions
-      states: [], // module global state includes computed, but only on runtime they are different
-      computed: [],
-      scoped: [] // only for scoped binding (now only list)
-    }
-    this.storeModules.push(storeModule)
-
-    if (jsStoreModule.state) {
-      let initStateObject = {}
-      if (typeof jsStoreModule.state === 'function') {
-        initStateObject = jsStoreModule.state({})
-      } else if (typeof jsStoreModule.state === 'object') {
-        initStateObject = jsStoreModule.state
+    try {
+      const storeModule = {
+        module: jsStoreModule,
+        label: jsStoreModule.label ?? '未命名',
+        name: jsStoreModule.name, // module name
+        actions: [], // module actions
+        states: [], // module global state includes computed, but only on runtime they are different
+        computed: [],
+        scoped: [] // only for scoped binding (now only list)
       }
-      for (const key of Object.keys(initStateObject)) {
-        storeModule.states.push({
-          name: key
+      if (jsStoreModule.state) {
+        let initStateObject = {}
+        if (typeof jsStoreModule.state === 'function') {
+          initStateObject = jsStoreModule.state({})
+        } else if (typeof jsStoreModule.state === 'object') {
+          initStateObject = jsStoreModule.state
+        }
+        for (const key of Object.keys(initStateObject)) {
+          storeModule.states.push({
+            name: key,
+            value: initStateObject[key]
+          })
+        }
+      }
+
+      if (jsStoreModule.scoped) {
+        for (const key of Object.keys(jsStoreModule.scoped)) {
+          storeModule.scoped.push({
+            name: key
+          })
+        }
+      }
+
+      if (jsStoreModule.computed) {
+        for (const key of Object.keys(jsStoreModule.computed)) {
+          storeModule.computed.push({
+            name: key
+          })
+        }
+      }
+
+      if (jsStoreModule.actions && typeof jsStoreModule.actions === 'object') {
+        Object.keys(jsStoreModule.actions || {}).forEach(key => {
+          storeModule.actions.push({
+            name: key
+          })
         })
       }
-    }
-
-    if (jsStoreModule.scoped) {
-      for (const key of Object.keys(jsStoreModule.scoped)) {
-        storeModule.scoped.push({
-          name: key
-        })
-      }
-    }
-
-    if (jsStoreModule.computed) {
-      for (const key of Object.keys(jsStoreModule.computed)) {
-        storeModule.computed.push({
-          name: key
-        })
-      }
-    }
-
-    if (jsStoreModule.actions && typeof jsStoreModule.actions === 'object') {
-      Object.keys(jsStoreModule.actions || {}).forEach(key => {
-        storeModule.actions.push({
-          name: key
-        })
-      })
+      this.storeModules = this.storeModules.filter(m => m.name !== storeModule.name)
+      this.storeModules.push(storeModule)
+    } catch (e) {
+      console.error('jsStoreModule Parse Error', jsStoreModule)
     }
   }
 
@@ -275,6 +280,9 @@ class EditorComposite extends Composite {
         this.deleteNode(childNode)
       }
       node.unmount()
+      if (node.componentDefinition && node.componentDefinition.type === 'store') {
+        this.storeModules = this.storeModules.filter(m => m.name !== node.config.id)
+      }
       delete this.nodes[node.getId()]
     }
   }
@@ -298,6 +306,15 @@ class EditorComposite extends Composite {
 
   childAppended (childNode) {
     childNode.updateStyle()
+  }
+
+  onEditorElementCreated (node) {
+    if (node.componentDefinition && node.componentDefinition.type === 'store') {
+      this.parseJsStoreModule(Object.assign(node.componentDefinition.component, {
+        name: node.config.id,
+        label: node.config.title
+      }))
+    }
   }
 
   exportPageJSON () {

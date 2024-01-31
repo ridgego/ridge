@@ -4,9 +4,9 @@ import { nanoid } from '../utils/string'
 
 import context from '../service/RidgeEditorContext.js'
 
-class EditorElement extends Element {
+export default class EditorElement extends Element {
   getProperties () {
-    return Object.assign({}, this.config.props, {
+    return Object.assign({}, this.config.props, this.properties, {
       children: this.children
     }, {
       __isEdit: true
@@ -72,6 +72,16 @@ class EditorElement extends Element {
     }
   }
 
+  getBlobUrl (url) {
+    const file = context.services.appService.getFileByPath(url)
+    if (file) {
+      return context.services.appService.store.getItem(file.key)
+      // return context.services.appService.getFileContent(file)
+    } else {
+      return null
+    }
+  }
+
   setVisible (visible) {
     this.config.visible = visible
     this.updateStyle()
@@ -122,6 +132,7 @@ class EditorElement extends Element {
 
     // 更新配置属性到运行
     Object.assign(this.properties, config.props)
+    this.updateBlobProperties()
     this.style = config.style
 
     if (updateOnly !== true) {
@@ -188,5 +199,3 @@ class EditorElement extends Element {
     return JSON.parse(JSON.stringify(this.config))
   }
 }
-
-export default EditorElement

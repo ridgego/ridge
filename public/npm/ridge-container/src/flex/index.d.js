@@ -6,7 +6,7 @@ export default {
   label: '弹性容器',
   type: 'vanilla',
   order: 3,
-  icon: 'icons/flexbox.png',
+  icon: 'bi bi-layout-three-columns',
   props: [{
     name: 'direction',
     label: '排列方向',
@@ -72,11 +72,6 @@ export default {
     width: '50%',
     type: 'number',
     value: 8
-  }, {
-    label: '边框',
-    name: 'border',
-    type: 'border',
-    value: '1px solid #ccc'
   }, {
     name: 'classNames',
     label: '样式',

@@ -1,8 +1,9 @@
 import Input from './Input.jsx'
 export default {
   name: 'TextInput',
+  title: '单行输入',
   component: Input,
-  icon: 'icons/input.png',
+  icon: 'bi bi-input-cursor',
   order: 1,
   type: 'react',
   props: [{

@@ -3,7 +3,7 @@ export default {
   name: 'button',
   title: '按钮',
   component: Button,
-  icon: 'icons/button.png',
+  icon: 'bi bi-play-btn',
   order: 1,
   type: 'react',
   props: [{

@@ -14,12 +14,10 @@ export default class FlowContainer extends BaseContainer {
   getContainerStyle () {
     const {
       // 相关系统变量
-      border,
       padding,
       rectStyle
     } = this.props
     const containerStyle = {
-      border,
       boxSizing: 'border-box',
       padding: padding + 'px'
     }

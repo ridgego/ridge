@@ -1,64 +1,40 @@
-import React, { useState } from 'react'
-import { Popover, Input, withField } from '@douyinfe/semi-ui'
-import { IconChainStroked, IconFolderOpen } from '@douyinfe/semi-icons'
-import AppImageList from '../../panels/files/AppImageList.jsx'
+import React from 'react'
+import { withField, TreeSelect } from '@douyinfe/semi-ui'
 import ridgeEditService from '../../service/RidgeEditorContext.js'
 
 export const ImageEdit = ({
   value,
   onChange
 }) => {
-  const [images, setImages] = useState([])
-  const AppList = () => {
-    return (
-      <div style={{
-        width: '510px',
-        height: '430px'
-      }}
-      >
-        <AppImageList
-          images={images} select={filePath => {
-            onChange(filePath)
-          }}
-        />
-      </div>
-    )
-  }
-
-  const visibleChange = visible => {
-    if (visible) {
-      const { appService } = ridgeEditService
-
-      const files = Object.entries(appService.dataUrlByPath).map(r => {
-        return {
-          path: r[0],
-          src: r[1]
-        }
-      })
-      setImages(files)
+  const { appService } = ridgeEditService.services
+  const treeData = appService.mapFileTree(node => {
+    if (node.type === 'directory' || (node.mimeType && node.mimeType.indexOf('image') > -1)) {
+      return {
+        label: node.label,
+        value: node.path,
+        key: node.path
+      }
+    } else {
+      return null
     }
+  })
+
+  const renderLabel = (label, data) => {
+    return <div>{label}</div>
   }
 
   return (
-    <Input
+    <TreeSelect
       size='small'
-      showClear
-      onClear={() => onChange('')}
+      onChange={val => {
+        onChange(val)
+      }}
       value={value}
-      onChange={val => onChange(val)}
-      suffix={
-        <Popover
-          onVisibleChange={visibleChange}
-          trigger='click'
-          showArrow
-          zIndex={2001}
-          content={
-            <AppList />
-          }
-        >
-          <IconFolderOpen style={{ cursor: 'pointer' }} />
-        </Popover>
-      }
+      style={{ width: 180 }}
+      dropdownStyle={{ maxHeight: 320, overflow: 'auto' }}
+      renderLabel={renderLabel}
+      treeData={treeData}
+      placeholder='请选择'
     />
   )
 }

@@ -14,10 +14,8 @@
     "build"
   ],
   "components": [
-    "column",
     "flex",
     "flow",
-    "inline",
     "list",
     "relative",
     "scrollable",

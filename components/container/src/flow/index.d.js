@@ -1,9 +1,9 @@
-import FlexBoxContainer from './FlowContainer'
+import FlowContainer from './FlowContainer'
 
 export default {
   name: 'flow-container',
-  component: FlexBoxContainer,
-  label: '流式容器',
+  component: FlowContainer,
+  label: '文档流',
   type: 'vanilla',
   order: 3,
   icon: 'icons/flexbox.svg',
@@ -18,10 +18,10 @@ export default {
     type: 'number',
     value: 8
   }, {
-    label: '边框',
-    name: 'border',
-    type: 'border',
-    value: '1px solid #ccc'
+    label: '内边距',
+    name: 'padding',
+    type: 'number',
+    value: 0
   }, {
     name: 'classNames',
     label: '样式',

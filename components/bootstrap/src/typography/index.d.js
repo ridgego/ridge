@@ -3,7 +3,7 @@ export default {
   name: 'Text',
   title: '文本',
   component: Text,
-  icon: 'icons/text-outline.svg',
+  icon: 'bi bi-fonts',
   order: 4,
   type: 'react',
   props: [{

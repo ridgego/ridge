@@ -42,10 +42,10 @@ export default class RidgeStore {
    * @returns
    */
   getStoreValue (expr, payload) {
-    const [storeKey, type, stateName] = expr.split('.')
+    const [storeKey, type, ...stateName] = expr.split('.')
 
     if (this.storeObjects[storeKey]) {
-      return this.storeObjects[storeKey].getValue(type, stateName, payload)
+      return this.storeObjects[storeKey].getValue(type, stateName.join('.'), payload)
     }
   }
 
@@ -53,7 +53,7 @@ export default class RidgeStore {
   subscribe (expr, cb) {
     if (!expr) return
     try {
-      const [storeKey, type, stateName] = expr.split('.')
+      const [storeKey, type, ...stateName] = expr.split('.')
       log('subscribe', expr)
 
       if (this.storeObjects[storeKey]) {
@@ -66,9 +66,9 @@ export default class RidgeStore {
 
   // 设置状态改变
   dispatchChange (expr, val, scoped) {
-    const [storeKey, type, stateName] = expr.split('.')
+    const [storeKey, type, ...stateName] = expr.split('.')
     if (this.storeObjects[storeKey]) {
-      this.storeObjects[storeKey].dispatchChange(type, stateName, val, scoped)
+      this.storeObjects[storeKey].dispatchChange(type, stateName.join('.'), val, scoped)
     }
   }
 

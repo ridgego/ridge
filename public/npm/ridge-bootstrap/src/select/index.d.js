@@ -2,8 +2,8 @@ import Select from './Select.jsx'
 export default {
   name: 'Select',
   component: Select,
-  label: '下拉选择',
-  icon: 'icons/input.png',
+  title: '下拉选择',
+  icon: 'bi bi-menu-button',
   order: 1,
   type: 'react',
   props: [{

@@ -103,6 +103,8 @@ class Element extends BaseNode {
     if (!this.componentDefinition) {
       await this.load()
     }
+    this.updateBlobProperties()
+
     this.renderer = this.createRenderer()
     this.mounted && this.mounted()
   }
@@ -153,13 +155,13 @@ class Element extends BaseNode {
     Object.values(this.config.styleEx).forEach(expr => {
       this.composite.store?.subscribe && this.composite.store.subscribe(expr, () => {
         this.forceUpdateStyle()
-      }, this.uuid + '-style')
+      })
     })
 
     Object.values(this.config.propEx).forEach(expr => {
       this.composite.store?.subscribe && this.composite.store.subscribe(expr, () => {
         this.forceUpdateProperty()
-      }, this.uuid + '-prop')
+      })
     })
   }
 
@@ -282,6 +284,23 @@ class Element extends BaseNode {
         console.error('get Store Value Error: ', e)
       }
     }
+  }
+
+  updateBlobProperties () {
+    if (this.componentDefinition && this.componentDefinition.props) {
+      const blobProperties = this.componentDefinition.props.filter(p => p.type === 'image')
+      if (blobProperties.length) {
+        for (const pr of blobProperties) {
+          if (this.config.props[pr.name]) {
+            this.properties[pr.name] = this.getBlobUrl(this.config.props[pr.name])
+          }
+        }
+      }
+    }
+  }
+
+  getBlobUrl (blobPath) {
+    return this.composite.appBaseUrl + blobPath
   }
 
   emit (eventName, payload) {

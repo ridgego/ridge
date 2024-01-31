@@ -15,15 +15,8 @@
   ],
   "components": [
     "audio",
-    "button",
-    "checkbox",
-    "image",
-    "input",
-    "radio",
-    "rect",
-    "select",
-    "text",
-    "textarea"
+    "composite",
+    "image"
   ],
   "dependencies": {
     "ridge-prop-utils": "^1.0.0"

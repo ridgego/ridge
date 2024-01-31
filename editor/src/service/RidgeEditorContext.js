@@ -261,6 +261,8 @@ class RidgeEditorContext extends RidgeContext {
     // 只有mount后才能append
     this.editorComposite.appendChild(ridgeNode)
 
+    this.editorComposite.onEditorElementCreated(ridgeNode)
+
     return ridgeNode
   }
 
@@ -339,6 +341,10 @@ class RidgeEditorContext extends RidgeContext {
     this.editorComposite = null
     this.workspaceControl.disable()
     this.Editor.togglePageClose()
+  }
+
+  getLocaleText (text) {
+    return text
   }
 }
 

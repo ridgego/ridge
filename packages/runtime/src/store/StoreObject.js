@@ -1,6 +1,7 @@
 import debug from 'debug'
 
 import { proxy, subscribe, snapshot } from 'valtio/vanilla'
+import { set, get } from 'lodash'
 const log = debug('ridge:store')
 const error = debug('ridge:store-error')
 
@@ -41,6 +42,7 @@ export default class ValtioStoreObject {
     this.context.state = this.state
     Object.assign(this.context, this.module.actions ?? {})
     if (this.module.setup) {
+      // setup could be async but NOT wait here
       this.module.setup.call(this.context)
     }
     // 判断 初始化过后部重复监听
@@ -61,51 +63,36 @@ export default class ValtioStoreObject {
   }
 
   /**
-   * 订阅值发生变化的后续处理
-   * @param {string} type state/computed/scoped
-   * @param {*} name  名称
-   * @param {*} callback 回调方法
+   * When config connected, subscribe for value change
+   * @param {string} type state/computed
+   * @param {string} path
+   * @param {*} callback
    */
-  subscribe (type, name, callback) {
-    const stateKeys = Object.keys(this.state)
+  subscribe (type, path, callback) {
+    const name = path.join('.')
     switch (type) {
       case 'state':
-        this.watchers[name] = this.watchers[name] ?? new Set()
-        this.watchers[name].add(callback)
+        this.addWatchers(name, callback)
         break
       case 'computed':
-        try {
-        // 读取函数定义， 获取 scoped 方法依赖的state
-          const scopedFunctionText = this.module.computed?.[name]?.toString()
-
-          for (const stateKey of stateKeys) {
-            if (scopedFunctionText.indexOf(stateKey) > -1) {
-              this.watchers[stateKey] = this.watchers[stateKey] ?? new Set()
-              this.watchers[stateKey].add(callback)
+        if (this.module.computed && this.module.computed[name]) {
+          if (Array.isArray(this.module.computed[name].dependencies)) {
+            for (const expr of this.module.computed[name].dependencies) {
+              this.addWatchers(expr, callback)
             }
           }
-        } catch (e) {
-        // ignore
-        }
-        break
-      case 'scoped':
-        try {
-        // 读取函数定义， 获取 scoped 方法依赖的state
-          const scopedFunctionText = this.module.scoped?.[name]?.toString()
-
-          for (const stateKey of stateKeys) {
-            if (scopedFunctionText.indexOf(stateKey) > -1) {
-              this.watchers[stateKey] = this.watchers[stateKey] ?? new Set()
-              this.watchers[stateKey].add(callback)
-            }
-          }
-        } catch (e) {
-        // ignore
         }
         break
       default:
         break
     }
+  }
+
+  addWatchers (path, callback) {
+    if (this.watchers[path] == null) {
+      this.watchers[path] = new Set()
+    }
+    this.watchers[path].add(callback)
   }
 
   /**
@@ -118,7 +105,7 @@ export default class ValtioStoreObject {
   getValue (type, name, payload) {
     let result = null
     if (type === 'state') {
-      result = this.state[name]
+      result = get(this.state, name)
     } else if (type === 'computed') {
       // 执行表达式
       const computed = this.module.computed[name]
@@ -130,30 +117,15 @@ export default class ValtioStoreObject {
         }
       }
     }
-    // else if (type === 'scoped') {
-    //   try {
-    //     // 执行表达式
-    //     const scoped = this.module.scoped[name]
-    //     if (scoped) {
-    //       if (typeof scoped === 'function') {
-    //         result = scoped.apply(this.context, [stateValues, ...payload])
-    //       } else if (typeof scoped.get === 'function') {
-    //         result = scoped.get.apply(this.context, [stateValues, ...payload])
-    //       }
-    //     }
-    //   } catch (e) {
-    //     error('getStoreValue Error', e)
-    //   }
-    // }
-    // log('getStoreValue', expr, result)
     return result
   }
 
   dispatchChange (type, stateName, val, ...scoped) {
     if (type === 'state') {
-      this.state[stateName] = val
+      set(this.state, stateName.split('.'), val)
+      // this.state[stateName] = val
     } else if (type === 'computed') {
-      if (typeof this.module.computed[stateName]?.set === 'function') {
+      if (this.module.computed && typeof this.module.computed[stateName]?.set === 'function') {
         try {
           this.module.computed[stateName]?.set.call(this, val, this.state, ...scoped)
         } catch (e) {
@@ -190,21 +162,21 @@ export default class ValtioStoreObject {
       const [action, statePath, newValue, oldValue] = mutation
       log('mutation', action, statePath.join('.'), newValue, oldValue)
       // 发出state单值改变事件
-      this.onStateChange(statePath[0], stateValue[statePath[0]])
+      this.onStateChange(statePath.join('.'), get(stateValue, statePath))
     }
     this.flushScheduledJobs()
   }
 
   // state变更
   onStateChange (state, newValue) {
+    if (this.module.watch && this.module.watch[state]) {
+      this.module.watch[state].call(this.context, newValue)
+    }
+
     const watchers = this.watchers[state]
 
     if (watchers) {
       this.scheduleCallback(watchers)
-    }
-
-    if (this.module.watch && this.module.watch[state]) {
-      this.module.watch[state].call(this.context, newValue)
     }
   }
 

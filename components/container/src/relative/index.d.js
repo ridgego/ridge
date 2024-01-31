@@ -2,7 +2,7 @@ import RelativeContainer from './RelativeContainer.js'
 export default {
   name: 'relative-container',
   component: RelativeContainer,
-  label: '绝对容器',
+  label: '相对容器',
   type: 'vanilla',
   order: 4,
   icon: 'icons/relative.svg',

@@ -57,7 +57,6 @@ export default {
       if (this.state.location && this.properties.token) {
         try {
           const result = await axios.get(`//api.weatherapi.com/v1/current.json?q=${this.state.location}&aqi=no&key=${this.properties.token}&lang=zh`)
-  
           Object.assign(this.state, result.data.current)
           this.state.temp_c = this.state.temp_c + '°'
           Object.assign(this.state, result.data.current.condition)

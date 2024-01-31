@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { IconChainStroked } from '@douyinfe/semi-icons'
+import { isPlainObject } from 'lodash'
 import context from '../../service/RidgeEditorContext'
 import { withField, Popover, Button, Space, Tree } from '@douyinfe/semi-ui'
 
@@ -9,6 +10,22 @@ const StateBindEdit = withField(({
 }) => {
   const [storeTreeData, setStoreTreeData] = useState([])
   const [visible, setVisible] = useState()
+
+  const buildStateBindTree = (key, value, keyPrefix) => {
+    const tree = {
+      key: keyPrefix + key,
+      label: context.getLocaleText(key)
+    }
+
+    if (isPlainObject(value)) {
+      tree.children = []
+
+      for (const k in value) {
+        tree.children.push(buildStateBindTree(k, value[k], keyPrefix + key + '.'))
+      }
+    }
+    return tree
+  }
 
   const updateStateTree = () => {
     const storeModules = context.editorComposite.getStoreModules()
@@ -22,10 +39,7 @@ const StateBindEdit = withField(({
       }
 
       for (const state of storeModule.states) {
-        storeNode.children.push({
-          key: storeModule.name + '.state.' + state.name,
-          label: state.label ?? state.name
-        })
+        storeNode.children.push(buildStateBindTree(state.name, state.value, storeModule.name + '.state.'))
       }
       for (const scope of storeModule.computed) {
         storeNode.children.push({

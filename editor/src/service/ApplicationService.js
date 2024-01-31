@@ -4,7 +4,7 @@ import debug from 'debug'
 import Localforge from 'localforage'
 import BackUpService from './BackUpService.js'
 import { blobToDataUrl, dataURLtoBlob, dataURLToString, stringToBlob, stringToDataUrl, saveAs } from '../utils/blob.js'
-import { getFileTree, eachNode, filterTree } from '../panels/files/buildFileTree.js'
+import { getFileTree, eachNode, filterTree, mapTree } from '../panels/files/buildFileTree.js'
 import pageJSONTemplate from '../json/page.js'
 const { nanoid } = require('../utils/string')
 
@@ -31,6 +31,10 @@ export default class ApplicationService {
 
   getFileTree () {
     return this.fileTree
+  }
+
+  mapFileTree (map) {
+    return mapTree(this.fileTree, map)
   }
 
   filterFiles (filter) {
