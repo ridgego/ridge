@@ -1,0 +1,11 @@
+{
+  "name":"ridge-app-hello",
+  "version":"1.0.0",
+  "description":"My First Ridge App #RidgeApp #HelloWorld",
+  "dependencies":{
+    "ridge-basic":"1.0.0",
+    "ridge-bootstrap": "1.0.0",
+    "ridge-container":"1.0.0",
+    "ridge-sample-store":"1.0.0"
+  }
+}
