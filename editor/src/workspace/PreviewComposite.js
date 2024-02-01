@@ -1,10 +1,9 @@
-import { ValtioStore, Element } from 'ridge-runtime'
-import EditorComposite from './EditorComposite.js'
-import EditorElement from './EditorElement.js'
+import { ValtioStore, Element, Composite } from 'ridge-runtime'
+import { importStyleFiles, importJSFiles, getBlobUrl } from './editorUtils.js'
 /**
  * Composite Preview on Editor
  **/
-class PreviewComposite extends EditorComposite {
+class PreviewComposite extends Composite {
   createElement (config, i) {
     const element = new Element({
       composite: this,
@@ -12,16 +11,19 @@ class PreviewComposite extends EditorComposite {
       config,
       i
     })
-    console.log('EditorE', EditorElement.prototype.getBlobUrl)
-
-    element.getBlobUrl = EditorElement.prototype.getBlobUrl
+    element.getBlobUrl = url => {
+      return getBlobUrl(url, this.context)
+    }
 
     return element
   }
 
-  updateStyle () {
-    super.updateStyle()
-    this.el.classList.remove('is-edit')
+  async importStyleFiles () {
+    this.classNames = importStyleFiles(this.config.cssFiles, this.context)
+  }
+
+  async importJSFiles () {
+    return importJSFiles(this.config.jsFiles, this.context)
   }
 
   updateViewPort (width, height) {

@@ -351,9 +351,13 @@ class RidgeEditorContext extends RidgeContext {
         return
       }
       const { appService } = this.services
-      const file = await appService.getFileByPath(pagePath)
+      const file = appService.getFileByPath(pagePath)
 
-      const composite = new Composite({ config: file.content, context: this, properties })
+      // if (!file.content) {
+      file.content = await appService.store.getItem(file.id)
+      // }
+
+      const composite = new PreviewComposite({ config: file.content, context: this, properties })
       return composite
     }
   }

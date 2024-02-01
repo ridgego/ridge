@@ -1,5 +1,6 @@
 import { Composite } from 'ridge-runtime'
 import EditorElement from './EditorElement.js'
+import { importStyleFiles, importJSFiles } from './editorUtils.js'
 import { nanoid } from '../utils/string'
 import _ from 'lodash'
 /**
@@ -72,84 +73,12 @@ class EditorComposite extends Composite {
     }
   }
 
-  /**
-   * 更新页面引入的样式表
-   */
   async importStyleFiles () {
-    const oldStyles = document.querySelectorAll('style[page-id="' + this.config.id + '"]')
-    for (const styleEl of oldStyles) {
-      document.head.removeChild(styleEl)
-    }
-
-    const { cssFiles } = this.config
-    const { appService } = this.context.services
-    this.classNames = []
-    for (const filePath of cssFiles || []) {
-      const file = appService.getFileByPath(filePath)
-
-      if (file) {
-        if (!file.textContent) {
-          file.textContent = await appService.getFileContent(file)
-        }
-        const styleEl = document.createElement('style')
-        styleEl.setAttribute('page-id', this.config.id)
-        document.head.appendChild(styleEl)
-        styleEl.textContent = '\r\n' + file.textContent
-        // 计算使用的样式
-        const matches = file.textContent.match(/\/\*.+\*\/[^{]+{/g)
-        for (const m of matches) {
-          const label = m.match(/\/\*.+\*\//)[0].replace(/[/*]/g, '')
-          const className = m.match(/\n[^{]+/g)[0].trim().substring(1)
-
-          this.classNames.push({
-            className,
-            label
-          })
-        }
-      }
-    }
+    this.classNames = await importStyleFiles(this.config.cssFiles, this.context)
   }
 
-  /**
-   * Import JS Files
-   */
   async importJSFiles () {
-    const jsModules = []
-    const oldScripts = document.querySelectorAll('script[page-id="' + this.config.id + '"]')
-    for (const scriptEl of oldScripts) {
-      document.head.removeChild(scriptEl)
-    }
-    const { jsFiles } = this.config
-    for (const filePath of jsFiles || []) {
-      const jsStoreModule = await this.importJSFile(filePath, true)
-      if (jsStoreModule) {
-        jsModules.push(jsStoreModule)
-      }
-    }
-    return jsModules
-  }
-
-  async importJSFile (jsPath) {
-    const { appService } = this.context.services
-    const file = appService.getFileByPath(jsPath)
-    if (file) {
-      if (!file.textContent) {
-        file.textContent = await appService.getFileContent(file)
-      }
-      const scriptEl = document.createElement('script')
-      scriptEl.setAttribute('page-id', this.config.id)
-
-      const jsGlobal = 'ridge-store-' + nanoid(10)
-      scriptEl.textContent = file.textContent.replace('export default', 'window["' + jsGlobal + '"]=')
-
-      try {
-        document.head.append(scriptEl)
-        return window[jsGlobal]
-      } catch (e) {
-        console.error('Store Script Error', e)
-        return null
-      }
-    }
+    return importJSFiles(this.config.jsFiles, this.context)
   }
 
   parseJsStoreModule (jsStoreModule) {

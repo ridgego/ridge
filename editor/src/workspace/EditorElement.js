@@ -1,6 +1,7 @@
 import { Element } from 'ridge-runtime'
 import _ from 'lodash'
 import { nanoid } from '../utils/string'
+import { getBlobUrl } from './editorUtils.js'
 
 import context from '../service/RidgeEditorContext.js'
 
@@ -17,6 +18,8 @@ export default class EditorElement extends Element {
     if (this.config.props.children != null) {
       this.el.classList.add('ridge-container')
     }
+
+    this.el.classList.add('ridge-editor-element')
 
     this.setLocked(this.config.locked)
   }
@@ -73,13 +76,7 @@ export default class EditorElement extends Element {
   }
 
   getBlobUrl (url) {
-    const file = context.services.appService.getFileByPath(url)
-    if (file) {
-      return context.services.appService.store.getItem(file.key)
-      // return context.services.appService.getFileContent(file)
-    } else {
-      return null
-    }
+    return getBlobUrl(url, context)
   }
 
   setVisible (visible) {

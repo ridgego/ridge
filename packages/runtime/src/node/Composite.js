@@ -127,7 +127,7 @@ class Composite extends BaseNode {
 
   // 更新自身样式
   updateStyle () {
-    this.el.className = ''
+    // this.el.className = ''
     this.el.classList.add('ridge-composite')
     if (this.config.style && this.el) {
       this.el.style.background = ''

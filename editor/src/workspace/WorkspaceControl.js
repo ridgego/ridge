@@ -7,6 +7,8 @@ import debug from 'debug'
 import { fitRectIntoBounds } from '../utils/rectUtils'
 import context from '../service/RidgeEditorContext.js'
 
+const RIDGE_ELEMENT = '.ridge-editor-element'
+
 const trace = debug('ridge:workspace')
 
 /**
@@ -277,7 +279,7 @@ export default class WorkSpaceControl {
       // The area to drag selection element (default: container)
       dragContainer: this.workspaceEl,
       // Targets to select. You can register a queryselector or an Element.
-      selectableTargets: ['.ridge-element'],
+      selectableTargets: [RIDGE_ELEMENT],
       // Whether to select by click (default: true)
       selectByClick: true,
       // Whether to select from the target inside (default: true)
@@ -313,7 +315,7 @@ export default class WorkSpaceControl {
     }
 
     // 拖拽起始位置位于元素内
-    const closestRidgeNode = target.closest('.ridge-element')
+    const closestRidgeNode = target.closest(RIDGE_ELEMENT)
     if (this.isElementMovable(closestRidgeNode)) {
       e.stop()
       return
@@ -328,8 +330,8 @@ export default class WorkSpaceControl {
         this.moveable.target = closestRidgeNode
       }
 
-      this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => {
-        return el !== this.moveable.target && el.closest('.ridge-element') !== this.moveable.target
+      this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll(RIDGE_ELEMENT)).filter(el => {
+        return el !== this.moveable.target && el.closest(RIDGE_ELEMENT) !== this.moveable.target
       })]
       this.moveable.elementGuidelines = this.guidelines
       this.moveable.elementSnapDirections = { top: true, left: true, bottom: true, right: true, center: true, middle: true }
@@ -351,8 +353,8 @@ export default class WorkSpaceControl {
     if (isDragStart) {
       inputEvent.preventDefault()
     }
-    this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element')).filter(el => selected.indexOf(el) === -1)]
-    this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll('.ridge-element[snappable="true"]')).filter(el => selected.indexOf(el) === -1)]
+    this.moveable.elementGuidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll(RIDGE_ELEMENT)).filter(el => selected.indexOf(el) === -1)]
+    this.guidelines = [document.querySelector('.viewport-container'), ...Array.from(document.querySelectorAll(`${RIDGE_ELEMENT}[snappable="true"]`)).filter(el => selected.indexOf(el) === -1)]
     this.selectElements(selected.filter(el => el.parentElement))
   }
 
@@ -515,7 +517,7 @@ export default class WorkSpaceControl {
     this.disableClickThrough = false
 
     // 去除之前选中状态
-    document.querySelectorAll('.ridge-element.selected').forEach(el => {
+    document.querySelectorAll(`${RIDGE_ELEMENT}.selected`).forEach(el => {
       el.classList.remove('selected')
     })
 
@@ -554,7 +556,7 @@ export default class WorkSpaceControl {
       this.moveable.resizable = false
     }
     this.moveable.elementGuidelines = [document.querySelector('.viewport-container'),
-      ...Array.from(document.querySelectorAll('.viewport-container > .ridge-element:not(.ridge-is-hidden)')).filter(el => this.selected.indexOf(el) === -1)]
+      ...Array.from(document.querySelectorAll(`.viewport-container > ${RIDGE_ELEMENT}:not(.ridge-is-hidden)`)).filter(el => this.selected.indexOf(el) === -1)]
   }
 
   isTargetMovable (el) {
