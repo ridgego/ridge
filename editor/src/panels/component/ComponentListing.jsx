@@ -142,7 +142,7 @@ class ComponentListing extends React.Component {
               // }
               let TabContent = <div className={'package-icon ' + pkg.icon} />
               if (pkg.icon) {
-                TabContent = <div className='package-icon'><img src={pkg.icon} /></div>
+                TabContent = <div className='package-icon'><i className={pkg.icon} /></div>
               } else {
                 TabContent = <div className='package-icon'>{pkg.name.charAt(0)}</div>
               }

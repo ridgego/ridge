@@ -16,7 +16,7 @@ const ClassSelect = withField(({
       value={value}
       onChange={onChange}
       dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-      treeData={getClassTreeData()}
+      treeData={getClassTreeData('style')}
       placeholder='请选择'
     />
   )

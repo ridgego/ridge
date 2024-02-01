@@ -50,6 +50,9 @@ class RidgeContext {
   }
 
   async createComposite (baseUrl, pagePath, properties) {
+    if (baseUrl == null || pagePath == null) {
+      return
+    }
     const appBaseUrl = (baseUrl.startsWith('/') || baseUrl.startsWith('http')) ? baseUrl : (this.baseUrl + '/' + baseUrl)
 
     try {

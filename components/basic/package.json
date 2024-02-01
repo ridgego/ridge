@@ -2,7 +2,7 @@
   "name": "ridge-basic",
   "version": "1.0.0",
   "description": "基本组件",
-  "icon": "icon/icon.svg",
+  "icon": "bi bi-box-seam",
   "main": "index.js",
   "scripts": {
     "build": "rcbuild",

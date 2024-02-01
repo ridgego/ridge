@@ -1,8 +1,9 @@
 {
   "name": "ridge-sample-store",
   "version": "1.0.0",
-  "description": "Weather Components For building ridge weather composites",
+  "description": "Sample Store for ridge app",
   "main": "index.js",
+  "icon": "bi bi-list-check",
   "scripts": {
     "build": "rcbuild",
     "watch": "rcbuild -w -s",
@@ -13,7 +14,6 @@
   "files": [
     "build"
   ],
-  "icon": "icons/icon.png",
   "author": "ikun",
   "license": "ISC",
   "dependencies": {

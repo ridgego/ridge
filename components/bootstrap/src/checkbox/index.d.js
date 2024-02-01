@@ -1,6 +1,7 @@
 import CheckBox from './CheckBox.jsx'
 export default {
   name: 'checkbox',
+  title: '切换选框',
   component: CheckBox,
   icon: 'bi bi-check2-square',
   order: 2,

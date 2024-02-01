@@ -177,7 +177,7 @@ const radius = {
 }
 export default {
   name: 'BootStrapStyle',
-  icon: 'icons/icon.svg',
+  icon: 'bi bi-palette',
   title: '公用样式',
   type: 'style',
   classTreeData: {

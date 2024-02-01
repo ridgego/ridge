@@ -3,7 +3,7 @@ export default {
   name: 'list-container',
   component: ListContainer,
   label: '列表容器',
-  icon: 'icons/list.svg',
+  icon: 'bi bi-list-task',
   type: 'vanilla',
   props: [{
     name: 'dataSource',

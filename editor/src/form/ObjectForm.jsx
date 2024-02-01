@@ -14,13 +14,10 @@ import ColorPicker from './with-fields/ColorPicker.jsx'
 import PresetColorPicker from './with-fields/PresetColorPicker.jsx'
 import RadioGroupEdit from './with-fields/RadioGroupEdit.jsx'
 import CheckBoxGroupEdit from './with-fields/CheckBoxGroupEdit.jsx'
-import BoxShadowEdit from './with-fields/BoxShadowEdit.jsx'
 import ToggleIcon from './with-fields/ToggleIcon.jsx'
-import RectEdit from './with-fields/RectEdit.jsx'
 import FontEdit from './with-fields/FontEdit.jsx'
 import ArrayEdit from './with-fields/ArrayEdit.jsx'
 import SeriesTableEdit from './with-fields/SeriesTableEdit.jsx'
-import StateListEdit from './with-fields/StateListEdit.jsx'
 import './form.less'
 import ClassEdit from './with-fields/ClassEdit.jsx'
 import AudioEdit from './with-fields/AudioEdit.jsx'
@@ -61,7 +58,8 @@ export default class ObjectForm extends React.Component {
       padding: (col, readonly) => <PaddingEdit disabled={readonly} {...col} />,
       // boxshadow: (col, readonly) => <BoxShadowEdit label={col.label} field={col.field} disabled={readonly} />,
       event: (col, readonly, options) => <EventEdit className='event-field' noLabel field={col.field} options={{ label: col.label, ...options }} />,
-      image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} />,
+      image: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} options={col} />,
+      page: (col, readonly) => <ImageEdit label={col.label} field={col.field} disabled={readonly} options={col} />,
       // icon: (col, readonly) => <IconEdit label={col.label} field={col.field} disabled={readonly} />,
       audio: (col, readonly) => <AudioEdit label={col.label} field={col.field} disabled={readonly} />,
       // rect: (col, readonly) => <RectEdit label={col.label} field={col.field} noLabel disabled={readonly} />,

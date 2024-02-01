@@ -103,7 +103,12 @@ class Element extends BaseNode {
     if (!this.componentDefinition) {
       await this.load()
     }
-    this.updateBlobProperties()
+
+    if (this.componentDefinition == null) {
+      return
+    }
+
+    this.updateSystemProperties()
 
     this.renderer = this.createRenderer()
     this.mounted && this.mounted()
@@ -166,10 +171,6 @@ class Element extends BaseNode {
   }
 
   createRenderer () {
-    if (this.componentDefinition == null) {
-      this.setStatus('load-error')
-      return null
-    }
     try {
       if (this.componentDefinition.type === 'vanilla') {
         const render = new VanillaRender(this.componentDefinition.component, this.getProperties())
@@ -286,13 +287,33 @@ class Element extends BaseNode {
     }
   }
 
-  updateBlobProperties () {
-    if (this.componentDefinition && this.componentDefinition.props) {
-      const blobProperties = this.componentDefinition.props.filter(p => p.type === 'image')
-      if (blobProperties.length) {
-        for (const pr of blobProperties) {
-          if (this.config.props[pr.name]) {
-            this.properties[pr.name] = this.getBlobUrl(this.config.props[pr.name])
+  updateSystemProperties () {
+    if (this.componentDefinition) {
+      if (this.componentDefinition.props) {
+        const blobProperties = this.componentDefinition.props.filter(p => p.type === 'image')
+        if (blobProperties.length) {
+          for (const pr of blobProperties) {
+            if (this.config.props[pr.name]) {
+              this.properties[pr.name] = this.getBlobUrl(this.config.props[pr.name])
+            }
+          }
+        }
+      }
+
+      if (this.componentDefinition.requiredProperties) {
+        for (const name of this.componentDefinition.requiredProperties) {
+          switch (name) {
+            case 'ridge':
+              this.properties.ridge = this.composite.context
+              break
+            case 'composite':
+              this.properties.composite = this.composite
+              break
+            case 'element':
+              this.properties.composite = this
+              break
+            default:
+              break
           }
         }
       }

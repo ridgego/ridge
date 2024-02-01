@@ -1,7 +1,7 @@
 /* global location */
 /* global localStorage */
 import Debug from 'debug'
-import RidgeContext, { Element } from 'ridge-runtime'
+import RidgeContext, { Element, Composite } from 'ridge-runtime'
 import ApplicationService from './ApplicationService.js'
 import WorkSpaceControl from '../workspace/WorkspaceControl.js'
 import _ from 'lodash'
@@ -341,6 +341,21 @@ class RidgeEditorContext extends RidgeContext {
     this.editorComposite = null
     this.workspaceControl.disable()
     this.Editor.togglePageClose()
+  }
+
+  async createComposite (baseUrl, pagePath, properties) {
+    if (baseUrl && pagePath) {
+      super.createComposite(baseUrl, pagePath, properties)
+    } else {
+      if (pagePath == null) {
+        return
+      }
+      const { appService } = this.services
+      const file = await appService.getFileByPath(pagePath)
+
+      const composite = new Composite({ config: file.content, context: this, properties })
+      return composite
+    }
   }
 
   getLocaleText (text) {

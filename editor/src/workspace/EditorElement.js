@@ -132,7 +132,7 @@ export default class EditorElement extends Element {
 
     // 更新配置属性到运行
     Object.assign(this.properties, config.props)
-    this.updateBlobProperties()
+    this.updateSystemProperties()
     this.style = config.style
 
     if (updateOnly !== true) {

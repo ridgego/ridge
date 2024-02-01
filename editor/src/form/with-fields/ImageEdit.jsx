@@ -4,11 +4,13 @@ import ridgeEditService from '../../service/RidgeEditorContext.js'
 
 export const ImageEdit = ({
   value,
-  onChange
+  onChange,
+  options
 }) => {
   const { appService } = ridgeEditService.services
   const treeData = appService.mapFileTree(node => {
-    if (node.type === 'directory' || (node.mimeType && node.mimeType.indexOf('image') > -1)) {
+    // dir/image/page
+    if (node.type === 'directory' || node.type === options.type || (node.mimeType && node.mimeType.indexOf(options.type) > -1)) {
       return {
         label: node.label,
         value: node.path,

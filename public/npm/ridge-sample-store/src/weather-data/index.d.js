@@ -2,7 +2,7 @@ import WeatherStore from './WeatherStore'
 
 export default {
   name: 'WeatherData',
-  icon: 'icons/weather.png',
+  icon: 'bi bi-cloud-sun',
   title: '天气数据',
   type: 'store',
   component: WeatherStore,

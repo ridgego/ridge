@@ -6,7 +6,7 @@ export default {
   label: '文档流',
   type: 'vanilla',
   order: 3,
-  icon: 'icons/flexbox.svg',
+  icon: 'bi bi-text-wrap',
   props: [{
     name: 'children',
     hidden: true,

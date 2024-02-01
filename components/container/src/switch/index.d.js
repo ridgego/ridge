@@ -5,7 +5,7 @@ export default {
   label: '内容切换',
   type: 'vanilla',
   order: 7,
-  icon: 'icons/switch.svg',
+  icon: 'bi bi-layers-half',
   props: [{
     name: 'current',
     label: '当前内容',

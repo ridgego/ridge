@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { IconPlusCircle, IconMinusCircle } from '@douyinfe/semi-icons'
-import { withField, Button, Popover, Input, List, Pagination } from '@douyinfe/semi-ui'
+import { withField, Button, Input, List, Pagination } from '@douyinfe/semi-ui'
 
 const ArrayEdit = withField(({
   value, onChange, options

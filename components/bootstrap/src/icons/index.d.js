@@ -3,7 +3,7 @@ export default {
   name: 'Icons',
   title: '图标',
   component: Icon,
-  icon: 'icons/bag-check.svg',
+  icon: 'bi bi-emoji-smile',
   order: 1,
   type: 'react',
   props: [{

@@ -16,8 +16,8 @@ export default {
   }, {
     name: 'page',
     label: '组件路径',
-    type: 'string'
+    type: 'page'
   }],
   events: [],
-  requiredProperties: ['ridge']
+  requiredProperties: ['ridge', 'composite']
 }
